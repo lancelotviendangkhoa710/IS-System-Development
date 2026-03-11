@@ -1,0 +1,29 @@
+CREATE OR REPLACE PROCEDURE PROC_PRINT_CAKE_RECIPE(
+    p_MaSP IN NUMBER
+)
+IS
+    v_TenSP SANPHAM.TenSP%TYPE;
+BEGIN
+
+    SELECT TenSP INTO v_TenSP
+    FROM SANPHAM
+    WHERE MaSP = p_MaSP;
+
+    DBMS_OUTPUT.PUT_LINE('Banh: ' || v_TenSP);
+    DBMS_OUTPUT.PUT_LINE('Thanh phan:');
+
+    FOR r IN (
+        SELECT NL.TenNL
+        FROM CONGTHUC CT
+        JOIN NGUYENLIEU NL ON CT.MaNL = NL.MaNL
+        WHERE CT.MaSP = p_MaSP
+    )
+    LOOP
+        DBMS_OUTPUT.PUT_LINE('- ' || r.TenNL);
+    END LOOP;
+
+EXCEPTION
+
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Khong tim thay san pham voi MaSP = ' || p_MaSP);
+END;
