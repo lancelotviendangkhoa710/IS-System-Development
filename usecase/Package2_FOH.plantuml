@@ -44,11 +44,30 @@ rectangle "HỆ THỐNG QUẢN LÝ TIỆM BÁNH" {
         UC_Takeplace ..> UC_Rcm : <<include>>
         UC_Online ..> UC_Rcm : <<include>>
     }
+
+    package "App Khách hàng / Cổng Online" {
+        usecase "Đăng ký tài khoản" as UC_CusRegister
+        usecase "Đăng nhập App" as UC_CusLogin
+        usecase "Xác thực OTP / Mạng xã hội" as UC_OAuth
+
+        usecase "Quản lý hồ sơ cá nhân" as UC_MyProfile
+        usecase "Theo dõi điểm thưởng & Hạng" as UC_MyLoyalty
+        
+        UC_CusLogin ..> UC_OAuth : <<extend>>\n(Quên mật khẩu)
+        UC_CusRegister ..> UC_OAuth : <<include>>
+        UC_Online .up.> UC_CusLogin : <<include>> 
+        UC_MyProfile .up.> UC_CusLogin : <<include>>
+        UC_MyLoyalty .up.> UC_CusLogin : <<include>>
+    }
 }
 
-Customer --> UC_Online
-Customer --> UC_CustomizeForm
-Customer --> UC_StatusNotice
+Customer -up-> UC_Online
+Customer -up-> UC_StatusNotice
+Customer -up-> UC_CusRegister
+Customer -up-> UC_CusLogin
+Customer -up-> UC_Online
+Customer -up-> UC_MyProfile
+Customer -up-> UC_MyLoyalty
 
 Cashier --> UC_Takeplace
 Cashier --> UC_Payment
