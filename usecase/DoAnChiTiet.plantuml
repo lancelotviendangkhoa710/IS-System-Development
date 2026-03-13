@@ -1,0 +1,295 @@
+@startuml Bakery_Management
+left to right direction
+skinparam packageStyle rectangle
+skinparam DefaultFontSize 25
+skinparam nodesep 50
+skinparam ranksep 50
+
+skinparam usecase {
+    BackgroundColor #b7dafe
+    BorderColor #2C3E50
+    ArrowColor #34495E
+}
+
+' --- ĐỊNH NGHĨA TÁC NHÂN (ACTORS) ---  
+actor "Khách hàng" as Customer
+actor "Quản trị viên" as Admin
+actor "Quản lý" as Manager
+actor "Thu ngân" as Cashier
+actor "Thợ bánh" as Baker
+actor "Thủ kho" as Stocker
+
+' Kế thừa quyền
+Admin --|> Manager
+Manager --|> Cashier
+Manager --|> Stocker
+Manager --|> Baker
+
+' --- RANH GIỚI HỆ THỐNG ---
+rectangle "HỆ THỐNG QUẢN LÝ TIỆM BÁNH" {
+
+    package "I. Khối quản trị hệ thống" {
+        usecase "Đăng nhập hệ thống" as UC_Login
+        usecase "Xác thực tài khoản" as UC_Verified
+        usecase "Xử lý quên mật khẩu" as UC_Forget
+        usecase "Định tuyến không gian làm việc" as UC_Routing
+        usecase "Đăng xuất hệ thống" as UC_Logout
+        usecase "Cập nhật phiên làm việc" as UC_Session
+        usecase "Phân quyền người dùng" as UC_Auth
+        usecase "Kiểm soát quyền hạn" as UC_GrantPermissions
+        usecase "Cập nhật nhân sự" as UC_Hire
+        usecase "Thêm mới nhân sự" as UC_NewHR
+        usecase "Chỉnh sửa thông tin nhân sự" as UC_ModifyHR
+        usecase "Xóa nhân sự / vô hiệu hóa tài khoản" as UC_DeleteHR
+        usecase "Tra cứu nhân sự" as UC_SearchHR
+
+        UC_Login ..> UC_Verified : <<extend>>
+        UC_Login ..> UC_Forget : <<extend>>
+        UC_Login ..> UC_Routing : <<include>>
+        UC_Logout ..> UC_Session : <<include>>
+
+        UC_Auth ..> UC_GrantPermissions : <<extend>>
+        UC_SearchHR ..> UC_Hire : <<include>>
+        UC_Hire <|-- UC_NewHR
+        UC_Hire <|-- UC_ModifyHR
+        UC_Hire <|-- UC_DeleteHR
+    }
+
+    package "II. Khối tiền sảnh & Điểm bán" {
+        usecase "Quản lý bán hàng" as UC_Sales
+        usecase "Luồng bán tại cửa hàng" as UC_Takeplace
+        usecase "Thao tác chọn món" as UC_Order
+        usecase "Thêm ghi chú" as UC_Note
+        usecase "Luồng đặt hàng qua hệ thống" as UC_Online
+        usecase "Tạo form đặt bánh" as UC_CustomizeForm
+        usecase "Đính kèm mẫu bánh" as UC_Sample
+        usecase "Xác định năng lực bếp" as UC_Available
+        usecase "Đặt lịch giao / nhận bánh" as UC_ShipTime
+        usecase "Thu tiền cọc" as UC_DepositTracking
+        usecase "Xử lý thanh toán" as UC_Payment
+        usecase "Tiền mặt" as UC_Cash
+        usecase "Ngân hàng" as UC_Banking
+        usecase "Ví điện tử" as UC_EWallet
+        usecase "Xử lý ngoại lệ giao dịch" as UC_Exclude
+        usecase "Yêu cầu quyền" as UC_Request
+        usecase "Ghi nhận lý do" as UC_Reason
+        usecase "Xử lý hoàn tiền" as UC_Refund
+        usecase "In hóa đơn" as UC_Bill
+        usecase "Thông báo trạng thái đơn" as UC_StatusNotice 
+        usecase "Theo dõi đơn" as UC_Review
+        usecase "Gợi ý món" as UC_Rcm
+
+        UC_Sales <|-- UC_Takeplace
+        UC_Sales <|-- UC_Online
+        UC_Takeplace ..> UC_Order : <<include>>
+        UC_Order ..> UC_Note : <<extend>>
+        UC_Order ..> UC_Available : <<include>>
+        UC_Online ..> UC_CustomizeForm : <<include>>
+        UC_Online ..> UC_ShipTime : <<include>>
+        UC_CustomizeForm ..> UC_Sample : <<include>>
+        UC_CustomizeForm ..> UC_Available : <<include>>
+        UC_Takeplace ..> UC_StatusNotice : <<extend>>
+        UC_Online ..> UC_StatusNotice : <<extend>>
+        UC_Takeplace ..> UC_Rcm : <<include>>
+        UC_Online ..> UC_Rcm : <<include>>
+
+        UC_Payment ..> UC_Bill : <<include>>
+        UC_StatusNotice ..> UC_Bill : <<include>>
+        UC_Payment <|-- UC_Cash
+        UC_Payment <|-- UC_Banking
+        UC_Payment <|-- UC_EWallet
+        UC_Payment ..> UC_DepositTracking : <<extend>>
+        UC_Payment ..> UC_Exclude : <<extend>>
+        UC_Exclude ..> UC_Request : <<include>>
+        UC_Exclude ..> UC_Reason : <<include>>
+        UC_Exclude ..> UC_Refund : <<include>>
+    }
+
+    package "III. Khối Quản trị Khách hàng" {
+        usecase "Tạo hồ sơ khách hàng" as UC_Customer
+        usecase "Tra cứu thông tin khách hàng" as UC_SearchCus
+        usecase "Cập nhật thông tin khách hàng" as UC_CusInfo
+        usecase "Thêm chi tiết thông tin" as UC_Add
+        usecase "Xóa chi tiết thông tin" as UC_Del
+        usecase "Sửa chi tiết thông tin" as UC_Update
+        usecase "Lập bản đồ sự kiện" as UC_EventMapping
+        usecase "Tra cứu lịch sử mua hàng" as UC_PurchaseHistory
+        usecase "Thông báo sự kiện sắp tới" as UC_Announcement
+        usecase "Tạo danh sách cần liên hệ" as UC_TaskGeneration
+        usecase "Cập nhật trạng thái" as UC_Status
+        usecase "Cấu hình tích điểm" as UC_Regulation
+        usecase "Nâng hạng thành viên" as UC_Ranking
+        usecase "Quy đổi điểm" as UC_Redemption
+        usecase "Thu thập hành vi mua" as UC_Behavior
+
+        UC_SearchCus ..> UC_CusInfo : <<include>>
+        UC_CusInfo <|-- UC_Add
+        UC_CusInfo <|-- UC_Update
+        UC_CusInfo <|-- UC_Del
+        UC_CusInfo ..> UC_Status : <<extend>>
+        UC_Announcement ..> UC_EventMapping : <<include>>
+        UC_TaskGeneration ..> UC_EventMapping : <<include>>
+        UC_EventMapping ..> UC_CusInfo : <<include>>
+        UC_Customer ..> UC_SearchCus : <<include>>
+        UC_Customer ..> UC_TaskGeneration : <<extend>>
+        UC_Customer ..> UC_Announcement : <<extend>>
+        UC_PurchaseHistory ..> UC_Regulation : <<extend>>
+        UC_PurchaseHistory ..> UC_Redemption : <<extend>>
+        UC_PurchaseHistory ..> UC_Ranking : <<extend>>
+        UC_Behavior ..> UC_PurchaseHistory : <<include>>
+    }
+
+    package "IV. Khối Hậu sảnh & Quản trị Sản xuất" {
+        usecase "Tra cứu công thức" as UC_Recipe
+        usecase "Cập nhật công thức" as UC_UdtRecipe
+        usecase "Thêm công thức" as UC_AddRecipe
+        usecase "Xóa công thức" as UC_DelRecipe
+        usecase "Sửa công thức" as UC_EditRecipe
+        usecase "Thống kê nguyên liệu" as UC_Material
+        usecase "Cập nhật nguyên liệu" as UC_UdtMaterial
+        usecase "Quy đổi đơn vị tính" as UC_Conversion
+        usecase "Quản lý mức độ ưu tiên" as UC_Priority
+        usecase "Hiện thị thời gian chờ" as UC_TimeWaiting
+        usecase "Danh sách đơn theo hàng đợi" as UC_Queue
+        usecase "Cập nhật trạng thái món" as UC_ProductStatus
+        usecase "Cập nhật trạng thái đơn" as UC_OrderStatus
+        usecase "Hoàn thành" as UC_Done
+        usecase "Đang xử lý" as UC_InProgress
+        usecase "Chưa xử lý" as UC_None
+        usecase "Lỗi" as UC_Fail
+        usecase "Báo cáo rủi ro" as UC_Caution
+        usecase "Ghi nhận chi tiết lỗi" as UC_FailureDetail
+        usecase "Trừ hao năng lực sản xuất" as UC_Estimate
+
+        UC_Recipe ..> UC_UdtRecipe : <<include>>
+        UC_UdtRecipe <|-- UC_AddRecipe
+        UC_UdtRecipe <|-- UC_DelRecipe
+        UC_UdtRecipe <|-- UC_EditRecipe
+        UC_Material ..> UC_UdtMaterial : <<include>>
+        UC_Recipe ..> UC_Conversion : <<extend>>
+        UC_Material ..> UC_Conversion : <<extend>>
+
+        UC_Queue ..> UC_TimeWaiting : <<extend>>
+        UC_Queue ..> UC_Priority : <<extend>>
+        UC_OrderStatus ..> UC_ProductStatus : <<include>>
+        UC_Fail ..> UC_Caution : <<include>>
+        UC_Caution ..> UC_FailureDetail : <<include>>
+        UC_FailureDetail ..> UC_Estimate : <<extend>>
+        UC_OrderStatus <|-- UC_Done
+        UC_OrderStatus <|-- UC_None
+        UC_OrderStatus <|-- UC_InProgress
+        UC_OrderStatus <|-- UC_Fail
+    }
+
+    package "V. Khối Quản trị Kho & Chuỗi cung ứng" {
+        usecase "Tra cứu mặt hàng" as UC_SearchStock
+        usecase "Cập nhật mặt hàng" as UC_UdtStock
+        usecase "Sửa mặt hàng" as UC_EditStock
+        usecase "Thêm mặt hàng" as UC_AddStock
+        usecase "Xóa mặt hàng" as UC_DelStock
+        usecase "Cơ chế trừ kho ngầm" as UC_AutoDecrease
+        usecase "Xác định mức tiêu hao" as UC_Used
+        usecase "Trạng thái nguyên liệu" as UC_MaterialStatus
+        usecase "Xuất kho" as UC_Export
+        usecase "Thuật toán xuất kho" as UC_Release
+        usecase "Truy xuất hạn sử dụng" as UC_DueDate
+        usecase "Cảnh báo tồn kho" as UC_StockAlert
+        usecase "Gợi ý mua hàng" as UC_BuyItem
+        usecase "Luồng phê duyệt" as UC_Pending
+        usecase "Nhập kho" as UC_Import
+        usecase "Truy vết ngược" as UC_Traceability
+        usecase "Lưu lịch sử xuất nhập" as UC_LogisticsHistory
+
+        UC_SearchStock ..> UC_UdtStock : <<include>>
+        UC_UdtStock <|-- UC_AddStock
+        UC_UdtStock <|-- UC_EditStock
+        UC_UdtStock <|-- UC_DelStock
+        UC_AutoDecrease ..> UC_Used : <<include>>
+        UC_MaterialStatus ..> UC_SearchStock : <<include>>
+        UC_MaterialStatus ..> UC_AutoDecrease : <<include>>
+        UC_BuyItem ..> UC_MaterialStatus : <<include>>
+
+        UC_Export ..> UC_Release : <<include>>
+        UC_Release ..> UC_DueDate : <<include>>
+        UC_Release ..> UC_MaterialStatus : <<include>>
+        UC_Release ..> UC_StockAlert : <<extend>>
+        UC_Release ..> UC_Pending : <<include>>
+
+        UC_Import ..> UC_BuyItem : <<extend>>
+
+        UC_Traceability ..> UC_MaterialStatus : <<include>>
+        UC_Traceability ..> UC_LogisticsHistory : <<include>>
+        UC_LogisticsHistory ..> UC_Import : <<include>>
+        UC_LogisticsHistory ..> UC_Export : <<include>>
+    }
+
+    package "VI. Khối Báo cáo Dashboard Quản trị" {
+        usecase "Thao tác thời gian thực" as UC_RealTime
+        usecase "Tính toán lợi nhuận gộp" as UC_Profit
+        usecase "Doanh thu" as UC_KPI
+        usecase "Chi phí nhập kho" as UC_ImportCost
+        usecase "Chi phí phát sinh khác" as UC_OtherCost
+        usecase "Phân tích xu hướng" as UC_Trending
+        usecase "Tính toán dữ liệu hao hụt" as UC_Lost
+        usecase "Mức độ dịch vụ" as UC_ServiceRate
+
+        UC_Profit <|-- UC_KPI 
+        UC_Profit <|-- UC_ImportCost
+        UC_Profit <|-- UC_OtherCost
+    }
+}
+
+' --- LIÊN KẾT THAO TÁC XUYÊN KHỐI (CROSS-PACKAGE MAP) ---
+UC_Traceability ..> UC_Bill : <<include>>
+UC_BuyItem ..> UC_Behavior : <<include>>
+UC_StatusNotice ..> UC_OrderStatus : <<include>>
+UC_Available ..> UC_Material : <<include>>
+UC_Review ..> UC_Queue : <<include>>
+UC_Used ..> UC_Material : <<include>>
+UC_Used ..> UC_Recipe : <<include>>
+UC_Used ..> UC_Estimate : <<extend>>
+UC_Used ..> UC_Done : <<include>>
+UC_Material ..> UC_MaterialStatus : <<include>>
+UC_Rcm ..> UC_Behavior : <<include>>
+
+' --- LIÊN KẾT TÁC NHÂN (ACTORS MAP) ---
+Customer --> UC_Online
+Customer --> UC_CustomizeForm
+Customer --> UC_StatusNotice
+
+Cashier --> UC_Login
+Cashier --> UC_Takeplace
+Cashier --> UC_Payment
+Cashier --> UC_Bill
+Cashier --> UC_Review
+Cashier --> UC_Customer
+Cashier --> UC_SearchCus
+Cashier --> UC_Behavior
+
+Baker --> UC_Login
+Baker --> UC_Queue
+Baker --> UC_Recipe
+Baker --> UC_OrderStatus
+Baker --> UC_Caution
+
+Stocker --> UC_Login
+Stocker --> UC_SearchStock
+Stocker --> UC_MaterialStatus
+Stocker --> UC_Import
+Stocker --> UC_Export
+Stocker --> UC_BuyItem
+Stocker --> UC_Traceability
+
+Manager --> UC_Exclude
+Manager --> UC_Pending
+Manager --> UC_Regulation
+Manager --> UC_RealTime
+Manager --> UC_Profit
+Manager --> UC_Trending
+Manager --> UC_ServiceRate
+Manager --> UC_Lost
+
+Admin --> UC_Auth
+Admin --> UC_SearchHR
+Admin --> UC_GrantPermissions
+@enduml
