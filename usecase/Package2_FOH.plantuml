@@ -1,0 +1,59 @@
+@startuml Package2_FOH
+left to right direction
+skinparam packageStyle rectangle
+skinparam DefaultFontSize 14
+
+actor "Khách hàng" as Customer
+actor "Thu ngân" as Cashier
+actor "Quản lý" as Manager
+
+Manager --|> Cashier
+
+rectangle "HỆ THỐNG QUẢN LÝ TIỆM BÁNH" {
+    package "II. Khối tiền sảnh & Điểm bán" {
+        usecase "Quản lý bán hàng" as UC_Sales
+        usecase "Bán tại cửa hàng" as UC_Takeplace
+        usecase "Đặt hàng qua hệ thống" as UC_Online
+        usecase "Thao tác chọn món" as UC_Order
+        usecase "Thêm ghi chú" as UC_Note
+        usecase "Tạo form đặt bánh" as UC_CustomizeForm
+        usecase "Đính kèm mẫu bánh" as UC_Sample
+        usecase "Xác định năng lực bếp" as UC_Available
+        usecase "Đặt lịch giao/nhận" as UC_ShipTime
+        usecase "Thu tiền cọc" as UC_DepositTracking
+        usecase "Xử lý thanh toán" as UC_Payment
+        usecase "Xử lý ngoại lệ giao dịch" as UC_Exclude
+        usecase "In hóa đơn" as UC_Bill
+        usecase "Thông báo trạng thái đơn" as UC_StatusNotice 
+        usecase "Theo dõi đơn" as UC_Review
+        usecase "Gợi ý món" as UC_Rcm
+
+        UC_Sales <|-- UC_Takeplace
+        UC_Sales <|-- UC_Online
+        UC_Takeplace ..> UC_Order : <<include>>
+        UC_Order ..> UC_Note : <<extend>>
+        UC_Order ..> UC_Available : <<include>>
+        UC_Online ..> UC_CustomizeForm : <<include>>
+        UC_Online ..> UC_ShipTime : <<include>>
+        UC_CustomizeForm ..> UC_Sample : <<include>>
+        UC_CustomizeForm ..> UC_Available : <<include>>
+        
+        UC_Payment ..> UC_Bill : <<include>>
+        UC_Payment ..> UC_DepositTracking : <<extend>>
+        UC_Payment ..> UC_Exclude : <<extend>>
+        UC_Takeplace ..> UC_Rcm : <<include>>
+        UC_Online ..> UC_Rcm : <<include>>
+    }
+}
+
+Customer --> UC_Online
+Customer --> UC_CustomizeForm
+Customer --> UC_StatusNotice
+
+Cashier --> UC_Takeplace
+Cashier --> UC_Payment
+Cashier --> UC_Bill
+Cashier --> UC_Review
+
+Manager --> UC_Exclude
+@enduml
