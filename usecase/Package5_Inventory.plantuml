@@ -29,11 +29,11 @@ rectangle "HỆ THỐNG QUẢN LÝ TIỆM BÁNH" {
         usecase "Lưu lịch sử xuất nhập" as UC_LogisticsHistory
 
         UC_SearchStock ..> UC_UdtStock : <<include>>
-        UC_UdtStock <|-- UC_AddStock
-        UC_UdtStock <|-- UC_EditStock
-        UC_UdtStock <|-- UC_DelStock
-        UC_AutoDecrease ..> UC_Used : <<include>>
-        UC_MaterialStatus ..> UC_SearchStock : <<include>>
+        UC_UdtStock <|-up- UC_AddStock
+        UC_UdtStock <|-up- UC_EditStock
+        UC_UdtStock <|-up- UC_DelStock
+        UC_AutoDecrease .left.> UC_Used : <<include>>
+        UC_MaterialStatus .right.> UC_SearchStock : <<include>>
         UC_MaterialStatus ..> UC_AutoDecrease : <<include>>
         UC_BuyItem ..> UC_MaterialStatus : <<include>>
 
@@ -45,7 +45,7 @@ rectangle "HỆ THỐNG QUẢN LÝ TIỆM BÁNH" {
 
         UC_Import ..> UC_BuyItem : <<extend>>
 
-        UC_Traceability ..> UC_MaterialStatus : <<include>>
+        UC_Traceability .left.> UC_MaterialStatus : <<include>>
         UC_Traceability ..> UC_LogisticsHistory : <<include>>
         UC_LogisticsHistory ..> UC_Import : <<include>>
         UC_LogisticsHistory ..> UC_Export : <<include>>
