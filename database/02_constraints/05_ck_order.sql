@@ -18,3 +18,4 @@ ALTER TABLE NANGLUCSANXUAT ADD CONSTRAINT CK_NSX_KHANANG CHECK (SoBanhDaNhan <= 
 
 
 
+ALTER TABLE TRANGTHAIDON ADD CONSTRAINT CK_TT_TEN CHECK (TenTrangThai IN ('Mới đặt', 'Đã cọc', 'Đang sản xuất', 'Chờ giao', 'Hoàn thành', 'Hủy', 'Hoàn hàng'));
