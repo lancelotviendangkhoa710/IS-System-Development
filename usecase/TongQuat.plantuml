@@ -1,0 +1,121 @@
+@startuml Bakery_Management_Cybergame_Style
+left to right direction
+skinparam nodesep 10
+skinparam ranksep 50
+skinparam packageStyle rectangle
+skinparam DefaultFontSize 14
+
+' --- Tùy chỉnh màu sắc giống ảnh ---
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+    ArrowColor #000000
+}
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+}
+
+' --- CÁC TÁC NHÂN BÊN TRÁI (NHÂN VIÊN) ---
+actor "Nhân viên" as Staff
+actor "Quản trị viên" as Admin
+actor "Quản lý" as Manager
+actor "Thu ngân" as Cashier
+actor "Thợ bánh" as Baker
+actor "Thủ kho" as Stocker
+
+' Mối quan hệ kế thừa (Các chức danh đều là Nhân viên)
+Staff <|-- Admin
+Staff <|-- Manager
+Staff <|-- Cashier
+Staff <|-- Baker
+Staff <|-- Stocker
+
+' --- TÁC NHÂN BÊN PHẢI (KHÁCH HÀNG) ---
+actor "Khách hàng" as Customer
+
+' --- Ranh giới hệ thống ---
+rectangle "Quản lý tiệm bánh" {
+
+    ' Use-case chung
+    usecase "Đăng nhập" as UC_Login
+
+    ' Use-case của Quản trị viên
+    usecase "Quản lý tài khoản & phân quyền" as UC_Account
+    usecase "Quản lý nhân sự" as UC_HR
+
+    ' Use-case của Quản lý
+    usecase "Quản lý cấu hình Loyalty (Tích điểm)" as UC_Loyalty
+    usecase "Xem báo cáo doanh thu & hao hụt" as UC_Report
+    usecase "Phê duyệt ngoại lệ (Hủy/Hoàn tiền)" as UC_Approve
+
+    ' Use-case của Thủ kho
+    usecase "Quản lý định lượng (BOM)" as UC_BOM
+    usecase "Quản lý nhập/xuất kho" as UC_Inventory
+    usecase "Duyệt đơn đặt mua hàng (PO)" as UC_PO
+
+    ' Use-case của Thợ bánh
+    usecase "Theo dõi màn hình bếp (KDS)" as UC_KDS
+    usecase "Cập nhật tiến độ làm bánh" as UC_UpdateBake
+    usecase "Báo cáo hao hụt nguyên liệu" as UC_Wastage
+
+    ' Use-case của Thu ngân
+    usecase "Bán hàng tại quầy (POS)" as UC_POS
+    usecase "Quản lý hồ sơ sự kiện khách hàng" as UC_CRM
+    
+    ' Các Use-case tương tác trực tiếp với Khách hàng (Dùng Include như ảnh)
+    usecase "Tiếp nhận đơn hàng trực tuyến" as UC_ReceiveOnline
+    usecase "Đặt hàng trực tuyến" as UC_OnlineOrder
+    
+    usecase "Tạo form bánh thiết kế" as UC_CreateCustom
+    usecase "Yêu cầu đặt bánh thiết kế" as UC_RequestCustom
+    
+    usecase "Xử lý thanh toán & thu cọc" as UC_ProcessPayment
+    usecase "Yêu cầu thanh toán" as UC_Pay
+    
+    usecase "Tiếp nhận yêu cầu đổi điểm" as UC_ProcessRedeem
+    usecase "Yêu cầu đổi quà/Voucher" as UC_Redeem
+    
+    usecase "Theo dõi trạng thái đơn hàng" as UC_TrackOrder
+
+    ' Ràng buộc Include giữa NV và Khách
+    UC_ReceiveOnline ..> UC_OnlineOrder : <<include>>
+    UC_CreateCustom ..> UC_RequestCustom : <<include>>
+    UC_ProcessPayment ..> UC_Pay : <<include>>
+    UC_ProcessRedeem ..> UC_Redeem : <<include>>
+}
+
+' --- KẾT NỐI TÁC NHÂN BÊN TRÁI VỚI USE-CASE ---
+Staff --> UC_Login
+
+Admin --> UC_Account
+Admin -left-> UC_HR
+
+Manager --> UC_Loyalty
+Manager --> UC_Report
+Manager --> UC_Approve
+
+Stocker --> UC_BOM
+Stocker --> UC_Inventory
+Stocker --> UC_PO
+
+Baker --> UC_KDS
+Baker --> UC_UpdateBake
+Baker --> UC_Wastage
+
+Cashier --> UC_POS
+Cashier --> UC_CRM
+Cashier --> UC_ReceiveOnline
+Cashier --> UC_CreateCustom
+Cashier --> UC_ProcessPayment
+Cashier --> UC_ProcessRedeem
+
+' --- KẾT NỐI TÁC NHÂN BÊN PHẢI VỚI USE-CASE ---
+' (Mũi tên ngược lại để ép PlantUML xếp Khách hàng sang phải)
+UC_OnlineOrder <-- Customer
+UC_RequestCustom <-- Customer
+UC_Pay <-- Customer
+UC_Redeem <-- Customer
+UC_TrackOrder <-- Customer
+
+@enduml
