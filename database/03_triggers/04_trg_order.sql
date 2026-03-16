@@ -1,31 +1,25 @@
--- Tự động cộng trừ tiền khi có thay đổi hóa đơn( Insert, update )
+-- Trigger cộng trừ tiền khi có thay đổi hóa đơn (insert, update, delete)
 CREATE OR REPLACE TRIGGER TRG_CTDONHANG_UPDATE
-AFTER INSERT OR UPDATE ON CTDONHANG
+AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
 FOR EACH ROW
+DECLARE
+    V_CHENHLECH NUMBER := 0;
+    V_MADON NUMBER;
 BEGIN
+    IF INSERTING THEN
+        V_CHENHLECH := :NEW.SOLUONG * :NEW.DONGIA;
+        V_MADON := :NEW.MADON;
+    ELSIF UPDATING THEN
+        V_CHENHLECH := (:NEW.SOLUONG * :NEW.DONGIA) - (:OLD.SOLUONG * :OLD.DONGIA);
+        V_MADON := :NEW.MADON;
+    ELSIF DELETING THEN
+        V_CHENHLECH := -(:OLD.SOLUONG * :OLD.DONGIA);
+        V_MADON := :OLD.MADON;
+    END IF;
+
     UPDATE DONDATHANG
-    SET TongTienHDBan =
-        (
-            SELECT SUM(SoLuong * DonGia)
-            FROM CTDONHANG
-            WHERE MaDon = :NEW.MaDon
-        )
-    WHERE MaDon = :NEW.MaDon;
+    SET TONGTIENHDBAN = NVL(TONGTIENHDBAN, 0) + V_CHENHLECH
+    WHERE MADON = V_MADON;
 END;
 /
 
--- Tự động cộng trừ tiền khi có thay đổi khi có thay đổi hóa đơn( delete )
-CREATE OR REPLACE TRIGGER TRG_CTDONHANG_DELETE
-AFTER DELETE ON CTDONHANG
-FOR EACH ROW
-BEGIN
-    UPDATE DONDATHANG
-    SET TongTienHDBan =
-    (
-        SELECT NVL(SUM(SoLuong * DonGia),0)
-        FROM CTDONHANG
-        WHERE MaDon = :OLD.MaDon
-    )
-    WHERE MaDon = :OLD.MaDon;
-END;
-/
