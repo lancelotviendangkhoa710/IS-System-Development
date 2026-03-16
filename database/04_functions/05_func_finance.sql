@@ -1,0 +1,1 @@
+CREATE OR REPLACE  FUNCTION FUNC_TinhTienMatLyTuong [N ]
