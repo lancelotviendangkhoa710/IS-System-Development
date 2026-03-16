@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="53d58109-84cd-4378-9941-012b1f5953be" name="Changes" comment="fix - Đồng bộ hóa toàn bộ logic rằng buộc">
+      <change beforePath="$PROJECT_DIR$/database/03_triggers/03_trg_stock_recipe.sql" beforeDir="false" afterPath="$PROJECT_DIR$/database/03_triggers/03_trg_stock_recipe.sql" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="65" />
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="add-triggers" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="3ApS8eaJJVTyM0Vt6CopF7IRXrM" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "develop",
+    "last_opened_file_path": "C:/Users/Acer",
+    "settings.editor.selected.configurable": "Settings.Markdown"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "oracle"
+    ],
+    "com.intellij.ide.scratch.LRUPopupBuilder$1/": [
+      "Oracle"
+    ]
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="53d58109-84cd-4378-9941-012b1f5953be" name="Changes" comment="feat PROC_PRINT_CAKE_RECIPE" />
+      <created>1773287862100</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773287862100</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat PROC_PRINT_CAKE_RECIPE" />
+    <MESSAGE value="test" />
+    <MESSAGE value="feat set ThoiDiemXoa MaNX default null" />
+    <MESSAGE value="fix ChoPhepCustom to ChoPhepTuyChinh" />
+    <MESSAGE value="fix ctdoncustom to CTDONTUYCHINH" />
+    <MESSAGE value="deleted  CK_CTPN_HSD" />
+    <MESSAGE value="add CK_CTTC_MAX_SLCK_CTDH_MAX_SL" />
+    <MESSAGE value="fix - Đồng bộ hóa toàn bộ logic rằng buộc" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix - Đồng bộ hóa toàn bộ logic rằng buộc" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand>
+      <path>
+        <item name="Clone" type="b2602c69:ProjectViewProjectNode" />
+        <item name="dir{file://D:/Clone}" type="462c0819:PsiDirectoryNode" />
+      </path>
+    </expand>
+    <select />
+  </component>
+</project>
