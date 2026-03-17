@@ -1,7 +1,9 @@
 CREATE OR REPLACE PROCEDURE PROC_DongCaDoiSoat (
     p_MaCa            IN NUMBER,
     p_TienThucTeDem   IN NUMBER,
-    p_LyDoChenhLech   IN VARCHAR2 DEFAULT NULL
+    p_LyDoChenhLech   IN VARCHAR2 DEFAULT NULL,
+    P_test  in number
+
 )
 IS
     v_TongTienHeThong NUMBER;
@@ -33,5 +35,8 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         RAISE;
+
+
+
 END;
 /
