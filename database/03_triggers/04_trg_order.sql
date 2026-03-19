@@ -23,7 +23,7 @@ BEGIN
 END;
 /
 
--- Trigger trừ số lượng bánh khi bán, cộng số lượng khi hoàn đơn (CHƯA TEST)
+-- Trigger trừ số lượng bánh khi bán, cộng số lượng khi hoàn đơn
 CREATE OR REPLACE TRIGGER TRG_TRUKHO_DONHANG
 AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
 FOR EACH ROW
@@ -61,7 +61,7 @@ EXCEPTION
 END;
 /
 
--- Trigger cộng dồn số bánh khách đặt (CHƯA TEST)
+-- Trigger cộng dồn số bánh khách đặt (đơn hàng)
 CREATE OR REPLACE TRIGGER TRG_KIEMSOAT_CONGSUAT_DONHANG
 AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
 FOR EACH ROW
@@ -87,21 +87,94 @@ BEGIN
     FROM DONDATHANG
     WHERE MADON = V_MADON;
 
-    UPDATE NANGLUCSANXUAT
-    SET SOBANHDANHAN = NVL(SOBANHDANHAN, 0) + V_CHENHLECH
+    SELECT NVL(SOBANHDANHAN, 0), NVL(GIOIHANSOBANH, 0)
+    INTO V_SOBANH_HIENTAI, V_GIOIHAN
+    FROM NANGLUCSANXUAT
     WHERE TRUNC(NGAYSANXUAT) = V_NGAYGIAO
-    RETURNING SOBANHDANHAN, GIOIHANSOBANH INTO V_SOBANH_HIENTAI, V_GIOIHAN;
+    FOR UPDATE;
 
-    IF V_SOBANH_HIENTAI > V_GIOIHAN THEN
+    IF (V_SOBANH_HIENTAI + V_CHENHLECH) > V_GIOIHAN THEN
         RAISE_APPLICATION_ERROR(-20005,
             'TU CHOI NHAN DON: Ngay ' || TO_CHAR(V_NGAYGIAO, 'DD/MM/YYYY') ||
-            ' xuong da dat cong suat toi da! (Da nhan: ' || V_SOBANH_HIENTAI || '/' || V_GIOIHAN || ' banh). ' ||
+            ' xuong da dat cong suat toi da! (Da nhan: ' || V_SOBANH_HIENTAI || '/' || V_GIOIHAN || ' banh, Khach dat them: ' || V_CHENHLECH || ' banh). ' ||
             'Vui long khuyen khich khach doi sang ngay khac!');
     END IF;
+
+    UPDATE NANGLUCSANXUAT
+    SET SOBANHDANHAN = V_SOBANH_HIENTAI + V_CHENHLECH
+    WHERE TRUNC(NGAYSANXUAT) = V_NGAYGIAO;
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         DBMS_OUTPUT.PUT_LINE('Luu y: Chua co du lieu gioi han cong suat cho ngay ' || TO_CHAR(V_NGAYGIAO, 'DD/MM/YYYY'));
 END;
 /
+
+-- Trigger cộng dồn số bánh khách đặt (tùy chỉnh)
+CREATE OR REPLACE TRIGGER TRG_KIEMSOAT_CONGSUAT_TUYCHINH
+AFTER INSERT OR UPDATE OR DELETE ON CTDONTUYCHINH
+FOR EACH ROW
+DECLARE
+    V_MADON NUMBER;
+    V_CHENHLECH NUMBER(10,2) := 0;
+    V_NGAYGIAO DATE;
+    V_SOBANH_HIENTAI NUMBER;
+    V_GIOIHAN NUMBER;
+BEGIN
+    IF INSERTING THEN
+        V_CHENHLECH := :NEW.SOLUONG;
+        V_MADON := :NEW.MADON;
+    ELSIF UPDATING THEN
+        V_CHENHLECH := :NEW.SOLUONG - :OLD.SOLUONG;
+        V_MADON := :NEW.MADON;
+    ELSIF DELETING THEN
+        V_CHENHLECH := -(:OLD.SOLUONG);
+        V_MADON := :OLD.MADON;
+    END IF;
+
+    SELECT TRUNC(NGAYGIONHANBANH) INTO V_NGAYGIAO
+    FROM DONDATHANG
+    WHERE MADON = V_MADON;
+
+    SELECT NVL(SOBANHDANHAN, 0), NVL(GIOIHANSOBANH, 0)
+    INTO V_SOBANH_HIENTAI, V_GIOIHAN
+    FROM NANGLUCSANXUAT
+    WHERE TRUNC(NGAYSANXUAT) = V_NGAYGIAO
+    FOR UPDATE;
+
+    IF (V_SOBANH_HIENTAI + V_CHENHLECH) > V_GIOIHAN THEN
+        RAISE_APPLICATION_ERROR(-20005,
+            'TU CHOI NHAN DON: Ngay ' || TO_CHAR(V_NGAYGIAO, 'DD/MM/YYYY') ||
+            ' xuong da dat cong suat toi da! (Da nhan: ' || V_SOBANH_HIENTAI || '/' || V_GIOIHAN || ' banh, Khach dat them: ' || V_CHENHLECH || ' banh). ' ||
+            'Vui long khuyen khich khach doi sang ngay khac!');
+    END IF;
+
+    UPDATE NANGLUCSANXUAT
+    SET SOBANHDANHAN = V_SOBANH_HIENTAI + V_CHENHLECH
+    WHERE TRUNC(NGAYSANXUAT) = V_NGAYGIAO;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Luu y: Chua co du lieu gioi han cong suat cho ngay ' || TO_CHAR(V_NGAYGIAO, 'DD/MM/YYYY'));
+END;
+/
+
+-- Trigger gán giá vốn tại thời điểm bán cho chi tiết đơn hàng
+CREATE OR REPLACE TRIGGER TRG_CTDONHANG_GIAVON
+BEFORE INSERT ON CTDONHANG
+FOR EACH ROW
+BEGIN
+    :NEW.DONGIAVON := FUNC_TinhGiaVonDong(:NEW.MASP);
+END;
+/
+
+-- Trigger gán giá vốn tại thời điểm bán cho chi tiết đơn tùy chỉnh
+CREATE OR REPLACE TRIGGER TRG_CTDONTUYCHINH_GIAVON
+BEFORE INSERT ON CTDONTUYCHINH
+FOR EACH ROW
+BEGIN
+    :NEW.DONGIAVON := FUNC_TinhGiaVonDong(:NEW.MASP);
+END;
+/
+
 
