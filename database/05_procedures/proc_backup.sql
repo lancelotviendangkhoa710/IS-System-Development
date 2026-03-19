@@ -17,6 +17,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20001, 'Lỗi hệ thống khi khôi phục dữ liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20001, 'Loi he thong khi khoi phuc du lieu: ' || SQLERRM);
 END;
 /
