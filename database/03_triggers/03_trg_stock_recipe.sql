@@ -110,7 +110,7 @@ BEGIN
 END;
 /
 
--- Trigger chặn hạn sử dụng chỉ còn 10 ngày kể từ lúc nhập & chống gian lận hạn sử dụng (CHƯA TEST)
+-- Trigger chặn hạn sử dụng chỉ còn 10 ngày kể từ lúc nhập & chống gian lận hạn sử dụng
 CREATE OR REPLACE TRIGGER TRG_KIEMTRA_HSD
 BEFORE INSERT OR UPDATE OF HANSUDUNG ON CTPHIEUNHAP
 FOR EACH ROW
@@ -143,7 +143,7 @@ EXCEPTION
 END;
 /
 
--- Trigger trừ số lượng bánh khi hủy bánh đã hết hạn, không còn bán (CHƯA TEST)
+-- Trigger trừ số lượng bánh khi hủy bánh đã hết hạn, không còn bán
 CREATE OR REPLACE TRIGGER TRG_TRUKHO_PHIEUXUATTP
 AFTER INSERT OR UPDATE OR DELETE ON CTPHIEUXUAT_TP
 FOR EACH ROW
