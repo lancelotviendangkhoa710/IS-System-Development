@@ -1,0 +1,27 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Khách hoàn tất thanh toán - kích hoạt luồng tự động")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> HT1("Cộng dồn doanh thu vào tổng chi tiêu khách")
+        HT1 --> HT2("Đối chiếu tổng chi tiêu với điều kiện hạng thẻ")
+        HT2 --> DK1{"Thỏa điều kiện nâng hạng?"}
+        DK1 -->|Không| end_node((( )))
+        DK1 -->|Có| HT3("Cập nhật thẻ lên hạng mới")
+        HT3 --> HT4("Cập nhật ưu đãi mới đi kèm")
+        HT4 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT tổng chi tiêu KHACHHANG")
+        DB2("UPDATE KHACHHANG MAHANG")
+        Table1["KHACHHANG"]
+    end
+
+    HT1 --> DB1
+    DB1 --> Table1
+    HT2 --> Table1
+    HT3 --> DB2
+    DB2 --> Table1

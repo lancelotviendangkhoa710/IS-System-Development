@@ -1,0 +1,26 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn tab Lịch sử giao dịch trong hồ sơ khách")
+        ND2("Bấm vào mã hóa đơn để xem chi tiết")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> HT1("Tìm kiếm hóa đơn gắn ID khách")
+        HT1 --> DK1{"Có đơn hàng?"}
+        DK1 -->|Không| HT2("Thông báo Chưa có lịch sử giao dịch")
+        DK1 -->|Có| HT3("Liệt kê đơn theo thời gian mới nhất")
+        HT3 --> HT4("Hiển thị danh sách")
+        HT4 --> ND2
+        ND2 --> end_node((( )))
+        HT2 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT DONDATHANG, HOADON WHERE MAKH")
+        Table1["DONDATHANG"]
+    end
+
+    HT1 --> DB1
+    DB1 --> Table1
+    Table1 --> DK1

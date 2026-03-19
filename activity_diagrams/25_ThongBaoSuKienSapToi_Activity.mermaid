@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Truy cập phân hệ Marketing")
+        ND2("Chọn chức năng Gửi thông báo")
+        ND3("Soạn nội dung hoặc chọn mẫu")
+        ND4("Chọn danh sách khách hàng mục tiêu")
+        ND5("Nhấn Gửi đồng loạt")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> ND3
+        ND3 --> ND4
+        ND4 --> ND5
+        ND5 --> DK1{"Hẹn giờ gửi?"}
+        DK1 -->|Có| HT1("Lưu lịch gửi tự động")
+        DK1 -->|Không| HT2("Thực hiện gửi ngay")
+        HT1 --> HT3("Thực hiện gửi và báo cáo kết quả")
+        HT2 --> HT3
+        HT3 --> end_node((( )))
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT KHACHHANG")
+        Table1["KHACHHANG"]
+    end
+
+    ND4 --> DB1
+    DB1 --> Table1

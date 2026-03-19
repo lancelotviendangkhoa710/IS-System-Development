@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn chức năng Quản lý công thức")
+        ND2("Nhập từ khóa hoặc chọn bộ lọc danh mục")
+        ND3("Nhấn chọn một công thức cụ thể")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> HT1("Hiển thị màn hình danh sách công thức")
+        HT1 --> ND2
+        ND2 --> HT2("Truy xuất dữ liệu")
+        HT2 --> DK1{"Có kết quả khớp?"}
+        DK1 -->|Không| HT3("Thông báo Không tìm thấy công thức phù hợp")
+        HT3 --> HT4("Trả về danh sách trống")
+        HT4 --> end_node((( )))
+        DK1 -->|Có| HT5("Hiển thị danh sách phù hợp")
+        HT5 --> ND3
+        ND3 --> HT6("Hiển thị chi tiết: nguyên liệu, định lượng, bước làm")
+        HT6 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT CONGTHUC, NGUYENLIEU")
+        Table1["CONGTHUC"]
+    end
+
+    HT2 --> DB1
+    DB1 --> Table1
+    Table1 --> DK1

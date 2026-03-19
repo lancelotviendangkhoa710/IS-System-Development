@@ -1,0 +1,29 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Vào mục Cấu hình khách hàng")
+        ND2("Chọn Cài đặt tỷ lệ tích điểm")
+        ND3("Nhập số tiền tương ứng với 1 điểm thưởng")
+        ND4("Nhấn Lưu cấu hình")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> ND3
+        ND3 --> HT1("Kiểm tra giá trị nhập")
+        HT1 --> DK1{"Hợp lệ? Không âm, khác 0?"}
+        DK1 -->|Không| HT2("Báo lỗi dữ liệu không hợp lệ")
+        HT2 --> ND3
+        DK1 -->|Có| ND4
+        ND4 --> HT3("Cập nhật tỷ lệ mới")
+        HT3 --> end_node((( )))
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("UPDATE HANGTHANHVIEN")
+        Table1["HANGTHANHVIEN"]
+    end
+
+    HT3 --> DB1
+    DB1 --> Table1
+    Table1 --> end_node

@@ -1,0 +1,35 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn chức năng Nhập kho")
+        ND2("Chọn nhà cung cấp, thêm mặt hàng, điền số lượng và đơn giá")
+        ND3("Kiểm tra phiếu và nhấn Xác nhận nhập kho")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> HT1("Hiển thị màn hình tạo phiếu nhập kho")
+        HT1 --> ND1
+        ND1 --> ND2
+        ND2 --> ND3
+        ND3 --> HT2("Kiểm tra tính hợp lệ thông tin nguyên liệu và số lượng")
+        HT2 --> DK1{"Hợp lệ?"}
+        DK1 -->|Không| HT3("Báo lỗi, yêu cầu điều chỉnh phiếu")
+        HT3 --> ND2
+        DK1 -->|Có| HT4("Lưu phiếu nhập kho")
+        HT4 --> HT5("Cập nhật số lượng tồn kho")
+        HT5 --> HT6("Thông báo Nhập kho thành công")
+        HT6 --> end_node((( )))
+        HT3 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("INSERT PHIEUNHAPKHO, CTPHIEUNHAP")
+        DB2("UPDATE NGUYENLIEU SOLUONGTONTONG")
+        Table1["PHIEUNHAPKHO"]
+        Table2["NGUYENLIEU"]
+    end
+
+    HT4 --> DB1
+    DB1 --> Table1
+    HT5 --> DB2
+    DB2 --> Table2
+    Table2 --> HT6

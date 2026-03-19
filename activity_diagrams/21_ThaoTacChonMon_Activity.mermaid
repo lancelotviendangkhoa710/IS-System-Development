@@ -1,0 +1,28 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Tìm kiếm món ăn trên menu")
+        ND2("Nhấn vào món để thêm vào đơn")
+        ND3("Điều chỉnh số lượng theo yêu cầu")
+        ND4("Thêm ghi chú đặc biệt")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> DK1{"Món còn hàng?"}
+        DK1 -->|Không| HT1("Làm mờ món, không cho phép chọn")
+        DK1 -->|Có| HT2("Thêm món vào giỏ")
+        HT2 --> ND3
+        ND3 --> ND4
+        ND4 --> HT3("Cập nhật danh sách và tổng tiền đơn")
+        HT3 --> end_node((( )))
+        HT1 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT SANPHAM SOLUONGTON")
+        Table1["SANPHAM"]
+    end
+
+    DK1 --> DB1
+    DB1 --> Table1

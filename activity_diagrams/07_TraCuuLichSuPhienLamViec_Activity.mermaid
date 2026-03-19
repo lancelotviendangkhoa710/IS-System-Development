@@ -1,0 +1,27 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn chức năng Lịch sử hệ thống")
+        ND2("Chọn nhân viên và khoảng thời gian")
+        ND3("Xem thông tin chi tiết")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> HT1("Thống kê các phiên đăng nhập/đăng xuất")
+        HT1 --> DK1{"Có dữ liệu?"}
+        DK1 -->|Không| HT2("Hiển thị bảng trống")
+        HT2 --> end_node((( )))
+        DK1 -->|Có| HT3("Hiển thị dữ liệu nhật ký")
+        HT3 --> ND3
+        ND3 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT CALAMVIEC, LICHSU")
+        Table1["CALAMVIEC"]
+    end
+
+    HT1 --> DB1
+    DB1 --> Table1
+    Table1 --> DK1

@@ -1,0 +1,28 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Tìm kiếm mã giao dịch bị lỗi")
+        ND2("Chọn thao tác Xử lý ngoại lệ")
+        ND3("Nhập nguyên nhân lỗi")
+        ND4("Chọn hướng giải quyết: Hủy hóa đơn hoặc Hoàn tiền")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> ND3
+        ND3 --> ND4
+        ND4 --> DK1{"Chọn Hoàn tiền ngân hàng?"}
+        DK1 -->|Có| HT1("Yêu cầu đính kèm mã tham chiếu chuyển khoản")
+        HT1 --> HT2("Cập nhật trạng thái giao dịch và sổ quỹ")
+        DK1 -->|Không| HT2
+        HT2 --> end_node((( )))
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("UPDATE HOADON, DONDATHANG")
+        Table1["HOADON"]
+    end
+
+    HT2 --> DB1
+    DB1 --> Table1
+    Table1 --> end_node

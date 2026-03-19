@@ -1,0 +1,34 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn chức năng Tạo sự kiện mới")
+        ND2("Nhập tên, banner, mô tả")
+        ND3("Cài đặt thời gian bắt đầu và kết thúc")
+        ND4("Thiết lập quy tắc áp dụng")
+        ND5("Nhấn Lưu và Kích hoạt")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> HT1("Kiểm tra thông tin bắt buộc")
+        HT1 --> DK1{"Đủ thông tin?"}
+        DK1 -->|Không| HT2("Báo đỏ trường thiếu, yêu cầu điền")
+        HT2 --> ND2
+        DK1 -->|Có| ND3
+        ND3 --> ND4
+        ND4 --> ND5
+        ND5 --> HT3("Kiểm tra trùng lặp thời gian")
+        HT3 --> DK2{"Trùng sự kiện khác?"}
+        DK2 -->|Có| HT4("Cảnh báo xung đột khuyến mãi")
+        HT4 --> end_node((( )))
+        DK2 -->|Không| HT5("Lưu và kích hoạt sự kiện")
+        HT5 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("INSERT sự kiện")
+        Table1["SUKIEN"]
+    end
+
+    HT5 --> DB1
+    DB1 --> Table1

@@ -1,0 +1,28 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn Thêm khoản thu, phân loại Vốn đầu tư")
+        ND2("Nhập số tiền vốn và diễn giải")
+        ND3("Nhấn Ghi nhận")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> HT1("Kiểm tra định dạng tiền tệ")
+        HT1 --> DK1{"Hợp lệ?"}
+        DK1 -->|Không| HT2("Ngăn chặn, yêu cầu nhập số hợp lệ")
+        HT2 --> ND2
+        DK1 -->|Có| ND3
+        ND3 --> HT3("Cộng trực tiếp vào tổng ngân sách")
+        HT3 --> end_node((( )))
+        HT2 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("INSERT PHIEUTHUCHI")
+        Table1["PHIEUTHUCHI"]
+    end
+
+    HT3 --> DB1
+    DB1 --> Table1
+    Table1 --> end_node

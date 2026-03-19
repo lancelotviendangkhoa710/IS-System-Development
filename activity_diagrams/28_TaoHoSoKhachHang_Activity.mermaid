@@ -1,0 +1,32 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn chức năng Thêm khách hàng mới")
+        ND2("Thu thập SĐT, Họ tên từ khách")
+        ND3("Nhập vào biểu mẫu đăng ký")
+        ND4("Nhấn Lưu hồ sơ")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> ND3
+        ND3 --> ND4
+        ND4 --> HT1("Kiểm tra SĐT trùng")
+        HT1 --> DK1{"SĐT đã tồn tại?"}
+        DK1 -->|Có| HT2("Báo lỗi trùng, đề xuất hiển thị hồ sơ khách cũ")
+        DK1 -->|Không| HT3("Tạo hồ sơ thành công")
+        HT3 --> HT4("Gắn tài khoản vào đơn hàng hiện tại")
+        HT4 --> end_node((( )))
+        HT2 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT KHACHHANG WHERE SDT")
+        DB2("INSERT KHACHHANG")
+        Table1["KHACHHANG"]
+    end
+
+    HT1 --> DB1
+    DB1 --> Table1
+    HT3 --> DB2
+    DB2 --> Table1

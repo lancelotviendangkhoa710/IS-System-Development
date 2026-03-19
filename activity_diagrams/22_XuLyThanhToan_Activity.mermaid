@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn hình thức thanh toán")
+        ND2("Nhập số tiền khách đưa - nếu tiền mặt")
+        ND3("Xác nhận Thanh toán thành công")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> HT1("Hiển thị số tiền cần thu")
+        HT1 --> DK1{"Tiền mặt?"}
+        DK1 -->|Có| ND2
+        ND2 --> HT2("Tính và hiển thị tiền thừa cần thối")
+        DK1 -->|Không| HT3("Hiển thị mã QR, chờ báo giao dịch ngân hàng")
+        HT2 --> ND3
+        HT3 --> ND3
+        ND3 --> HT4("Ghi nhận giao dịch, chuyển trạng thái đã thanh toán")
+        HT4 --> end_node((( )))
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("INSERT HOADON")
+        DB2("UPDATE DONDATHANG")
+        Table1["HOADON"]
+    end
+
+    HT4 --> DB1
+    DB1 --> Table1
+    HT4 --> DB2
+    DB2 --> Table1

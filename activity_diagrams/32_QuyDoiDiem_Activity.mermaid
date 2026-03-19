@@ -1,0 +1,31 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Hỏi khách có muốn dùng điểm không")
+        ND2("Chọn chức năng Sử dụng điểm")
+        ND3("Nhập số điểm khách muốn đổi")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> HT1("Hiển thị số điểm khả dụng và số tiền giảm")
+        HT1 --> ND3
+        ND3 --> HT2("Kiểm tra số điểm")
+        HT2 --> DK1{"Điểm <= số dư?"}
+        DK1 -->|Không| HT3("Báo lỗi, yêu cầu nhập lại")
+        HT3 --> ND3
+        DK1 -->|Có| HT4("Trừ vào tổng tiền đơn hàng")
+        HT4 --> HT5("Sau thanh toán: trừ vĩnh viễn điểm khỏi tài khoản")
+        HT5 --> end_node((( )))
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("SELECT KHACHHANG DIEMTICHLUY")
+        DB2("UPDATE KHACHHANG DIEMTICHLUY")
+        Table1["KHACHHANG"]
+    end
+
+    HT1 --> DB1
+    DB1 --> Table1
+    HT5 --> DB2
+    DB2 --> Table1

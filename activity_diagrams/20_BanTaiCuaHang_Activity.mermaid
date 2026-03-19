@@ -1,0 +1,27 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn chức năng Tạo đơn mới")
+        ND2("Hỏi yêu cầu khách và thao tác chọn món")
+        ND3("Xác nhận đơn hàng với khách")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> DK1{"Khách hủy đơn?"}
+        DK1 -->|Có| HT1("Hủy đơn, xóa toàn bộ thao tác")
+        HT1 --> end_node((( )))
+        DK1 -->|Không| HT2("Hiển thị danh sách món đã chọn kèm tổng tiền")
+        HT2 --> ND3
+        ND3 --> HT3("Lưu đơn hàng trạng thái chờ thanh toán")
+        HT3 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("INSERT DONDATHANG, CTDONHANG")
+        Table1["DONDATHANG"]
+    end
+
+    HT3 --> DB1
+    DB1 --> Table1
+    Table1 --> end_node

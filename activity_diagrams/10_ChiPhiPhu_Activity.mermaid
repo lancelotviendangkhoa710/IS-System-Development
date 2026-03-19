@@ -1,0 +1,34 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn Tạo phiếu chi")
+        ND2("Chọn danh mục Chi phí phụ")
+        ND3("Nhập số tiền và tải hóa đơn")
+        ND4("Nhấn Hoàn tất")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> ND3
+        ND3 --> DK1{"Có ảnh hóa đơn?"}
+        DK1 -->|Không| HT1("Cho phép lưu nhưng cảnh báo Thiếu chứng từ")
+        DK1 -->|Có| ND4
+        HT1 --> ND4
+        ND4 --> HT2("Kiểm tra tổng quỹ")
+        HT2 --> DK2{"Số tiền chi <= tổng quỹ?"}
+        DK2 -->|Không| HT3("Cảnh báo âm quỹ")
+        HT3 --> end_node((( )))
+        DK2 -->|Có| HT4("Trừ số tiền vào quỹ cửa hàng")
+        HT4 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("INSERT PHIEUTHUCHI")
+        DB2("UPDATE tổng quỹ")
+        Table1["PHIEUTHUCHI"]
+    end
+
+        HT4 --> DB1
+        DB1 --> Table1
+        HT4 --> DB2
+        DB2 --> Table1

@@ -1,0 +1,31 @@
+flowchart TD
+    subgraph Nguoi_dung [Người dùng]
+        ND1("Chọn nhân sự cần xóa")
+        ND2("Chọn chức năng Xóa/Vô hiệu hóa")
+        ND3("Nhấn Đồng ý tại hộp thoại")
+    end
+
+    subgraph He_thong [Hệ thống]
+        start(( )) --> ND1
+        ND1 --> ND2
+        ND2 --> HT1("Hiển thị hộp thoại xác nhận")
+        HT1 --> DK1{"Người dùng chọn?"}
+        DK1 -->|Hủy| end_node((( )))
+        DK1 -->|Đồng ý| ND3
+        ND3 --> HT2("Kiểm tra ca làm việc")
+        HT2 --> DK2{"Đang có ca làm việc?"}
+        DK2 -->|Có| HT3("Cảnh báo không thể xóa ngay")
+        HT3 --> end_node
+        DK2 -->|Không| HT4("Vô hiệu hóa tài khoản")
+        HT4 --> HT5("Cập nhật danh sách")
+        HT5 --> end_node
+    end
+
+    subgraph CSDL [CSDL]
+        DB1("UPDATE NHANVIEN TRANGTHAILAMVIEC")
+        Table1["NHANVIEN"]
+    end
+
+    HT4 --> DB1
+    DB1 --> Table1
+    Table1 --> HT5
