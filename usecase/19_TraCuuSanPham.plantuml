@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.19. Tra cứu sản phẩm
+' ==========================================
+@startuml 19_TraCuuSanPham
+left to right direction
+skinparam shadowing false
+
+usecase "Tra cứu sản phẩm" as UC_SearchProd
+usecase "Xóa trắng từ khóa / Bỏ bộ lọc" as UC_Clear
+usecase "Thông báo không tìm thấy kết quả" as UC_ErrNotFound
+
+UC_Clear ..> UC_SearchProd : <<extend>>
+UC_ErrNotFound ..> UC_SearchProd : <<extend>>
+@enduml

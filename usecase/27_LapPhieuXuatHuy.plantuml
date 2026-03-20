@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.27. Lập phiếu xuất hủy
+' ==========================================
+@startuml 27_LapPhieuXuatHuy
+left to right direction
+skinparam shadowing false
+
+usecase "Lập phiếu xuất hủy" as UC_Waste
+usecase "Bôi đỏ lô nguyên liệu đã quá hạn" as UC_Highlight
+usecase "Báo lỗi xuất lố (Số lượng hủy lớn hơn tồn)" as UC_ErrOver
+
+UC_Highlight ..> UC_Waste : <<extend>>
+UC_ErrOver ..> UC_Waste : <<extend>>
+@enduml

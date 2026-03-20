@@ -1,0 +1,20 @@
+' ==========================================
+' 2.3.2. Đổi mật khẩu
+' ==========================================
+@startuml 02_DoiMatKhau
+left to right direction
+skinparam shadowing false
+
+usecase "Đổi mật khẩu" as UC_ChangePass
+usecase "Đối chiếu mật khẩu hiện tại" as UC_Verify
+usecase "Hủy bỏ đổi mật khẩu" as UC_Cancel
+usecase "Cảnh báo sai mật khẩu cũ" as UC_Err1
+usecase "Cảnh báo mật khẩu mới không khớp" as UC_Err2
+usecase "Cảnh báo mật khẩu không đạt chuẩn" as UC_Err3
+
+UC_ChangePass ..> UC_Verify : <<include>>
+UC_Cancel ..> UC_ChangePass : <<extend>>
+UC_Err1 ..> UC_ChangePass : <<extend>>
+UC_Err2 ..> UC_ChangePass : <<extend>>
+UC_Err3 ..> UC_ChangePass : <<extend>>
+@enduml

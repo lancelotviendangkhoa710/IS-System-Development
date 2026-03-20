@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.35. Báo cáo tồn kho
+' ==========================================
+@startuml 35_BaoCaoTonKho
+left to right direction
+skinparam shadowing false
+
+usecase "Báo cáo tồn kho" as UC_RepStock
+usecase "Kết xuất danh sách tồn kho" as UC_Export
+usecase "Báo lỗi gián đoạn truy xuất cơ sở dữ liệu" as UC_ErrDB
+
+UC_Export ..> UC_RepStock : <<extend>>
+UC_ErrDB ..> UC_RepStock : <<extend>>
+@enduml

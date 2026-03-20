@@ -1,0 +1,28 @@
+' ==========================================
+' 2.3.8. Thêm/Xóa/Sửa khách hàng
+' ==========================================
+@startuml 08_ThemXoaSuaKhachHang
+left to right direction
+skinparam shadowing false
+
+usecase "Quản lý hồ sơ khách hàng" as UC_ManageCust
+usecase "Thêm khách hàng" as UC_AddCust
+usecase "Sửa khách hàng" as UC_EditCust
+usecase "Xóa khách hàng" as UC_DelCust
+
+usecase "Hủy bỏ biểu mẫu" as UC_Cancel
+usecase "Hủy bỏ trên hộp thoại xóa" as UC_CancelDel
+usecase "Cảnh báo bỏ trống trường" as UC_ErrEmpty
+usecase "Lỗi trùng lặp số điện thoại" as UC_ErrDup
+usecase "Chặn xóa (Có đơn chưa hoàn thành)" as UC_ErrBlock
+
+UC_AddCust --|> UC_ManageCust
+UC_EditCust --|> UC_ManageCust
+UC_DelCust --|> UC_ManageCust
+
+UC_Cancel ..> UC_ManageCust : <<extend>>
+UC_CancelDel ..> UC_DelCust : <<extend>>
+UC_ErrEmpty ..> UC_ManageCust : <<extend>>
+UC_ErrDup ..> UC_AddCust : <<extend>>
+UC_ErrBlock ..> UC_DelCust : <<extend>>
+@enduml

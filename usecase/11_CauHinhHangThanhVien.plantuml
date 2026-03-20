@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.11. Cấu hình hạng thành viên
+' ==========================================
+@startuml 11_CauHinhHangThanhVien
+left to right direction
+skinparam shadowing false
+
+usecase "Cấu hình hạng thành viên" as UC_ConfigRank
+usecase "Hủy bỏ cài đặt" as UC_Cancel
+usecase "Báo lỗi vượt mức giảm giá / trùng điểm" as UC_ErrInvalid
+
+UC_Cancel ..> UC_ConfigRank : <<extend>>
+UC_ErrInvalid ..> UC_ConfigRank : <<extend>>
+@enduml

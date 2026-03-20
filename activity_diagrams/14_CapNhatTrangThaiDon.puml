@@ -13,7 +13,8 @@ skinparam linetype ortho
 start
 :Truy cập vào màn hình\ndanh sách đơn đặt hàng;
 :Nhấn chọn một đơn hàng cụ thể;
-:Nhấn nút chuyển trạng thái;\n(ví dụ: sang "Đang làm", "Chờ giao", "Hoàn thành")
+:Nhấn nút chuyển trạng thái\n(ví dụ: sang "Đang làm", "Chờ giao", "Hoàn thành");
+
 |Hệ thống|
 if (Cố ý bỏ qua các bước\nquy định tuần tự?) then (Có)
   :Chặn thao tác và hiển thị cảnh báo\nvi phạm quy trình luân chuyển;

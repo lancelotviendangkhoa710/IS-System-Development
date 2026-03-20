@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.5. Phân quyền tài khoản
+' ==========================================
+@startuml 05_PhanQuyenTaiKhoan
+left to right direction
+skinparam shadowing false
+
+usecase "Phân quyền tài khoản" as UC_Permission
+usecase "Hủy bỏ lưu phân quyền" as UC_Cancel
+usecase "Chặn thu hồi toàn bộ quyền bản thân" as UC_ErrSelfRevoke
+
+UC_Cancel ..> UC_Permission : <<extend>>
+UC_ErrSelfRevoke ..> UC_Permission : <<extend>>
+@enduml

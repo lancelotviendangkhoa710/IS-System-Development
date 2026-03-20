@@ -1,0 +1,16 @@
+' ==========================================
+' 2.3.1. Đăng nhập / Đăng xuất
+' ==========================================
+@startuml 01_DangNhapDangXuat
+left to right direction
+skinparam shadowing false
+
+usecase "Đăng nhập/Đăng xuất" as UC_Login
+usecase "Kiểm tra tính hợp lệ" as UC_Check
+usecase "Thông báo lỗi sai thông tin" as UC_Err1
+usecase "Từ chối truy cập (Vô hiệu hóa)" as UC_Err2
+
+UC_Login ..> UC_Check : <<include>>
+UC_Err1 ..> UC_Login : <<extend>>
+UC_Err2 ..> UC_Login : <<extend>>
+@enduml

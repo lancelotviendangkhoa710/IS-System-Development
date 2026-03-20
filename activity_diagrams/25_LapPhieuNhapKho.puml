@@ -14,37 +14,48 @@ start
 :Chọn chức năng tạo phiếu nhập mới;
 |Hệ thống|
 :Hiển thị biểu mẫu thông tin chứng từ\nvà danh sách nhà cung cấp;
-|Người dùng|
-:Chọn nhà cung cấp và\nthêm từng loại nguyên liệu;
-:Đối với mỗi nguyên liệu, nhập số lượng,\nđơn giá, ngày sản xuất và hạn sử dụng;
-|Hệ thống|
-:Tự động tính toán thành tiền\nvà tổng giá trị phiếu;
-|Người dùng|
-if (Kiểm tra lại và lưu nháp?) then (Có)
-  |CSDL|
-  :Lưu tạm phiếu nhập\nmà chưa cộng số lượng vào kho;
-  stop
-elseif (Phát hiện chọn sai mặt hàng?) then (Có)
+
+repeat
   |Người dùng|
-  :Xóa một dòng nguyên liệu vừa thêm;
-else (Hoàn tất phiếu)
-  |Người dùng|
-  :Nhấn nút hoàn tất;
+  :Chọn hoặc đổi nhà cung cấp;
+  :Thêm, sửa, xóa nguyên liệu trong danh sách;
+  :Nhập số lượng, đơn giá,\nngày sản xuất và hạn sử dụng;
+  
   |Hệ thống|
-  if (Bỏ trống nhà cung cấp\nhoặc phiếu không có nguyên liệu?) then (Có)
-    :Chặn thao tác lưu\nvà hiển thị cảnh báo;
-    stop
-  elseif (Hạn sử dụng <= Ngày sản xuất?) then (Có)
-    :Bôi đỏ ô dữ liệu\nvà yêu cầu điều chỉnh lại;
-    stop
-  else (Khoảng dữ liệu hợp lệ)
-    |CSDL|
-    :Ghi nhận dữ liệu phiếu nhập;
-    :Cộng dồn số lượng tồn kho;
-    :Phân loại thành các lô hàng riêng biệt\nđể quản lý theo hạn sử dụng;
+  :Tự động tính toán thành tiền\nvà cập nhật tổng giá trị phiếu;
+  
+|Người dùng|
+repeat while (Tiếp tục chỉnh sửa?) is (Có) not (Không)
+
+if (Hành động tiếp theo là gì?) then (Lưu nháp)
+  |CSDL|
+  :Lưu tạm phiếu nhập (trạng thái Nháp)\nmà chưa cộng số lượng vào kho;
+  stop
+else (Nhấn Hoàn tất)
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ của dữ liệu;
+  
+  while (Dữ liệu có lỗi?) is (Có lỗi)
+    if (Chi tiết lỗi?) then (Thiếu NCC / Trống hàng)
+      :Hiển thị cảnh báo yêu cầu điền đầy đủ;
+    else (HSD <= Ngày sản xuất)
+      :Bôi đỏ ô dữ liệu lỗi\nvà yêu cầu điều chỉnh lại;
+    endif
+    
+    |Người dùng|
+    :Chỉnh sửa lại thông tin cho đúng;
+    
     |Hệ thống|
-    :Thông báo nhập kho thành công\nvà tải lại danh sách phiếu nhập;
-    stop
-  endif
+    :Hệ thống kiểm tra lại dữ liệu;
+  endwhile (Hợp lệ)
+  
+  |CSDL|
+  :Ghi nhận dữ liệu phiếu nhập chính thức;
+  :Cộng dồn số lượng tồn kho;
+  :Phân loại thành các lô hàng riêng biệt\nđể quản lý theo hạn sử dụng;
+  
+  |Hệ thống|
+  :Thông báo nhập kho thành công\nvà tải lại danh sách phiếu nhập;
+  stop
 endif
 @enduml

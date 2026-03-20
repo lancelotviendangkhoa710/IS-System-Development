@@ -1,0 +1,16 @@
+' ==========================================
+' 2.3.13. Lập đơn đặt bánh tùy chỉnh
+' ==========================================
+@startuml 13_LapDonDatBanhTuyChinh
+left to right direction
+skinparam shadowing false
+
+usecase "Lập đơn đặt bánh tùy chỉnh" as UC_CustomOrder
+usecase "Bỏ qua bước thêm phụ kiện" as UC_SkipDeco
+usecase "Từ chối nhận đơn (Giờ hẹn quá cận)" as UC_ErrTime
+usecase "Chặn thao tác (Tiền cọc thấp hơn tối thiểu)" as UC_ErrDeposit
+
+UC_SkipDeco ..> UC_CustomOrder : <<extend>>
+UC_ErrTime ..> UC_CustomOrder : <<extend>>
+UC_ErrDeposit ..> UC_CustomOrder : <<extend>>
+@enduml

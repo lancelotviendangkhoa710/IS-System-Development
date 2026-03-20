@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.34. Báo cáo doanh thu
+' ==========================================
+@startuml 34_BaoCaoDoanhThu
+left to right direction
+skinparam shadowing false
+
+usecase "Báo cáo doanh thu" as UC_RepRev
+usecase "Xem danh sách hóa đơn chi tiết trên biểu đồ" as UC_ViewDetail
+usecase "Cảnh báo lỗi thời gian (Mốc nằm trong tương lai)" as UC_ErrFuture
+
+UC_ViewDetail ..> UC_RepRev : <<extend>>
+UC_ErrFuture ..> UC_RepRev : <<extend>>
+@enduml

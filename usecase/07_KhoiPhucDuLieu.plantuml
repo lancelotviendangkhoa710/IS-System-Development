@@ -1,0 +1,14 @@
+' ==========================================
+' 2.3.7. Khôi phục dữ liệu
+' ==========================================
+@startuml 07_KhoiPhucDuLieu
+left to right direction
+skinparam shadowing false
+
+usecase "Khôi phục dữ liệu" as UC_Restore
+usecase "Hủy bỏ khôi phục" as UC_Cancel
+usecase "Báo lỗi xung đột mã định danh" as UC_ErrConflict
+
+UC_Cancel ..> UC_Restore : <<extend>>
+UC_ErrConflict ..> UC_Restore : <<extend>>
+@enduml

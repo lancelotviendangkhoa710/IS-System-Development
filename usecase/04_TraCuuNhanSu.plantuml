@@ -1,0 +1,16 @@
+' ==========================================
+' 2.3.4. Tra cứu nhân sự
+' ==========================================
+@startuml 04_TraCuuNhanSu
+left to right direction
+skinparam shadowing false
+
+usecase "Tra cứu nhân sự" as UC_SearchStaff
+usecase "Truy xuất cơ sở dữ liệu" as UC_FetchDB
+usecase "Xóa từ khóa (Hiển thị lại ban đầu)" as UC_ClearSearch
+usecase "Thông báo không tìm thấy kết quả" as UC_ErrNotFound
+
+UC_SearchStaff ..> UC_FetchDB : <<include>>
+UC_ClearSearch ..> UC_SearchStaff : <<extend>>
+UC_ErrNotFound ..> UC_SearchStaff : <<extend>>
+@enduml

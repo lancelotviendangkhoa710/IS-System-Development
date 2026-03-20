@@ -1,0 +1,16 @@
+' ==========================================
+' 2.3.26. Lập phiếu xuất kho
+' ==========================================
+@startuml 26_LapPhieuXuatKho
+left to right direction
+skinparam shadowing false
+
+usecase "Lập phiếu xuất kho" as UC_Export
+usecase "Kiểm tra số lượng tồn" as UC_CheckStock
+usecase "Hủy giao dịch (Kho không đủ vật tư)" as UC_ErrNoStock
+usecase "Yêu cầu chờ (Xung đột thao tác xuất trùng lặp)" as UC_ErrLock
+
+UC_Export ..> UC_CheckStock : <<include>>
+UC_ErrNoStock ..> UC_Export : <<extend>>
+UC_ErrLock ..> UC_Export : <<extend>>
+@enduml

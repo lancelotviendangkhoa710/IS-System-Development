@@ -22,7 +22,7 @@ if (Toàn bộ kho hàng đều đạt mức an toàn\nvà không có lô nào c
   :Hiển thị thông báo kho hàng ổn định\nvà trả về danh sách trống;
   stop
 else (Có cảnh báo)
-  :Lọc ra hia danh sách riêng biệt:\n1. Nguyên liệu sắp cạn kiệt\n2. Lô hàng sắp hết hạn;
+  :Lọc ra danh sách riêng biệt:\n1. Nguyên liệu sắp cạn kiệt\n2. Lô hàng sắp hết hạn;
   :Hiển thị danh sách với các tông màu báo động nổi bật;
   |Người dùng|
   if (Nhấn chọn vào một dòng cảnh báo?) then (Có)

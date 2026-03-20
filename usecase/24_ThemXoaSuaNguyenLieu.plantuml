@@ -1,0 +1,26 @@
+' ==========================================
+' 2.3.24. Thêm/Xóa/Sửa nguyên liệu
+' ==========================================
+@startuml 24_ThemXoaSuaNguyenLieu
+left to right direction
+skinparam shadowing false
+
+usecase "Quản lý nguyên liệu" as UC_ManageMat
+usecase "Thêm nguyên liệu" as UC_AddMat
+usecase "Sửa nguyên liệu" as UC_EditMat
+usecase "Xóa nguyên liệu" as UC_DelMat
+
+usecase "Hủy bỏ lưu" as UC_Cancel
+usecase "Cảnh báo thiếu thông tin bắt buộc" as UC_ErrEmpty
+usecase "Báo lỗi trùng lặp tên" as UC_ErrDup
+usecase "Chặn xóa (Đang tồn kho hoặc có trong công thức)" as UC_ErrConstraint
+
+UC_AddMat --|> UC_ManageMat
+UC_EditMat --|> UC_ManageMat
+UC_DelMat --|> UC_ManageMat
+
+UC_Cancel ..> UC_ManageMat : <<extend>>
+UC_ErrEmpty ..> UC_ManageMat : <<extend>>
+UC_ErrDup ..> UC_AddMat : <<extend>>
+UC_ErrConstraint ..> UC_DelMat : <<extend>>
+@enduml

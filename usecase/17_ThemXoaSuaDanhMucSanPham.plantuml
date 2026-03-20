@@ -1,0 +1,26 @@
+' ==========================================
+' 2.3.17. Thêm/Xóa/Sửa danh mục sản phẩm
+' ==========================================
+@startuml 17_ThemXoaSuaDanhMucSanPham
+left to right direction
+skinparam shadowing false
+
+usecase "Quản lý danh mục" as UC_ManageCat
+usecase "Thêm danh mục" as UC_AddCat
+usecase "Sửa danh mục" as UC_EditCat
+usecase "Xóa danh mục" as UC_DelCat
+
+usecase "Hủy bỏ lưu" as UC_Cancel
+usecase "Cảnh báo trống tên nhóm" as UC_ErrEmpty
+usecase "Báo lỗi trùng lặp" as UC_ErrDup
+usecase "Chặn xóa (Nhóm đang chứa sản phẩm)" as UC_ErrHasProd
+
+UC_AddCat --|> UC_ManageCat
+UC_EditCat --|> UC_ManageCat
+UC_DelCat --|> UC_ManageCat
+
+UC_Cancel ..> UC_ManageCat : <<extend>>
+UC_ErrEmpty ..> UC_ManageCat : <<extend>>
+UC_ErrDup ..> UC_AddCat : <<extend>>
+UC_ErrHasProd ..> UC_DelCat : <<extend>>
+@enduml

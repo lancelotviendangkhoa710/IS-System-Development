@@ -1,0 +1,26 @@
+' ==========================================
+' 2.3.31. Thêm/Xóa/Sửa nhà cung cấp
+' ==========================================
+@startuml 31_ThemXoaSuaNhaCungCap
+left to right direction
+skinparam shadowing false
+
+usecase "Quản lý nhà cung cấp" as UC_ManageSup
+usecase "Thêm NCC" as UC_AddSup
+usecase "Sửa NCC" as UC_EditSup
+usecase "Xóa NCC" as UC_DelSup
+
+usecase "Hủy bỏ biểu mẫu" as UC_Cancel
+usecase "Cảnh báo để trống trường bắt buộc" as UC_ErrEmpty
+usecase "Báo lỗi trùng lặp SĐT liên lạc" as UC_ErrDupPhone
+usecase "Chặn xóa (Có công nợ/giao dịch -> Chuyển ngừng giao dịch)" as UC_ErrHasDebt
+
+UC_AddSup --|> UC_ManageSup
+UC_EditSup --|> UC_ManageSup
+UC_DelSup --|> UC_ManageSup
+
+UC_Cancel ..> UC_ManageSup : <<extend>>
+UC_ErrEmpty ..> UC_ManageSup : <<extend>>
+UC_ErrDupPhone ..> UC_AddSup : <<extend>>
+UC_ErrHasDebt ..> UC_DelSup : <<extend>>
+@enduml
