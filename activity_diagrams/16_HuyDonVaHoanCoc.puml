@@ -1,0 +1,43 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Nhấn chọn nút chức năng hủy giao dịch\ntại màn hình chi tiết đơn đặt bánh;
+|Hệ thống|
+:Hiển thị hộp thoại yêu cầu nhập lý do hủy\nvà xác nhận số tiền cọc cần hoàn trả;
+|Người dùng|
+if (Chuyển ý không hủy nữa?) then (Có)
+  |Hệ thống|
+  :Đóng hộp thoại và\ngiữ nguyên trạng thái đơn hàng;
+  stop
+else (Xác nhận hủy)
+  |Người dùng|
+  :Điền lý do, kiểm tra số tiền\nvà nhấn nút đồng ý;
+  |Hệ thống|
+  if (Đơn hàng đã chuyển sang\ntrạng thái Chờ giao hoặc Hoàn thành?) then (Có)
+    :Chặn đứng thao tác hủy,\nhiển thị cảnh báo từ chối\nvà yêu cầu khách hàng nhận bánh;
+    stop
+  else (Cho phép hủy)
+    :Kiểm tra tiến độ để xác định mức bồi thường;
+    |CSDL|
+    :Ghi nhận trạng thái đã hủy;
+    :Trừ số lượng bánh của đơn khỏi\nbảng giới hạn nhận đơn trong ngày;
+    |Người dùng|
+    :Thao tác trả lại tiền mặt cho khách;
+    |CSDL|
+    :Ghi nhận khoản chi vào sổ quỹ;
+    |Hệ thống|
+    :Thông báo hủy thành công\nvà tải lại giao diện danh sách;
+    stop
+  endif
+endif
+@enduml

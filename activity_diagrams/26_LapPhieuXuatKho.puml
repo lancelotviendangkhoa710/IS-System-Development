@@ -1,0 +1,40 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Chọn chức năng tạo phiếu xuất mới\nvà nhập lý do;
+:Chọn các loại nguyên liệu cần xuất\nvà điền số lượng tương ứng;
+:Nhấn nút xác nhận xuất kho;
+|Hệ thống|
+|CSDL|
+:Tiến hành khóa an toàn dữ liệu\ncác lô hàng liên quan dưới cơ sở dữ liệu;
+|Hệ thống|
+if (Có người dùng khác\nđang thao tác xuất kho trùng lặp?) then (Có)
+  :Yêu cầu chờ trong giây lát\nđến khi giao dịch kia hoàn tất;
+else (Được phép thao tác)
+endif
+:Tính toán tổng số lượng tồn của từng nguyên liệu\nđối chiếu với mức yêu cầu;
+if (Tổng số lượng tồn không đủ\nđể đáp ứng con số yêu cầu?) then (Có)
+  |CSDL|
+  :Lập tức hủy bỏ toàn bộ giao dịch,\ngiải phóng khóa dữ liệu;
+  |Hệ thống|
+  :Báo lỗi kho không đủ vật tư;
+  stop
+else (Đủ tồn kho)
+  |CSDL|
+  :Tự động phân bổ số lượng xuất trừ lùi\nvào các lô hàng cận hạn sử dụng nhất;
+  :Ghi nhận chứng từ phiếu xuất,\ncập nhật số lượng và tháo khóa an toàn;
+  |Hệ thống|
+  :Thông báo xuất kho thành công;
+  stop
+endif
+@enduml

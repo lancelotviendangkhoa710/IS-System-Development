@@ -1,0 +1,50 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Chọn chức năng tạo phiếu nhập mới;
+|Hệ thống|
+:Hiển thị biểu mẫu thông tin chứng từ\nvà danh sách nhà cung cấp;
+|Người dùng|
+:Chọn nhà cung cấp và\nthêm từng loại nguyên liệu;
+:Đối với mỗi nguyên liệu, nhập số lượng,\nđơn giá, ngày sản xuất và hạn sử dụng;
+|Hệ thống|
+:Tự động tính toán thành tiền\nvà tổng giá trị phiếu;
+|Người dùng|
+if (Kiểm tra lại và lưu nháp?) then (Có)
+  |CSDL|
+  :Lưu tạm phiếu nhập\nmà chưa cộng số lượng vào kho;
+  stop
+elseif (Phát hiện chọn sai mặt hàng?) then (Có)
+  |Người dùng|
+  :Xóa một dòng nguyên liệu vừa thêm;
+else (Hoàn tất phiếu)
+  |Người dùng|
+  :Nhấn nút hoàn tất;
+  |Hệ thống|
+  if (Bỏ trống nhà cung cấp\nhoặc phiếu không có nguyên liệu?) then (Có)
+    :Chặn thao tác lưu\nvà hiển thị cảnh báo;
+    stop
+  elseif (Hạn sử dụng <= Ngày sản xuất?) then (Có)
+    :Bôi đỏ ô dữ liệu\nvà yêu cầu điều chỉnh lại;
+    stop
+  else (Khoảng dữ liệu hợp lệ)
+    |CSDL|
+    :Ghi nhận dữ liệu phiếu nhập;
+    :Cộng dồn số lượng tồn kho;
+    :Phân loại thành các lô hàng riêng biệt\nđể quản lý theo hạn sử dụng;
+    |Hệ thống|
+    :Thông báo nhập kho thành công\nvà tải lại danh sách phiếu nhập;
+    stop
+  endif
+endif
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Truy cập màn hình danh\nsách công thức làm bánh;
+if (Xóa trắng từ khóa tìm kiếm?) then (Có)
+  |Hệ thống|
+  :Tải lại toàn bộ\ndanh sách công thức ban đầu;
+  stop
+else (Nhập từ khóa)
+  |Người dùng|
+  :Nhập tên mặt hàng cần xem\nvào thanh tìm kiếm;
+  |Hệ thống|
+  :Tiếp nhận từ khóa;
+  |CSDL|
+  :Đối chiếu với dữ liệu;
+  |Hệ thống|
+  if (Không có công thức nào khớp?) then (Có)
+    :Hiển thị thông báo không tìm thấy kết quả\nvà trả về một bảng danh sách trống;
+    stop
+  else (Tìm thấy)
+    :Hiển thị kết quả khớp với yêu cầu;
+    |Người dùng|
+    :Nhấn chọn một dòng công thức cụ thể\nđể xem bảng kê định lượng chi tiết;
+    stop
+  endif
+endif
+@enduml
