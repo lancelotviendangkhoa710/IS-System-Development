@@ -1,0 +1,38 @@
+
+    -- Trigger trừ số lượng bánh khi bán, cộng số lượng khi hoàn đơn
+    CREATE OR REPLACE TRIGGER TRG_TRUKHO_DONHANG
+    AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
+    FOR EACH ROW
+    DECLARE
+        V_MASP NUMBER;
+        V_CHENHLECH NUMBER(10,2) := 0;
+        V_SOLUONGTON NUMBER(10,2) := 0;
+    BEGIN
+        IF INSERTING THEN
+            V_CHENHLECH := :NEW.SOLUONG;
+            V_MASP := :NEW.MASP;
+        ELSIF UPDATING THEN
+            V_CHENHLECH := :NEW.SOLUONG - :OLD.SOLUONG;
+            V_MASP := :NEW.MASP;
+        ELSIF DELETING THEN
+            V_CHENHLECH := -(:OLD.SOLUONG);
+            V_MASP := :OLD.MASP;
+        END IF;
+
+        UPDATE SANPHAM
+        SET SOLUONGTON = SOLUONGTON - V_CHENHLECH
+        WHERE MASP = V_MASP;
+
+        SELECT SOLUONGTON INTO V_SOLUONGTON
+        FROM SANPHAM
+        WHERE MASP = V_MASP;
+
+        IF V_SOLUONGTON < 0 THEN
+            RAISE_APPLICATION_ERROR(-20002, 'So luong banh da het!');
+        END IF;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(-20003, 'Loi: Khong tim thay san pham.');
+    END;
+    /
