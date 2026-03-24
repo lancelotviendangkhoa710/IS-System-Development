@@ -8,7 +8,7 @@ BEGIN
     -- Chống gian lận hạn sử dụng
     IF UPDATING THEN
         IF :NEW.HANSUDUNG > :OLD.HANSUDUNG THEN
-            RAISE_APPLICATION_ERROR(-20002,
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_GIAN_LAN_HSD,
                 'CANH BAO GIAN LAN: Han su dung moi (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
                 ') khong duoc phep lon hon han su dung cu (' || TO_CHAR(:OLD.HANSUDUNG, 'DD/MM/YYYY') || ').');
         END IF;
@@ -20,13 +20,13 @@ BEGIN
     WHERE MAPN = :NEW.MAPN;
 
     IF TRUNC(:NEW.HANSUDUNG) <= TRUNC(V_NGAYNHAP) THEN
-        RAISE_APPLICATION_ERROR(-20003,
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_HSD_KHONG_HOPLE,
             'LOI NGHIEP VU: Han su dung cua lo nay (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
             ') va ngay nhap kho (' || TO_CHAR(V_NGAYNHAP, 'DD/MM/YYYY') || ') da qua han!.');
     END IF;
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(-20004, 'Loi: Khong tim thay phieu nhap kho.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_CO_PHIEUNHAP, 'Loi: Khong tim thay phieu nhap kho.');
 END;
 /

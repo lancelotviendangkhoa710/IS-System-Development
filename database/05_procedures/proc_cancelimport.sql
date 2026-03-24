@@ -13,7 +13,7 @@ BEGIN
 
     -- 2. Bắt lỗi và Chặn đứng giao dịch nếu phát hiện dấu vết xé niêm phong
     IF V_DA_SUDUNG > 0 THEN
-        RAISE_APPLICATION_ERROR(-20005, 'Khong the huy phieu nhap nay vi nguyen lieu da duoc mang di lam banh!');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_THE_HUY_PN, 'Khong the huy phieu nhap nay vi nguyen lieu da duoc mang di lam banh!');
     END IF;
 
     -- 3. Thực thi Hủy (Xóa Chi tiết trước (Con), Xóa Phiếu gốc sau (Cha))

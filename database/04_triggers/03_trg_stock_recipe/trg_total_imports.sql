@@ -23,6 +23,6 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Loi: Khong tim thay du lieu phieu nhap.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_CO_PHIEUNHAP, 'Loi: Khong tim thay du lieu phieu nhap.');
 END;
 /

@@ -47,7 +47,7 @@
         FOR UPDATE;
 
         IF (V_SOBANH_HIENTAI + V_CHENHLECH) > V_GIOIHAN THEN
-            RAISE_APPLICATION_ERROR(-20005,
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_VUOT_CONG_SUAT,
                 'TU CHOI NHAN DON: Ngay San Xuat Thuc Te (' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY') || ') ' ||
                 ' da dat cong suat toi da! (Da nhan: ' || V_SOBANH_HIENTAI || '/' || V_GIOIHAN || ' banh, Khach dat them: ' || V_CHENHLECH || ' banh). ' ||
                 'Vui long khuyen khich khach doi sang ngay khac!');
@@ -59,6 +59,6 @@
 
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            DBMS_OUTPUT.PUT_LINE('Luu y: Chua co du lieu gioi han cong suat cho ngay san xuat ' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY'));
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_GIOI_HAN_SX, 'Luu y: Chua co du lieu gioi han cong suat cho ngay san xuat ' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY'));
     END;
     /

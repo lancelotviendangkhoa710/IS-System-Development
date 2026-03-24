@@ -4,7 +4,7 @@
     FOR EACH ROW
     BEGIN
         IF :NEW.DATCHUANVSATTP = 0 THEN
-            RAISE_APPLICATION_ERROR(-20001, 'NGUYEN_LIEU_KHONG_DAT_CHUAN: Nguyen lieu khong dat chuan, cam nhap kho');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DAT_VSATTP, 'NGUYEN_LIEU_KHONG_DAT_CHUAN: Nguyen lieu khong dat chuan, cam nhap kho');
         END IF;
     END;
     /

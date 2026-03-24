@@ -1,4 +1,3 @@
-
     -- Trigger gán giá vốn tại thời điểm bán cho chi tiết đơn tùy chỉnh
     CREATE OR REPLACE TRIGGER TRG_CTDONTUYCHINH_GIAVON
     BEFORE INSERT ON CTDONTUYCHINH

@@ -50,7 +50,7 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     ERR_NL_GIAN_LAN_HSD             CONSTANT NUMBER := -20302;
 
     -- HSD của lô <= ngày nhập kho (dùng trong TRG_KIEMTRA_HSD)
-    ERR_NL_HSD_KHONG_HOPLEQ         CONSTANT NUMBER := -20303;
+    ERR_NL_HSD_KHONG_HOPLE         CONSTANT NUMBER := -20303;
 
     -- Không tìm thấy phiếu nhập kho (dùng trong TRG_KIEMTRA_HSD, TRG_TONGTIENNHAP)
     ERR_NL_KHONG_CO_PHIEUNHAP       CONSTANT NUMBER := -20304;
@@ -72,8 +72,11 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- Vượt công suất sản xuất trong ngày (dùng trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
     ERR_DON_VUOT_CONG_SUAT          CONSTANT NUMBER := -20401;
 
+    -- Không tìm thấy giới hạn sản xuất trong ngày (dùng trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
+    ERR_KHONG_GIOI_HAN_SX           CONSTANT NUMBER := -20402;
+
     -- Lỗi khi chuyển trạng thái đơn hàng (dùng trong PROC_CHUYENTRANGTHAIDON)
-    ERR_DON_CHUYEN_TRANGTHAI        CONSTANT NUMBER := -20402;
+    ERR_DON_CHUYEN_TRANGTHAI        CONSTANT NUMBER := -20403;
 
 
     -- ========================

@@ -17,6 +17,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20001, 'Loi he thong khi khoi phuc du lieu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HE_THONG_KHOIPHUC, 'Loi he thong khi khoi phuc du lieu: ' || SQLERRM);
 END;
 /

@@ -1,4 +1,3 @@
-
     -- Trigger trừ số lượng bánh khi bán, cộng số lượng khi hoàn đơn
     CREATE OR REPLACE TRIGGER TRG_TRUKHO_DONHANG
     AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
@@ -28,11 +27,11 @@
         WHERE MASP = V_MASP;
 
         IF V_SOLUONGTON < 0 THEN
-            RAISE_APPLICATION_ERROR(-20002, 'So luong banh da het!');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_HET_HANG, 'So luong banh da het!');
         END IF;
 
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(-20003, 'Loi: Khong tim thay san pham.');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Loi: Khong tim thay san pham.');
     END;
     /
