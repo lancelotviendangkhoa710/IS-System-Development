@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -24,18 +25,21 @@ else (Nhập dữ liệu / xác nhận)
   :Chọn tên bánh, nguyên liệu, định lượng\nvà nhấn xác nhận;
   |Hệ thống|
   :Kiểm tra tính hợp lệ của dữ liệu;
+  
   if (Định lượng nguyên liệu\nlà số âm hoặc bằng không?) then (Có)
     :Bôi đỏ ô nhập liệu\nvà yêu cầu sửa lại con số hợp lệ;
     stop
-  elseif (Thêm mới một loại bánh\nđã có sẵn công thức?) then (Có)
-    :Báo lỗi trùng lặp và yêu cầu\nchuyển sang thao tác chỉnh sửa;
-    stop
-  else (Hợp lệ)
-    |CSDL|
-    :Ghi nhận mọi thay đổi\nxuống cơ sở dữ liệu;
-    |Hệ thống|
-    :Tải lại danh sách hiển thị;
-    stop
+  else (Không)
+    if (Thêm mới một loại bánh\nđã có sẵn công thức?) then (Có)
+      :Báo lỗi trùng lặp và yêu cầu\nchuyển sang thao tác chỉnh sửa;
+      stop
+    else (Hợp lệ)
+      |CSDL|
+      :Ghi nhận mọi thay đổi\nxuống cơ sở dữ liệu;
+      |Hệ thống|
+      :Tải lại danh sách hiển thị;
+      stop
+    endif
   endif
 endif
 @enduml

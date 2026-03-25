@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -24,18 +25,21 @@ else (Điền thông tin/Đồng ý)
   :Điền thông tin và\nnhấn nút lưu/cập nhật/đồng ý;
   |Hệ thống|
   :Kiểm tra tính hợp lệ\ncủa các dữ liệu đầu vào;
+  
   if (Bỏ trống các trường bắt buộc?) then (Có)
     :Hiển thị cảnh báo\nyêu cầu bổ sung;
     stop
-  elseif (Tên đăng nhập tạo mới đã tồn tại?) then (Có)
-    :Báo lỗi trùng lặp\nvà yêu cầu chọn tên khác;
-    stop
-  else (Dữ liệu hợp lệ)
-    |CSDL|
-    :Thực thi lệnh lưu trữ\nhoặc đổi trạng thái;
-    |Hệ thống|
-    :Thông báo thành công\nvà tải lại danh sách nhân sự;
-    stop
+  else (Không)
+    if (Tên đăng nhập tạo mới đã tồn tại?) then (Có)
+      :Báo lỗi trùng lặp\nvà yêu cầu chọn tên khác;
+      stop
+    else (Dữ liệu hợp lệ)
+      |CSDL|
+      :Thực thi lệnh lưu trữ\nhoặc đổi trạng thái;
+      |Hệ thống|
+      :Thông báo thành công\nvà tải lại danh sách nhân sự;
+      stop
+    endif
   endif
 endif
 @enduml

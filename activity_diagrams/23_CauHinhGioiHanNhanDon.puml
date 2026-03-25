@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -25,18 +26,21 @@ else (Lưu thiết lập)
   :Nhấn nút lưu thiết lập;
   |Hệ thống|
   :Kiểm tra tính hợp lệ của con số vừa nhập;
+  
   if (Nhập một con số âm?) then (Có)
     :Bôi đỏ ô nhập liệu\nvà yêu cầu điền số lượng hợp lệ;
     stop
-  elseif (Giới hạn mới nhỏ hơn\ntổng số lượng bánh đã lỡ nhận đơn?) then (Có)
-    :Hiển thị cảnh báo từ chối hạ hạn mức\nvà yêu cầu quản lý giữ nguyên\nhoặc xử lý thỏa thuận lại với khách;
-    stop
-  else (Hợp lệ)
-    |CSDL|
-    :Ghi nhận cấu hình mới\nxuống cơ sở dữ liệu;
-    |Hệ thống|
-    :Thông báo cập nhật thành công;
-    stop
+  else (Không)
+    if (Giới hạn mới nhỏ hơn\ntổng số lượng bánh đã lỡ nhận đơn?) then (Có)
+      :Hiển thị cảnh báo từ chối hạ hạn mức\nvà yêu cầu quản lý giữ nguyên\nhoặc xử lý thỏa thuận lại với khách;
+      stop
+    else (Hợp lệ)
+      |CSDL|
+      :Ghi nhận cấu hình mới\nxuống cơ sở dữ liệu;
+      |Hệ thống|
+      :Thông báo cập nhật thành công;
+      stop
+    endif
   endif
 endif
 @enduml

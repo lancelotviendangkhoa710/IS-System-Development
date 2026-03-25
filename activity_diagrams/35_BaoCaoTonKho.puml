@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -33,6 +34,8 @@ else (Kết nối bình thường)
     :Tạo lập tập tin định dạng bảng tính;
     stop
   else (Không)
+    |Hệ thống|
+    :Trả về màn hình hiển thị trước;
     stop
   endif
 endif

@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -30,6 +31,8 @@ else (Có cảnh báo)
     :Chuyển hướng ngay lập tức\nsang màn hình Lập phiếu nhập\nhoặc xuất hủy tương ứng;
     stop
   else (Không)
+    |Hệ thống|
+    :Trả về màn hình hiển thị danh sách;
     stop
   endif
 endif

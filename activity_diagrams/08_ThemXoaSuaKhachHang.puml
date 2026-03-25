@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -24,21 +25,26 @@ else (Xác nhận)
   :Nhập liệu và nhấn nút lưu/cập nhật/đồng ý;
   |Hệ thống|
   :Kiểm tra định dạng dữ liệu đầu vào\nhoặc kiểm tra ràng buộc đối với xóa;
+  
   if (Để trống các trường bắt buộc?) then (Có)
     :Hiển thị cảnh báo và yêu cầu bổ sung;
     stop
-  elseif (Số điện thoại thêm mới\nđã tồn tại?) then (Có)
-    :Báo lỗi trùng lặp dữ liệu\nvà giữ nguyên biểu mẫu;
-    stop
-  elseif (Xóa khách hàng\nđang có đơn đặt bánh chưa hoàn thành?) then (Có)
-    :Chặn thao tác và\nthông báo vi phạm ràng buộc dữ liệu;
-    stop
-  else (Hợp lệ)
-    |CSDL|
-    :Thực hiện lưu trữ\nxuống cơ sở dữ liệu;
-    |Hệ thống|
-    :Thông báo thao tác thành công;
-    stop
+  else (Không)
+    if (Số điện thoại thêm mới\nđã tồn tại?) then (Có)
+      :Báo lỗi trùng lặp dữ liệu\nvà giữ nguyên biểu mẫu;
+      stop
+    else (Không)
+      if (Xóa khách hàng\nđang có đơn đặt bánh chưa hoàn thành?) then (Có)
+        :Chặn thao tác và\nthông báo vi phạm ràng buộc dữ liệu;
+        stop
+      else (Hợp lệ)
+        |CSDL|
+        :Thực hiện lưu trữ\nxuống cơ sở dữ liệu;
+        |Hệ thống|
+        :Thông báo thao tác thành công;
+        stop
+      endif
+    endif
   endif
 endif
 @enduml

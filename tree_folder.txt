@@ -1,0 +1,48 @@
+BakeryManagementSystem/
+├── .git/                       # Thư mục ẩn do Git tự sinh ra để theo dõi lịch sử
+├── .gitignore                  # RẤT QUAN TRỌNG: Khai báo các file KHÔNG đẩy lên GitHub
+├── README.md                   # File giới thiệu dự án, hướng dẫn cài đặt cho người mới
+├── pom.xml                     # File quản lý thư viện Maven (JavaFX, ojdbc8)
+│
+├── database_scripts/           # THƯ MỤC SQL CHÍNH: Quản lý toàn bộ cấu trúc Oracle
+│   ├── 01_Create_Tables.sql    # Chứa lệnh CREATE TABLE, CONSTRAINT
+│   ├── 02_Insert_Data.sql      # Chứa lệnh INSERT dữ liệu mẫu (Mock data)
+│   ├── 03_Packages.sql         # Chứa PKG_ERROR_CODES của bạn
+│   └── 04_Triggers_Procs.sql   # Chứa các Trigger kiểm soát kho, Procedure, v.v.
+│
+└── src/
+    ├── main/
+    │   ├── java/
+    │   │   └── com/bakery/
+    │   │       ├── main/       
+    │   │       │   └── App.java                # Điểm khởi chạy ứng dụng JavaFX
+    │   │       │
+    │   │       ├── models/     
+    │   │       │   └── NhanVien.java           # POJO class (Ánh xạ bảng CSDL)
+    │   │       │
+    │   │       ├── dao/        
+    │   │       │   └── NhanVienDAO.java        # Tầng giao tiếp với Oracle (Chứa lệnh SQL)
+    │   │       │
+    │   │       ├── services/   
+    │   │       │   └── DonHangService.java     # Tầng xử lý logic nghiệp vụ
+    │   │       │
+    │   │       ├── controllers/
+    │   │       │   └── MainController.java     # Điều khiển giao diện FXML
+    │   │       │
+    │   │       └── utils/      
+    │   │           ├── DBConnect.java          # Class kết nối Oracle
+    │   │           └── Config.java             # Đọc cấu hình (chuỗi kết nối, mật khẩu)
+    │   │
+    │   └── resources/
+    │       ├── views/          
+    │       │   └── Dashboard.fxml              # File giao diện SceneBuilder
+    │       │
+    │       ├── css/            
+    │       │   └── styles.css                  # File định dạng (màu sắc, font)
+    │       │
+    │       ├── images/         
+    │       │   └── logo.png                    # Hình ảnh dùng trong app
+    │       │
+    │       └── application.properties          # File lưu thông tin User/Pass DB (sẽ bị Git ignore)
+    │
+    └── test/                   # Thư mục chứa code kiểm thử (Unit Test)

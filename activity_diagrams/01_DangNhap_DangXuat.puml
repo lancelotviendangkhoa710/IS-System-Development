@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -18,18 +19,22 @@ start
 |CSDL|
 :Xác thực tài khoản;
 |Hệ thống|
+
 if (Sai tên/mật khẩu?) then (Có)
   :Hiển thị thông báo lỗi\nvà yêu cầu nhập lại;
   stop
-elseif (Tài khoản bị vô hiệu hóa?) then (Có)
-  :Từ chối truy cập\nvà báo lỗi tương ứng;
-  stop
-else (Hợp lệ)
-  :Ghi nhận phiên làm việc\nvà hiển thị màn hình chính;
-  |Người dùng|
-  :Nhấn nút đăng xuất\ntrên màn hình chính;
-  |Hệ thống|
-  :Kết thúc phiên làm việc\nvà quay lại màn hình khởi động;
-  stop
+else (Không)
+  if (Tài khoản bị vô hiệu hóa?) then (Có)
+    :Từ chối truy cập\nvà báo lỗi tương ứng;
+    stop
+  else (Hợp lệ)
+    :Ghi nhận phiên làm việc\nvà hiển thị màn hình chính;
+    |Người dùng|
+    :Nhấn nút đăng xuất\ntrên màn hình chính;
+    |Hệ thống|
+    :Kết thúc phiên làm việc\nvà quay lại màn hình khởi động;
+    stop
+  endif
 endif
+
 @enduml

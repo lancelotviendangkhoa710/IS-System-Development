@@ -1,4 +1,5 @@
 @startuml
+skinparam conditionStyle diamond
 skinparam ranksep 80
 skinparam swimlaneWidth 140
 skinparam shadowing false
@@ -24,21 +25,26 @@ else (Nhập dữ liệu và lưu)
   :Nhập tên, thay đổi nội dung\nhoặc nhấn nút đồng ý (khi xóa);
   |Hệ thống|
   :Kiểm tra tính hợp lệ;
+  
   if (Để trống ô tên nhóm hàng hóa?) then (Có)
     :Hiển thị cảnh báo\nyêu cầu điền đầy đủ thông tin;
     stop
-  elseif (Tên nhóm tạo mới bị trùng lặp?) then (Có)
-    :Báo lỗi từ chối lưu;
-    stop
-  elseif (Xóa nhóm đang chứa\nnhiều sản phẩm bên trong?) then (Có)
-    :Chặn đứng thao tác\nvà yêu cầu di dời sản phẩm;
-    stop
-  else (Hợp lệ)
-    |CSDL|
-    :Thực thi lưu trữ xuống cơ sở dữ liệu;
-    |Hệ thống|
-    :Thông báo thao tác thành công\nvà tải lại danh sách;
-    stop
+  else (Không)
+    if (Tên nhóm tạo mới bị trùng lặp?) then (Có)
+      :Báo lỗi từ chối lưu;
+      stop
+    else (Không)
+      if (Xóa nhóm đang chứa\nnhiều sản phẩm bên trong?) then (Có)
+        :Chặn đứng thao tác\nvà yêu cầu di dời sản phẩm;
+        stop
+      else (Hợp lệ)
+        |CSDL|
+        :Thực thi lưu trữ xuống cơ sở dữ liệu;
+        |Hệ thống|
+        :Thông báo thao tác thành công\nvà tải lại danh sách;
+        stop
+      endif
+    endif
   endif
 endif
 @enduml
