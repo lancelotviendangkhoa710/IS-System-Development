@@ -1,0 +1,147 @@
+@startuml TongHop_QuanLyKho_NCC
+left to right direction
+skinparam shadowing false
+
+    ' ==========================================
+    ' 2.3.24. Thêm/Xóa/Sửa nguyên liệu
+    ' ==========================================
+    usecase "Quản lý nguyên liệu" as UC_ManageMat
+    usecase "Thêm nguyên liệu" as UC_AddMat
+    usecase "Sửa nguyên liệu" as UC_EditMat
+    usecase "Xóa nguyên liệu" as UC_DelMat
+
+    usecase "Hủy bỏ lưu" as UC_CancelMat
+    usecase "Cảnh báo thiếu thông tin bắt buộc" as UC_ErrEmptyMat
+    usecase "Báo lỗi trùng lặp tên" as UC_ErrDupMat
+    usecase "Chặn xóa (Đang tồn kho hoặc có trong công thức)" as UC_ErrConstraint
+
+    ' ==========================================
+    ' 2.3.25. Lập phiếu nhập kho
+    ' ==========================================
+    usecase "Lập phiếu nhập kho" as UC_Import
+    usecase "Xóa dòng nguyên liệu nhập sai" as UC_DelRow
+    usecase "Lưu tạm nháp phiếu nhập" as UC_SaveDraft
+    usecase "Lỗi HSD nhỏ hơn ngày sản xuất" as UC_ErrDateImport
+    usecase "Chặn lưu (Thiếu nhà cung cấp / phiếu trống)" as UC_ErrEmptyImport
+
+    ' ==========================================
+    ' 2.3.26. Lập phiếu xuất kho
+    ' ==========================================
+    usecase "Lập phiếu xuất kho" as UC_ExportWH
+    usecase "Kiểm tra số lượng tồn" as UC_CheckStock
+    usecase "Hủy giao dịch (Kho không đủ vật tư)" as UC_ErrNoStock
+    usecase "Yêu cầu chờ (Xung đột thao tác xuất trùng lặp)" as UC_ErrLock
+
+    ' ==========================================
+    ' 2.3.27. Lập phiếu xuất hủy
+    ' ==========================================
+    usecase "Lập phiếu xuất hủy" as UC_Waste
+    usecase "Bôi đỏ lô nguyên liệu đã quá hạn" as UC_Highlight
+    usecase "Báo lỗi xuất lố (Số lượng hủy lớn hơn tồn)" as UC_ErrOver
+
+    ' ==========================================
+    ' 2.3.28. Cảnh báo tồn kho
+    ' ==========================================
+    usecase "Cảnh báo tồn kho" as UC_Alert
+    usecase "Chuyển hướng lập phiếu nhập / xuất hủy" as UC_NavAction
+    usecase "Thông báo kho ổn định (Không có lô cận hạn/thiếu)" as UC_Stable
+
+    ' ==========================================
+    ' 2.3.29. Tra cứu thẻ kho
+    ' ==========================================
+    usecase "Tra cứu thẻ kho" as UC_Card
+    usecase "Xuất báo cáo dạng bảng tính" as UC_ExportCard
+    usecase "Báo lỗi chọn khoảng thời gian không hợp lệ" as UC_ErrDateCard
+
+    ' ==========================================
+    ' 2.3.30. Truy vết nguồn gốc
+    ' ==========================================
+    usecase "Truy vết nguồn gốc" as UC_Trace
+    usecase "Báo lỗi không tìm thấy dữ liệu chứng từ" as UC_ErrNotFoundTrace
+
+    ' ==========================================
+    ' 2.3.31. Thêm/Xóa/Sửa nhà cung cấp
+    ' ==========================================
+    usecase "Quản lý nhà cung cấp" as UC_ManageSup
+    usecase "Thêm NCC" as UC_AddSup
+    usecase "Sửa NCC" as UC_EditSup
+    usecase "Xóa NCC" as UC_DelSup
+
+    usecase "Hủy bỏ biểu mẫu" as UC_CancelSup
+    usecase "Cảnh báo để trống trường bắt buộc" as UC_ErrEmptySup
+    usecase "Báo lỗi trùng lặp SĐT liên lạc" as UC_ErrDupPhone
+    usecase "Chặn xóa (Có công nợ/giao dịch -> Chuyển ngừng giao dịch)" as UC_ErrHasDebt
+
+    ' ==========================================
+    ' 2.3.32. Tra cứu nhà cung cấp
+    ' ==========================================
+    usecase "Tra cứu nhà cung cấp" as UC_SearchSup
+    usecase "Xóa trắng từ khóa (Tải lại ban đầu)" as UC_ClearSup
+    usecase "Thông báo không tìm thấy đối tác" as UC_ErrNotFoundSup
+
+    ' ==========================================
+    ' 2.3.35. Báo cáo tồn kho
+    ' ==========================================
+    usecase "Báo cáo tồn kho" as UC_RepStock
+    usecase "Kết xuất danh sách tồn kho" as UC_ExportStock
+    usecase "Báo lỗi gián đoạn truy xuất cơ sở dữ liệu" as UC_ErrDB
+
+' ==========================================
+' QUAN HỆ (RELATIONSHIPS)
+' ==========================================
+
+' Nhóm 24
+UC_AddMat --|> UC_ManageMat
+UC_EditMat --|> UC_ManageMat
+UC_DelMat --|> UC_ManageMat
+
+UC_CancelMat ..> UC_ManageMat : <<extend>>
+UC_ErrEmptyMat ..> UC_ManageMat : <<extend>>
+UC_ErrDupMat ..> UC_AddMat : <<extend>>
+UC_ErrConstraint ..> UC_DelMat : <<extend>>
+
+' Nhóm 25
+UC_DelRow ..> UC_Import : <<extend>>
+UC_SaveDraft ..> UC_Import : <<extend>>
+UC_ErrDateImport ..> UC_Import : <<extend>>
+UC_ErrEmptyImport ..> UC_Import : <<extend>>
+
+' Nhóm 26
+UC_ExportWH ..> UC_CheckStock : <<include>>
+UC_ErrNoStock ..> UC_ExportWH : <<extend>>
+UC_ErrLock ..> UC_ExportWH : <<extend>>
+
+' Nhóm 27
+UC_Highlight ..> UC_Waste : <<extend>>
+UC_ErrOver ..> UC_Waste : <<extend>>
+
+' Nhóm 28
+UC_NavAction ..> UC_Alert : <<extend>>
+UC_Stable ..> UC_Alert : <<extend>>
+
+' Nhóm 29
+UC_ExportCard ..> UC_Card : <<extend>>
+UC_ErrDateCard ..> UC_Card : <<extend>>
+
+' Nhóm 30
+UC_ErrNotFoundTrace ..> UC_Trace : <<extend>>
+
+' Nhóm 31
+UC_AddSup --|> UC_ManageSup
+UC_EditSup --|> UC_ManageSup
+UC_DelSup --|> UC_ManageSup
+
+UC_CancelSup ..> UC_ManageSup : <<extend>>
+UC_ErrEmptySup ..> UC_ManageSup : <<extend>>
+UC_ErrDupPhone ..> UC_AddSup : <<extend>>
+UC_ErrHasDebt ..> UC_DelSup : <<extend>>
+
+' Nhóm 32
+UC_ClearSup ..> UC_SearchSup : <<extend>>
+UC_ErrNotFoundSup ..> UC_SearchSup : <<extend>>
+
+' Nhóm 35
+UC_ExportStock ..> UC_RepStock : <<extend>>
+UC_ErrDB ..> UC_RepStock : <<extend>>
+
+@enduml

@@ -1,0 +1,57 @@
+' ==========================================
+' 2.3.3. Thêm/Xóa/Sửa nhân sự
+' ==========================================
+@startuml QuanTriVien
+left to right direction
+skinparam shadowing false
+
+usecase "Cập nhật nhân sự" as UC_ManageStaff
+usecase "Thêm nhân sự" as UC_AddStaff
+usecase "Sửa nhân sự" as UC_EditStaff
+usecase "Xóa/Vô hiệu hóa nhân sự" as UC_DelStaff
+
+usecase "Hủy bỏ điền biểu mẫu" as UC_Cancel1
+usecase "Từ chối hộp thoại vô hiệu hóa" as UC_CancelDel
+usecase "Cảnh báo bỏ trống trường bắt buộc" as UC_ErrEmpty
+usecase "Báo lỗi trùng tên đăng nhập" as UC_ErrDup
+
+usecase "Tra cứu nhân sự" as UC_SearchStaff
+usecase "Truy xuất cơ sở dữ liệu" as UC_FetchDB
+usecase "Xóa từ khóa (Hiển thị lại ban đầu)" as UC_ClearSearch
+usecase "Thông báo không tìm thấy kết quả" as UC_ErrNotFound
+
+usecase "Phân quyền tài khoản" as UC_Permission
+usecase "Hủy bỏ lưu phân quyền" as UC_Cancel2
+usecase "Chặn thu hồi toàn bộ quyền bản thân" as UC_ErrSelfRevoke
+
+usecase "Xem nhật ký hoạt động" as UC_Logs
+usecase "Xuất báo cáo nhật ký" as UC_Export
+usecase "Thông báo lỗi mất kết nối máy chủ" as UC_ErrConnect
+
+usecase "Khôi phục dữ liệu" as UC_Restore
+usecase "Hủy bỏ khôi phục" as UC_Cancel3
+usecase "Báo lỗi xung đột mã định danh" as UC_ErrConflict
+
+UC_AddStaff --|> UC_ManageStaff
+UC_EditStaff --|> UC_ManageStaff
+UC_DelStaff --|> UC_ManageStaff
+
+UC_Cancel1 ..> UC_ManageStaff : <<extend>>
+UC_CancelDel ..> UC_DelStaff : <<extend>>
+UC_ErrEmpty ..> UC_ManageStaff : <<extend>>
+UC_ErrDup ..> UC_AddStaff : <<extend>>
+
+UC_SearchStaff ..> UC_FetchDB : <<include>>
+UC_ClearSearch ..> UC_SearchStaff : <<extend>>
+UC_ErrNotFound ..> UC_SearchStaff : <<extend>>
+
+UC_Cancel2 ..> UC_Permission : <<extend>>
+UC_ErrSelfRevoke ..> UC_Permission : <<extend>>
+
+UC_Export ..> UC_Logs : <<extend>>
+UC_ErrConnect ..> UC_Logs : <<extend>>
+
+UC_Cancel3 ..> UC_Restore : <<extend>>
+UC_ErrConflict ..> UC_Restore : <<extend>>
+
+@enduml
