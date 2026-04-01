@@ -1,72 +1,98 @@
-package lab02.quanlychuyenxe;
+package org.example;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
+import static java.util.Arrays.sort;
+
+//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
+// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class QuanLyChuyenXe {
-    
-    public int nhapDS(ChuyenXe[] ds, Scanner sc) {
-        System.out.print("Nhập số lượng chuyến xe (tối đa 20): ");
-        int n = sc.nextInt();
-        sc.nextLine(); 
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ArrayList<ChuyenXe> dsCX = new ArrayList<>();
 
-        if (n > 20) n = 20; 
+        int nt, ngth;
+        System.out.println("=== Nhập vào số chuyến xe nội thành === ");
+        nt = Integer.parseInt(sc.nextLine());
+        System.out.println("\n=== Nhập vào số chuyến xe ngoại thành ===");
+        ngth = Integer.parseInt(sc.nextLine());
 
-        for (int i = 0; i < n; i++) {
-            System.out.println("Nhập thông tin chuyến thứ " + (i + 1) + ":");
-            System.out.print("Chọn loại chuyến (1: Nội thành, 2: Ngoại thành): ");
-            int loai = sc.nextInt();
-            sc.nextLine(); 
+        if (nt + ngth > 20) {
+            System.out.println("Tổng số chuyến xe không được vượt quá 20!");
+            return;
+        }
 
-            if (loai == 1) {
-                ds[i] = new ChuyenNoiThanh();
-            } else {
-                ds[i] = new ChuyenNgoaiThanh();
+        for (int i = 0; i < nt; i++)
+        {
+            System.out.println("\n=== Nhập vào thông tin chuyến xe nội thành ===");
+            NoiThanh chuyenxeNT = new NoiThanh();
+            chuyenxeNT.nhapChuyenXe(sc);
+            dsCX.add(chuyenxeNT);
+        }
+
+        for (int i = nt ; i < ngth + nt; i++)
+        {
+            System.out.println("\n=== Nhập vào thông tin chuyến xe ngoại thành ===");
+            NgoaiThanh chuyenxeNgTh = new NgoaiThanh();
+            chuyenxeNgTh.nhapChuyenXe(sc);
+            dsCX.add(chuyenxeNgTh);
+        }
+
+        System.out.println("\n=== Danh sách chuyến xe nội thành ===");
+        for (int i = 0; i < nt; i++) {
+            dsCX.get(i).xuatChuyenXe();
+            System.out.println();
+        }
+
+        System.out.println("\n=== Danh sách chuyến xe ngoại thành ===");
+        for (int i = nt; i < ngth + nt; i++) {
+            dsCX.get(i).xuatChuyenXe();
+            System.out.println();
+        }
+
+        double tongDoanhThuNoiThanh = 0, tongDoanhThuNgoaiThanh = 0;
+        for (int i = 0; i < nt; i++)
+            tongDoanhThuNoiThanh += dsCX.get(i).getDoanhThu();
+        for (int i = nt; i < ngth + nt; i++)
+            tongDoanhThuNgoaiThanh += dsCX.get(i).getDoanhThu();
+
+        DecimalFormat df = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.getDefault()));
+        System.out.println("\nTổng doanh thu chuyến xe nội thành: " + df.format(tongDoanhThuNoiThanh) + " vnd");
+        System.out.println("\nTổng doanh thu chuyến xe ngoại thành: " + df.format(tongDoanhThuNgoaiThanh) + " vnd");
+
+        if (nt > 0) {
+            ChuyenXe maxCXNT = dsCX.getFirst();
+            for (int i = 1; i < nt; i++) {
+                if (dsCX.get(i).getDoanhThu() > maxCXNT.getDoanhThu()) {
+                    maxCXNT = dsCX.get(i);
+                }
             }
-            ds[i].nhapThongTin(sc); 
+            System.out.println("\n=== Chuyến xe nội thành có doanh thu cao nhất ===");
+            maxCXNT.xuatChuyenXe();
+            System.out.println();
         }
-        return n; 
-    }
-    
-    public void xuatDS(ChuyenXe[] ds, int n) {
-        for (int i = 0; i < n; ++i) {
-            ds[i].xuatThongTin();
+        else {
+            System.out.printf("Không có chuyến xe nội thành nào!");
         }
-    }
-    
-    public void tinhTongDoanhThu(ChuyenXe[] ds, int n) {
-        double doanhThuNoi = 0, doanhThuNgoai = 0;
-        for (int i = 0; i < n; ++i) {
-            if (ds[i] instanceof ChuyenNoiThanh) {
-                doanhThuNoi += ds[i].getDoanhThu();
-            } else if (ds[i] instanceof ChuyenNgoaiThanh) {
-                doanhThuNgoai += ds[i].getDoanhThu();
+        if (ngth > 0) {
+            ChuyenXe maxCXNgTh = dsCX.get(nt);
+            for (int i = nt + 1; i < ngth + nt; i++) {
+                if (maxCXNgTh.getDoanhThu() < dsCX.get(i).getDoanhThu()) {
+                    maxCXNgTh = dsCX.get(i);
+                }
             }
+            System.out.println("\n=== Chuyến xe ngoại thành có doanh thu cao nhất ===");
+            maxCXNgTh.xuatChuyenXe();
+            System.out.println();
         }
-        
-        System.out.println("Tổng doanh thu nội thành: " + doanhThuNoi);
-        System.out.println("Tổng doanh thu ngoại thành: " + doanhThuNgoai);
-    }
-    
-    public void inDoanhThuCaoNhat(ChuyenXe[] ds, int n) {
-        ChuyenXe maxNoi = null, maxNgoai = null;
-        
-        for (int i = 0; i < n; ++i) {
-            if (ds[i] instanceof ChuyenNoiThanh) {
-                if (maxNoi == null || ds[i].getDoanhThu() > maxNoi.getDoanhThu()) {
-                    maxNoi = ds[i];
-                } 
-            } else if (ds[i] instanceof ChuyenNgoaiThanh) {
-                if (maxNgoai == null || ds[i].getDoanhThu() > maxNgoai.getDoanhThu()) {
-                    maxNgoai = ds[i];
-                } 
-            }
+        else {
+            System.out.println("Không có chuyến xe ngoại thành nào!");
         }
-        System.out.print("Chuyến nội thành doanh thu cao nhất: ");
-        if (maxNoi != null) maxNoi.xuatThongTin();
-        else System.out.println("Chưa có dữ liệu");
 
-        System.out.print("Chuyến ngoại thành doanh thu cao nhất: ");
-        if (maxNgoai != null) maxNgoai.xuatThongTin();
-        else System.out.println("Chưa có dữ liệu");
+        sc.close();
     }
 }

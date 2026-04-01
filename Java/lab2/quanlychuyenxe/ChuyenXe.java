@@ -1,65 +1,92 @@
-package lab02.quanlychuyenxe;
+package org.example;
 
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Scanner;
+import java.text.DecimalFormat;
 
 public abstract class ChuyenXe {
-    protected String MSChuyen;
-    protected String tenTaiXe;
-    protected String soXe;
-    protected double khoiLuong;
+    protected String maSoChuyen;
+    protected String hoTenTX;
+    protected int soXe;
+    protected double khoiLuongHH;
     protected double doanhThu;
-    
+
     public ChuyenXe() {
-        this.MSChuyen = "";
-        this.tenTaiXe = "";
-        this.soXe = "";
-        this.khoiLuong = 0;
-        this.doanhThu = 0;
-    }
-    
-    public ChuyenXe(String MSChuyen, String tenTaiXe, String soXe, double khoiLuong, double doanhThu) {
-        this.MSChuyen = MSChuyen;
-        this.tenTaiXe = tenTaiXe;
+        maSoChuyen = hoTenTX = "";
+        soXe = 0;
+        khoiLuongHH = 0;
+        doanhThu = 0;
+    };
+
+    public ChuyenXe(String maSoChuyen, String hoTenTX, int soXe, double khoiLuongHH, double doanhThu)
+    {
+        this.maSoChuyen = maSoChuyen;
+        this.hoTenTX = hoTenTX;
         this.soXe = soXe;
-        this.khoiLuong = khoiLuong;
+        this.khoiLuongHH = khoiLuongHH;
         this.doanhThu = doanhThu;
-    }
-    
-    public String getMSChuyen() { return MSChuyen; }
-    public void setMSChuyen(String MSChuyen) { this.MSChuyen = MSChuyen; }
+    };
 
-    public String getTenTaiXe() { return tenTaiXe; }
-    public void setTenTaiXe(String tenTaiXe) { this.tenTaiXe = tenTaiXe; }
+    public String getMaSoChuyen() {
+        return maSoChuyen;
+    };
+    public void setMaSoChuyen(String maSoChuyen) {
+        this.maSoChuyen = maSoChuyen;
+    };
 
-    public String getSoXe() { return soXe; }
-    public void setSoXe(String soXe) { this.soXe = soXe; }
+    public String getHoTenTX() {
+        return hoTenTX;
+    };
 
-    public double getKhoiLuong() { return khoiLuong; }
-    public void setKhoiLuong(double khoiLuong) { this.khoiLuong = khoiLuong; }
+    public void setHoTenTX(String hoTenTX) {
+        this.hoTenTX = hoTenTX;
+    };
 
-    public double getDoanhThu() { return doanhThu; }
-    public void setDoanhThu(double doanhThu) { this.doanhThu = doanhThu; }
-    
-    public void nhapThongTinChung(Scanner sc) {
-        System.out.print("Nhập mã số chuyển: ");
-        this.MSChuyen = sc.nextLine();
-        System.out.print("Nhập họ và tên tài xế: ");
-        this.tenTaiXe = sc.nextLine();
-        System.out.print("Nhập số xe: ");
-        this.soXe = sc.nextLine();
-        System.out.print("Nhập khối lượng hàng hóa (tấn): ");
-        this.khoiLuong = sc.nextDouble();
-        System.out.print("Nhập doanh thu: ");
-        this.doanhThu = sc.nextDouble();
-        sc.nextLine(); 
-    }
-    
-    public void xuatThongTinChung() {
-        System.out.print("Mã số: " + MSChuyen + " | Tài xế: " + tenTaiXe + 
-                         " | Số xe: " + soXe + " | Khối lượng: " + khoiLuong + 
-                         " | Doanh thu: " + doanhThu);
-    }   
-    
-    public abstract void nhapThongTin(Scanner sc);
-    public abstract void xuatThongTin();
+    public int getSoXe() {
+        return soXe;
+    };
+
+    public void setSoXe(int soXe) {
+        this.soXe = soXe;
+    };
+
+    public double getKhoiLuongHH() {
+        return khoiLuongHH;
+    };
+
+    public void setKhoiLuongHH(double khoiLuongHH) {
+        this.khoiLuongHH = khoiLuongHH;
+    };
+
+    public double getDoanhThu() {
+        return doanhThu;
+    };
+
+    public void setDoanhThu(double doanhThu) {
+        this.doanhThu = doanhThu;
+    };
+
+    void nhapChuyenXe(Scanner sc) {
+        System.out.println("Nhập vào mã số chuyển: ");
+        maSoChuyen = sc.nextLine();
+        System.out.println("Nhập vào họ tên tài xế: ");
+        hoTenTX = sc.nextLine();
+        System.out.println("Nhập vào số xe: ");
+        soXe = Integer.parseInt(sc.nextLine());
+        System.out.println("Nhập vào khối lượng hàng hóa: ");
+        khoiLuongHH = Double.parseDouble(sc.nextLine());
+        System.out.println("Nhập vào doanh thu: ");
+        doanhThu = Double.parseDouble(sc.nextLine());
+    };
+
+    public void xuatChuyenXe() {
+        System.out.println("Mã số chuyển: " + maSoChuyen);
+        System.out.println("Họ tên tài xế: " + hoTenTX);
+        System.out.println("Số xe: " + soXe);
+        System.out.println("Khối lượng hàng hóa: " + khoiLuongHH);
+        DecimalFormat df = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.getDefault()));
+        System.out.println("Doanh thu: " + df.format(doanhThu) + " vnd");
+    };
+
 }
