@@ -3,7 +3,7 @@ AFTER INSERT OR UPDATE OR DELETE ON CTPHIEUXUAT_NL
 FOR EACH ROW
 DECLARE
     V_CHENHLECH NUMBER := 0;
-    V_ROWS_UPDATED NUMBER;  -- Đếm số dòng bị ảnh hưởng
+    V_ROWS_UPDATED NUMBER;
 BEGIN
     IF DELETING THEN
         RAISE_APPLICATION_ERROR(-20002,
@@ -30,7 +30,7 @@ BEGIN
             ' trong kho. Tồn kho không được cập nhật.');
     END IF;
 
-END TRG_XUATSLNGUYENLIEU;
+END;
 /
 
 /*
