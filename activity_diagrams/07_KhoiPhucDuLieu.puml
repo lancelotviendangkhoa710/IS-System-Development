@@ -1,0 +1,42 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Truy cập chức năng\nkhôi phục dữ liệu;
+|Hệ thống|
+|CSDL|
+:Truy xuất danh sách dữ liệu\nđã bị xóa mềm;
+|Hệ thống|
+:Hiển thị danh sách các dữ liệu\nđã bị xóa mềm trước đó;
+|Người dùng|
+:Chọn một hoặc nhiều dòng dữ liệu\ncần khôi phục và nhấn nút xác nhận;
+if (Nhấn nút hủy bỏ?) then (Có)
+  |Hệ thống|
+  :Đóng giao diện xác nhận\nvà giữ nguyên trạng thái dữ liệu đã xóa;
+  stop
+else (Xác nhận khôi phục)
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ của thao tác;
+  |CSDL|
+  if (Chứa mã định danh\ntrùng lặp với dữ liệu mới?) then (Có)
+    |Hệ thống|
+    :Báo lỗi xung đột dữ liệu\nvà yêu cầu quản trị viên xử lý thủ công;
+    stop
+  else (Trạng thái bình thường)
+    |CSDL|
+    :Trạng thái xóa mềm\nthành trạng thái hoạt động;
+    |Hệ thống|
+    :Hiển thị thông báo khôi phục thành công\nvà cập nhật lại danh sách;
+    stop
+  endif
+endif
+@enduml

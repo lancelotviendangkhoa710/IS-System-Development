@@ -1,0 +1,83 @@
+@startuml
+' --- Cấu hình giao diện đen trắng, bóng mờ ---
+skinparam monochrome true
+skinparam shadowing true
+skinparam usecase {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam actor {
+    BackgroundColor White
+    BorderColor Black
+}
+
+' === KHAI BÁO ACTOR ===
+actor "Người dùng" as User
+actor "Nhân viên" as Emp
+actor "Quản trị viên" as Admin
+actor "Quản lý cửa hàng" as Manager
+actor "Thu ngân" as Cashier
+actor "Thủ kho" as Stock
+actor "Thợ làm bánh" as Baker
+
+' === TẠO TRỤC XƯƠNG SỐNG Ở GIỮA ===
+User <|-- Emp
+Admin -right-|> Emp
+Manager -right-|> Emp
+Cashier -left-|> Emp
+Stock -left-|> Emp
+Baker -up-|> Emp
+
+' Tách khoảng cách giữa các Actor để có không gian nhét Use Case
+Admin -[hidden]down- Manager
+Cashier -[hidden]down- Stock
+
+' === PHÂN BỔ USE CASE TỎA RA CÁC HƯỚNG KHÁC NHAU ===
+
+' 1. Người dùng (Tỏa lên trên)
+usecase "Đăng nhập" as UC_Login
+usecase "Đổi mật khẩu" as UC_Pass
+User -up-> UC_Login
+User -up-> UC_Pass
+
+' 2. Quản trị viên (Góc trên trái -> Tỏa Lên & Trái)
+usecase "Quản lý nhân sự" as UC_HR
+usecase "Phân quyền/Phê duyệt nâng cao" as UC_Role
+usecase "Quản lý tài chính vĩ mô" as UC_Log
+Admin -up-> UC_HR
+Admin -left-> UC_Role
+Admin -up-> UC_Log
+
+' 3. Quản lý cửa hàng (Góc dưới trái -> Tỏa Xuống & Trái)
+usecase "Quản lý nhân viên" as UC_Loyalty
+usecase "Xử lý ngoại lệ thanh toán" as UC_Report
+usecase "Duyệt kiểm kê" as UC_Limit
+Manager -down-> UC_Loyalty
+Manager -left-> UC_Report
+Manager -down-> UC_Limit
+
+' 4. Thu ngân (Góc trên phải -> Tỏa Lên & Phải)
+usecase "Lập hóa đơn" as UC_POS
+usecase "Xử lý bán hàng" as UC_Order
+usecase "Chăm sóc khách hàng" as UC_Cus
+Cashier -up-> UC_POS
+Cashier -right-> UC_Order
+Cashier -up-> UC_Cus
+
+' 5. Thủ kho (Góc dưới phải -> Tỏa Xuống & Phải)
+usecase "Lập phiếu nhập/xuất" as UC_In
+usecase "Cảnh báo tồn kho" as UC_Warn
+usecase "Truy vết nguồn gốc" as UC_Trace
+Stock -down-> UC_In
+Stock -right-> UC_Warn
+Stock -down-> UC_Trace
+
+' 6. Thợ làm bánh (Đáy hệ thống -> Tỏa 3 hướng Trái, Xuống, Phải)
+usecase "Tính toán số lượng bánh" as UC_Calc
+usecase "Cập nhật tiến độ đơn hàng" as UC_Status
+usecase "Báo cáo trạng thái nguyên liệu" as UC_Out
+Baker -left-> UC_Calc
+Baker -down-> UC_Status
+Baker -right-> UC_Out
+
+@enduml

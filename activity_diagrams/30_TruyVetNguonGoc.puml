@@ -1,0 +1,32 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Truy cập chức năng truy vết và\nnhập mã phiếu xuất kho hoặc mã hóa đơn;
+|Hệ thống|
+:Tiếp nhận mã chứng từ;
+|CSDL|
+:Dò tìm vào bảng chi tiết xuất kho nguyên liệu;
+|Hệ thống|
+if (Nhập sai mã chứng từ hoặc không có giao dịch?) then (Có)
+  :Báo lỗi không tìm thấy dữ liệu truy vết\nvà yêu cầu kiểm tra lại;
+  stop
+else (Mã hợp lệ)
+  :Xác định được mã định danh\ncủa lô nguyên liệu cụ thể;
+  |CSDL|
+  :Từ mã lô hàng, liên kết ngược\nvề bảng chi tiết phiếu nhập kho;
+  :Truy xuất ra mã phiếu nhập gốc\nvà thông tin nhà cung cấp;
+  |Hệ thống|
+  :Hiển thị sơ đồ đường đi của dữ liệu bao gồm:\ncông ty, ngày nhập, nhân viên tiếp nhận;
+  stop
+endif
+@enduml

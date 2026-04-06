@@ -1,0 +1,38 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Chọn một nhân viên\nhoặc một nhóm công việc\ntừ danh sách;
+|Hệ thống|
+:Tải lên bảng danh sách\ntoàn bộ các chức năng phần mềm\nkèm hộp kiểm tra trạng thái;
+|Người dùng|
+:Đánh dấu chọn để cấp quyền\nhoặc bỏ chọn để thu hồi quyền;
+if (Nhấn nút hủy bỏ?) then (Có)
+  |Hệ thống|
+  :Phục hồi lại trạng thái\ncác hộp kiểm tra như ban đầu\nvà từ chối lưu dữ liệu;
+  stop
+else (Nhấn nút lưu cấu hình)
+  |Người dùng|
+  :Nhấn nút lưu cấu hình;
+  |Hệ thống|
+  if (Thao tác thu hồi\ntoàn bộ quyền của chính mình?) then (Có)
+    :Chặn hành động này,\nhiển thị cảnh báo vi phạm\nvà yêu cầu chọn lại;
+    stop
+  else (Hợp lệ)
+    |CSDL|
+    :Ghi nhận bảng phân quyền mới;
+    |Hệ thống|
+    :Hiển thị thông báo\ncập nhật quyền hạn thành công;
+    stop
+  endif
+endif
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Truy cập vào màn hình\ndanh sách nhân sự;
+if (Xóa từ khóa tìm kiếm?) then (Có)
+  |Hệ thống|
+  :Hiển thị lại toàn bộ\ndanh sách nhân sự ban đầu;
+  stop
+else (Nhập từ khóa hoặc bộ lọc)
+  |Người dùng|
+  :Nhập từ khóa tìm kiếm\nhoặc chọn các bộ lọc trạng thái;
+  |Hệ thống|
+  :Tiếp nhận từ khóa;
+  |CSDL|
+  :Truy xuất dữ liệu;
+  |Hệ thống|
+  if (Có nhân viên nào khớp?) then (Có)
+    :Trả về danh sách các nhân viên\nkhớp với điều kiện;
+    |Người dùng|
+    :Nhấn chọn một nhân viên cụ thể\nđể xem chi tiết hồ sơ;
+    stop
+  else (Không)
+    |Hệ thống|
+    :Hiển thị thông báo\nkhông tìm thấy kết quả\nvà trả về một danh sách trống;
+    stop
+  endif
+endif
+@enduml

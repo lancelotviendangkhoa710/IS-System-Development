@@ -1,0 +1,42 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Chọn chức năng cài đặt\ngiới hạn nhận đơn;
+|Hệ thống|
+:Hiển thị biểu mẫu giới hạn\ncho ngày hiện tại và tiếp theo;
+|Người dùng|
+:Nhập con số mới vào ô giới hạn;
+if (Nhấn nút hủy bỏ?) then (Có)
+  |Hệ thống|
+  :Lập tức đóng biểu mẫu\nvà khôi phục lại con số giới hạn cũ;
+  stop
+else (Lưu thiết lập)
+  |Người dùng|
+  :Nhấn nút lưu thiết lập;
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ của con số vừa nhập;
+  if (Nhập một con số âm?) then (Có)
+    :Bôi đỏ ô nhập liệu\nvà yêu cầu điền số lượng hợp lệ;
+    stop
+  elseif (Giới hạn mới nhỏ hơn\ntổng số lượng bánh đã lỡ nhận đơn?) then (Có)
+    :Hiển thị cảnh báo từ chối hạ hạn mức\nvà yêu cầu quản lý giữ nguyên\nhoặc xử lý thỏa thuận lại với khách;
+    stop
+  else (Hợp lệ)
+    |CSDL|
+    :Ghi nhận cấu hình mới\nxuống cơ sở dữ liệu;
+    |Hệ thống|
+    :Thông báo cập nhật thành công;
+    stop
+  endif
+endif
+@enduml

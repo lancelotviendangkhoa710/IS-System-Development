@@ -1,0 +1,24 @@
+    -- Trigger cộng trừ tiền khi có thay đổi hóa đơn (insert, update, delete)
+    CREATE OR REPLACE TRIGGER TRG_CTDONHANG_UPDATE
+    AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
+    FOR EACH ROW
+    DECLARE
+        V_CHENHLECH NUMBER := 0;
+        V_MADON NUMBER;
+    BEGIN
+        IF INSERTING THEN
+            V_CHENHLECH := :NEW.SOLUONG * :NEW.DONGIA;
+            V_MADON := :NEW.MADON;
+        ELSIF UPDATING THEN
+            V_CHENHLECH := (:NEW.SOLUONG * :NEW.DONGIA) - (:OLD.SOLUONG * :OLD.DONGIA);
+            V_MADON := :NEW.MADON;
+        ELSIF DELETING THEN
+            V_CHENHLECH := -(:OLD.SOLUONG * :OLD.DONGIA);
+            V_MADON := :OLD.MADON;
+        END IF;
+
+        UPDATE DONDATHANG
+        SET TONGTIENHDBAN = NVL(TONGTIENHDBAN, 0) + V_CHENHLECH
+        WHERE MADON = V_MADON;
+    END;
+    /

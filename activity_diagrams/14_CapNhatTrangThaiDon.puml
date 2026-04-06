@@ -1,0 +1,28 @@
+@startuml
+skinparam ranksep 80
+skinparam swimlaneWidth 140
+skinparam shadowing false
+skinparam ActivityShape rounded
+skinparam linetype ortho
+
+|Người dùng|
+|Hệ thống|
+|CSDL|
+
+|Người dùng|
+start
+:Truy cập vào màn hình\ndanh sách đơn đặt hàng;
+:Nhấn chọn một đơn hàng cụ thể;
+:Nhấn nút chuyển trạng thái\n(ví dụ: sang "Đang làm", "Chờ giao", "Hoàn thành");
+
+|Hệ thống|
+if (Cố ý bỏ qua các bước\nquy định tuần tự?) then (Có)
+  :Chặn thao tác và hiển thị cảnh báo\nvi phạm quy trình luân chuyển;
+  stop
+else (Theo trình tự hợp lệ)
+  |CSDL|
+  :Ghi nhận mốc thời gian thực hiện thao tác;
+  :Cập nhật trạng thái mới nhất;
+  stop
+endif
+@enduml

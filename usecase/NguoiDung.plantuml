@@ -1,0 +1,31 @@
+' ==========================================
+' 2.3.1. Đăng nhập / Đăng xuất
+' ==========================================
+@startuml NguoiDung
+left to right direction
+skinparam shadowing false
+
+usecase "Đăng nhập/Đăng xuất" as UC_Login
+usecase "Kiểm tra tính hợp lệ" as UC_Check
+usecase "Thông báo lỗi sai thông tin" as UC_Err1
+usecase "Từ chối truy cập (Vô hiệu hóa)" as UC_Err2
+
+usecase "Đổi mật khẩu" as UC_ChangePass
+usecase "Đối chiếu mật khẩu hiện tại" as UC_Verify
+usecase "Hủy bỏ đổi mật khẩu" as UC_Cancel
+usecase "Cảnh báo sai mật khẩu cũ" as UC_Err3
+usecase "Cảnh báo mật khẩu mới không khớp" as UC_Err4
+usecase "Cảnh báo mật khẩu không đạt chuẩn" as UC_Err5
+
+
+UC_Login ..> UC_Check : <<include>>
+UC_Err1 ..> UC_Login : <<extend>>
+UC_Err2 ..> UC_Login : <<extend>>
+
+UC_ChangePass ..> UC_Verify : <<include>>
+UC_Cancel ..> UC_ChangePass : <<extend>>
+UC_Err3 ..> UC_ChangePass : <<extend>>
+UC_Err4 ..> UC_ChangePass : <<extend>>
+UC_Err5 ..> UC_ChangePass : <<extend>>
+
+@enduml
