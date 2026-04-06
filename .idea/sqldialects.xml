@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/database/01_tables/01_employee_customer.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/01_tables/02_product.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/01_tables/03_stock_recipe.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/01_tables/04_order.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/01_tables/05_finance.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/02_constraints/01_ck_emp_cus.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/02_constraints/02_ck_product.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/02_constraints/03_ck_stock_recipe.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/02_constraints/04_ck_order.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/02_constraints/05_ck_finance.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/02_constraints/ck_status.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/03_trg_stock_recipe/trg_check_hygienic_food.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/03_trg_stock_recipe/trg_prohibition_of_renewal_materials.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/03_trg_stock_recipe/trg_remove_expired_cakes.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/03_trg_stock_recipe/trg_total_imports.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/04_trg_order/trg_assign_cost_price_standard.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/04_trg_order/trg_control_capacity_standard.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/04_trg_order/trg_update_inventory_stock.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/04_trg_order/trg_update_order_total.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/04_triggers/05_trg_finance/trg_prohibit_delete_voucher.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/05_procedures/proc_backup.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/05_procedures/proc_cancelimport.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/05_procedures/proc_changestatus.sql" dialect="Oracle" />
+    <file url="file://$PROJECT_DIR$/database/05_procedures/proc_checkingshift.sql" dialect="Oracle" />
+  </component>
+</project>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="53d58109-84cd-4378-9941-012b1f5953be" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_D:/Clone" value="3ApS8eaJJVTyM0Vt6CopF7IRXrM" />
+    </persistenceIdMap>
+  </component>
+  <component name="CopilotUserSelectedChatMode">
+    <option name="chatModeId" value="Ask" />
+  </component>
+  <component name="CopilotUserSelectedModel">
+    <selectedModels>
+      <entry key="chat-panel" value="GPT-4o" />
+      <entry key="agent-panel" value="GPT-4o" />
+    </selectedModels>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="138" />
+  </component>
+  <component name="Git.Settings">
+    <favorite-branches>
+      <branch-storage>
+        <map>
+          <entry type="REMOTE">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="origin/test" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </favorite-branches>
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Khoatest" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="3ApS8eaJJVTyM0Vt6CopF7IRXrM" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "database.data.extractors.current.export.id": "Tab-separated (TSV)_id",
+    "database.data.extractors.current.id": "Tab-separated (TSV)_id",
+    "git-widget-placeholder": "develop",
+    "last_opened_file_path": "C:/Users/Acer",
+    "settings.editor.selected.configurable": "reference.settings.ide.settings.uml"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "oracle"
+    ],
+    "com.intellij.ide.scratch.LRUPopupBuilder$1/": [
+      "Oracle"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Clone\database\04_triggers\05_trg_finance" />
+      <recent name="D:\Clone\database\04_triggers\03_trg_stock_recipe" />
+    </key>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="53d58109-84cd-4378-9941-012b1f5953be" name="Changes" comment="feat PROC_PRINT_CAKE_RECIPE" />
+      <created>1773287862100</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773287862100</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="TEXT_FILTER_SETTINGS">
+                <TextFilterSettings>
+                  <option name="MATCH_CASE" value="true" />
+                </TextFilterSettings>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat PROC_PRINT_CAKE_RECIPE" />
+    <MESSAGE value="feat set ThoiDiemXoa MaNX default null" />
+    <MESSAGE value="fix ChoPhepCustom to ChoPhepTuyChinh" />
+    <MESSAGE value="fix ctdoncustom to CTDONTUYCHINH" />
+    <MESSAGE value="deleted  CK_CTPN_HSD" />
+    <MESSAGE value="add CK_CTTC_MAX_SLCK_CTDH_MAX_SL" />
+    <MESSAGE value="fix - Đồng bộ hóa toàn bộ logic rằng buộc" />
+    <MESSAGE value="feat: implement security and business process triggers" />
+    <MESSAGE value="feat function" />
+    <MESSAGE value="feat: procedure/moneycotroller" />
+    <MESSAGE value="test" />
+    <MESSAGE value="test2" />
+    <MESSAGE value="fix:proc_moneycontroller" />
+    <MESSAGE value="khoatest" />
+    <MESSAGE value="feat: 01_ck_emp_cus" />
+    <MESSAGE value="refactor: split triggers into separate files" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: split triggers into separate files" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand>
+      <path>
+        <item name="Clone" type="b2602c69:ProjectViewProjectNode" />
+        <item name="dir{file://D:/Clone}" type="462c0819:PsiDirectoryNode" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

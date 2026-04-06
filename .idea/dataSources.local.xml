@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="DB-253.30387.92">
+    <data-source name="@localhost" uuid="d94aadb6-b843-4b16-a3be-9d9094e7e1de">
+      <database-info product="Oracle" version="Oracle Database 21c Enterprise Edition Release 21.0.0.0.0 - Production&#10;Version 21.3.0.0.0" jdbc-version="4.3" driver-name="Oracle JDBC driver" driver-version="23.5.0.24.07" dbms="ORACLE" exact-version="21.0.0.0.0" exact-driver-version="23.5">
+        <extra-name-characters>$#</extra-name-characters>
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="upper" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>system</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema">
+            <name qname="@" />
+            <name qname="PUBLIC" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="BAKERY_MANAGER" uuid="0eda5142-478a-4db9-8db6-be0fbaa93877">
+      <database-info product="Oracle" version="Oracle Database 21c Enterprise Edition Release 21.0.0.0.0 - Production&#10;Version 21.3.0.0.0" jdbc-version="4.3" driver-name="Oracle JDBC driver" driver-version="23.5.0.24.07" dbms="ORACLE" exact-version="21.0.0.0.0" exact-driver-version="23.5">
+        <extra-name-characters>$#</extra-name-characters>
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="upper" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>BAKERY_MANAGER</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="schema">
+            <name qname="@" />
+            <name qname="PUBLIC" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+  </component>
+</project>
