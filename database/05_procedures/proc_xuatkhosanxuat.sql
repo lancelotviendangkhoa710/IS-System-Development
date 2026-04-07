@@ -49,7 +49,7 @@ BEGIN
         WHERE MANL = V_ROWCT.MANL AND SOLUONGCONLAI > 0;
 
         IF V_TONGTON < V_ROWCT.SOLUONG_CAN_XUAT THEN
-            RAISE_APPLICATION_ERROR(-20010,
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_KHO_KHONG_DU_NL,
                 'Kho không đủ nguyên liệu có mã nguyên liệu = ' || V_ROWCT.MANL ||
                 '. Cần: ' || V_ROWCT.SOLUONG_CAN_XUAT ||
                 ' | Còn: ' || V_TONGTON);
