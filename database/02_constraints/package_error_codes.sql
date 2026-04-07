@@ -25,6 +25,12 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- Lỗi hệ thống giao dịch khi thực thi hủy đơn (dùng trong PROC_HUYDONVAHOANKHO)
     ERR_HUY_DON_GIAO_DICH           CONSTANT NUMBER := -20003;
 
+    -- Lỗi hệ thống khi xuất kho sản xuất (dùng trong PROC_XUATKHOSANXUAT)
+    ERR_HUY_XUAT_KHO                CONSTANT NUMBER := -20004;
+
+    -- Lỗi hệ thống khi tạo đơn hàng (dùng trong PROC_TAODONHANG)
+    ERR_HUY_TAO_DON                 CONSTANT NUMBER := -20005;
+
 
     -- ========================
     -- NHÓM 01: NHÂN SỰ & KHÁCH HÀNG
