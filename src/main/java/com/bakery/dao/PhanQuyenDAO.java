@@ -1,4 +1,5 @@
 package com.bakery.dao;
+
 import com.bakery.dto.ChucNangDTO;
 import com.bakery.utils.DBConnect;
 import java.sql.Connection;
@@ -12,14 +13,13 @@ public class PhanQuyenDAO {
 
     public List<ChucNangDTO> layDanhSachChucNangTheoVaiTro(int maVaiTro) {
         List<ChucNangDTO> danhSach = new ArrayList<>();
-        // Thực hiện JOIN bảng CHUCNANG và bảng trung gian VAITRO_CHUCNANG
         String sql = "SELECT C.MACHUCNANG, C.TENCHUCNANG, C.MOTA " +
                 "FROM CHUCNANG C " +
                 "JOIN VAITRO_CHUCNANG VC ON C.MACHUCNANG = VC.MACHUCNANG " +
                 "WHERE VC.MAVAITRO = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maVaiTro);
 

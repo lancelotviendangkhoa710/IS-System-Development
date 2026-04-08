@@ -17,9 +17,9 @@ public class PhieuThuChiDAO {
         String sql = "SELECT * FROM PHIEUTHUCHI";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatem
+                PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()) {
-                
+
             while (rs.next()) {
                 PhieuThuChiDTO ptc = new PhieuThuChiDTO();
                 ptc.setMaPhieuTC(rs.getInt("MAPHIEUTC"));
@@ -33,13 +33,13 @@ public class PhieuThuChiDAO {
                 ptc.setMaNV(rs.getInt("MANV"));
 
                 int maHD = rs.getInt("MAHD");
-                if (!rs.wasNull()) ptc.setMaHD(maHD);
+                if (!rs.wasNull())
+                    ptc.setMaHD(maHD);
 
-                    
                 int maPN = rs.getInt("MAPN");
-                if (!rs.wasNull()) ptc.setMaPN(maPN);
+                if (!rs.wasNull())
+                    ptc.setMaPN(maPN);
 
-                    
                 ptc.setMaCa(rs.getInt("MACA"));
                 ptc.setGhiChu(rs.getString("GHICHU"));
 
@@ -57,15 +57,15 @@ public class PhieuThuChiDAO {
             pstmt.setInt(1, ptc.getMaLoaiThuChi());
             pstmt.setDouble(2, ptc.getSoTien());
             pstmt.setInt(3, ptc.getMaNV());
-            if (ptc.getMaHD() != null) pstmt.setInt(4, ptc.getMaHD());
-            else pstmt.setNull(4, java
-                sql.Types.NUMERIC);
-            if (
-                tc.getMaPN() != null) pstmt.setInt(5, ptc.getMaPN());
-            else pstmt.setNull(5, java
-                sql.Types.NUMERIC);
-            pstm
-                .setInt(6, ptc.getMaCa());
+            if (ptc.getMaHD() != null)
+                pstmt.setInt(4, ptc.getMaHD());
+            else
+                pstmt.setNull(4, java.sql.Types.NUMERIC);
+            if (ptc.getMaPN() != null)
+                pstmt.setInt(5, ptc.getMaPN());
+            else
+                pstmt.setNull(5, java.sql.Types.NUMERIC);
+            pstmt.setInt(6, ptc.getMaCa());
             pstmt.setString(7, ptc.getGhiChu());
             return pstmt.executeUpdate() > 0;
         }
@@ -86,15 +86,15 @@ public class PhieuThuChiDAO {
             pstmt.setInt(1, ptc.getMaLoaiThuChi());
             pstmt.setDouble(2, ptc.getSoTien());
             pstmt.setInt(3, ptc.getMaNV());
-            if (ptc.getMaHD() != null) pstmt.setInt(4, ptc.getMaHD());
-            else pstmt.setNull(4, java
-                sql.Types.NUMERIC);
-            if (
-                tc.getMaPN() != null) pstmt.setInt(5, ptc.getMaPN());
-            else pstmt.setNull(5, java
-                sql.Types.NUMERIC);
-            pstm
-                .setInt(6, ptc.getMaCa());
+            if (ptc.getMaHD() != null)
+                pstmt.setInt(4, ptc.getMaHD());
+            else
+                pstmt.setNull(4, java.sql.Types.NUMERIC);
+            if (ptc.getMaPN() != null)
+                pstmt.setInt(5, ptc.getMaPN());
+            else
+                pstmt.setNull(5, java.sql.Types.NUMERIC);
+            pstmt.setInt(6, ptc.getMaCa());
             pstmt.setString(7, ptc.getGhiChu());
             pstmt.setInt(8, ptc.getMaPhieuTC());
             return pstmt.executeUpdate() > 0;

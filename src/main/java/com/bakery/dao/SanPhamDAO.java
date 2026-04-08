@@ -15,11 +15,11 @@ public class SanPhamDAO {
     public List<SanPhamDTO> layDanhSachSanPhamDeBan(int maDanhMuc) {
         List<SanPhamDTO> list = new ArrayList<>();
         String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
-                     "THOIGIANBAOQUAN, SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
-                     "FROM SANPHAM WHERE MADM = ? AND THOIDIEMXOA IS NULL AND SOLUONGTON > 0";
+                "THOIGIANBAOQUAN, SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
+                "FROM SANPHAM WHERE MADM = ? AND THOIDIEMXOA IS NULL AND SOLUONGTON > 0";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maDanhMuc);
 

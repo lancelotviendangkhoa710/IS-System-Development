@@ -17,8 +17,8 @@ public class DoiSoatDAO {
         String sql = "SELECT * FROM DOISOAT";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 DoiSoatDTO dsDto = new DoiSoatDTO();
@@ -41,7 +41,7 @@ public class DoiSoatDAO {
         String sql = "INSERT INTO DOISOAT (MACA, TIENKHAIBAODAUCA, TONGTIENHETHONG, TIENTHUCTEDEM, CHENHLECH, LYDOCHENHLECH) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, ds.getMaCa());
             pstmt.setDouble(2, ds.getTienKhaiBaoDauCa());
@@ -61,7 +61,7 @@ public class DoiSoatDAO {
         String sql = "UPDATE DOISOAT SET TIENKHAIBAODAUCA = ?, TONGTIENHETHONG = ?, TIENTHUCTEDEM = ?, CHENHLECH = ?, LYDOCHENHLECH = ? WHERE MACA = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setDouble(1, ds.getTienKhaiBaoDauCa());
             pstmt.setDouble(2, ds.getTongTienHeThong());

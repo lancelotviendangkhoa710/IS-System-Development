@@ -1,4 +1,5 @@
 package com.bakery.dao;
+
 import com.bakery.dto.KhachHangDTO;
 import com.bakery.utils.DBConnect;
 import java.sql.Connection;
@@ -12,7 +13,7 @@ public class KhachHangDAO {
         String sql = "SELECT * FROM KHACHHANG WHERE SDT = ? AND THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, sdt);
 
@@ -41,7 +42,7 @@ public class KhachHangDAO {
         String sql = "INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, kh.getHoTen());
             pstmt.setString(2, kh.getSdt());
@@ -58,7 +59,7 @@ public class KhachHangDAO {
         String sql = "UPDATE KHACHHANG SET DIEMTICHLUY = ? WHERE MaKH = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, diemMoi);
             pstmt.setInt(2, maKH);

@@ -17,8 +17,8 @@ public class CotBanhDAO {
         String sql = "SELECT MACOT, TENCOT, PHUPHI, THOIDIEMXOA, MANX FROM COTBANH WHERE THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 CotBanhDTO item = new CotBanhDTO();

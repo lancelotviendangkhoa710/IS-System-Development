@@ -17,8 +17,8 @@ public class KichCoBanhDAO {
         String sql = "SELECT MAKC, TENKC, PHUPHI, THOIDIEMXOA, MANX FROM KICHCOBANH WHERE THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 KichCoBanhDTO item = new KichCoBanhDTO();

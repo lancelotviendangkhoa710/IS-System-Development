@@ -1,9 +1,5 @@
 package com.bakery.dao;
 
-import com.bakery.dao.CaLamViecDAO;
-import com.bakery.dao.KhachHangDAO;
-import com.bakery.dao.NhanVienDAO;
-import com.bakery.dao.PhanQuyenDAO;
 import com.bakery.dto.CaLamViecDTO;
 import com.bakery.dto.ChucNangDTO;
 import com.bakery.dto.KhachHangDTO;
@@ -27,9 +23,10 @@ public class TestDAO {
         // --------------------------------------------------------
         System.out.println("1. Đang test NhanVienDAO.kiemTraDangNhap()...");
         try {
-            // Thay "admin" và "123456" bằng dữ liệu thực tế có trong DB 
+            // Thay "admin" và "123456" bằng dữ liệu thực tế có trong DB
             NhanVienDTO nv = nvDAO.kiemTraDangNhap("admin", "123456");
-            System.out.println(" ✅ Đăng nhập thành công! Xin chào: " + nv.getHoTen() + " (Mã NV: " + nv.getMaNV() + ")");
+            System.out
+                    .println(" ✅ Đăng nhập thành công! Xin chào: " + nv.getHoTen() + " (Mã NV: " + nv.getMaNV() + ")");
         } catch (Exception e) {
             System.out.println(" ❌ Đăng nhập thất bại: " + e.getMessage());
         }
@@ -55,7 +52,8 @@ public class TestDAO {
         int maNVTest = 1; // Giả sử mã nhân viên là 1
         CaLamViecDTO ca = caDAO.kiemTraCaDangMo(maNVTest);
         if (ca != null) {
-            System.out.println(" ✅ Nhân viên này đang trong ca làm việc. Mã ca: " + ca.getMaCa() + " tại máy POS: " + ca.getMaMayPOS());
+            System.out.println(" ✅ Nhân viên này đang trong ca làm việc. Mã ca: " + ca.getMaCa() + " tại máy POS: "
+                    + ca.getMaMayPOS());
         } else {
             System.out.println(" ℹ️ Nhân viên này hiện không có ca nào đang mở.");
         }

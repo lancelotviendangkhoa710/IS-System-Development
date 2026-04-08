@@ -17,8 +17,8 @@ public class LoaiThuChiDAO {
         String sql = "SELECT * FROM LOAITHUCHI WHERE THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 LoaiThuChiDTO ltc = new LoaiThuChiDTO();
@@ -27,7 +27,8 @@ public class LoaiThuChiDAO {
                 ltc.setPhanLoai(rs.getString("PHANLOAI"));
 
                 int maNX = rs.getInt("MANX");
-                if (!rs.wasNull()) ltc.setMaNX(maNX);
+                if (!rs.wasNull())
+                    ltc.setMaNX(maNX);
 
                 ds.add(ltc);
             }
@@ -41,7 +42,7 @@ public class LoaiThuChiDAO {
         String sql = "INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI) VALUES (?, ?)";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ltc.getTenLoaiThuChi());
             pstmt.setString(2, ltc.getPhanLoai());
@@ -57,7 +58,7 @@ public class LoaiThuChiDAO {
         String sql = "UPDATE LOAITHUCHI SET TENLOAITHUCHI = ?, PHANLOAI = ? WHERE MALOAITHUCHI = ? AND THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ltc.getTenLoaiThuChi());
             pstmt.setString(2, ltc.getPhanLoai());
@@ -74,7 +75,7 @@ public class LoaiThuChiDAO {
         String sql = "UPDATE LOAITHUCHI SET THOIDIEMXOA = CURRENT_TIMESTAMP, MANX = ? WHERE MALOAITHUCHI = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maNX);
             pstmt.setInt(2, maLoaiThuChi);

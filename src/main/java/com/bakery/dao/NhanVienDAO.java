@@ -1,4 +1,5 @@
 package com.bakery.dao;
+
 import com.bakery.dto.NhanVienDTO;
 import com.bakery.utils.DBConnect;
 import java.sql.Connection;
@@ -12,7 +13,7 @@ public class NhanVienDAO {
         String sql = "SELECT * FROM NHANVIEN WHERE TENDANGNHAP = ? AND MATKHAU = ? AND TRANGTHAILAMVIEC = 1";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
             pstmt.setString(2, password);
@@ -45,7 +46,7 @@ public class NhanVienDAO {
         String sql = "UPDATE NHANVIEN SET MATKHAU = ? WHERE MANV = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, matKhauMoi);
             pstmt.setInt(2, maNV);

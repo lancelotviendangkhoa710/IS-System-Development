@@ -1,4 +1,5 @@
 package com.bakery.dao;
+
 import com.bakery.dto.CaLamViecDTO;
 import com.bakery.utils.DBConnect;
 import java.sql.Connection;
@@ -12,7 +13,7 @@ public class CaLamViecDAO {
         String sql = "INSERT INTO CALAMVIEC (MANV, MAMAYPOS, TRANGTHAI) VALUES (?, ?, 'Đang mở')";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maNV);
             pstmt.setString(2, maMayPOS);
@@ -28,7 +29,7 @@ public class CaLamViecDAO {
         String sql = "SELECT * FROM CALAMVIEC WHERE MANV = ? AND TRANGTHAI = 'Đang mở'";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maNV);
 

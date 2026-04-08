@@ -17,15 +17,16 @@ public class HoaDonDAO {
         String sql = "SELECT * FROM HOADON";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 HoaDonDTO hd = new HoaDonDTO();
                 hd.setMaHD(rs.getInt("MAHD"));
 
                 int maDon = rs.getInt("MADON");
-                if (!rs.wasNull()) hd.setMaDon(maDon);
+                if (!rs.wasNull())
+                    hd.setMaDon(maDon);
 
                 hd.setMaCa(rs.getInt("MACA"));
 
@@ -50,10 +51,12 @@ public class HoaDonDAO {
         String sql = "INSERT INTO HOADON (MADON, MACA, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            if (hd.getMaDon() != null) pstmt.setInt(1, hd.getMaDon());
-            else pstmt.setNull(1, java.sql.Types.NUMERIC);
+            if (hd.getMaDon() != null)
+                pstmt.setInt(1, hd.getMaDon());
+            else
+                pstmt.setNull(1, java.sql.Types.NUMERIC);
 
             pstmt.setInt(2, hd.getMaCa());
             pstmt.setDouble(3, hd.getThueVAT());
@@ -72,10 +75,12 @@ public class HoaDonDAO {
         String sql = "UPDATE HOADON SET MADON = ?, MACA = ?, THUEVAT = ?, TONGTIENTHANHTOAN = ?, MAPTTT = ?, LOAIHD = ? WHERE MAHD = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            if (hd.getMaDon() != null) pstmt.setInt(1, hd.getMaDon());
-            else pstmt.setNull(1, java.sql.Types.NUMERIC);
+            if (hd.getMaDon() != null)
+                pstmt.setInt(1, hd.getMaDon());
+            else
+                pstmt.setNull(1, java.sql.Types.NUMERIC);
 
             pstmt.setInt(2, hd.getMaCa());
             pstmt.setDouble(3, hd.getThueVAT());

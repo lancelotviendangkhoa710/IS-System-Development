@@ -12,13 +12,13 @@ import java.util.List;
 
 public class PhuongThucTTDAO {
 
-    public List<PhuongThucTTDTO> layDanhSachPhuongThucTt() {
+    public List<PhuongThucTTDTO> layDanhSachPhuongThucTT() {
         List<PhuongThucTTDTO> ds = new ArrayList<>();
         String sql = "SELECT * FROM PHUONGTHUCTT WHERE THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 PhuongThucTTDTO pttt = new PhuongThucTTDTO();
@@ -26,7 +26,8 @@ public class PhuongThucTTDAO {
                 pttt.setTenPTTT(rs.getString("TENPTTT"));
 
                 int maNX = rs.getInt("MANX");
-                if (!rs.wasNull()) pttt.setMaNX(maNX);
+                if (!rs.wasNull())
+                    pttt.setMaNX(maNX);
 
                 ds.add(pttt);
             }
@@ -36,11 +37,11 @@ public class PhuongThucTTDAO {
         return ds;
     }
 
-    public boolean themPhuongThucTtMoi(PhuongThucTTDTO pttt) {
+    public boolean themPhuongThucTTMoi(PhuongThucTTDTO pttt) {
         String sql = "INSERT INTO PHUONGTHUCTT (TENPTTT) VALUES (?)";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, pttt.getTenPTTT());
 
@@ -51,11 +52,11 @@ public class PhuongThucTTDAO {
         return false;
     }
 
-    public boolean capNhatPhuongThucTt(PhuongThucTTDTO pttt) {
+    public boolean capNhatPhuongThucTT(PhuongThucTTDTO pttt) {
         String sql = "UPDATE PHUONGTHUCTT SET TENPTTT = ? WHERE MAPTTT = ? AND THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, pttt.getTenPTTT());
             pstmt.setInt(2, pttt.getMaPTTT());
@@ -67,11 +68,11 @@ public class PhuongThucTTDAO {
         return false;
     }
 
-    public boolean xoaMemPhuongThucTt(int maPTTT, int maNX) {
+    public boolean xoaMemPhuongThucTT(int maPTTT, int maNX) {
         String sql = "UPDATE PHUONGTHUCTT SET THOIDIEMXOA = CURRENT_TIMESTAMP, MANX = ? WHERE MAPTTT = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maNX);
             pstmt.setInt(2, maPTTT);
