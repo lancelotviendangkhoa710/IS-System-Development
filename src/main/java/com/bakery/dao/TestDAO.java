@@ -1,4 +1,4 @@
-package com.bakery.test;
+package com.bakery.dao;
 
 import com.bakery.dao.CaLamViecDAO;
 import com.bakery.dao.KhachHangDAO;

@@ -1,7 +1,5 @@
 package com.bakery.dto;
 
-
-
 public class ChucNangDTO {
     private int maChucNang;
     private String tenChucNang;
