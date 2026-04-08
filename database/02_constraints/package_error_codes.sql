@@ -170,7 +170,8 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
 
     -- Lỗi khi chuyển trạng thái đơn hàng (dùng trong PROC_CHUYENTRANGTHAIDON)
     ERR_DON_CHUYEN_TRANGTHAI        CONSTANT NUMBER := -20403;
-
+    -- Lỗi quy trình thanh toán
+    ERR_QUY_TRINH_THANH_TOAN        CONSTANT NUMBER := -20404;
 
     -- ========================
     -- NHÓM 05: TÀI CHÍNH
