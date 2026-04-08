@@ -21,7 +21,7 @@ out/
 *.log
 
 # Cấu hình bảo mật và biến môi trường
-src/main/resources/application.properties
+src/main/java/com/bakery/utils/DBConnect.java
 *.env
 
 # Tệp hệ thống
