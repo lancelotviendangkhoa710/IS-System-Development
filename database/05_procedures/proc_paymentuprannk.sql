@@ -12,12 +12,11 @@ IS
     V_MAHANG_MOI NUMBER := NULL;
 BEGIN
     -- 1. Chốt đơn hàng (Cập nhật trạng thái)
-    -- Truy vấn ngược từ Hóa Đơn lấy ra Mã Đơn hàng gốc
     SELECT MADON INTO V_MADON
     FROM HOADON
     WHERE MAHD = P_MAHD;
 
-    -- Lấy ID trạng thái ứng với "Hoàn thành" một cách bảo mật (không gọi Code cứng)
+    -- Lấy ID trạng thái ứng với "Hoàn thành"
     SELECT MATRANGTHAI INTO V_MATT_HOANTHANH
     FROM TRANGTHAIDON
     WHERE UPPER(TENTRANGTHAI) = 'HOÀN THÀNH';

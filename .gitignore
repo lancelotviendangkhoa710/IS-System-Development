@@ -1,5 +1,8 @@
 # Biểu mẫu gitignore cho dự án Java Maven (VSCode)
 
+# Thư mục dành cho Agent xử lý
+.agents/
+
 # Thư mục build
 target/
 bin/
