@@ -1,5 +1,8 @@
 # Biểu mẫu gitignore cho dự án Java Maven (VSCode)
 
+# Thư mục dành cho Agent xử lý
+.agents/
+
 # Thư mục build
 target/
 bin/
@@ -21,7 +24,7 @@ out/
 *.log
 
 # Cấu hình bảo mật và biến môi trường
-src/main/resources/application.properties
+src/main/java/com/bakery/utils/DBConnect.java
 *.env
 
 # Tệp hệ thống
