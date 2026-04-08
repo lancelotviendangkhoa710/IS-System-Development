@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class KhachHangDAO {
 
-    public KhachHangDTO timKhachHangTheoSDT(String sdt) {
+    public KhachHangDTO timKhachHangBangSDT(String sdt) {
         String sql = "SELECT * FROM KHACHHANG WHERE SDT = ? AND THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
@@ -32,7 +32,7 @@ public class KhachHangDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - timKhachHangTheoSDT: " + e.getMessage());
+            System.err.println("Lỗi DAO - timKhachHangBangSDT: " + e.getMessage());
         }
         return null;
     }

@@ -26,21 +26,21 @@ public class TestDAO {
         // TEST 1: Kiểm tra đăng nhập (NhanVienDAO)
         // --------------------------------------------------------
         System.out.println("1. Đang test NhanVienDAO.kiemTraDangNhap()...");
-        // Thay "admin" và "123456" bằng dữ liệu thực tế có trong DB của bạn
-        NhanVienDTO nv = nvDAO.kiemTraDangNhap("admin", "123456");
-        if (nv != null) {
+        try {
+            // Thay "admin" và "123456" bằng dữ liệu thực tế có trong DB 
+            NhanVienDTO nv = nvDAO.kiemTraDangNhap("admin", "123456");
             System.out.println(" ✅ Đăng nhập thành công! Xin chào: " + nv.getHoTen() + " (Mã NV: " + nv.getMaNV() + ")");
-        } else {
-            System.out.println(" ❌ Đăng nhập thất bại (Sai tài khoản/mật khẩu hoặc DB trống).");
+        } catch (Exception e) {
+            System.out.println(" ❌ Đăng nhập thất bại: " + e.getMessage());
         }
         System.out.println("--------------------------------------------------------");
 
         // --------------------------------------------------------
         // TEST 2: Tìm khách hàng theo Số điện thoại (KhachHangDAO)
         // --------------------------------------------------------
-        System.out.println("2. Đang test KhachHangDAO.timKhachHangTheoSDT()...");
+        System.out.println("2. Đang test KhachHangDAO.timKhachHangBangSDT()...");
         String sdtTest = "0901234567"; // Thay bằng SĐT có thật trong DB
-        KhachHangDTO kh = khDAO.timKhachHangTheoSDT(sdtTest);
+        KhachHangDTO kh = khDAO.timKhachHangBangSDT(sdtTest);
         if (kh != null) {
             System.out.println(" ✅ Tìm thấy khách hàng: " + kh.getHoTen() + " - Điểm tích lũy: " + kh.getDiemTichLuy());
         } else {

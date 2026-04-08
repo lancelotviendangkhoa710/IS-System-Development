@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class NhanVienDAO {
 
-    public NhanVienDTO kiemTraDangNhap(String username, String password) {
+    public NhanVienDTO kiemTraDangNhap(String username, String password) throws Exception {
         String sql = "SELECT * FROM NHANVIEN WHERE TENDANGNHAP = ? AND MATKHAU = ? AND TRANGTHAILAMVIEC = 1";
 
         try (Connection conn = DBConnect.getConnection();
@@ -24,19 +24,21 @@ public class NhanVienDAO {
                     nv.setMaVaiTro(rs.getInt("MAVAITRO"));
                     nv.setHoTen(rs.getString("HOTEN"));
                     if (rs.getDate("NGAYSINH") != null) {
-                        nv.setNgaySinh(rs.getDate("NGAYSINH").toLocalDate());//nếu null gán ngày sinh là ngày hiện tại
+                        nv.setNgaySinh(rs.getDate("NGAYSINH").toLocalDate());
                     }
                     nv.setSdt(rs.getString("SDT"));
                     nv.setTenDangNhap(rs.getString("TENDANGNHAP"));
                     nv.setMatKhau(rs.getString("MATKHAU"));
                     nv.setTrangThaiLamViec(rs.getInt("TRANGTHAILAMVIEC"));
                     return nv;
+                } else {
+                    throw new Exception("Tên đăng nhập hoặc mật khẩu không chính xác!");
                 }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi DAO - kiemTraDangNhap: " + e.getMessage());
+            throw new Exception("Lỗi hệ thống khi đăng nhập!");
         }
-        return null; // Trả về null nếu sai thông tin hoặc tài khoản bị khóa
     }
 
     public boolean doiMatKhau(int maNV, String matKhauMoi) {
