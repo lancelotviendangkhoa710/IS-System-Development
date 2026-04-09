@@ -1,16 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.bakery.controllers.MainController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.bakery.controllers.MainController"
+            stylesheets="@report.css" styleClass="app-root">
+    <top>
+        <VBox styleClass="hero">
+            <padding>
+                <Insets top="24" right="28" bottom="20" left="28"/>
+            </padding>
+            <Label text="Revenue report" styleClass="hero-title"/>
+            <Text text="Filter the date range, export a PDF, and keep the summary visible after each export."
+                  styleClass="hero-subtitle"/>
+        </VBox>
+    </top>
 
-    <Label fx:id="welcomeText" text="Hệ Thống Quản Lý Tiệm Bánh" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-    <Button text="Nhấp vào đây!" onAction="#onHelloButtonClick"/>
-</VBox>
+    <center>
+        <VBox spacing="18" styleClass="content-shell">
+            <padding>
+                <Insets top="0" right="28" bottom="24" left="28"/>
+            </padding>
+
+            <HBox spacing="14">
+                <VBox styleClass="stat-card">
+                    <Label text="Invoices" styleClass="stat-label"/>
+                    <Label fx:id="invoiceCountValueLabel" text="-" styleClass="stat-value"/>
+                </VBox>
+                <VBox styleClass="stat-card">
+                    <Label text="Revenue" styleClass="stat-label"/>
+                    <Label fx:id="totalRevenueValueLabel" text="-" styleClass="stat-value"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statusLabel" text="Ready to export" styleClass="status-pill"/>
+            </HBox>
+
+            <VBox spacing="16" styleClass="panel-card">
+                <padding>
+                    <Insets top="22" right="22" bottom="22" left="22"/>
+                </padding>
+
+                <HBox spacing="12">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Date range" styleClass="section-title"/>
+                        <Text text="Choose the start and end date for the report export." styleClass="section-hint"/>
+                    </VBox>
+                    <Button text="Choose PDF..." onAction="#onChooseOutputFile" styleClass="ghost-button"/>
+                </HBox>
+
+                <HBox spacing="16">
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="From date"/>
+                        <DatePicker fx:id="fromDatePicker" maxWidth="1.7976931348623157E308"/>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <Label text="To date"/>
+                        <DatePicker fx:id="toDatePicker" maxWidth="1.7976931348623157E308"/>
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="8">
+                    <Label text="Output file"/>
+                    <TextField fx:id="outputPathField" promptText="Select where to save the PDF"/>
+                </VBox>
+
+                <HBox spacing="12">
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="exportButton" text="Export PDF" onAction="#onExportRevenuePdf" styleClass="primary-button"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
