@@ -5,22 +5,34 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.bakery.controllers.MainController"
+<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" fx:controller="com.bakery.controllers.MainController"
             stylesheets="@report.css" styleClass="app-root">
     <top>
         <VBox styleClass="hero">
             <padding>
                 <Insets top="24" right="28" bottom="20" left="28"/>
             </padding>
-            <Label text="Bao cao doanh thu" styleClass="hero-title"/>
-            <Text text="Loc theo khoang ngay, xuat PDF, va theo doi tong quan ket qua sau moi lan xuat."
-                  styleClass="hero-subtitle"/>
+            <HBox spacing="12">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Bao cao doanh thu" styleClass="hero-title"/>
+                    <Text text="Loc theo khoang ngay, xuat PDF, va theo doi tong quan ket qua sau moi lan xuat."
+                          styleClass="hero-subtitle"/>
+                </VBox>
+                <VBox spacing="8">
+                    <Label fx:id="currentUserLabel" text="Nhan vien: -" styleClass="hero-user-label"/>
+                    <Button fx:id="themeToggleButton" text="Dark mode" onAction="#onToggleDarkMode" styleClass="hero-theme-button"/>
+                    <Button text="Back" onAction="#onGoHome" styleClass="hero-menu-button"/>
+                    <Button text="Doi mat khau" onAction="#onGoChangePassword" styleClass="hero-change-pass-button"/>
+                    <Button text="Dang xuat" onAction="#onLogout" styleClass="hero-logout-button"/>
+                </VBox>
+            </HBox>
         </VBox>
     </top>
 
@@ -79,4 +91,13 @@
             </VBox>
         </VBox>
     </center>
+
+    <bottom>
+        <AnchorPane styleClass="bottom-bar">
+            <padding>
+                <Insets top="8" right="24" bottom="10" left="24"/>
+            </padding>
+            <Label fx:id="clockLabel" text="--:--:--" styleClass="clock-label" AnchorPane.rightAnchor="0.0"/>
+        </AnchorPane>
+    </bottom>
 </BorderPane>

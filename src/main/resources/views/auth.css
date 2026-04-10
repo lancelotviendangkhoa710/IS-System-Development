@@ -1,0 +1,223 @@
+.auth-root {
+    -primary: #378ADD;
+    -success: #639922;
+    -warning: #BA7517;
+    -danger: #E24B4A;
+    -bakery-cream: #fff7ef;
+    -bakery-cocoa: #5e3b2f;
+    -surface: #ffffff;
+    -border: #e6d8c7;
+    -text-main: #2b2a28;
+    -text-muted: #6a6a66;
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: linear-gradient(to bottom right, #f6e8d6, #f9f3ea 38%, #efe4d2);
+}
+
+.auth-shell {
+    -fx-max-width: 1120;
+    -fx-alignment: center;
+}
+
+.bakery-panel {
+    -fx-background-color: linear-gradient(to bottom right, #f6d3a2, #eab67a);
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(94, 59, 47, 0.25);
+    -fx-border-radius: 8;
+    -fx-min-width: 380;
+}
+
+.bakery-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -bakery-cocoa;
+}
+
+.bakery-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #54362b;
+}
+
+.bakery-caption {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #4f2f24;
+}
+
+.bakery-note {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5f4236;
+}
+
+.auth-card {
+    -fx-background-color: -surface;
+    -fx-background-radius: 8;
+    -fx-border-color: -border;
+    -fx-border-radius: 8;
+    -fx-min-width: 420;
+    -fx-effect: dropshadow(gaussian, rgba(71, 44, 26, 0.15), 18, 0.12, 0, 8);
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text-main;
+}
+
+.text-field,
+.password-field {
+    -fx-font-size: 14px;
+    -fx-background-color: #fffdf9;
+    -fx-border-color: #dfd4c6;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12 8 12;
+    -fx-text-fill: -text-main;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: -primary;
+}
+
+.button {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 12 8 12;
+}
+
+.btn-primary {
+    -fx-background-color: -primary;
+    -fx-text-fill: white;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2d76bf;
+}
+
+.btn-success {
+    -fx-background-color: -success;
+    -fx-text-fill: white;
+}
+
+.btn-success:hover {
+    -fx-background-color: #537f1d;
+}
+
+.btn-warning {
+    -fx-background-color: -warning;
+    -fx-text-fill: white;
+}
+
+.btn-warning:hover {
+    -fx-background-color: #9a6113;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: #d4c6b3;
+    -fx-text-fill: #5e4a36;
+}
+
+.btn-ghost:hover {
+    -fx-background-color: #fff8ef;
+}
+
+.theme-button {
+    -fx-background-color: rgba(55, 138, 221, 0.16);
+    -fx-border-color: rgba(55, 138, 221, 0.45);
+    -fx-text-fill: #2f6b9a;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 6 10 6 10;
+}
+
+.theme-button:hover {
+    -fx-background-color: rgba(55, 138, 221, 0.24);
+}
+
+.bottom-bar {
+    -fx-background-color: transparent;
+}
+
+.clock-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #685340;
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-border-color: #d7c6b3;
+    -fx-border-radius: 8;
+}
+
+.form-message {
+    -fx-font-size: 13px;
+    -fx-text-fill: -text-muted;
+    -fx-wrap-text: true;
+}
+
+.form-message.danger {
+    -fx-text-fill: -danger;
+}
+
+.form-message.success {
+    -fx-text-fill: -success;
+}
+
+.auth-root.dark-mode {
+    -fx-background-color: linear-gradient(to bottom right, #171c22, #202832 38%, #1a2229);
+    -surface: #1f2a34;
+    -border: #3a4d60;
+    -text-main: #ecf4fb;
+    -text-muted: #aebfcd;
+}
+
+.auth-root.dark-mode .bakery-panel {
+    -fx-background-color: linear-gradient(to bottom right, #2b3a48, #32495d);
+    -fx-border-color: #4a6277;
+}
+
+.auth-root.dark-mode .bakery-title,
+.auth-root.dark-mode .bakery-subtitle,
+.auth-root.dark-mode .bakery-caption,
+.auth-root.dark-mode .bakery-note {
+    -fx-text-fill: #d9eaf8;
+}
+
+.auth-root.dark-mode .auth-card {
+    -fx-background-color: #1f2a34;
+    -fx-border-color: #3a4d60;
+}
+
+.auth-root.dark-mode .card-title {
+    -fx-text-fill: #edf6fd;
+}
+
+.auth-root.dark-mode .text-field,
+.auth-root.dark-mode .password-field {
+    -fx-background-color: #263440;
+    -fx-border-color: #4a6074;
+    -fx-text-fill: #eaf2fb;
+}
+
+.auth-root.dark-mode .btn-ghost {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: #5f7487;
+    -fx-text-fill: #d8e8f4;
+}
+
+.auth-root.dark-mode .theme-button {
+    -fx-background-color: rgba(154, 198, 232, 0.22);
+    -fx-border-color: rgba(154, 198, 232, 0.5);
+    -fx-text-fill: #d9ebf9;
+}
+
+.auth-root.dark-mode .clock-label {
+    -fx-text-fill: #d7e8f6;
+    -fx-background-color: rgba(27, 39, 49, 0.9);
+    -fx-border-color: #4b6174;
+}

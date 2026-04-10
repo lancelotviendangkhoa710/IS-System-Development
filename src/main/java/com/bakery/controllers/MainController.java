@@ -1,8 +1,12 @@
 package com.bakery.controllers;
 
+import com.bakery.main.App;
+import com.bakery.main.UserSession;
 import com.bakery.reports.ReportException;
 import com.bakery.reports.ReportService;
 import com.bakery.reports.RevenueReportResult;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -10,15 +14,20 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import javafx.util.Duration;
 
 public class MainController {
+    private static final DateTimeFormatter CLOCK_FMT = DateTimeFormatter.ofPattern("HH:mm:ss  dd/MM/yyyy");
 
     @FXML
     private DatePicker fromDatePicker;
@@ -41,7 +50,20 @@ public class MainController {
     @FXML
     private Label totalRevenueValueLabel;
 
+    @FXML
+    private Label currentUserLabel;
+
+    @FXML
+    private BorderPane rootPane;
+
+    @FXML
+    private Label clockLabel;
+
+    @FXML
+    private Button themeToggleButton;
+
     private final ReportService reportService = new ReportService();
+    private Timeline clockTimeline;
 
     @FXML
     private void initialize() {
@@ -52,6 +74,14 @@ public class MainController {
         statusLabel.setText("Ready to export");
         invoiceCountValueLabel.setText("-");
         totalRevenueValueLabel.setText("-");
+        String displayName = UserSession.getEmployeeName();
+        if (displayName == null || displayName.isBlank()) {
+            displayName = "Unknown";
+        }
+        currentUserLabel.setText("Nhan vien: " + displayName);
+
+        applyDarkMode(UserSession.isDarkModeEnabled());
+        startClock();
     }
 
     @FXML
@@ -126,6 +156,78 @@ public class MainController {
     private static String defaultOutputName() {
         LocalDate today = LocalDate.now();
         return "BaoCaoDoanhThu_" + today.minusDays(6) + "_" + today + ".pdf";
+    }
+
+    @FXML
+    private void onLogout() {
+        stopClock();
+        UserSession.clear();
+        try {
+            App.showLogin();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation error", safeMessage(e));
+        }
+    }
+
+    @FXML
+    private void onGoChangePassword() {
+        stopClock();
+        try {
+            App.showChangePassword();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation error", safeMessage(e));
+        }
+    }
+
+    @FXML
+    private void onGoHome() {
+        stopClock();
+        try {
+            App.showHome();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation error", safeMessage(e));
+        }
+    }
+
+    @FXML
+    private void onToggleDarkMode() {
+        boolean newValue = !UserSession.isDarkModeEnabled();
+        UserSession.setDarkModeEnabled(newValue);
+        applyDarkMode(newValue);
+    }
+
+    private void applyDarkMode(boolean enabled) {
+        if (rootPane == null) {
+            return;
+        }
+        if (enabled) {
+            if (!rootPane.getStyleClass().contains("dark-mode")) {
+                rootPane.getStyleClass().add("dark-mode");
+            }
+            themeToggleButton.setText("Light mode");
+        } else {
+            rootPane.getStyleClass().remove("dark-mode");
+            themeToggleButton.setText("Dark mode");
+        }
+    }
+
+    private void startClock() {
+        updateClock();
+        clockTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> updateClock()));
+        clockTimeline.setCycleCount(Timeline.INDEFINITE);
+        clockTimeline.play();
+    }
+
+    private void stopClock() {
+        if (clockTimeline != null) {
+            clockTimeline.stop();
+        }
+    }
+
+    private void updateClock() {
+        if (clockLabel != null) {
+            clockLabel.setText(CLOCK_FMT.format(LocalDateTime.now()));
+        }
     }
 
     private static String formatMoney(double value) {
