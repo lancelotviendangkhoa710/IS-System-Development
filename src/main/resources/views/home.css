@@ -1,0 +1,170 @@
+.home-root {
+    -primary: #378ADD;
+    -success: #639922;
+    -warning: #BA7517;
+    -danger: #E24B4A;
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: linear-gradient(to bottom right, #f7f1e5, #efe8d8 38%, #e7efe8);
+}
+
+.topbar {
+    -fx-background-color: linear-gradient(to right, #234746, #2a5f59);
+}
+
+.welcome-title {
+    -fx-text-fill: #f2fbfa;
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+}
+
+.welcome-subtitle {
+    -fx-text-fill: #d8f0ed;
+    -fx-font-size: 13px;
+}
+
+.btn-ghost {
+    -fx-background-color: rgba(255, 255, 255, 0.16);
+    -fx-text-fill: #eef8f7;
+    -fx-border-color: rgba(255, 255, 255, 0.45);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 8 12 8 12;
+}
+
+.btn-ghost:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.26);
+}
+
+.theme-button {
+    -fx-background-color: rgba(255, 255, 255, 0.24);
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-text-fill: #ecf8f7;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 8 12 8 12;
+}
+
+.theme-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.34);
+}
+
+.menu-shell {
+    -fx-padding: 8 0 0 0;
+}
+
+.menu-heading {
+    -fx-text-fill: #253737;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.feature-card {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: #d7e3de;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 16;
+    -fx-min-width: 280;
+    -fx-max-width: 320;
+}
+
+.feature-soon {
+    -fx-opacity: 0.9;
+}
+
+.feature-title {
+    -fx-text-fill: #1f2c2b;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+}
+
+.feature-desc {
+    -fx-text-fill: #5e7070;
+    -fx-font-size: 13px;
+}
+
+.btn-primary {
+    -fx-background-color: -primary;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12 8 12;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2e77c2;
+}
+
+.btn-disabled {
+    -fx-background-color: #c8d4d2;
+    -fx-text-fill: #687776;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12 8 12;
+}
+
+.bottom-bar {
+    -fx-background-color: transparent;
+}
+
+.clock-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #476564;
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-border-color: #cdded9;
+    -fx-border-radius: 8;
+}
+
+.home-root.dark-mode {
+    -fx-background-color: linear-gradient(to bottom right, #151a1f, #1e262e);
+}
+
+.home-root.dark-mode .topbar {
+    -fx-background-color: linear-gradient(to right, #11191f, #19333a);
+}
+
+.home-root.dark-mode .welcome-title,
+.home-root.dark-mode .welcome-subtitle {
+    -fx-text-fill: #d7e8f4;
+}
+
+.home-root.dark-mode .feature-card {
+    -fx-background-color: rgba(31, 42, 52, 0.96);
+    -fx-border-color: #3a4f62;
+}
+
+.home-root.dark-mode .menu-heading,
+.home-root.dark-mode .feature-title {
+    -fx-text-fill: #e9f2f8;
+}
+
+.home-root.dark-mode .feature-desc {
+    -fx-text-fill: #aec0cc;
+}
+
+.home-root.dark-mode .btn-disabled {
+    -fx-background-color: #3a4f60;
+    -fx-text-fill: #9fb2c0;
+}
+
+.home-root.dark-mode .btn-ghost,
+.home-root.dark-mode .theme-button {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-border-color: #5f7487;
+    -fx-text-fill: #d8e8f4;
+}
+
+.home-root.dark-mode .clock-label {
+    -fx-text-fill: #d7e8f6;
+    -fx-background-color: rgba(27, 39, 49, 0.9);
+    -fx-border-color: #4b6174;
+}

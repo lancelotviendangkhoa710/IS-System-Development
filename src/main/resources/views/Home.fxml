@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.bakery.controllers.HomeController"
+            stylesheets="@home.css"
+            styleClass="home-root">
+    <top>
+        <HBox spacing="12" styleClass="topbar">
+            <padding>
+                <Insets top="20" right="24" bottom="16" left="24"/>
+            </padding>
+            <VBox spacing="4">
+                <Label fx:id="welcomeLabel" text="Xin chao!" styleClass="welcome-title"/>
+                <Label fx:id="subtitleLabel" text="Chon chuc nang ban muon thuc hien." styleClass="welcome-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="themeToggleButton" text="Dark mode" onAction="#onToggleDarkMode" styleClass="theme-button"/>
+            <Button text="Doi mat khau" onAction="#onOpenChangePassword" styleClass="btn-ghost"/>
+            <Button text="Dang xuat" onAction="#onLogout" styleClass="btn-ghost"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" styleClass="menu-shell">
+            <padding>
+                <Insets top="10" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <Label text="Menu chuc nang" styleClass="menu-heading"/>
+
+            <HBox spacing="14">
+                <VBox spacing="8" styleClass="feature-card">
+                    <Label text="Bao cao doanh thu" styleClass="feature-title"/>
+                    <Label text="Xem tong quan hoa don theo khoang ngay va xuat file PDF." wrapText="true" styleClass="feature-desc"/>
+                    <Button text="Mo chuc nang" onAction="#onOpenRevenueReport" styleClass="btn-primary"/>
+                </VBox>
+
+                <VBox spacing="8" styleClass="feature-card feature-soon">
+                    <Label text="Quan ly don hang" styleClass="feature-title"/>
+                    <Label text="Dang duoc phat trien. Se them trong cac phien ban tiep theo." wrapText="true" styleClass="feature-desc"/>
+                    <Button text="Sap co" disable="true" styleClass="btn-disabled"/>
+                </VBox>
+
+                <VBox spacing="8" styleClass="feature-card feature-soon">
+                    <Label text="Kho va nguyen lieu" styleClass="feature-title"/>
+                    <Label text="Dang duoc phat trien. Se them trong cac phien ban tiep theo." wrapText="true" styleClass="feature-desc"/>
+                    <Button text="Sap co" disable="true" styleClass="btn-disabled"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <AnchorPane styleClass="bottom-bar">
+            <padding>
+                <Insets top="8" right="24" bottom="10" left="24"/>
+            </padding>
+            <Label fx:id="clockLabel" text="--:--:--" styleClass="clock-label" AnchorPane.rightAnchor="0.0"/>
+        </AnchorPane>
+    </bottom>
+</BorderPane>

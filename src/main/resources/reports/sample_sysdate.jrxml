@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal JRXML for quick connectivity/export testing (Oracle: SELECT ... FROM DUAL). -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="sample_sysdate"
+              pageWidth="595" pageHeight="842"
+              columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20"
+              uuid="4b65f5f7-7b3d-4c65-bc4a-8b3b0c1f1f7d">
+
+    <queryString>
+        <![CDATA[
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') AS REPORT_DATE
+FROM DUAL
+        ]]>
+    </queryString>
+
+    <field name="REPORT_DATE" class="java.lang.String"/>
+
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30" uuid="2adf0b85-13e8-44a0-b3c1-6e5b4d6038b2"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Bakery Management System - Report Test]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <detail>
+        <band height="40">
+            <staticText>
+                <reportElement x="0" y="0" width="140" height="20" uuid="a7a04a1c-4ee8-4d42-9b71-1d2dc23b5e5e"/>
+                <text><![CDATA[Oracle SYSDATE:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="150" y="0" width="405" height="20" uuid="13b3f64f-4071-4d87-9c6a-1b1b7d2dd449"/>
+                <textFieldExpression><![CDATA[$F{REPORT_DATE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>
+

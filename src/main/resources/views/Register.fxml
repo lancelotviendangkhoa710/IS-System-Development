@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.bakery.controllers.RegisterController"
+            stylesheets="@auth.css"
+            styleClass="auth-root">
+    <center>
+        <HBox spacing="16" styleClass="auth-shell">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <VBox spacing="16" styleClass="bakery-panel" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="Dang ky tai khoan moi" styleClass="bakery-title"/>
+                <Label text="Tao user nhan vien de su dung he thong quan ly tiem banh." styleClass="bakery-subtitle" wrapText="true"/>
+                <Region VBox.vgrow="ALWAYS"/>
+                <Label text="Thong tin ten dang nhap va so dien thoai phai duy nhat." styleClass="bakery-note" wrapText="true"/>
+            </VBox>
+
+            <VBox spacing="12" styleClass="auth-card" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <HBox spacing="8">
+                    <Label text="Thong tin dang ky" styleClass="card-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="themeToggleButton" text="Dark mode" onAction="#onToggleDarkMode" styleClass="theme-button"/>
+                </HBox>
+                <TextField fx:id="nameField" promptText="Ho ten"/>
+                <TextField fx:id="phoneField" promptText="So dien thoai"/>
+                <TextField fx:id="usernameField" promptText="Ten dang nhap"/>
+                <PasswordField fx:id="passwordField" promptText="Mat khau"/>
+                <PasswordField fx:id="confirmPasswordField" promptText="Nhap lai mat khau"/>
+                <Button text="Tao tai khoan" onAction="#onRegister" styleClass="btn-success"/>
+                <Label fx:id="messageLabel" styleClass="form-message"/>
+                <Button text="Back" onAction="#onBackToLogin" styleClass="btn-ghost"/>
+            </VBox>
+        </HBox>
+    </center>
+
+    <bottom>
+        <AnchorPane styleClass="bottom-bar">
+            <padding>
+                <Insets top="8" right="24" bottom="10" left="24"/>
+            </padding>
+            <Label fx:id="clockLabel" text="--:--:--" styleClass="clock-label" AnchorPane.rightAnchor="0.0"/>
+        </AnchorPane>
+    </bottom>
+</BorderPane>

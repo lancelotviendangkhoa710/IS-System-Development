@@ -1,0 +1,286 @@
+.app-root {
+    -color-bg-a: #f7f4ed;
+    -color-bg-b: #e9f1ef;
+    -color-surface: #ffffff;
+    -color-border: #d8e1de;
+    -color-text: #1f2a2a;
+    -color-muted: #5f7170;
+    -color-accent: #1f7667;
+    -color-accent-strong: #16594d;
+    -color-accent-soft: #e7f3f0;
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: linear-gradient(to bottom right, -color-bg-a, -color-bg-b);
+}
+
+.hero {
+    -fx-background-color: linear-gradient(to right, #173b37, #1f5b52);
+    -fx-background-radius: 0 0 18 18;
+}
+
+.hero-title {
+    -fx-text-fill: #f6fbfa;
+    -fx-font-size: 29px;
+    -fx-font-weight: 800;
+}
+
+.hero-subtitle {
+    -fx-fill: rgba(236, 250, 248, 0.9);
+    -fx-font-size: 13px;
+}
+
+.hero-user-label {
+    -fx-text-fill: #d5efe9;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.hero-logout-button {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-text-fill: #ecfaf8;
+    -fx-border-color: rgba(255, 255, 255, 0.38);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-weight: 700;
+}
+
+.hero-logout-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.hero-theme-button {
+    -fx-background-color: rgba(255, 255, 255, 0.28);
+    -fx-text-fill: #0f3f39;
+    -fx-border-color: rgba(255, 255, 255, 0.7);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-weight: 700;
+}
+
+.hero-theme-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.42);
+}
+
+.hero-menu-button {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+    -fx-text-fill: #f0fffc;
+    -fx-border-color: rgba(255, 255, 255, 0.55);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-weight: 700;
+}
+
+.hero-menu-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.34);
+}
+
+.hero-change-pass-button {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-text-fill: #f2fffd;
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-weight: 700;
+}
+
+.hero-change-pass-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.28);
+}
+
+.content-shell {
+    -fx-padding: 10 0 0 0;
+}
+
+.panel-card {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 18;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(21, 46, 43, 0.12), 20, 0.15, 0, 8);
+}
+
+.stat-card {
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-background-radius: 16;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 14 16 14 16;
+    -fx-min-width: 190;
+}
+
+.stat-label {
+    -fx-text-fill: -color-muted;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.stat-value {
+    -fx-text-fill: -color-text;
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+}
+
+.status-pill {
+    -fx-background-color: -color-accent-soft;
+    -fx-background-radius: 999;
+    -fx-text-fill: -color-accent-strong;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-border-color: #c6dfda;
+    -fx-border-radius: 999;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -color-text;
+}
+
+.section-hint {
+    -fx-fill: -color-muted;
+    -fx-font-size: 12px;
+}
+
+.field-label {
+    -fx-text-fill: #415251;
+    -fx-font-weight: 600;
+}
+
+.ghost-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #bcd2cd;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #1d3e39;
+    -fx-padding: 10 16 10 16;
+    -fx-font-weight: 700;
+}
+
+.ghost-button:hover {
+    -fx-background-color: #f3faf8;
+}
+
+.ghost-button:pressed {
+    -fx-background-color: #e7f2ef;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, -color-accent, -color-accent-strong);
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-padding: 10 20 10 20;
+    -fx-font-weight: 800;
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to right, #1a6a5d, #134e43);
+}
+
+.primary-button:disabled {
+    -fx-opacity: 0.6;
+}
+
+.text-field, .date-picker {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #c7d8d4;
+    -fx-background-color: white;
+    -fx-padding: 8 10 8 10;
+    -fx-text-fill: -color-text;
+}
+
+.text-field:focused, .date-picker:focused {
+    -fx-border-color: -color-accent;
+    -fx-border-width: 1.3;
+}
+
+.date-picker > .text-field {
+    -fx-background-insets: 0;
+}
+
+.bottom-bar {
+    -fx-background-color: transparent;
+}
+
+.clock-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #476564;
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-border-color: #cdded9;
+    -fx-border-radius: 8;
+}
+
+.app-root.dark-mode {
+    -fx-background-color: linear-gradient(to bottom right, #151a1f, #1e262e);
+    -color-surface: #1f2a34;
+    -color-border: #334454;
+    -color-text: #eaf2f8;
+    -color-muted: #a6b6c2;
+    -color-accent-soft: #21434a;
+}
+
+.app-root.dark-mode .hero {
+    -fx-background-color: linear-gradient(to right, #11191f, #19333a);
+}
+
+.app-root.dark-mode .panel-card,
+.app-root.dark-mode .stat-card {
+    -fx-background-color: rgba(31, 42, 52, 0.96);
+    -fx-border-color: #3a4f62;
+}
+
+.app-root.dark-mode .hero-user-label {
+    -fx-text-fill: #cde4ef;
+}
+
+.app-root.dark-mode .hero-theme-button {
+    -fx-background-color: rgba(95, 138, 167, 0.36);
+    -fx-text-fill: #e7f4fb;
+    -fx-border-color: rgba(170, 214, 240, 0.5);
+}
+
+.app-root.dark-mode .hero-change-pass-button,
+.app-root.dark-mode .hero-menu-button,
+.app-root.dark-mode .hero-logout-button {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: #e7f4fb;
+    -fx-border-color: rgba(204, 229, 245, 0.45);
+}
+
+.app-root.dark-mode .status-pill {
+    -fx-background-color: #203946;
+    -fx-text-fill: #cfe8f4;
+    -fx-border-color: #35586b;
+}
+
+.app-root.dark-mode .ghost-button {
+    -fx-text-fill: #e9f2f8;
+    -fx-border-color: #496074;
+}
+
+.app-root.dark-mode .ghost-button:hover {
+    -fx-background-color: #2b3b49;
+}
+
+.app-root.dark-mode .text-field,
+.app-root.dark-mode .date-picker,
+.app-root.dark-mode .date-picker > .text-field {
+    -fx-background-color: #23313d;
+    -fx-border-color: #476078;
+    -fx-text-fill: #edf5fb;
+}
+
+.app-root.dark-mode .clock-label {
+    -fx-text-fill: #d3e7f6;
+    -fx-background-color: rgba(25, 41, 53, 0.88);
+    -fx-border-color: #48647b;
+}
