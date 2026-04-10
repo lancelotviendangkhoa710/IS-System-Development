@@ -65,6 +65,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_THANH_TOAN_GIAO_DICH, 'Loi he thong khi thanh toan giao dich: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_THANH_TOAN_GIAO_DICH, 'Lỗi hệ thống khi thanh toán giao dịch: ' || SQLERRM);
 END;
 /

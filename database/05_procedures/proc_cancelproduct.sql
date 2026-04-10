@@ -16,12 +16,12 @@ BEGIN
         WHERE MASP = P_MASP;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Ma san pham khong ton tai trong kho!');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Mã sản phẩm không tồn tại trong kho!');
     END;
 
     -- Chống Nhân viên gõ nhầm số lượng lớn hơn số bánh đang có thật trên kệ
     IF V_SOLUONGTON < P_SOLUONGHUY THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH, 'So luong huy vuot qua so luong ton kho hien tai! (Ton: ' || V_SOLUONGTON || ')');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH, 'Số lượng hủy vượt quá số lượng tồn kho hiện tại! (Tồn: ' || V_SOLUONGTON || ')');
     END IF;
 
     -- 2. Lập chứng từ (INSERT INTO PHIEUXUATKHO)
@@ -42,7 +42,7 @@ EXCEPTION
         IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_BANH OR SQLCODE = PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI THEN
             RAISE;
         ELSE
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HE_THONG_KHOIPHUC, 'Loi he thong khi xuat huy banh: ' || SQLERRM);
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HE_THONG_KHOIPHUC, 'Lỗi hệ thống khi xuất hủy bánh: ' || SQLERRM);
         END IF;
 END;
 /

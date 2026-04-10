@@ -44,6 +44,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Loi he thong giao dich khi thuc thi huy don: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Lỗi hệ thống giao dịch khi thực thi hủy đơn: ' || SQLERRM);
 END;
 /

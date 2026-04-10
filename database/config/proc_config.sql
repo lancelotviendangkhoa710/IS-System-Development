@@ -35,9 +35,9 @@ BEGIN
 
     -- BƯỚC 6: BÁO CÁO KẾT QUẢ
     IF V_THOIDIEMXOA IS NULL AND V_MANX IS NULL THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Procedure hoat dong');
+        RAISE_APPLICATION_ERROR(-20001, 'Procedure hoạt động');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Procedure khong hoat dong');
+        RAISE_APPLICATION_ERROR(-20002, 'Procedure không hoạt động');
     END IF;
 END;
 /
@@ -88,7 +88,7 @@ BEGIN
 
     -- BƯỚC 5: BÁO CÁO KẾT QUẢ
     IF V_TRANGTHAI = 'Đã đóng' AND V_COUNT_DOISOAT > 0 AND V_CHENHLECH = (V_TIEN_THUCTE - V_TIEN_HETHONG) THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_DONGCADOISOAT hoat dong dung');
+        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_DONGCADOISOAT hoạt động đúng');
     ELSE
     END IF;
 END;
@@ -177,9 +177,9 @@ BEGIN
 
     -- 5. ĐÁNH GIÁ (Mong muốn: Đơn "Hoàn thành", Khách nhảy lên hạng "Bạc", Điểm = 50)
     IF V_TT_RESULT = V_MATT_HOANTHANH AND V_DIEM_RESULT = 50 AND V_HANG_RESULT = V_MAHANG_BAC THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_THANHTOANVATHANGHANG hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_THANHTOANVATHANGHANG hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Procedure hoat dong sai! TrangThai=' || V_TT_RESULT || ', Diem=' || V_DIEM_RESULT || ', Hang=' || V_HANG_RESULT);
+        RAISE_APPLICATION_ERROR(-20002, 'Procedure hoạt động sai! TrangThai=' || V_TT_RESULT || ', Diem=' || V_DIEM_RESULT || ', Hang=' || V_HANG_RESULT);
     END IF;
 END;
 /
@@ -249,7 +249,7 @@ BEGIN
     COMMIT;
     -- 5. BÁO CÁO NHẬN ĐỊNH
     IF V_TONKHO_SAU = 10 AND V_TT_HIENTAI = V_MATT_HUY AND V_COUNT_LOG = 1 AND V_GHICHU_LOG = 'Khách hàng bị tai nạn không thể nhận bánh' THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_HUYDONVAHOANKHO hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_HUYDONVAHOANKHO hoạt động!');
     ELSE
         RAISE_APPLICATION_ERROR(-20002, 'Lỗi Procedure! Không hoàn trả đủ hàng hoặc Log ghi chép lỗi!');
     END IF;
@@ -307,7 +307,7 @@ BEGIN
 
     -- 5. BÁO CÁO NHẬN ĐỊNH
     IF V_TONKHO_SAU = (V_TONKHO_TRUOC - V_SOLUONGHUY) AND V_COUNT_PX = 1 AND V_COUNT_CTPX = 1 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_XUATHUYBANH hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_XUATHUYBANH hoạt động!');
     ELSE
         RAISE_APPLICATION_ERROR(-20002, 'Lỗi Procedure! Không trừ được kho (' || V_TONKHO_SAU || ') hoặc không tạo đủ chi tiết Xuất!');
     END IF;

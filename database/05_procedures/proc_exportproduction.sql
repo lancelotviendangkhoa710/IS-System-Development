@@ -38,8 +38,8 @@ BEGIN
             -- Nếu 1 nguyên liệu bất kì không đủ, lập tức đập vỡ Giao dịch và văng Exception cứu hệ thống
             IF V_TONGTON < REC.TONG_CAN_DUNG THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DU,
-                                        'Kho khong du dinh muc (NL: ' || REC.TENNL || ') de lam ' || P_SOLUONGSANXUAT ||
-                                        ' cai banh. Can: ' || REC.TONG_CAN_DUNG || ' nhung chi con: ' || V_TONGTON);
+                                        'Kho không đủ định mức (NL: ' || REC.TENNL || ') để làm ' || P_SOLUONGSANXUAT ||
+                                        ' cái bánh. Cần: ' || REC.TONG_CAN_DUNG || ' nhưng chỉ còn: ' || V_TONGTON);
             END IF;
         END LOOP;
 
@@ -78,7 +78,7 @@ BEGIN
             -- Safe check báo rủi ro (Rất hiếm thi gặp trừ khi Tổng Tồn đồng bộ sai với Tồn Chi Tiết Lô)
             IF V_LUONGCANDUNG > 0 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DU,
-                                        'Dong bo du lieu ton ao o muc lo hang: ' || REC.TENNL);
+                                        'Đồng bộ dữ liệu tồn ảo ở mức lô hàng: ' || REC.TENNL);
             END IF;
         END LOOP;
 
@@ -92,6 +92,6 @@ EXCEPTION
             RAISE;
         END IF;
 
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Loi he thong khi xuat kho san xuat: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Lỗi hệ thống khi xuất kho sản xuất: ' || SQLERRM);
 END;
 /

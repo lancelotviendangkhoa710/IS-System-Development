@@ -37,6 +37,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NHAP_KHO, 'Loi he thong khi nhap kho vat tu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NHAP_KHO, 'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
 END;
 /

@@ -46,6 +46,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Loi xay ra khi chuyen trang thai don (Transaction Rollbacked): ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Lỗi xảy ra khi chuyển trạng thái đơn (Transaction Rollbacked): ' || SQLERRM);
 END;
 /

@@ -54,9 +54,9 @@ BEGIN
     
     -- 5. BÁO CÁO KẾT QUẢ
     IF V_COUNT = 2 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_DoanhThuTheoPhuongThucTT hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_DoanhThuTheoPhuongThucTT hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function tra ve sai du lieu hoac thieu dong.');
+        RAISE_APPLICATION_ERROR(-20002, 'Function trả về sai dữ liệu hoặc thiếu dòng.');
     END IF;
 END;
 /
@@ -116,9 +116,9 @@ BEGIN
     
     -- 4. BÁO CÁO KẾT QUẢ
     IF V_MALO_RESULT = V_MALO_2 AND V_SL_CONLAI_RESULT = 10 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_XACDINHPHIEUNHAPFEFO hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_XACDINHPHIEUNHAPFEFO hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai quy tac FEFO! (Chon sai lo)');
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai quy tắc FEFO! (Chọn sai lô)');
     END IF;
 END;
 /
@@ -182,9 +182,9 @@ BEGIN
     
     -- 4. BÁO CÁO KẾT QUẢ
     IF V_KHA_DUNG = 12 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TinhDiemKhaDung hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TinhDiemKhaDung hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai! Tinh toan nang luc khong dung: ' || V_KHA_DUNG);
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai! Tính toán năng lực không đúng: ' || V_KHA_DUNG);
     END IF;
 END;
 /
@@ -254,9 +254,9 @@ BEGIN
     
     -- 4. BÁO CÁO KẾT QUẢ
     IF V_LOINHUANGOP = 230000 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TINHLOINHUANGOP hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TINHLOINHUANGOP hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai! Tinh toan loi nhuan khong dung: ' || V_LOINHUANGOP);
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai! Tính toán lợi nhuận không đúng: ' || V_LOINHUANGOP);
     END IF;
 END;
 /
@@ -316,9 +316,9 @@ BEGIN
     
     -- 5. BÁO CÁO KẾT QUẢ
     IF V_COUNT = 2 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_CHUYENDOITYLECONGTHUC hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_CHUYENDOITYLECONGTHUC hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai ty le quy doi hoac thieu du lieu!');
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai tỷ lệ quy đổi hoặc thiếu dữ liệu!');
     END IF;
 END;
 /
@@ -381,9 +381,9 @@ BEGIN
     
     -- 5. BÁO CÁO KẾT QUẢ
     IF V_COUNT = 1 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_KIEMTRATONKHOTOITHIEU hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_KIEMTRATONKHOTOITHIEU hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai! Ket qua bi tran ra ngoai hoac khong bat dung diem can gioi.');
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai! Kết quả bị tràn ra ngoài hoặc không bắt đúng điểm cảnh giới.');
     END IF;
 END;
 /
@@ -423,9 +423,9 @@ BEGIN
     
     -- 4. BÁO CÁO KẾT QUẢ CHO CONSOLE
     IF V_GIA_FULL = 300000 AND V_GIA_KHT = 260000 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TINHGIABANHTUYCHINH hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TINHGIABANHTUYCHINH hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai! Tinh gia Full: ' || V_GIA_FULL || ', Tinh gia KHT: ' || V_GIA_KHT);
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai! Tính giá Full: ' || V_GIA_FULL || ', Tính giá KHT: ' || V_GIA_KHT);
     END IF;
 END;
 /
@@ -471,9 +471,9 @@ BEGIN
     
     -- 4. BÁO CÁO KẾT QUẢ CHO CONSOLE
     IF V_SO_LUONG_MAX = 5 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_SOLUONGKHADUNG hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_SOLUONGKHADUNG hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong gap loi sai thuat toan! Tinh capacity bi lech, ket qua hien tai la: ' || V_SO_LUONG_MAX);
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động gặp lỗi sai thuật toán! Tính capacity bị lệch, kết quả hiện tại là: ' || V_SO_LUONG_MAX);
     END IF;
     END IF;
 END;
@@ -555,9 +555,9 @@ BEGIN
     
     -- 5. BÁO CÁO KẾT QUẢ CHO CONSOLE
     IF V_COUNT = 2 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TOPSANPHAMBANCHAY hoat dong!');
+        RAISE_APPLICATION_ERROR(-20001, 'Function FUNC_TOPSANPHAMBANCHAY hoạt động!');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Function hoat dong sai! Loc sai trang thai hoac mang ra the loai banh bi bom.');
+        RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động sai! Lọc sai trạng thái hoặc mang ra thể loại bánh bị bom.');
     END IF;
 END;
 /

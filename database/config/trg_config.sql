@@ -46,9 +46,9 @@ BEGIN
 
     -- 6. BÁO CÁO KẾT QUA
     IF V_SOLUONGTON = 5 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Trigger hoat dong');
+        RAISE_APPLICATION_ERROR(-20001, 'Trigger hoạt động');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Trigger khong hoat dong');
+        RAISE_APPLICATION_ERROR(-20002, 'Trigger không hoạt động');
     END IF;
 END;
 /
@@ -110,9 +110,9 @@ BEGIN
 
     -- 5. BÁO CÁO KẾT QUẢ
     IF V_DONGIAVON = 10000 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Trigger TRG_CTDONHANG_GIAVON hoat dong dung');
+        RAISE_APPLICATION_ERROR(-20001, 'Trigger TRG_CTDONHANG_GIAVON hoạt động đúng');
     ELSE
-        RAISE_APPLICATION_ERROR(-20002, 'Trigger TRG_CTDONHANG_GIAVON khong hoat dong hoac tinh sai');
+        RAISE_APPLICATION_ERROR(-20002, 'Trigger TRG_CTDONHANG_GIAVON không hoạt động hoặc tính sai');
     END IF;
 END;
 /
@@ -157,16 +157,16 @@ BEGIN
         
         -- Nếu vượt qua block trên mà không bị lỗi -> Trigger sai (hoặc không hoạt động)
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20002, 'Trigger TRG_KIEMSOAT_CONGSUAT khong hoat dong de chan giao dich');
+        RAISE_APPLICATION_ERROR(-20002, 'Trigger TRG_KIEMSOAT_CONGSUAT không hoạt động để chặn giao dịch');
     EXCEPTION
         WHEN OTHERS THEN
             -- SQLCODE cua Raise_Application_Error(-20005) la -20005
             IF SQLCODE = -20005 THEN
                 ROLLBACK;
-                RAISE_APPLICATION_ERROR(-20001, 'Trigger TRG_KIEMSOAT_CONGSUAT hoat dong dung: ' || SQLERRM);
+                RAISE_APPLICATION_ERROR(-20001, 'Trigger TRG_KIEMSOAT_CONGSUAT hoạt động đúng: ' || SQLERRM);
             ELSE
                 ROLLBACK;
-                RAISE_APPLICATION_ERROR(-20002, 'Loi khac bat ngo: ' || SQLERRM);
+                RAISE_APPLICATION_ERROR(-20002, 'Lỗi khác bất ngờ: ' || SQLERRM);
             END IF;
     END;
 END;

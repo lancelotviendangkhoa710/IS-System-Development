@@ -56,6 +56,6 @@ EXCEPTION
         -- Phản ứng tức thời ngắt toàn quyền, thu hồi Master-Detail đảm bảo Partial Transaction không xảy ra
         ROLLBACK;
         -- Re-throw Exception có kèm Header Thông Báo để Java Exception Handler tiện lợi tóm dính
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Loi he thong khi Tao Don Hang (Master-Detail): ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng (Master-Detail): ' || SQLERRM);
 END;
 /

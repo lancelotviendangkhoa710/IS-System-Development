@@ -24,7 +24,7 @@ BEGIN
 
     -- 4. NẾU KHÔNG TÌM THẤY CA ĐỂ UPDATE, BÁO LỖI VỀ JAVA
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI, 'Loi: Ca lam viec khong ton tai hoac da duoc dong truoc do.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI, 'Lỗi: Ca làm việc không tồn tại hoặc đã được đóng trước đó.');
     END IF;
 
     COMMIT;
