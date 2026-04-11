@@ -19,10 +19,10 @@ BEGIN
     FROM PHIEUNHAPKHO
     WHERE MAPN = :NEW.MAPN;
 
-    IF TRUNC(:NEW.HANSUDUNG) <= TRUNC(V_NGAYNHAP) THEN
+    IF TRUNC(:NEW.HANSUDUNG) - 10 <= TRUNC(V_NGAYNHAP) THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_HSD_KHONG_HOPLE,
             'LỖI NGHIỆP VỤ: Hạn sử dụng của lô này (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
-            ') và ngày nhập kho (' || TO_CHAR(V_NGAYNHAP, 'DD/MM/YYYY') || ') đã quá hạn!.');
+            ') và ngày nhập kho (' || TO_CHAR(V_NGAYNHAP, 'DD/MM/YYYY') || ') đã quá hạn hoặc gần hết hạn!.');
     END IF;
 
 EXCEPTION

@@ -1,0 +1,89 @@
+-- Procedure thêm nguyên liệu
+CREATE OR REPLACE PROCEDURE PROC_THEM_NGUYENLIEU(
+    P_TENNL IN NVARCHAR2,
+    P_XUATXU IN NVARCHAR2,
+    P_MADVT IN NUMBER,
+    P_MANV IN NUMBER,
+    P_MANL_OUT OUT NUMBER
+)
+IS
+BEGIN
+    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT, THOIDIEMXOA, MANX)
+    VALUES (P_TENNL, P_XUATXU, P_MADVT, NULL, NULL)
+    RETURNING MANL INTO P_MANL_OUT;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20601, 'Lỗi hệ thống khi tạo mới Nguyên Liệu: ' || SQLERRM);
+END;
+/
+
+-- Procedure cập nhật nguyên liệu
+CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_NGUYENLIEU(
+    P_MANL IN NUMBER,
+    P_TENNL IN NVARCHAR2,
+    P_XUATXU IN NVARCHAR2,
+    P_MADVT IN NUMBER,
+    P_MUCTONANTOAN IN NUMBER
+)
+IS
+BEGIN
+    UPDATE NGUYENLIEU
+    SET TENNL = NVL(P_TENNL, TENNL),
+        XUATXU = NVL(P_XUATXU, XUATXU),
+        MADVT = NVL(P_MADVT, MADVT),
+        MUCTONANTOAN = NVL(P_MUCTONANTOAN, MUCTONANTOAN),
+        PHIENBAN = PHIENBAN + 1
+    WHERE MANL = P_MANL;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
+    END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20602, 'Lỗi hệ thống khi cập nhật Nguyên Liệu: ' || SQLERRM);
+END;
+/
+
+-- Procedure xóa nguyên liệu
+CREATE OR REPLACE PROCEDURE PROC_XOA_NGUYENLIEU(
+    P_MANL IN NUMBER,
+    P_MANX IN NUMBER
+)
+IS
+    V_LST_COUNT NUMBER := 0;
+BEGIN
+    -- Kiểm tra xem nguyên liệu này đã từng được giao dịch (Nhập/Xuất chưa)
+    SELECT COUNT(*) INTO V_LST_COUNT
+    FROM CTPHIEUNHAP
+    WHERE MANL = P_MANL;
+
+    IF V_LST_COUNT > 0 THEN
+        -- Đã có lịch sử -> Tiến hành XÓA MỀM (Soft Delete)
+        UPDATE NGUYENLIEU
+        SET THOIDIEMXOA = SYSDATE,
+            MANX = P_MANX,
+            PHIENBAN = PHIENBAN + 1
+        WHERE MANL = P_MANL;
+    ELSE
+        -- Chưa từng cấu thành lịch sử -> Cho phép XÓA CỨNG (Hard Delete) triệt để
+        DELETE FROM NGUYENLIEU WHERE MANL = P_MANL;
+    END IF;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
+    END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20603, 'Lỗi hệ thống khi xóa Nguyên Liệu: ' || SQLERRM);
+END;
+/

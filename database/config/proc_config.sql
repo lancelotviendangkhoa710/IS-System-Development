@@ -328,6 +328,7 @@ DECLARE
     V_TONGTIENNHAP NUMBER;
     V_KHO_NL1 NUMBER;
     V_KHO_NL2 NUMBER;
+    V_KHO_NL3 NUMBER;
     V_COUNT_CT NUMBER;
     
     V_RANDOM_SUFFIX VARCHAR2(10) := DBMS_RANDOM.STRING('A', 5);
@@ -359,6 +360,16 @@ BEGIN
             "HanSuDung": "' || TO_CHAR(SYSDATE + 180, 'YYYY-MM-DD') || '"
         },
         {
+            "MaNL": null,
+            "TenNL": "Sữa Tươi Nguyên Bản ' || V_RANDOM_SUFFIX || '",
+            "XuatXu": "Việt Nam",
+            "MaDVT": ' || V_MADVT || ',
+            "SoLuong": 100,
+            "DonGia": 15000,
+            "NgaySanXuat": "' || TO_CHAR(SYSDATE - 2, 'YYYY-MM-DD') || '",
+            "HanSuDung": "' || TO_CHAR(SYSDATE + 30, 'YYYY-MM-DD') || '"
+        },
+        {
             "MaNL": ' || V_MANL_2 || ',
             "SoLuong": 20,
             "DonGia": 12000,
@@ -377,19 +388,21 @@ BEGIN
     -- Kiểm tra xem Tồn Kho Tổng có được Trigger âm thầm cộng dồn không?
     SELECT SOLUONGTONTONG INTO V_KHO_NL1 FROM NGUYENLIEU WHERE MANL = V_MANL_1;
     SELECT SOLUONGTONTONG INTO V_KHO_NL2 FROM NGUYENLIEU WHERE MANL = V_MANL_2;
+    SELECT SUM(SOLUONGTONTONG) INTO V_KHO_NL3 FROM NGUYENLIEU WHERE TENNL = 'Sữa Tươi Nguyên Bản ' || V_RANDOM_SUFFIX;
     SELECT COUNT(*) INTO V_COUNT_CT FROM CTPHIEUNHAP WHERE MAPN = V_MAPN;
 
     -- 5. CLEANUP DỮ LIỆU RÁC
     DELETE FROM CTPHIEUNHAP WHERE MAPN = V_MAPN;
     DELETE FROM PHIEUNHAPKHO WHERE MAPN = V_MAPN;
     DELETE FROM NGUYENLIEU WHERE MANL IN (V_MANL_1, V_MANL_2);
+    DELETE FROM NGUYENLIEU WHERE TENNL = 'Sữa Tươi Nguyên Bản ' || V_RANDOM_SUFFIX;
     DELETE FROM NHACUNGCAP WHERE MANCC = V_MANCC;
     DELETE FROM NHANVIEN WHERE MANV = V_MANV;
     DELETE FROM VAITRO WHERE MAVAITRO = V_MAVAITRO;
     COMMIT;
 
-    -- 6. ĐÁNH GIÁ LUỒNG NGHIỆP VỤ (Batch-insert thành công 2 tiết, NL1 tăng 10->60, NL2 từ 5->25)
-    IF V_KHO_NL1 = 60 AND V_KHO_NL2 = 25 AND V_COUNT_CT = 2 THEN
+    -- 6. ĐÁNH GIÁ LUỒNG NGHIỆP VỤ (Batch-insert thành công 3 chi tiết, NL1 tăng 10->60, NL2 từ 5->25, NL3 tạo mới lên 100)
+    IF V_KHO_NL1 = 60 AND V_KHO_NL2 = 25 AND V_KHO_NL3 = 100 AND V_COUNT_CT = 3 THEN
         RAISE_APPLICATION_ERROR(-20001, 'Procedure PROC_NHAPKHO hoạt động!');
     ELSE
         RAISE_APPLICATION_ERROR(-20002, 'Lỗi Procedure Nhập Kho JSON! KQ Không Khớp! KhoNL1=' || V_KHO_NL1 || ', KhoNL2=' || V_KHO_NL2 || ', CountCT=' || V_COUNT_CT);

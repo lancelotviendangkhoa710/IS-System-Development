@@ -1,4 +1,4 @@
--- Procedure Khởi tạo Đơn Hàng (Master-Detail với JSON_TABLE)
+-- Procedure Khởi tạo Đơn Hàng
 CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
     P_NGAYGIONHANBANH IN TIMESTAMP,
     P_MAKH IN NUMBER DEFAULT NULL,
@@ -12,15 +12,12 @@ CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
 )
 IS
 BEGIN
-    -- 1. Insert Đơn Hàng Góc (Master Record)
-    -- TONGTIENHDBAN sẽ mặc định là 0. Việc cộng dồn tổng tiền sẽ được bàn giao
-    -- cho thiết kế Trigger TRG_CTDONHANG_UPDATE tự động thực thi khi có dòng chi tiết đẩy vào.
+    -- 1. Insert Đơn Hàng Gốc
     INSERT INTO DONDATHANG (NGAYGIONHANBANH, MAKH, MANV_LAP, MATRANGTHAI, TIENDACOC, HINHTHUCNHAN, DIACHIGIAO)
     VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, NVL(P_TIENDACOC, 0), P_HINHTHUCNHAN, P_DIACHIGIAO)
     RETURNING MADON INTO P_MADON_OUT;
 
-    -- 2. Đẩy đồng loạt chi tiết đơn hàng (Sử dụng JSON_TABLE siêu tốc độ)
-    -- Ghi toàn bộ dữ liệu vô bảng chuẩn CTDONHANG
+    -- 2. Đẩy đồng loạt chi tiết đơn hàng
     INSERT INTO CTDONHANG (MADON, MASP, SOLUONG, DONGIA)
     SELECT P_MADON_OUT, J.MASP, J.SOLUONG, J.DONGIA
     FROM JSON_TABLE(P_JSONCHITIET, '$[*]'
@@ -33,7 +30,6 @@ BEGIN
 
     -- 3. Đẩy chi tiết thuộc tính Tùy Chỉnh
     -- Quét lại JSON 1 lần nữa nhưng có bộ lọc IS_CUSTOM = true để đưa vào Base Mở rộng (CTDONTUYCHINH)
-    -- Mapping: node 'ghiChu' vào LOICHUCTRENBANH, node 'phuKien' vào GHICHUTHOBANH
     INSERT INTO CTDONTUYCHINH (MADON, MASP, SOLUONG, DONGIA, LOICHUCTRENBANH, GHICHUTHOBANH)
     SELECT P_MADON_OUT, J.MASP, J.SOLUONG, J.DONGIA, J.GHICHU, J.PHUKIEN
     FROM JSON_TABLE(P_JSONCHITIET, '$[*]'
@@ -48,14 +44,61 @@ BEGIN
     ) J
     WHERE LOWER(J.IS_CUSTOM) = 'true';
 
-    -- 4. Bàn giao sức mạnh tổng hợp cho Trigger & Chốt Giao Dịch Cứng
     COMMIT;
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- Phản ứng tức thời ngắt toàn quyền, thu hồi Master-Detail đảm bảo Partial Transaction không xảy ra
         ROLLBACK;
-        -- Re-throw Exception có kèm Header Thông Báo để Java Exception Handler tiện lợi tóm dính
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng (Master-Detail): ' || SQLERRM);
+END;
+/
+
+-- Procedure hủy đơn hàng
+CREATE OR REPLACE PROCEDURE PROC_HUYDONVAHOANKHO(
+    P_MADON IN NUMBER,
+    P_LYDOHUY IN NVARCHAR2,
+    P_MANV_CAPNHAT IN NUMBER
+)
+IS
+    V_MATRANGTHAI_CU NUMBER;
+    V_MATT_HUY NUMBER;
+BEGIN
+    -- 1. Lấy trạng thái hiện tại của đơn hàng trước khi chết
+    SELECT MATRANGTHAI INTO V_MATRANGTHAI_CU
+    FROM DONDATHANG
+    WHERE MADON = P_MADON;
+
+    -- Lấy ID động của trạng thái "Hủy"
+    SELECT MATRANGTHAI INTO V_MATT_HUY
+    FROM TRANGTHAIDON
+    WHERE UPPER(TENTRANGTHAI) = 'HỦY';
+
+    -- 2. Đổi trạng thái đơn hàng sang "Hủy"
+    UPDATE DONDATHANG
+    SET MATRANGTHAI = V_MATT_HUY
+    WHERE MADON = P_MADON;
+
+    -- 3. Quét & Hoàn kho
+    FOR ROW_CT IN (
+        SELECT MASP, SOLUONG
+        FROM CTDONHANG
+        WHERE MADON = P_MADON
+    )
+    LOOP
+        UPDATE SANPHAM
+        SET SOLUONGTON = SOLUONGTON + ROW_CT.SOLUONG
+        WHERE MASP = ROW_CT.MASP;
+    END LOOP;
+
+    -- 4. Audit Log (Lưu vết hành động của Nhân viên kèm Lý Do Hủy chi tiết)
+    INSERT INTO LICHSUDONHANG(MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT, GHICHU)
+    VALUES (P_MADON, V_MATRANGTHAI_CU, V_MATT_HUY, SYSDATE, P_MANV_CAPNHAT, P_LYDOHUY);
+
+    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Lỗi hệ thống giao dịch khi thực thi hủy đơn: ' || SQLERRM);
 END;
 /
