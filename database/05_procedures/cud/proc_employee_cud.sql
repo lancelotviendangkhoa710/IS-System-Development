@@ -1,0 +1,169 @@
+-- ==============================================================
+-- PROCEDURE CUD (Create, Update, Delete) - MODULE NHÂN SỰ
+-- Gồm: VAI TRÒ (VAITRO), NHÂN VIÊN (NHANVIEN)
+-- Tác giả: Antigravity
+-- ==============================================================
+
+-- --------------------------------------------------------------
+-- 1. CUD VAI TRÒ (VAITRO)
+-- --------------------------------------------------------------
+
+-- 1.1 Thêm Vai Trò
+CREATE OR REPLACE PROCEDURE PROC_THEM_VAITRO(
+    P_TENVAITRO IN NVARCHAR2,
+    P_MOTA IN NVARCHAR2,
+    P_MANV_TAO IN NUMBER,
+    P_MAVAITRO_OUT OUT NUMBER
+)
+IS
+BEGIN
+    INSERT INTO VAITRO (TENVAITRO, MOTA, THOIDIEMXOA, MANX)
+    VALUES (P_TENVAITRO, P_MOTA, NULL, NULL)
+    RETURNING MAVAITRO INTO P_MAVAITRO_OUT;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20611, 'Lỗi hệ thống khi thêm Vai trò: ' || SQLERRM);
+END;
+/
+
+-- 1.2 Cập nhật Vai Trò
+CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_VAITRO(
+    P_MAVAITRO IN NUMBER,
+    P_TENVAITRO IN NVARCHAR2,
+    P_MOTA IN NVARCHAR2
+)
+IS
+BEGIN
+    UPDATE VAITRO
+    SET TENVAITRO = NVL(P_TENVAITRO, TENVAITRO),
+        MOTA = NVL(P_MOTA, MOTA)
+    WHERE MAVAITRO = P_MAVAITRO;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20612, 'Lỗi: Không tìm thấy vai trò để cập nhật.');
+    END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20612 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20613, 'Lỗi hệ thống khi cập nhật Vai trò: ' || SQLERRM);
+END;
+/
+
+-- 1.3 Xóa Vai Trò (XÓA MỀM)
+CREATE OR REPLACE PROCEDURE PROC_XOA_VAITRO(
+    P_MAVAITRO IN NUMBER,
+    P_MANV_XOA IN NUMBER
+)
+IS
+BEGIN
+    UPDATE VAITRO
+    SET THOIDIEMXOA = SYSDATE,
+        MANX = P_MANV_XOA
+    WHERE MAVAITRO = P_MAVAITRO;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20614, 'Lỗi: Không tìm thấy vai trò để xóa.');
+    END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20614 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20615, 'Lỗi hệ thống khi xóa Vai trò: ' || SQLERRM);
+END;
+/
+
+-- --------------------------------------------------------------
+-- 2. CUD NHÂN VIÊN (NHANVIEN)
+-- Chú ý: Nhân viên sử dụng TRANGTHAILAMVIEC thay vì THOIDIEMXOA
+-- --------------------------------------------------------------
+
+-- 2.1 Thêm Nhân Viên
+CREATE OR REPLACE PROCEDURE PROC_THEM_NHANVIEN(
+    P_MAVAITRO IN NUMBER,
+    P_HOTEN IN NVARCHAR2,
+    P_NGAYSINH IN DATE,
+    P_SDT IN VARCHAR2,
+    P_TENDANGNHAP IN VARCHAR2,
+    P_MATKHAU IN VARCHAR2,
+    P_MANV_OUT OUT NUMBER
+)
+IS
+BEGIN
+    INSERT INTO NHANVIEN (MAVAITRO, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC)
+    VALUES (P_MAVAITRO, P_HOTEN, P_NGAYSINH, P_SDT, P_TENDANGNHAP, P_MATKHAU, 1)
+    RETURNING MANV INTO P_MANV_OUT;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20616, 'Lỗi hệ thống khi thêm Nhân viên: ' || SQLERRM);
+END;
+/
+
+-- 2.2 Cập nhật Nhân Viên
+CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_NHANVIEN(
+    P_MANV IN NUMBER,
+    P_MAVAITRO IN NUMBER,
+    P_HOTEN IN NVARCHAR2,
+    P_NGAYSINH IN DATE,
+    P_SDT IN VARCHAR2,
+    P_TENDANGNHAP IN VARCHAR2,
+    P_MATKHAU IN VARCHAR2,
+    P_TRANGTHAILAMVIEC IN NUMBER
+)
+IS
+BEGIN
+    UPDATE NHANVIEN
+    SET MAVAITRO = NVL(P_MAVAITRO, MAVAITRO),
+        HOTEN = NVL(P_HOTEN, HOTEN),
+        NGAYSINH = NVL(P_NGAYSINH, NGAYSINH),
+        SDT = NVL(P_SDT, SDT),
+        TENDANGNHAP = NVL(P_TENDANGNHAP, TENDANGNHAP),
+        MATKHAU = NVL(P_MATKHAU, MATKHAU),
+        TRANGTHAILAMVIEC = NVL(P_TRANGTHAILAMVIEC, TRANGTHAILAMVIEC)
+    WHERE MANV = P_MANV;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20617, 'Lỗi: Không tìm thấy nhân viên để cập nhật.');
+    END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20617 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20618, 'Lỗi hệ thống khi cập nhật Nhân viên: ' || SQLERRM);
+END;
+/
+
+-- 2.3 Xóa Nhân Viên (Ngừng việc / Vô hiệu hóa)
+CREATE OR REPLACE PROCEDURE PROC_XOA_NHANVIEN(
+    P_MANV IN NUMBER,
+    P_MANV_XOA IN NUMBER
+)
+IS
+BEGIN
+    -- Vô hiệu hóa tài khoản bằng cách gán TRANGTHAILAMVIEC = 0 thay cho Xóa Mềm thông thường
+    UPDATE NHANVIEN
+    SET TRANGTHAILAMVIEC = 0
+    WHERE MANV = P_MANV;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20619, 'Lỗi: Không tìm thấy nhân viên để xóa.');
+    END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20619 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20620, 'Lỗi hệ thống khi xóa (ngừng việc) Nhân viên: ' || SQLERRM);
+END;
+/

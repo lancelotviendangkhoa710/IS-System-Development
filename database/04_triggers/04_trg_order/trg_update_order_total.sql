@@ -1,5 +1,5 @@
     -- Trigger cộng trừ tiền khi có thay đổi hóa đơn (insert, update, delete)
-    CREATE OR REPLACE TRIGGER TRG_CTDONHANG_UPDATE
+    CREATE OR REPLACE TRIGGER TRG_CAPNHAT_CTDONHANG
     AFTER INSERT OR UPDATE OR DELETE ON CTDONHANG
     FOR EACH ROW
     DECLARE

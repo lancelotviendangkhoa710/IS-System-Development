@@ -19,6 +19,18 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- Lỗi hệ thống khi khôi phục dữ liệu (dùng trong PROC_KHOIPHUCDULIEU)
     ERR_HE_THONG_KHOIPHUC          CONSTANT NUMBER := -20001;
 
+    -- Lỗi hệ thống khi thanh toán giao dịch (dùng trong PROC_THANHTOANVATHANGHANG)
+    ERR_THANH_TOAN_GIAO_DICH        CONSTANT NUMBER := -20002;
+
+    -- Lỗi hệ thống giao dịch khi thực thi hủy đơn (dùng trong PROC_HUYDONVAHOANKHO)
+    ERR_HUY_DON_GIAO_DICH           CONSTANT NUMBER := -20003;
+
+    -- Lỗi hệ thống khi xuất kho sản xuất (dùng trong PROC_XUATKHOSANXUAT)
+    ERR_HUY_XUAT_KHO                CONSTANT NUMBER := -20004;
+
+    -- Lỗi hệ thống khi tạo đơn hàng (dùng trong PROC_TAODONHANG)
+    ERR_HUY_TAO_DON                 CONSTANT NUMBER := -20005;
+
 
     -- ========================
     -- NHÓM 01: NHÂN SỰ & KHÁCH HÀNG
@@ -37,6 +49,9 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
 
     -- Không tìm thấy sản phẩm trong hệ thống (dùng trong TRG_TRUKHO_PHIEUXUATTP, TRG_TRUKHO_DONHANG)
     ERR_SP_KHONG_TON_TAI            CONSTANT NUMBER := -20202;
+
+    -- Số lượng hủy vượt quá tồn kho hiện tại (dùng trong PROC_XUATHUYBANH)
+    ERR_XUAT_HUY_BANH               CONSTANT NUMBER := -20203;
 
 
     -- ========================
@@ -63,6 +78,9 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
 
     -- Nguyên liệu đã được sử dụng, không thể hủy phiếu nhập (dùng trong PROC_HUYPHIEUNHAPKHO)
     ERR_NL_KHONG_THE_HUY_PN         CONSTANT NUMBER := -20307;
+
+    -- Lỗi hệ thống khi thực thi Nhập kho (dùng trong PROC_NHAPKHO)
+    ERR_NHAP_KHO                    CONSTANT NUMBER := -20308;
 
 
     -- ========================

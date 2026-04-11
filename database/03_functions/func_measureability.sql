@@ -1,5 +1,5 @@
 -- Hàm xác định số lượng bánh tùy chỉnh còn trống có thể nhận được trong một ngày
-CREATE OR REPLACE FUNCTION FUNC_TINHDIEMKHADUNG(
+CREATE OR REPLACE FUNCTION FUNC_DIEMKHADUNG(
     P_NGAYCANKIEMTRA IN DATE
 ) RETURN NUMBER
 IS
