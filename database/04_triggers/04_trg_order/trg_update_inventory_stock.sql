@@ -27,11 +27,11 @@
         WHERE MASP = V_MASP;
 
         IF V_SOLUONGTON < 0 THEN
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_HET_HANG, 'So luong banh da het!');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_HET_HANG, 'Số lượng bánh đã hết!');
         END IF;
 
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Loi: Khong tim thay san pham.');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Lỗi: Không tìm thấy sản phẩm.');
     END;
     /
