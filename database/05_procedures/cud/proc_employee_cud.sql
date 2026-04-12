@@ -1,4 +1,4 @@
--- Procedure Thêm Vai Trò
+-- Procedure them vai tro
 CREATE OR REPLACE PROCEDURE PROC_THEM_VAITRO (
     P_TENVAITRO IN NVARCHAR2,
     P_MOTA IN NVARCHAR2 DEFAULT NULL,
@@ -13,11 +13,11 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20611, 'Lỗi hệ thống khi thêm Vai trò: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_THEM_HE_THONG, 'Loi he thong khi them Vai tro: ' || SQLERRM);
 END;
 /
 
--- Procedure Sửa Vai Trò
+-- Procedure sua vai tro
 CREATE OR REPLACE PROCEDURE PROC_SUA_VAITRO (
     P_MAVAITRO IN NUMBER,
     P_TENVAITRO IN NVARCHAR2,
@@ -31,19 +31,19 @@ BEGIN
     WHERE MAVAITRO = P_MAVAITRO;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20612, 'Lỗi: Không tìm thấy vai trò để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_CN, 'Loi: Khong tim thay Vai tro de cap nhat.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20612 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20613, 'Lỗi hệ thống khi cập nhật Vai trò: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_CAPNHAT_HE_THONG, 'Loi he thong khi cap nhat Vai tro: ' || SQLERRM);
 END;
 /
 
--- 1.3 Xóa Vai Trò (XÓA MỀM)
+-- Procedure xoa vai tro
 CREATE OR REPLACE PROCEDURE PROC_XOA_VAITRO (
     P_MAVAITRO IN NUMBER,
     P_MANV_XOA IN NUMBER
@@ -56,19 +56,19 @@ BEGIN
     WHERE MAVAITRO = P_MAVAITRO;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20614, 'Lỗi: Không tìm thấy vai trò để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay Vai tro de xoa.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20614 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20615, 'Lỗi hệ thống khi xóa Vai trò: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_XOA_HE_THONG, 'Loi he thong khi xoa Vai tro: ' || SQLERRM);
 END;
 /
 
--- Procedure Thêm Nhân Viên
+-- Procedure them nhan vien
 CREATE OR REPLACE PROCEDURE PROC_THEM_NHANVIEN (
     P_MAVAITRO IN NUMBER,
     P_HOTEN IN NVARCHAR2,
@@ -87,11 +87,11 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20616, 'Lỗi hệ thống khi thêm Nhân viên: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_THEM_HE_THONG, 'Loi he thong khi them Nhan vien: ' || SQLERRM);
 END;
 /
 
--- Procedure Sửa Nhân Viên
+-- Procedure sua nhan vien
 CREATE OR REPLACE PROCEDURE PROC_SUA_NHANVIEN (
     P_MANV IN NUMBER,
     P_MAVAITRO IN NUMBER,
@@ -115,39 +115,38 @@ BEGIN
     WHERE MANV = P_MANV;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20617, 'Lỗi: Không tìm thấy nhân viên để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_CN, 'Loi: Khong tim thay Nhan vien de cap nhat.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20617 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20618, 'Lỗi hệ thống khi cập nhật Nhân viên: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_CAPNHAT_HE_THONG, 'Loi he thong khi cap nhat Nhan vien: ' || SQLERRM);
 END;
 /
 
--- Procedure Xóa Nhân Viên (Ngừng việc / Vô hiệu hóa)
+-- Procedure xoa nhan vien
 CREATE OR REPLACE PROCEDURE PROC_XOA_NHANVIEN (
-    P_MANV IN NUMBER,
-    P_MANV_XOA IN NUMBER
+    P_MANV IN NUMBER
+
 )
 IS
 BEGIN
-    -- Vô hiệu hóa tài khoản bằng cách gán TRANGTHAILAMVIEC = 0 thay cho Xóa Mềm thông thường
     UPDATE NHANVIEN
     SET TRANGTHAILAMVIEC = 0
     WHERE MANV = P_MANV;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20619, 'Lỗi: Không tìm thấy nhân viên để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay Nhan vien de xoa.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20619 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20620, 'Lỗi hệ thống khi xóa (ngừng việc) Nhân viên: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_XOA_HE_THONG, 'Loi he thong khi xoa Nhan vien: ' || SQLERRM);
 END;
 /

@@ -13,6 +13,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20658, 'Lỗi hệ thống khi Mở ca làm việc: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_MO_HE_THONG, 'Lỗi hệ thống khi Mở ca làm việc: ' || SQLERRM);
 END;
 /
