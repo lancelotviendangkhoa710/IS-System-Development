@@ -1,18 +1,7 @@
--- ==============================================================
--- PROCEDURE CUD (Create, Update, Delete) - MODULE NHÂN SỰ
--- Gồm: VAI TRÒ (VAITRO), NHÂN VIÊN (NHANVIEN)
--- Tác giả: Antigravity
--- ==============================================================
-
--- --------------------------------------------------------------
--- 1. CUD VAI TRÒ (VAITRO)
--- --------------------------------------------------------------
-
--- 1.1 Thêm Vai Trò
-CREATE OR REPLACE PROCEDURE PROC_THEM_VAITRO(
+-- Procedure Thêm Vai Trò
+CREATE OR REPLACE PROCEDURE PROC_THEM_VAITRO (
     P_TENVAITRO IN NVARCHAR2,
-    P_MOTA IN NVARCHAR2,
-    P_MANV_TAO IN NUMBER,
+    P_MOTA IN NVARCHAR2 DEFAULT NULL,
     P_MAVAITRO_OUT OUT NUMBER
 )
 IS
@@ -28,8 +17,8 @@ EXCEPTION
 END;
 /
 
--- 1.2 Cập nhật Vai Trò
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_VAITRO(
+-- Procedure Sửa Vai Trò
+CREATE OR REPLACE PROCEDURE PROC_SUA_VAITRO (
     P_MAVAITRO IN NUMBER,
     P_TENVAITRO IN NVARCHAR2,
     P_MOTA IN NVARCHAR2
@@ -55,7 +44,7 @@ END;
 /
 
 -- 1.3 Xóa Vai Trò (XÓA MỀM)
-CREATE OR REPLACE PROCEDURE PROC_XOA_VAITRO(
+CREATE OR REPLACE PROCEDURE PROC_XOA_VAITRO (
     P_MAVAITRO IN NUMBER,
     P_MANV_XOA IN NUMBER
 )
@@ -79,13 +68,8 @@ EXCEPTION
 END;
 /
 
--- --------------------------------------------------------------
--- 2. CUD NHÂN VIÊN (NHANVIEN)
--- Chú ý: Nhân viên sử dụng TRANGTHAILAMVIEC thay vì THOIDIEMXOA
--- --------------------------------------------------------------
-
--- 2.1 Thêm Nhân Viên
-CREATE OR REPLACE PROCEDURE PROC_THEM_NHANVIEN(
+-- Procedure Thêm Nhân Viên
+CREATE OR REPLACE PROCEDURE PROC_THEM_NHANVIEN (
     P_MAVAITRO IN NUMBER,
     P_HOTEN IN NVARCHAR2,
     P_NGAYSINH IN DATE,
@@ -96,8 +80,8 @@ CREATE OR REPLACE PROCEDURE PROC_THEM_NHANVIEN(
 )
 IS
 BEGIN
-    INSERT INTO NHANVIEN (MAVAITRO, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC)
-    VALUES (P_MAVAITRO, P_HOTEN, P_NGAYSINH, P_SDT, P_TENDANGNHAP, P_MATKHAU, 1)
+    INSERT INTO NHANVIEN (MAVAITRO, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU)
+    VALUES (P_MAVAITRO, P_HOTEN, P_NGAYSINH, P_SDT, P_TENDANGNHAP, P_MATKHAU)
     RETURNING MANV INTO P_MANV_OUT;
     COMMIT;
 EXCEPTION
@@ -107,8 +91,8 @@ EXCEPTION
 END;
 /
 
--- 2.2 Cập nhật Nhân Viên
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_NHANVIEN(
+-- Procedure Sửa Nhân Viên
+CREATE OR REPLACE PROCEDURE PROC_SUA_NHANVIEN (
     P_MANV IN NUMBER,
     P_MAVAITRO IN NUMBER,
     P_HOTEN IN NVARCHAR2,
@@ -143,8 +127,8 @@ EXCEPTION
 END;
 /
 
--- 2.3 Xóa Nhân Viên (Ngừng việc / Vô hiệu hóa)
-CREATE OR REPLACE PROCEDURE PROC_XOA_NHANVIEN(
+-- Procedure Xóa Nhân Viên (Ngừng việc / Vô hiệu hóa)
+CREATE OR REPLACE PROCEDURE PROC_XOA_NHANVIEN (
     P_MANV IN NUMBER,
     P_MANV_XOA IN NUMBER
 )
