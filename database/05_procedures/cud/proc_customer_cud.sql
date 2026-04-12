@@ -1,4 +1,4 @@
--- Procedure Thêm hạng Thành viên
+-- Procedure them hang thanh vien
 CREATE OR REPLACE PROCEDURE PROC_THEM_HANGTHANHVIEN (
     P_TENHANG IN NVARCHAR2,
     P_DIEMTOITHIEU IN NUMBER,
@@ -14,11 +14,11 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20621, 'Lỗi hệ thống khi thêm Hạng Thành Viên: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HANGTV_THEM_HE_THONG, 'Loi he thong khi them Hang Thanh Vien: ' || SQLERRM);
 END;
 /
 
--- Procedure Sửa Hạng Thành Viên
+-- Procedure sua hang thanh vien
 CREATE OR REPLACE PROCEDURE PROC_SUA_HANGTHANHVIEN (
     P_MAHANG IN NUMBER,
     P_TENHANG IN NVARCHAR2,
@@ -34,19 +34,19 @@ BEGIN
     WHERE MAHANG = P_MAHANG;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20622, 'Lỗi: Không tìm thấy Hạng Thành Viên để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HANGTV_KHONG_TON_TAI_CN, 'Loi: Khong tim thay Hang Thanh Vien de cap nhat.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20622 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20623, 'Lỗi hệ thống khi cập nhật Hạng Thành Viên: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_HANGTV_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HANGTV_CAPNHAT_HE_THONG, 'Loi he thong khi cap nhat Hang Thanh Vien: ' || SQLERRM);
 END;
 /
 
--- Procedure Xóa Hạng Thành Viên (XÓA MỀM)
+-- Procedure xoa hang thanh vien
 CREATE OR REPLACE PROCEDURE PROC_XOA_HANGTHANHVIEN (
     P_MAHANG IN NUMBER,
     P_MANV_XOA IN NUMBER
@@ -59,19 +59,19 @@ BEGIN
     WHERE MAHANG = P_MAHANG;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20624, 'Lỗi: Không tìm thấy Hạng Thành Viên để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HANGTV_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay Hang Thanh Vien de xoa.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20624 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20625, 'Lỗi hệ thống khi xóa Hạng Thành Viên: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_HANGTV_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HANGTV_XOA_HE_THONG, 'Loi he thong khi xoa Hang Thanh Vien: ' || SQLERRM);
 END;
 /
 
--- Procedure Thêm Khách Hàng
+-- Procedure them khach hang
 CREATE OR REPLACE PROCEDURE PROC_THEM_KHACHHANG (
     P_HOTEN IN NVARCHAR2,
     P_SDT IN VARCHAR2,
@@ -89,11 +89,11 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20626, 'Lỗi hệ thống khi thêm Khách Hàng: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KH_THEM_HE_THONG, 'Loi he thong khi them Khach Hang: ' || SQLERRM);
 END;
 /
 
--- Procedure Sửa Khách Hàng
+-- Procedure sua khach hang
 CREATE OR REPLACE PROCEDURE PROC_SUA_KHACHHANG (
     P_MAKH IN NUMBER,
     P_HOTEN IN NVARCHAR2,
@@ -113,19 +113,19 @@ BEGIN
     WHERE MAKH = P_MAKH;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20627, 'Lỗi: Không tìm thấy Khách Hàng để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KH_KHONG_TON_TAI_CN, 'Loi: Khong tim thay Khach Hang de cap nhat.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20627 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20628, 'Lỗi hệ thống khi cập nhật Khách Hàng: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_KH_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KH_CAPNHAT_HE_THONG, 'Loi he thong khi cap nhat Khach Hang: ' || SQLERRM);
 END;
 /
 
--- Procedure Xóa Khách Hàng (XÓA MỀM)
+-- Procedure xoa khach hang
 CREATE OR REPLACE PROCEDURE PROC_XOA_KHACHHANG (
     P_MAKH IN NUMBER,
     P_MANV_XOA IN NUMBER
@@ -138,14 +138,14 @@ BEGIN
     WHERE MAKH = P_MAKH;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20629, 'Lỗi: Không tìm thấy Khách Hàng để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KH_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay Khach Hang de xoa.');
     END IF;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20629 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20630, 'Lỗi hệ thống khi xóa Khách Hàng: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_KH_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KH_XOA_HE_THONG, 'Loi he thong khi xoa Khach Hang: ' || SQLERRM);
 END;
 /

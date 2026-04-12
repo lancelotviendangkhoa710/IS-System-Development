@@ -1,4 +1,4 @@
--- Procedure Thêm Phương thức thanh toán
+-- Procedure them phuong thuc thanh toan
 CREATE OR REPLACE PROCEDURE PROC_THEM_PHUONGTHUCTT (
     P_TENPTTT IN NVARCHAR2,
     P_MAPTTT_OUT OUT NUMBER
@@ -12,11 +12,11 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20651, 'Lỗi hệ thống khi thêm Phương thức thanh toán: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PTTT_THEM_HE_THONG, 'Loi he thong khi them Phuong thuc thanh toan: ' || SQLERRM);
 END;
 /
 
--- Procedure Sửa Phương thức thanh toán
+-- Procedure sua phuong thuc thanh toan
 CREATE OR REPLACE PROCEDURE PROC_SUA_PHUONGTHUCTT (
     P_MAPTTT IN NUMBER,
     P_TENPTTT IN NVARCHAR2
@@ -27,20 +27,20 @@ BEGIN
     SET TENPTTT = NVL(P_TENPTTT, TENPTTT)
     WHERE MAPTTT = P_MAPTTT;
 
-    IF SQL%ROWCOUNT = 0 THEN 
-        RAISE_APPLICATION_ERROR(-20652, 'Lỗi: Không tìm thấy Phương thức thanh toán để cập nhật.'); 
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PTTT_KHONG_TON_TAI, 'Loi: Khong tim thay Phuong thuc thanh toan de cap nhat.');
     END IF;
 
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20652 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20653, 'Lỗi hệ thống khi cập nhật Phương thức thanh toán.' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_PTTT_KHONG_TON_TAI THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PTTT_THEM_HE_THONG, 'Loi he thong khi cap nhat Phuong thuc thanh toan: ' || SQLERRM);
 END;
 /
 
--- Procedure Xóa Phương thức thanh toán
+-- Procedure xoa phuong thuc thanh toan
 CREATE OR REPLACE PROCEDURE PROC_XOA_PHUONGTHUCTT (
     P_MAPTTT IN NUMBER,
     P_MANX IN NUMBER
@@ -48,23 +48,24 @@ CREATE OR REPLACE PROCEDURE PROC_XOA_PHUONGTHUCTT (
 IS
 BEGIN
     UPDATE PHUONGTHUCTT
-    SET THOIDIEMXOA = SYSDATE, MANX = P_MANX
+    SET THOIDIEMXOA = SYSDATE,
+        MANX = P_MANX
     WHERE MAPTTT = P_MAPTTT;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20654, 'Lỗi: Không tìm thấy Phương thức thanh toán để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PTTT_KHONG_TON_TAI, 'Loi: Khong tim thay Phuong thuc thanh toan de xoa.');
     END IF;
 
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20654 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20655, 'Lỗi hệ thống khi xóa Phương thức thanh toán.' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_PTTT_KHONG_TON_TAI THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PTTT_THEM_HE_THONG, 'Loi he thong khi xoa Phuong thuc thanh toan: ' || SQLERRM);
 END;
 /
 
--- Procedure Thêm Loại thu chi
+-- Procedure them loai thu chi
 CREATE OR REPLACE PROCEDURE PROC_THEM_LOAITHUCHI (
     P_TENLOAITHUCHI IN NVARCHAR2,
     P_PHANLOAI IN NVARCHAR2,
@@ -79,11 +80,11 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20656, 'Lỗi hệ thống khi thêm Loại thu chi.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_THANH_TOAN_GIAO_DICH, 'Loi he thong khi them Loai thu chi: ' || SQLERRM);
 END;
 /
 
--- Procedure Sửa Loại thu chi
+-- Procedure sua loai thu chi
 CREATE OR REPLACE PROCEDURE PROC_SUA_LOAITHUCHI (
     P_MALOAITHUCHI IN NUMBER,
     P_TENLOAITHUCHI IN NVARCHAR2,
@@ -96,20 +97,20 @@ BEGIN
         PHANLOAI = NVL(P_PHANLOAI, PHANLOAI)
     WHERE MALOAITHUCHI = P_MALOAITHUCHI;
 
-    IF SQL%ROWCOUNT = 0 THEN 
-        RAISE_APPLICATION_ERROR(-20657, 'Lỗi: Không tìm thấy Loại thu chi để cập nhật.'); 
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_LOAITHUCHI_KHONG_TON_TAI, 'Loi: Khong tim thay Loai thu chi de cap nhat.');
     END IF;
 
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20657 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20658, 'Lỗi hệ thống khi cập nhật Loại thu chi.' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_LOAITHUCHI_KHONG_TON_TAI THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_THANH_TOAN_GIAO_DICH, 'Loi he thong khi cap nhat Loai thu chi: ' || SQLERRM);
 END;
 /
 
--- Procedure Xóa Loại thu chi
+-- Procedure xoa loai thu chi
 CREATE OR REPLACE PROCEDURE PROC_XOA_LOAITHUCHI(
     P_MALOAITHUCHI IN NUMBER,
     P_MANX IN NUMBER
@@ -117,23 +118,24 @@ CREATE OR REPLACE PROCEDURE PROC_XOA_LOAITHUCHI(
 IS
 BEGIN
     UPDATE LOAITHUCHI
-    SET THOIDIEMXOA = SYSDATE, MANX = P_MANX
+    SET THOIDIEMXOA = SYSDATE,
+        MANX = P_MANX
     WHERE MALOAITHUCHI = P_MALOAITHUCHI;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20659, 'Lỗi: Không tìm thấy Loại thu chi để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_LOAITHUCHI_KHONG_TON_TAI, 'Loi: Khong tim thay Loai thu chi de xoa.');
     END IF;
 
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20659 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20660, 'Lỗi hệ thống khi xóa Loại thu chi.' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_LOAITHUCHI_KHONG_TON_TAI THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_THANH_TOAN_GIAO_DICH, 'Loi he thong khi xoa Loai thu chi: ' || SQLERRM);
 END;
 /
 
--- Procedure Tạo Phiếu thu chi
+-- Procedure tao phieu thu chi
 CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUTHUCHI (
     P_MALOAITHUCHI IN NUMBER,
     P_SOTIEN IN NUMBER,
@@ -149,16 +151,16 @@ BEGIN
     INSERT INTO PHIEUTHUCHI (MALOAITHUCHI, SOTIEN, MANV, MAHD, MAPN, MACA, GHICHU)
     VALUES (P_MALOAITHUCHI, P_SOTIEN, P_MANV, P_MAHD, P_MAPN, P_MACA, P_GHICHU)
     RETURNING MAPHIEUTC INTO P_MAPHIEUTC_OUT;
-    
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20661, 'Lỗi hệ thống khi tạo Phiếu Thu Chi: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEUTHUCHI_THEM_HE_THONG, 'Loi he thong khi tao Phieu Thu Chi: ' || SQLERRM);
 END;
 /
 
--- Procedure Tạo Hóa đơn
+-- Procedure tao hoa don
 CREATE OR REPLACE PROCEDURE PROC_TAOHOADON (
     P_MADON IN NUMBER,
     P_MACA IN NUMBER,
@@ -177,6 +179,7 @@ BEGIN
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE_APPLICATION_ERROR(-20662, 'Lỗi hệ thống khi tạo Hóa đơn.' || SQLERRM);
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_THANH_TOAN_GIAO_DICH, 'Loi he thong khi tao Hoa don: ' || SQLERRM);
 END;
 /
