@@ -1,15 +1,6 @@
--- ==============================================================
--- PROCEDURE CUD (Create, Update, Delete) - MODULE TÀI CHÍNH
--- Gồm: PHƯƠNG THỨC THANH TOÁN, LOẠI THU CHI, PHIẾU THU CHI, HÓA ĐƠN
--- Tác giả: Antigravity
--- ==============================================================
-
--- --------------------------------------------------------------
--- 1. CUD PHƯƠNG THỨC THANH TOÁN (PHUONGTHUCTT)
--- --------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE PROC_THEM_PHUONGTHUCTT(
+-- Procedure Thêm Phương thức thanh toán
+CREATE OR REPLACE PROCEDURE PROC_THEM_PHUONGTHUCTT (
     P_TENPTTT IN NVARCHAR2,
-    P_MANV_TAO IN NUMBER,
     P_MAPTTT_OUT OUT NUMBER
 )
 IS
@@ -21,10 +12,12 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20651, 'Lỗi hệ thống khi thêm Phương Thức TT: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20651, 'Lỗi hệ thống khi thêm Phương thức thanh toán: ' || SQLERRM);
 END;
 /
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_PHUONGTHUCTT(
+
+-- Procedure Sửa Phương thức thanh toán
+CREATE OR REPLACE PROCEDURE PROC_SUA_PHUONGTHUCTT (
     P_MAPTTT IN NUMBER,
     P_TENPTTT IN NVARCHAR2
 )
@@ -33,11 +26,22 @@ BEGIN
     UPDATE PHUONGTHUCTT
     SET TENPTTT = NVL(P_TENPTTT, TENPTTT)
     WHERE MAPTTT = P_MAPTTT;
-    IF SQL%ROWCOUNT = 0 THEN RAISE_APPLICATION_ERROR(-20652, 'Không tìm thấy Phương Thức TT.'); END IF;
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20652, 'Lỗi: Không tìm thấy Phương thức thanh toán để cập nhật.'); 
+    END IF;
+
     COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20652 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20653, 'Lỗi hệ thống khi cập nhật Phương thức thanh toán.' || SQLERRM);
 END;
 /
-CREATE OR REPLACE PROCEDURE PROC_XOA_PHUONGTHUCTT(
+
+-- Procedure Xóa Phương thức thanh toán
+CREATE OR REPLACE PROCEDURE PROC_XOA_PHUONGTHUCTT (
     P_MAPTTT IN NUMBER,
     P_MANX IN NUMBER
 )
@@ -46,17 +50,24 @@ BEGIN
     UPDATE PHUONGTHUCTT
     SET THOIDIEMXOA = SYSDATE, MANX = P_MANX
     WHERE MAPTTT = P_MAPTTT;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20654, 'Lỗi: Không tìm thấy Phương thức thanh toán để xóa.');
+    END IF;
+
     COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20654 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20655, 'Lỗi hệ thống khi xóa Phương thức thanh toán.' || SQLERRM);
 END;
 /
 
--- --------------------------------------------------------------
--- 2. CUD LOẠI THU CHI (LOAITHUCHI)
--- --------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE PROC_THEM_LOAITHUCHI(
+-- Procedure Thêm Loại thu chi
+CREATE OR REPLACE PROCEDURE PROC_THEM_LOAITHUCHI (
     P_TENLOAITHUCHI IN NVARCHAR2,
     P_PHANLOAI IN NVARCHAR2,
-    P_MANV_TAO IN NUMBER,
     P_MALOAITHUCHI_OUT OUT NUMBER
 )
 IS
@@ -65,9 +76,15 @@ BEGIN
     VALUES (P_TENLOAITHUCHI, P_PHANLOAI, NULL, NULL)
     RETURNING MALOAITHUCHI INTO P_MALOAITHUCHI_OUT;
     COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20656, 'Lỗi hệ thống khi thêm Loại thu chi.' || SQLERRM);
 END;
 /
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_LOAITHUCHI(
+
+-- Procedure Sửa Loại thu chi
+CREATE OR REPLACE PROCEDURE PROC_SUA_LOAITHUCHI (
     P_MALOAITHUCHI IN NUMBER,
     P_TENLOAITHUCHI IN NVARCHAR2,
     P_PHANLOAI IN NVARCHAR2
@@ -78,10 +95,21 @@ BEGIN
     SET TENLOAITHUCHI = NVL(P_TENLOAITHUCHI, TENLOAITHUCHI),
         PHANLOAI = NVL(P_PHANLOAI, PHANLOAI)
     WHERE MALOAITHUCHI = P_MALOAITHUCHI;
-    IF SQL%ROWCOUNT = 0 THEN RAISE_APPLICATION_ERROR(-20653, 'Không tìm thấy Loại Thu Chi.'); END IF;
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20657, 'Lỗi: Không tìm thấy Loại thu chi để cập nhật.'); 
+    END IF;
+
     COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20657 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20658, 'Lỗi hệ thống khi cập nhật Loại thu chi.' || SQLERRM);
 END;
 /
+
+-- Procedure Xóa Loại thu chi
 CREATE OR REPLACE PROCEDURE PROC_XOA_LOAITHUCHI(
     P_MALOAITHUCHI IN NUMBER,
     P_MANX IN NUMBER
@@ -91,21 +119,29 @@ BEGIN
     UPDATE LOAITHUCHI
     SET THOIDIEMXOA = SYSDATE, MANX = P_MANX
     WHERE MALOAITHUCHI = P_MALOAITHUCHI;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20659, 'Lỗi: Không tìm thấy Loại thu chi để xóa.');
+    END IF;
+
     COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20659 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20660, 'Lỗi hệ thống khi xóa Loại thu chi.' || SQLERRM);
 END;
 /
 
--- --------------------------------------------------------------
--- 3. CHỈ CREATE: PHIẾU THU CHI (Tuyệt đối không Update/Delete tùy tiện)
--- --------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUTHUCHI(
+-- Procedure Tạo Phiếu thu chi
+CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUTHUCHI (
     P_MALOAITHUCHI IN NUMBER,
     P_SOTIEN IN NUMBER,
     P_MANV IN NUMBER,
     P_MAHD IN NUMBER DEFAULT NULL,
     P_MAPN IN NUMBER DEFAULT NULL,
     P_MACA IN NUMBER,
-    P_GHICHU IN NVARCHAR2,
+    P_GHICHU IN NVARCHAR2 DEFAULT NULL,
     P_MAPHIEUTC_OUT OUT NUMBER
 )
 IS
@@ -114,18 +150,16 @@ BEGIN
     VALUES (P_MALOAITHUCHI, P_SOTIEN, P_MANV, P_MAHD, P_MAPN, P_MACA, P_GHICHU)
     RETURNING MAPHIEUTC INTO P_MAPHIEUTC_OUT;
     
-    -- NOTE: Tiền tệ sẽ được Trigger After Insert của PhieuThuChi xử lý cộng dồn tự động vào Ca/Sổ Quỹ
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20654, 'Lỗi hệ thống khi tạo Phiếu Thu Chi: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20661, 'Lỗi hệ thống khi tạo Phiếu Thu Chi: ' || SQLERRM);
 END;
 /
 
--- 4. CHỈ CREATE: HÓA ĐƠN
--- Ghi chú: Thường được gọi nội bộ bởi hàm ThanhToan, nhưng vẫn expose ra ngoài nếu cần làm tools.
-CREATE OR REPLACE PROCEDURE PROC_TAOHOADON(
+-- Procedure Tạo Hóa đơn
+CREATE OR REPLACE PROCEDURE PROC_TAOHOADON (
     P_MADON IN NUMBER,
     P_MACA IN NUMBER,
     P_THUEVAT IN NUMBER,
@@ -137,8 +171,12 @@ CREATE OR REPLACE PROCEDURE PROC_TAOHOADON(
 IS
 BEGIN
     INSERT INTO HOADON (MADON, MACA, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD)
-    VALUES (P_MADON, P_MACA, NVL(P_THUEVAT, 0), P_TONGTIENTHANHTOAN, P_MAPTTT, P_LOAIHD)
+    VALUES (P_MADON, P_MACA, NVL(P_THUEVAT, 0), NVL(P_TONGTIENTHANHTOAN, 0), P_MAPTTT, P_LOAIHD)
     RETURNING MAHD INTO P_MAHD_OUT;
+
     COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20662, 'Lỗi hệ thống khi tạo Hóa đơn.' || SQLERRM);
 END;
 /

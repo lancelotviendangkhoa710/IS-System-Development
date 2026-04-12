@@ -1,7 +1,7 @@
 module com.bakery {
     requires javafx.controls;
     requires javafx.fxml;
-    requires javafx.graphics;
+    requires transitive javafx.graphics;
     requires java.sql;
     
     opens com.bakery.controllers to javafx.fxml;

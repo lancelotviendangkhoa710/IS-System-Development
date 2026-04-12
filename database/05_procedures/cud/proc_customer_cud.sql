@@ -1,19 +1,8 @@
--- ==============================================================
--- PROCEDURE CUD (Create, Update, Delete) - MODULE KHÁCH HÀNG
--- Gồm: HẠNG THÀNH VIÊN (HANGTHANHVIEN), KHÁCH HÀNG (KHACHHANG)
--- Tác giả: Antigravity
--- ==============================================================
-
--- --------------------------------------------------------------
--- 1. CUD HẠNG THÀNH VIÊN
--- --------------------------------------------------------------
-
--- 1.1 Thêm Hạng Thành Viên
-CREATE OR REPLACE PROCEDURE PROC_THEM_HANGTHANHVIEN(
+-- Procedure Thêm hạng Thành viên
+CREATE OR REPLACE PROCEDURE PROC_THEM_HANGTHANHVIEN (
     P_TENHANG IN NVARCHAR2,
     P_DIEMTOITHIEU IN NUMBER,
     P_PHANTRAMGIAMGIA IN NUMBER,
-    P_MANV_TAO IN NUMBER,
     P_MAHANG_OUT OUT NUMBER
 )
 IS
@@ -29,8 +18,8 @@ EXCEPTION
 END;
 /
 
--- 1.2 Cập nhật Hạng Thành Viên
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_HANGTHANHVIEN(
+-- Procedure Sửa Hạng Thành Viên
+CREATE OR REPLACE PROCEDURE PROC_SUA_HANGTHANHVIEN (
     P_MAHANG IN NUMBER,
     P_TENHANG IN NVARCHAR2,
     P_DIEMTOITHIEU IN NUMBER,
@@ -57,8 +46,8 @@ EXCEPTION
 END;
 /
 
--- 1.3 Xóa Hạng Thành Viên (XÓA MỀM)
-CREATE OR REPLACE PROCEDURE PROC_XOA_HANGTHANHVIEN(
+-- Procedure Xóa Hạng Thành Viên (XÓA MỀM)
+CREATE OR REPLACE PROCEDURE PROC_XOA_HANGTHANHVIEN (
     P_MAHANG IN NUMBER,
     P_MANV_XOA IN NUMBER
 )
@@ -82,18 +71,13 @@ EXCEPTION
 END;
 /
 
--- --------------------------------------------------------------
--- 2. CUD KHÁCH HÀNG
--- --------------------------------------------------------------
-
--- 2.1 Thêm Khách Hàng
-CREATE OR REPLACE PROCEDURE PROC_THEM_KHACHHANG(
+-- Procedure Thêm Khách Hàng
+CREATE OR REPLACE PROCEDURE PROC_THEM_KHACHHANG (
     P_HOTEN IN NVARCHAR2,
     P_SDT IN VARCHAR2,
     P_DIACHI IN NVARCHAR2,
     P_DIEMTICHLUY IN NUMBER DEFAULT 0,
     P_MAHANG IN NUMBER DEFAULT NULL,
-    P_MANV_TAO IN NUMBER,
     P_MAKH_OUT OUT NUMBER
 )
 IS
@@ -109,8 +93,8 @@ EXCEPTION
 END;
 /
 
--- 2.2 Cập nhật Khách Hàng
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_KHACHHANG(
+-- Procedure Sửa Khách Hàng
+CREATE OR REPLACE PROCEDURE PROC_SUA_KHACHHANG (
     P_MAKH IN NUMBER,
     P_HOTEN IN NVARCHAR2,
     P_SDT IN VARCHAR2,
@@ -141,8 +125,8 @@ EXCEPTION
 END;
 /
 
--- 2.3 Xóa Khách Hàng (XÓA MỀM)
-CREATE OR REPLACE PROCEDURE PROC_XOA_KHACHHANG(
+-- Procedure Xóa Khách Hàng (XÓA MỀM)
+CREATE OR REPLACE PROCEDURE PROC_XOA_KHACHHANG (
     P_MAKH IN NUMBER,
     P_MANV_XOA IN NUMBER
 )
