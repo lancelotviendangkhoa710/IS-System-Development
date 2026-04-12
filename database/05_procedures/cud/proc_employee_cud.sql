@@ -24,7 +24,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20611, 'Lỗi hệ thống khi thêm Vai trò: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_THEM_HE_THONG, 'Lỗi hệ thống khi thêm Vai trò (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -42,15 +42,15 @@ BEGIN
     WHERE MAVAITRO = P_MAVAITRO;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20612, 'Lỗi: Không tìm thấy vai trò để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy vai trò để cập nhật.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20612 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20613, 'Lỗi hệ thống khi cập nhật Vai trò: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Vai trò (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -67,15 +67,15 @@ BEGIN
     WHERE MAVAITRO = P_MAVAITRO;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20614, 'Lỗi: Không tìm thấy vai trò để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy vai trò để xóa.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20614 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20615, 'Lỗi hệ thống khi xóa Vai trò: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_VAITRO_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_VAITRO_XOA_HE_THONG, 'Lỗi hệ thống khi xóa Vai trò (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -103,7 +103,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20616, 'Lỗi hệ thống khi thêm Nhân viên: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_THEM_HE_THONG, 'Lỗi hệ thống khi thêm Nhân viên (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -131,15 +131,15 @@ BEGIN
     WHERE MANV = P_MANV;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20617, 'Lỗi: Không tìm thấy nhân viên để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy nhân viên để cập nhật.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20617 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20618, 'Lỗi hệ thống khi cập nhật Nhân viên: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Nhân viên (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -156,14 +156,14 @@ BEGIN
     WHERE MANV = P_MANV;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20619, 'Lỗi: Không tìm thấy nhân viên để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy nhân viên để xóa.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20619 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20620, 'Lỗi hệ thống khi xóa (ngừng việc) Nhân viên: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NV_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NV_XOA_HE_THONG, 'Lỗi hệ thống khi xóa (ngừng việc) Nhân viên (Transaction Rollbacked): ' || SQLERRM);
 END;
 /

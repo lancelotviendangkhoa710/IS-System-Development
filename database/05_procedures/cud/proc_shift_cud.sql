@@ -21,7 +21,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20658, 'Lỗi hệ thống khi Khởi chạy Mở Ca làm việc: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_MO_HE_THONG, 'Lỗi hệ thống khi Khởi chạy Mở Ca làm việc (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -62,6 +62,6 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20659, 'Lỗi hệ thống khi Đóng ca và Đối soát: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_DONG_HE_THONG, 'Lỗi hệ thống khi Đóng ca và Đối soát (Transaction Rollbacked): ' || SQLERRM);
 END;
 /

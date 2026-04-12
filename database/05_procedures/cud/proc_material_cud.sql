@@ -15,7 +15,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20601, 'Lỗi hệ thống khi tạo mới Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_THEM_MOI, 'Lỗi hệ thống khi tạo mới Nguyên Liệu (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -46,7 +46,7 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20602, 'Lỗi hệ thống khi cập nhật Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Nguyên Liệu (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -84,6 +84,6 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20603, 'Lỗi hệ thống khi xóa Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_XOA_HE_THONG, 'Lỗi hệ thống khi xóa Nguyên Liệu (Transaction Rollbacked): ' || SQLERRM);
 END;
 /

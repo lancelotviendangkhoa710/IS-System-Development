@@ -49,7 +49,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng (Master-Detail): ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng (Master-Detail) (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -99,6 +99,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Lỗi hệ thống giao dịch khi thực thi hủy đơn: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Lỗi hệ thống giao dịch khi thực thi hủy đơn (Transaction Rollbacked): ' || SQLERRM);
 END;
 /

@@ -21,7 +21,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20641, 'Lỗi hệ thống khi thêm Danh Mục Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DM_THEM_HE_THONG, 'Lỗi hệ thống khi thêm Danh Mục Sản Phẩm (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -36,14 +36,14 @@ BEGIN
     WHERE MADM = P_MADM;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20642, 'Lỗi: Không tìm thấy Danh Mục Sản Phẩm để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DM_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy Danh Mục Sản Phẩm để cập nhật.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20642 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20643, 'Lỗi hệ thống khi cập nhật Danh Mục Sản Phẩm: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_DM_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DM_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Danh Mục Sản Phẩm (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -59,14 +59,14 @@ BEGIN
     WHERE MADM = P_MADM;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20644, 'Lỗi: Không tìm thấy Danh Mục Sản Phẩm để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DM_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy Danh Mục Sản Phẩm để xóa.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20644 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20645, 'Lỗi hệ thống khi xóa Danh Mục Sản Phẩm: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_DM_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DM_XOA_HE_THONG, 'Lỗi hệ thống khi xóa Danh Mục Sản Phẩm (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -93,7 +93,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20646, 'Lỗi hệ thống khi thêm Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SANPHAM_THEM_HE_THONG, 'Lỗi hệ thống khi thêm Sản Phẩm (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -121,14 +121,14 @@ BEGIN
     WHERE MASP = P_MASP;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20647, 'Lỗi: Không tìm thấy Sản Phẩm để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SANPHAM_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy Sản Phẩm để cập nhật.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20647 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20648, 'Lỗi hệ thống khi cập nhật Sản Phẩm: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_SANPHAM_KHONG_TON_TAI_CN THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SANPHAM_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Sản Phẩm (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -154,13 +154,13 @@ BEGIN
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20649, 'Lỗi: Không tìm thấy Sản Phẩm để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SANPHAM_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy Sản Phẩm để xóa.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = -20649 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20650, 'Lỗi hệ thống khi xóa Sản Phẩm: ' || SQLERRM);
+        IF SQLCODE = PKG_ERROR_CODES.ERR_SANPHAM_KHONG_TON_TAI_XOA THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SANPHAM_XOA_HE_THONG, 'Lỗi hệ thống khi xóa Sản Phẩm (Transaction Rollbacked): ' || SQLERRM);
 END;
 /

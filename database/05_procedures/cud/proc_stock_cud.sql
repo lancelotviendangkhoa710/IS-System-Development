@@ -52,7 +52,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NHAP_KHO, 'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NHAP_KHO, 'Lỗi hệ thống khi nhập kho vật tư (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -182,7 +182,7 @@ EXCEPTION
             RAISE;
         END IF;
 
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Lỗi hệ thống khi xuất kho sản xuất: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Lỗi hệ thống khi xuất kho sản xuất (Transaction Rollbacked): ' || SQLERRM);
 END;
 /
 
@@ -230,7 +230,7 @@ EXCEPTION
         IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_BANH OR SQLCODE = PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI THEN
             RAISE;
         ELSE
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HE_THONG_KHOIPHUC, 'Lỗi hệ thống khi xuất hủy bánh: ' || SQLERRM);
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HE_THONG_KHOIPHUC, 'Lỗi hệ thống khi xuất hủy bánh (Transaction Rollbacked): ' || SQLERRM);
         END IF;
 END;
 /
