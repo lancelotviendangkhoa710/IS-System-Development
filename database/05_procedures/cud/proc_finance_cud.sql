@@ -36,7 +36,7 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20652 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20653, 'Lỗi hệ thống khi cập nhật Phương thức thanh toán.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20653, 'Lỗi hệ thống khi cập nhật Phương thức thanh toán: ' || SQLERRM);
 END;
 /
 
@@ -60,7 +60,7 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20654 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20655, 'Lỗi hệ thống khi xóa Phương thức thanh toán.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20655, 'Lỗi hệ thống khi xóa Phương thức thanh toán: ' || SQLERRM);
 END;
 /
 
@@ -79,7 +79,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20656, 'Lỗi hệ thống khi thêm Loại thu chi.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20656, 'Lỗi hệ thống khi thêm Loại thu chi: ' || SQLERRM);
 END;
 /
 
@@ -105,7 +105,7 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20657 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20658, 'Lỗi hệ thống khi cập nhật Loại thu chi.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20658, 'Lỗi hệ thống khi cập nhật Loại thu chi: ' || SQLERRM);
 END;
 /
 
@@ -129,7 +129,7 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20659 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20660, 'Lỗi hệ thống khi xóa Loại thu chi.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20660, 'Lỗi hệ thống khi xóa Loại thu chi: ' || SQLERRM);
 END;
 /
 
@@ -177,6 +177,6 @@ BEGIN
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE_APPLICATION_ERROR(-20662, 'Lỗi hệ thống khi tạo Hóa đơn.' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20662, 'Lỗi hệ thống khi tạo Hóa đơn: ' || SQLERRM);
 END;
 /

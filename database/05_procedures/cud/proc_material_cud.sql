@@ -1,7 +1,8 @@
 -- Procedure thêm nguyên liệu
-CREATE OR REPLACE PROCEDURE PROC_THEM_NGUYENLIEU(
+CREATE OR REPLACE PROCEDURE PROC_THEM_NGUYENLIEU (
     P_TENNL IN NVARCHAR2,
     P_XUATXU IN NVARCHAR2,
+    P_MUCTONANTOAN IN NUMBER,
     P_MADVT IN NUMBER,
     P_MANV IN NUMBER,
     P_MANL_OUT OUT NUMBER
@@ -15,12 +16,12 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20601, 'Lỗi hệ thống khi tạo mới Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20601, 'Lỗi hệ thống khi tạo Nguyên Liệu: ' || SQLERRM);
 END;
 /
 
--- Procedure cập nhật nguyên liệu
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_NGUYENLIEU(
+-- Procedure Sửa nguyên liệu
+CREATE OR REPLACE PROCEDURE PROC_SUA_NGUYENLIEU (
     P_MANL IN NUMBER,
     P_TENNL IN NVARCHAR2,
     P_XUATXU IN NVARCHAR2,
@@ -38,19 +39,19 @@ BEGIN
     WHERE MANL = P_MANL;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
+        RAISE_APPLICATION_ERROR(-20602, 'Lỗi: Không tìm thấy Nguyên liệu để cập nhật.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20602, 'Lỗi hệ thống khi cập nhật Nguyên Liệu: ' || SQLERRM);
+        IF SQLCODE = -20602 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20603, 'Lỗi hệ thống khi cập nhật Nguyên Liệu: ' || SQLERRM);
 END;
 /
 
--- Procedure xóa nguyên liệu
+-- Procedure Xóa nguyên liệu
 CREATE OR REPLACE PROCEDURE PROC_XOA_NGUYENLIEU(
     P_MANL IN NUMBER,
     P_MANX IN NUMBER
@@ -76,14 +77,14 @@ BEGIN
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
+        RAISE_APPLICATION_ERROR(-20604, 'Lỗi: Không tìm thấy Nguyên liệu để xóa.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20603, 'Lỗi hệ thống khi xóa Nguyên Liệu: ' || SQLERRM);
+        IF SQLCODE = -20604 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20605, 'Lỗi hệ thống khi xóa Nguyên Liệu: ' || SQLERRM);
 END;
 /

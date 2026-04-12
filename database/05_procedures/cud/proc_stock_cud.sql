@@ -1,36 +1,39 @@
 -- Procedure Tạo phiếu nhập kho
-CREATE OR REPLACE PROCEDURE PROC_NHAPKHO(
-    P_MANV IN NUMBER,
-    P_MANCC IN NUMBER,
-    P_JSON_DATALIST IN CLOB
+CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
+    P_MANV          IN PHIEUNHAPKHO.MANV%TYPE,
+    P_MANCC         IN PHIEUNHAPKHO.MANCC%TYPE,
+    P_JSON_DATALIST IN CLOB,
+    P_MAPN_OUT      OUT PHIEUNHAPKHO.MAPN%TYPE
 )
 IS
-    V_MAPN NUMBER;
-    V_CURRENT_MANL NUMBER;
+    V_MAPN          PHIEUNHAPKHO.MAPN%TYPE;
+    V_CURRENT_MANL  NGUYENLIEU.MANL%TYPE;
 BEGIN
-    -- 1 Khởi tạo chứng từ gốc
-    INSERT INTO PHIEUNHAPKHO (MANV, MANCC)
-    VALUES (P_MANV, P_MANCC)
+    -- 1. Khởi tạo chứng từ gốc
+    INSERT INTO PHIEUNHAPKHO (MANV, MANCC, NGAYNHAP)
+    VALUES (P_MANV, P_MANCC, SYSDATE)
     RETURNING MAPN INTO V_MAPN;
+    
+    P_MAPN_OUT := V_MAPN; 
 
-    -- 2 Quét JSON và Đẩy chi tiết
+    -- 2. Quét JSON và Đẩy chi tiết
     FOR ROW_DATA IN (
         SELECT J.MANL, J.TENNL, J.XUATXU, J.MADVT, J.SOLUONG, J.DONGIA, J.NGAYSANXUAT, J.HANSUDUNG
         FROM JSON_TABLE(P_JSON_DATALIST, '$[*]'
             COLUMNS (
-                MANL NUMBER PATH '$.MaNL',
-                TENNL NVARCHAR2(200) PATH '$.TenNL',
-                XUATXU NVARCHAR2(100) PATH '$.XuatXu',
-                MADVT NUMBER PATH '$.MaDVT',
-                SOLUONG NUMBER PATH '$.SoLuong',
-                DONGIA NUMBER PATH '$.DonGia',
-                NGAYSANXUAT VARCHAR2(20) PATH '$.NgaySanXuat',
-                HANSUDUNG VARCHAR2(20) PATH '$.HanSuDung'
+                MANL NUMBER PATH '$.maNL',
+                TENNL NVARCHAR2(200) PATH '$.tenNL',
+                XUATXU NVARCHAR2(100) PATH '$.xuatXu',
+                MADVT NUMBER PATH '$.maDVT',
+                SOLUONG NUMBER PATH '$.soLuong',
+                DONGIA NUMBER PATH '$.donGia',
+                NGAYSANXUAT VARCHAR2(20) PATH '$.ngaySanXuat',
+                HANSUDUNG VARCHAR2(20) PATH '$.hanSuDung'
             )
         ) J
     )
     LOOP
-        -- Kiểm tra nếu MaNL bị rỗng
+        -- Kiểm tra nếu MaNL bị rỗng (Thêm nguyên liệu mới)
         IF ROW_DATA.MANL IS NULL THEN
             INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT)
             VALUES (ROW_DATA.TENNL, ROW_DATA.XUATXU, ROW_DATA.MADVT)
@@ -42,17 +45,25 @@ BEGIN
 
         -- Đưa hàng vào Lô mới
         INSERT INTO CTPHIEUNHAP (MAPN, MANL, SOLUONG, DONGIA, SOLUONGCONLAI, NGAYSANXUAT, HANSUDUNG)
-        VALUES (V_MAPN, V_CURRENT_MANL, ROW_DATA.SOLUONG, ROW_DATA.DONGIA, ROW_DATA.SOLUONG,
-                TO_DATE(ROW_DATA.NGAYSANXUAT, 'YYYY-MM-DD'), TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD'));
+        VALUES (
+            V_MAPN, 
+            V_CURRENT_MANL, 
+            ROW_DATA.SOLUONG, 
+            ROW_DATA.DONGIA, 
+            ROW_DATA.SOLUONG, -- Cột SoLuongConLai ban đầu bằng đúng lượng nhập
+            
+            -- 3. Xử lý an toàn cho Date (Chống lỗi khi truyền chuỗi rỗng)
+            CASE WHEN ROW_DATA.NGAYSANXUAT IS NOT NULL THEN TO_DATE(ROW_DATA.NGAYSANXUAT, 'YYYY-MM-DD') ELSE NULL END,
+            CASE WHEN ROW_DATA.HANSUDUNG IS NOT NULL THEN TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD') ELSE NULL END
+        );
     END LOOP;
 
-    -- 3 Bàn giao cho Trigger & Chốt Giao Dịch
     COMMIT;
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NHAP_KHO, 'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20641, 'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
 END;
 /
 

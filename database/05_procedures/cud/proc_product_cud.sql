@@ -1,14 +1,5 @@
--- ==============================================================
--- PROCEDURE CUD (Create, Update, Delete) - MODULE SẢN PHẨM
--- Gồm: DANH MỤC SẢN PHẨM (DANHMUCSP), SẢN PHẨM (SANPHAM)
--- Tác giả: Antigravity
--- ==============================================================
-
--- --------------------------------------------------------------
--- 1. CUD DANH MỤC SẢN PHẨM
--- --------------------------------------------------------------
-
-CREATE OR REPLACE PROCEDURE PROC_THEM_DANHMUCSP(
+-- Procedure Thêm danh mục sản phẩm
+CREATE OR REPLACE PROCEDURE PROC_THEM_DANHMUCSP (
     P_TENDM IN NVARCHAR2,
     P_MADM_OUT OUT NUMBER
 )
@@ -17,15 +8,17 @@ BEGIN
     INSERT INTO DANHMUCSP (TENDM)
     VALUES (P_TENDM)
     RETURNING MADM INTO P_MADM_OUT;
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20641, 'Lỗi hệ thống khi thêm Danh Mục Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20641, 'Lỗi hệ thống khi thêm Danh mục sản phẩm: ' || SQLERRM);
 END;
 /
 
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_DANHMUCSP(
+-- Procedure Sửa danh mục sản phẩm
+CREATE OR REPLACE PROCEDURE PROC_SUA_DANHMUCSP(
     P_MADM IN NUMBER,
     P_TENDM IN NVARCHAR2
 )
@@ -36,17 +29,19 @@ BEGIN
     WHERE MADM = P_MADM;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20642, 'Lỗi: Không tìm thấy Danh Mục Sản Phẩm để cập nhật.');
+        RAISE_APPLICATION_ERROR(-20642, 'Lỗi: Không tìm thấy Danh mục sản phẩm để cập nhật.');
     END IF;
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20642 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20643, 'Lỗi hệ thống khi cập nhật Danh Mục Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20643, 'Lỗi hệ thống khi cập nhật Danh mục sản phẩm: ' || SQLERRM);
 END;
 /
 
+-- Procedure Xóa danh mục sản phẩm
 CREATE OR REPLACE PROCEDURE PROC_XOA_DANHMUCSP(
     P_MADM IN NUMBER,
     P_MANX IN NUMBER
@@ -59,21 +54,19 @@ BEGIN
     WHERE MADM = P_MADM;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20644, 'Lỗi: Không tìm thấy Danh Mục Sản Phẩm để xóa.');
+        RAISE_APPLICATION_ERROR(-20644, 'Lỗi: Không tìm thấy Danh mục sản phẩm để xóa.');
     END IF;
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20644 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20645, 'Lỗi hệ thống khi xóa Danh Mục Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20645, 'Lỗi hệ thống khi xóa Danh mục sản phẩm: ' || SQLERRM);
 END;
 /
 
--- --------------------------------------------------------------
--- 2. CUD SẢN PHẨM
--- --------------------------------------------------------------
-
+-- Procedure Thêm sản phẩm
 CREATE OR REPLACE PROCEDURE PROC_THEM_SANPHAM(
     P_MADM IN NUMBER,
     P_TENSP IN NVARCHAR2,
@@ -89,6 +82,7 @@ BEGIN
     INSERT INTO SANPHAM (MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, THOIGIANBAOQUAN, THOIGIANCHUANBI)
     VALUES (P_MADM, P_TENSP, P_GIACOBAN, P_HINHANH, P_CHOPHEPTUYCHINH, P_THOIGIANBAOQUAN, P_THOIGIANCHUANBI)
     RETURNING MASP INTO P_MASP_OUT;
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
@@ -97,7 +91,8 @@ EXCEPTION
 END;
 /
 
-CREATE OR REPLACE PROCEDURE PROC_CAPNHAT_SANPHAM(
+-- Procedure Sửa sản phẩm
+CREATE OR REPLACE PROCEDURE PROC_SUA_SANPHAM(
     P_MASP IN NUMBER,
     P_MADM IN NUMBER,
     P_TENSP IN NVARCHAR2,
@@ -121,17 +116,18 @@ BEGIN
     WHERE MASP = P_MASP;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20647, 'Lỗi: Không tìm thấy Sản Phẩm để cập nhật.');
+        RAISE_APPLICATION_ERROR(-20647, 'Lỗi: Không tìm thấy Sản phẩm để cập nhật.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20647 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20648, 'Lỗi hệ thống khi cập nhật Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20648, 'Lỗi hệ thống khi cập nhật Sản phẩm: ' || SQLERRM);
 END;
 /
 
+-- Procedure Xóa sản phẩm
 CREATE OR REPLACE PROCEDURE PROC_XOA_SANPHAM(
     P_MASP IN NUMBER,
     P_MANX IN NUMBER
@@ -154,13 +150,288 @@ BEGIN
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20649, 'Lỗi: Không tìm thấy Sản Phẩm để xóa.');
+        RAISE_APPLICATION_ERROR(-20649, 'Lỗi: Không tìm thấy Sản phẩm để xóa.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = -20649 THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(-20650, 'Lỗi hệ thống khi xóa Sản Phẩm: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20650, 'Lỗi hệ thống khi xóa Sản phẩm: ' || SQLERRM);
+END;
+/
+
+-- CUD KÍCH CỠ BÁNH
+CREATE OR REPLACE PROCEDURE PROC_THEM_KICHCOBANH (
+    P_TENKC IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER, 
+    P_MAKC_OUT OUT NUMBER
+) 
+IS 
+BEGIN 
+    INSERT INTO KICHCOBANH (TENKC, PHUPHI) 
+    VALUES (P_TENKC, NVL(P_PHUPHI, 0)) 
+    RETURNING MAKC INTO P_MAKC_OUT; 
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20664, 'Lỗi hệ thống khi thêm Kích cỡ bánh: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_SUA_KICHCOBANH (
+    P_MAKC IN NUMBER, 
+    P_TENKC IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE KICHCOBANH 
+    SET TENKC = NVL(P_TENKC, TENKC), 
+        PHUPHI = NVL(P_PHUPHI, PHUPHI) 
+    WHERE MAKC = P_MAKC; 
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20665, 'Lỗi: Không tìm thấy Kính cỡ bánh để cập nhật.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20665 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20666, 'Lỗi hệ thống khi cập nhật Kích cỡ bánh: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_XOA_KICHCOBANH (
+    P_MAKC IN NUMBER, 
+    P_MANX IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE KICHCOBANH 
+    SET THOIDIEMXOA = SYSDATE, 
+        MANX = P_MANX 
+    WHERE MAKC = P_MAKC;
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20667, 'Lỗi: Không tìm thấy Kính cỡ bánh để xóa.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20667 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20668, 'Lỗi hệ thống khi xóa Kích cỡ bánh: ' || SQLERRM);
+    COMMIT;
+END;
+/
+
+-- CUD CỐT BÁNH
+CREATE OR REPLACE PROCEDURE PROC_THEM_COTBANH (
+    P_TENCOT IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER, 
+    P_MACOT_OUT OUT NUMBER
+) 
+IS 
+BEGIN 
+    INSERT INTO COTBANH (TENCOT, PHUPHI) 
+    VALUES (P_TENCOT, NVL(P_PHUPHI, 0)) 
+    RETURNING MACOT INTO P_MACOT_OUT; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20669, 'Lỗi hệ thống khi thêm Cốt bánh: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_SUA_COTBANH (
+    P_MACOT IN NUMBER, 
+    P_TENCOT IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE COTBANH 
+    SET TENCOT = NVL(P_TENCOT, TENCOT), 
+        PHUPHI = NVL(P_PHUPHI, PHUPHI) 
+    WHERE MACOT = P_MACOT; 
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20670, 'Lỗi: Không tìm thấy Cốt bánh để cập nhật.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20670 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20671, 'Lỗi hệ thống khi cập nhật Cốt bánh: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_XOA_COTBANH (
+    P_MACOT IN NUMBER, 
+    P_MANX IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE COTBANH 
+    SET THOIDIEMXOA = SYSDATE, 
+        MANX = P_MANX 
+    WHERE MACOT = P_MACOT;
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20672, 'Lỗi: Không tìm thấy Cốt bánh để xóa.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20672 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20673, 'Lỗi hệ thống khi xóa Cốt bánh: ' || SQLERRM);
+END;
+/
+
+-- CUD NHÂN BÁNH
+CREATE OR REPLACE PROCEDURE PROC_THEM_NHANBANH (
+    P_TENNHAN IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER, 
+    P_MANHAN_OUT OUT NUMBER
+) 
+IS 
+BEGIN 
+    INSERT INTO NHANBANH (TENNHAN, PHUPHI) 
+    VALUES (P_TENNHAN, NVL(P_PHUPHI, 0)) 
+    RETURNING MANHAN INTO P_MANHAN_OUT; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20674, 'Lỗi hệ thống khi thêm Nhân bánh: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_SUA_NHANBANH (
+    P_MANHAN IN NUMBER, 
+    P_TENNHAN IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE NHANBANH 
+    SET TENNHAN = NVL(P_TENNHAN, TENNHAN), 
+        PHUPHI = NVL(P_PHUPHI, PHUPHI) 
+    WHERE MANHAN = P_MANHAN; 
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20675, 'Lỗi: Không tìm thấy Nhân bánh để cập nhật.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20675 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20676, 'Lỗi hệ thống khi cập nhật Nhân bánh: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_XOA_NHANBANH (
+    P_MANHAN IN NUMBER, 
+    P_MANX IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE NHANBANH 
+    SET THOIDIEMXOA = SYSDATE, 
+        MANX = P_MANX 
+    WHERE MANHAN = P_MANHAN;
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20677, 'Lỗi: Không tìm thấy Nhân bánh để xóa.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20677 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20678, 'Lỗi hệ thống khi xóa Nhân bánh: ' || SQLERRM);
+END;
+/
+
+-- CUD KIỂU TRANG TRÍ
+CREATE OR REPLACE PROCEDURE PROC_THEM_KIEUTRANGTRI (
+    P_TENTRANGTRI IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER, 
+    P_MATRANGTRI_OUT OUT NUMBER
+) 
+IS 
+BEGIN 
+    INSERT INTO KIEUTRANGTRI (TENTRANGTRI, PHUPHI) 
+    VALUES (P_TENTRANGTRI, NVL(P_PHUPHI, 0)) 
+    RETURNING MATRANGTRI INTO P_MATRANGTRI_OUT; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20679, 'Lỗi hệ thống khi thêm Kiểu trang trí: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_SUA_KIEUTRANGTRI (
+    P_MATRANGTRI IN NUMBER, 
+    P_TENTRANGTRI IN NVARCHAR2, 
+    P_PHUPHI IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE KIEUTRANGTRI 
+    SET TENTRANGTRI = NVL(P_TENTRANGTRI, TENTRANGTRI), 
+        PHUPHI = NVL(P_PHUPHI, PHUPHI) 
+    WHERE MATRANGTRI = P_MATRANGTRI; 
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20680, 'Lỗi: Không tìm thấy Kiểu trang trí để cập nhật.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20680 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20681, 'Lỗi hệ thống khi cập nhật Kiểu trang trí: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE PROC_XOA_KIEUTRANGTRI (
+    P_MATRANGTRI IN NUMBER, 
+    P_MANX IN NUMBER
+) 
+IS 
+BEGIN 
+    UPDATE KIEUTRANGTRI 
+    SET THOIDIEMXOA = SYSDATE, 
+        MANX = P_MANX 
+    WHERE MATRANGTRI = P_MATRANGTRI;
+
+    IF SQL%ROWCOUNT = 0 THEN 
+        RAISE_APPLICATION_ERROR(-20682, 'Lỗi: Không tìm thấy Kiểu trang trí để xóa.');
+    END IF; 
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20682 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20683, 'Lỗi hệ thống khi xóa Kiểu trang trí: ' || SQLERRM);
 END;
 /
