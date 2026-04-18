@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="12.0" style="-fx-background-color: #f4efe9;" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.bakery.controllers.OrderController">
+    <padding>
+        <Insets top="16.0" right="16.0" bottom="16.0" left="16.0"/>
+    </padding>
+
+    <Label text="POS - Bán hàng &amp; Quản lý đơn"
+           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #9f630e;"/>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+        <Tab text="Tạo đơn &amp; Thanh toán">
+            <VBox spacing="10.0" style="-fx-background-color: #f4efe9;">
+                <padding>
+                    <Insets top="12.0" right="12.0" bottom="12.0" left="12.0"/>
+                </padding>
+
+                <SplitPane dividerPositions="0.60">
+                    <items>
+                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-border-color: #9f630e; -fx-border-width: 1.4; -fx-border-radius: 8; -fx-background-radius: 8;">
+                            <padding>
+                                <Insets top="12.0" right="12.0" bottom="12.0" left="12.0"/>
+                            </padding>
+
+                            <Label text="Danh mục sản phẩm" style="-fx-text-fill: #9f630e; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                            <TextField fx:id="txtTimKiemSanPham" promptText="Tìm sản phẩm theo tên..." />
+
+                            <HBox spacing="8.0">
+                                <fx:define>
+                                    <ToggleGroup fx:id="tgDanhMuc"/>
+                                </fx:define>
+                                <ToggleButton fx:id="btnLocTatCa" toggleGroup="$tgDanhMuc" selected="true"
+                                              text="All" onAction="#onLocTatCaClick"
+                                              style="-fx-background-color: #9f630e; -fx-text-fill: white;"/>
+                                <ToggleButton fx:id="btnLocCake" toggleGroup="$tgDanhMuc"
+                                              text="Cake" onAction="#onLocCakeClick"
+                                              style="-fx-background-color: #f4efe9; -fx-border-color: #9f630e; -fx-text-fill: #9f630e;"/>
+                                <ToggleButton fx:id="btnLocCookie" toggleGroup="$tgDanhMuc"
+                                              text="Cookie" onAction="#onLocCookieClick"
+                                              style="-fx-background-color: #f4efe9; -fx-border-color: #9f630e; -fx-text-fill: #9f630e;"/>
+                            </HBox>
+
+                            <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: #f4efe9;">
+                                <content>
+                                    <TilePane fx:id="tileSanPham"
+                                              hgap="12.0" vgap="12.0"
+                                              prefColumns="3"
+                                              style="-fx-padding: 8; -fx-background-color: #f4efe9;"/>
+                                </content>
+                            </ScrollPane>
+                        </VBox>
+
+                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-border-color: #9f630e; -fx-border-width: 1.4; -fx-border-radius: 8; -fx-background-radius: 8;">
+                            <padding>
+                                <Insets top="12.0" right="12.0" bottom="12.0" left="12.0"/>
+                            </padding>
+
+                            <Label text="Giỏ hàng &amp; Thanh toán" style="-fx-text-fill: #9f630e; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                            <GridPane hgap="8.0" vgap="6.0">
+                                <Label text="SĐT khách hàng:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <HBox spacing="8.0" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                    <TextField fx:id="txtSoDienThoai" promptText="Nhập số điện thoại"/>
+                                    <Button text="+ Tìm / Thêm Khách" onAction="#onTimThemKhachClick"
+                                            style="-fx-background-color: #9f630e; -fx-text-fill: white;"/>
+                                </HBox>
+                                <Label text="Tên khách:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <Label fx:id="lblTenKhachHang" text="Khách lẻ"
+                                       style="-fx-text-fill: #9f630e; -fx-font-style: italic;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Hình thức nhận:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="cbHinhThucNhan" onAction="#onHinhThucNhanChanged" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <Label text="Địa chỉ giao:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtDiaChiGiao" promptText="Chỉ nhập khi đặt hàng" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                <Label fx:id="lblErrDiaChiGiao" style="-fx-text-fill: #c0392b;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <Label text="Ngày nhận bánh:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <HBox spacing="8.0" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                                    <DatePicker fx:id="dpNgayNhanBanh"/>
+                                    <ComboBox fx:id="cbGioNhanBanh"/>
+                                </HBox>
+                                <Label fx:id="lblErrNgayNhanBanh" style="-fx-text-fill: #c0392b;" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                            </GridPane>
+
+                            <TableView fx:id="tblGioHang" prefHeight="290.0">
+                                <columns>
+                                    <TableColumn fx:id="colTenSp" prefWidth="145.0" text="Sản phẩm"/>
+                                    <TableColumn fx:id="colSoLuong" prefWidth="100.0" text="SL"/>
+                                    <TableColumn fx:id="colDonGia" prefWidth="95.0" text="Đơn giá"/>
+                                    <TableColumn fx:id="colThanhTien" prefWidth="105.0" text="Thành tiền"/>
+                                    <TableColumn fx:id="colXoa" prefWidth="78.0" text="Xóa"/>
+                                </columns>
+                            </TableView>
+
+                            <VBox spacing="6.0">
+                                <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                    <Label text="Tổng tiền:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                                    <Label fx:id="lblTongTien" text="0 đ" style="-fx-text-fill: #9f630e; -fx-font-weight: bold;"/>
+                                </HBox>
+                                <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                    <Label text="Tiền cọc:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                                    <TextField fx:id="txtTienCoc" promptText="0"/>
+                                </HBox>
+                                <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                    <Label text="Tiền khách đưa:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                                    <TextField fx:id="txtTienKhachDua" promptText="0"/>
+                                </HBox>
+                                <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                    <Label text="Tiền thừa/Còn thiếu:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                                    <Label fx:id="lblTienThua" text="0 đ" style="-fx-text-fill: #9f630e; -fx-font-weight: bold;"/>
+                                </HBox>
+                            </VBox>
+
+                            <HBox spacing="8.0">
+                                <Button text="Tạo đơn" onAction="#onTaoDonHangClick"
+                                        style="-fx-background-color: #9f630e; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                                <Label text="Mã HĐ:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                                <TextField fx:id="txtMaHoaDonThanhToan" prefWidth="90.0"/>
+                                <Button text="Thanh toán" onAction="#onThanhToanClick"
+                                        style="-fx-background-color: #9f630e; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            </HBox>
+
+                            <Label fx:id="lblThongBaoTab1" style="-fx-text-fill: #9f630e;"/>
+                        </VBox>
+                    </items>
+                </SplitPane>
+            </VBox>
+        </Tab>
+
+        <Tab text="Theo dõi &amp; Cập nhật">
+            <VBox spacing="12.0" style="-fx-background-color: #f4efe9;">
+                <padding>
+                    <Insets top="14.0" right="14.0" bottom="14.0" left="14.0"/>
+                </padding>
+
+                <VBox spacing="10.0" style="-fx-background-color: white; -fx-border-color: #9f630e; -fx-border-width: 1.4; -fx-border-radius: 8; -fx-background-radius: 8;">
+                    <padding>
+                        <Insets top="12.0" right="12.0" bottom="12.0" left="12.0"/>
+                    </padding>
+
+                    <HBox spacing="8.0" alignment="CENTER_LEFT">
+                        <Label text="Mã đơn:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                        <TextField fx:id="txtMaDonTraCuu" prefWidth="140.0"/>
+                        <Button text="Tra cứu" onAction="#onTraCuuDonHangClick"
+                                style="-fx-background-color: #9f630e; -fx-text-fill: white;"/>
+                    </HBox>
+                    <Label fx:id="lblErrTraCuu" style="-fx-text-fill: #c0392b;"/>
+
+                    <Separator/>
+
+                    <GridPane hgap="10.0" vgap="8.0">
+                        <Label text="Khách hàng:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtKhachHangReadonly" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Trạng thái hiện tại:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtTrangThaiHienTaiReadonly" editable="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Tổng tiền đơn:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtTongTienReadonly" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <Separator/>
+
+                    <HBox spacing="8.0" alignment="CENTER_LEFT">
+                        <Label text="Trạng thái mới:" style="-fx-text-fill: #4a3007; -fx-font-weight: bold;"/>
+                        <ComboBox fx:id="cbTrangThaiMoi" prefWidth="220.0"/>
+                        <Button text="Lưu cập nhật" onAction="#onCapNhatTrangThaiClick"
+                                style="-fx-background-color: #9f630e; -fx-text-fill: white;"/>
+                    </HBox>
+                    <Label fx:id="lblErrTrangThaiMoi" style="-fx-text-fill: #c0392b;"/>
+                    <Label fx:id="lblThongBaoTab2" style="-fx-text-fill: #9f630e;"/>
+                </VBox>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

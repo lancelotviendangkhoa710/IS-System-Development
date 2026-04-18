@@ -4,9 +4,11 @@ import com.bakery.dto.HoaDonDTO;
 import com.bakery.utils.DBConnect;
 
 import java.sql.Connection;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,5 +96,29 @@ public class HoaDonDAO {
             System.err.println("Lỗi DAO - capNhatHoaDon: " + e.getMessage());
         }
         return false;
+    }
+
+    public void thanhToanVaThangHang(int maHD, Integer maKH, double soTienThanhToan) throws SQLException {
+        String sql = "{CALL PROC_THANHTOANVATHANGHANG(?, ?, ?)}";
+
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) {
+                throw new SQLException("Khong the ket noi CSDL.");
+            }
+
+            try (CallableStatement cstmt = conn.prepareCall(sql)) {
+                cstmt.setInt(1, maHD);
+                if (maKH != null) {
+                    cstmt.setInt(2, maKH);
+                } else {
+                    cstmt.setNull(2, Types.NUMERIC);
+                }
+                cstmt.setDouble(3, soTienThanhToan);
+                cstmt.execute();
+            }
+        } catch (SQLException e) {
+            System.err.println("Loi DAO - thanhToanVaThangHang: " + e.getMessage());
+            throw e;
+        }
     }
 }
