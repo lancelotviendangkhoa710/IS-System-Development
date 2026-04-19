@@ -18,13 +18,13 @@ public class DBConnect {
             }
 
             String dbUrl = props.getProperty("db.url", "jdbc:oracle:thin:@localhost:1521:orcl");
-            String dbUser = props.getProperty("db.user", "BAKERY_MANAGEMENT");// Mỗi người có 1 tự thay đổi username cho khớp với local
+            String dbUser = props.getProperty("db.user", "BAKERY_MANAGEMENT");
             String dbPass = props.getProperty("db.password", "Admin123");
 
             return DriverManager.getConnection(dbUrl, dbUser, dbPass);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-            System.err.println("Kết nối CSDL thất bại! Kiểm tra Oracle Database đang chạy.");// cái này sau này sẽ raise error
+            System.err.println("Kết nối CSDL thất bại! Kiểm tra Oracle Database đang chạy.");
             return null;
         }
     }
@@ -87,7 +87,7 @@ public class DBConnect {
                 rs = stmt.executeQuery("SELECT SYSDATE FROM DUAL");
 
                 if (rs.next()) {
-                    System.out.println(" Truy vấn thử nghiệm thành công. Thời gian Database: " + rs.getTimestamp(1));
+                    System.out.println("Truy vấn thử nghiệm thành công. Thời gian Database: " + rs.getTimestamp(1));
                 }
             } catch (SQLException e) {
                 System.err.println(" Lỗi khi chạy truy vấn test: " + e.getMessage());
