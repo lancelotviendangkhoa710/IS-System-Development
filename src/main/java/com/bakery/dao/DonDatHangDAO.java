@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,11 +36,11 @@ public class DonDatHangDAO {
                 cstmt.setString(8, taoJsonChiTiet(dsCtDonHang, dsCtTuyChinh));
                 cstmt.registerOutParameter(9, Types.NUMERIC);
                 cstmt.execute();
-
-                int maDonMoi = cstmt.getInt(9);
-                return maDonMoi;
+                return cstmt.getInt(9);
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
     public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan) throws SQLException {
@@ -54,7 +55,9 @@ public class DonDatHangDAO {
                 if (hinhThucNhan != null) cstmt.setInt(4, hinhThucNhan); else cstmt.setNull(4, Types.NUMERIC);
                 cstmt.execute();
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
     public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat) throws SQLException {
@@ -68,7 +71,9 @@ public class DonDatHangDAO {
                 cstmt.setInt(3, maNvCapNhat);
                 cstmt.execute();
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
     public boolean tonTaiDonHang(int maDon) throws SQLException {
@@ -81,12 +86,16 @@ public class DonDatHangDAO {
                     if (rs.next()) return rs.getInt("TOTAL") > 0;
                 }
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
         return false;
     }
 
     public String layTenTrangThaiDon(int maDon) throws SQLException {
-        String sql = "SELECT TT.TENTRANGTHAI FROM DONDATHANG DDH JOIN TRANGTHAIDON TT ON DDH.MATRANGTHAI = TT.MATRANGTHAI WHERE DDH.MADON = ?";
+        String sql = "SELECT TT.TENTRANGTHAI FROM DONDATHANG DDH " +
+                "JOIN TRANGTHAIDON TT ON DDH.MATRANGTHAI = TT.MATRANGTHAI " +
+                "WHERE DDH.MADON = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -95,13 +104,18 @@ public class DonDatHangDAO {
                     if (rs.next()) return rs.getString("TENTRANGTHAI");
                 }
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
         return null;
     }
 
     public DonDatHangDTO layTomTatDonHang(int maDon) throws SQLException {
-        // Bổ sung TIENDACOC vào truy vấn
-        String sql = "SELECT MADON, MAKH, MATRANGTHAI, TONGTIENHDBAN, TIENDACOC FROM DONDATHANG WHERE MADON = ?";
+        String sql = "SELECT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, " +
+                "DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN, DDH.TIENDACOC, DDH.HINHTHUCNHAN " +
+                "FROM DONDATHANG DDH " +
+                "JOIN TRANGTHAIDON TT ON TT.MATRANGTHAI = DDH.MATRANGTHAI " +
+                "WHERE DDH.MADON = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -113,14 +127,72 @@ public class DonDatHangDAO {
                         int maKH = rs.getInt("MAKH");
                         if (!rs.wasNull()) dto.setMaKH(maKH);
                         dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
+                        dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
+                        if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
+                            dto.setNgayGioNhanBanh(rs.getTimestamp("NGAYGIONHANBANH").toLocalDateTime());
+                        }
                         dto.setTongTienHDBan(rs.getDouble("TONGTIENHDBAN"));
-                        dto.setTienDaCoc(rs.getDouble("TIENDACOC")); // Lấy giá trị cọc
+                        dto.setTienDaCoc(rs.getDouble("TIENDACOC"));
+                        int hinhThucNhan = rs.getInt("HINHTHUCNHAN");
+                        if (!rs.wasNull()) dto.setHinhThucNhan(hinhThucNhan);
                         return dto;
                     }
                 }
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
         return null;
+    }
+
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(LocalDate ngayNhan, Integer gioNhan) throws SQLException {
+        List<DonDatHangDTO> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN " +
+                        "FROM DONDATHANG DDH " +
+                        "JOIN TRANGTHAIDON TT ON TT.MATRANGTHAI = DDH.MATRANGTHAI " +
+                        "WHERE TT.MATRANGTHAI <> (" +
+                        "SELECT TTH.MATRANGTHAI FROM TRANGTHAIDON TTH " +
+                        "WHERE TTH.TENTRANGTHAI = N'Hoàn thành' FETCH FIRST 1 ROW ONLY)");
+
+        if (ngayNhan != null) {
+            sql.append(" AND TRUNC(DDH.NGAYGIONHANBANH) = ?");
+        }
+        if (gioNhan != null) {
+            sql.append(" AND TO_CHAR(DDH.NGAYGIONHANBANH, 'HH24') = ?");
+        }
+        sql.append(" ORDER BY DDH.NGAYGIONHANBANH ASC, DDH.MADON ASC");
+
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
+            try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+                int paramIndex = 1;
+                if (ngayNhan != null) {
+                    pstmt.setTimestamp(paramIndex++, Timestamp.valueOf(ngayNhan.atStartOfDay()));
+                }
+                if (gioNhan != null) {
+                    pstmt.setString(paramIndex, String.format("%02d", gioNhan));
+                }
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        DonDatHangDTO dto = new DonDatHangDTO();
+                        dto.setMaDon(rs.getInt("MADON"));
+                        int maKH = rs.getInt("MAKH");
+                        if (!rs.wasNull()) dto.setMaKH(maKH);
+                        dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
+                        dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
+                        if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
+                            dto.setNgayGioNhanBanh(rs.getTimestamp("NGAYGIONHANBANH").toLocalDateTime());
+                        }
+                        dto.setTongTienHDBan(rs.getDouble("TONGTIENHDBAN"));
+                        list.add(dto);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw e;
+        }
+        return list;
     }
 
     public List<TrangThaiDonDTO> layDanhSachTrangThaiDon() throws SQLException {
@@ -138,7 +210,9 @@ public class DonDatHangDAO {
                     }
                 }
             }
-        } catch (SQLException e) { throw e; }
+        } catch (SQLException e) {
+            throw e;
+        }
         return list;
     }
 

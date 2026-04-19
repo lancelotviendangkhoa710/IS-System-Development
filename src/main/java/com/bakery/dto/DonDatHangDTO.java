@@ -9,6 +9,7 @@ public class DonDatHangDTO {
     private Integer maKH;
     private int maNVLap;
     private int maTrangThai;
+    private String tenTrangThai;
     private double tongTienHDBan;
     private double tienDaCoc;
     private int phienBan;
@@ -48,6 +49,9 @@ public class DonDatHangDTO {
 
     public int getMaTrangThai() { return maTrangThai; }
     public void setMaTrangThai(int maTrangThai) { this.maTrangThai = maTrangThai; }
+
+    public String getTenTrangThai() { return tenTrangThai; }
+    public void setTenTrangThai(String tenTrangThai) { this.tenTrangThai = tenTrangThai; }
 
     public double getTongTienHDBan() { return tongTienHDBan; }
     public void setTongTienHDBan(double tongTienHDBan) { this.tongTienHDBan = tongTienHDBan; }
