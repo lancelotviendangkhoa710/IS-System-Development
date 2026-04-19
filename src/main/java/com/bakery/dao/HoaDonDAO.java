@@ -49,11 +49,11 @@ public class HoaDonDAO {
         return ds;
     }
 
-    public boolean themHoaDonMoi(HoaDonDTO hd) {
+    public int themHoaDonMoi(HoaDonDTO hd) {
         String sql = "INSERT INTO HOADON (MADON, MACA, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql, new String[] { "MAHD" })) {
 
             if (hd.getMaDon() != null)
                 pstmt.setInt(1, hd.getMaDon());
@@ -66,11 +66,17 @@ public class HoaDonDAO {
             pstmt.setInt(5, hd.getMaPTTT());
             pstmt.setString(6, hd.getLoaiHD());
 
-            return pstmt.executeUpdate() > 0;
+            if (pstmt.executeUpdate() > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                }
+            }
         } catch (SQLException e) {
             System.err.println("Lỗi DAO - themHoaDonMoi: " + e.getMessage());
         }
-        return false;
+        return -1;
     }
 
     public boolean capNhatHoaDon(HoaDonDTO hd) {
