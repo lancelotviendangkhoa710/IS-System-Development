@@ -374,11 +374,65 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             new EmptyBorder(10, 10, 10, 10)
         ));
 
-        JLabel imgPlaceholder = new JLabel("IMG", SwingConstants.CENTER);
-        imgPlaceholder.setPreferredSize(new Dimension(0, 100));
-        imgPlaceholder.setOpaque(true);
-        imgPlaceholder.setBackground(COLOR_SURFACE);
-        imgPlaceholder.setForeground(COLOR_PRIMARY);
+        // Phần hiển thị hình ảnh
+        JLabel imgLabel = new JLabel("", SwingConstants.CENTER);
+        imgLabel.setPreferredSize(new Dimension(0, 100));
+        imgLabel.setOpaque(true);
+        imgLabel.setBackground(COLOR_SURFACE);
+        imgLabel.setForeground(COLOR_PRIMARY);
+
+        try {
+            String path = sp.getHinhAnh();
+            if (path != null && !path.trim().isEmpty()) {
+                Image img = null;
+                
+                // 1. Thử load từ File system
+                java.io.File file = new java.io.File(path);
+                if (file.exists()) {
+                    try {
+                        img = javax.imageio.ImageIO.read(file);
+                    } catch (Exception ignored) {}
+                }
+
+                // 2. Nếu không có file hoặc lỗi, thử load từ Resources
+                if (img == null) {
+                    String resourcePath = path;
+                    if (resourcePath.startsWith("src/main/resources")) {
+                        resourcePath = resourcePath.substring("src/main/resources".length());
+                    }
+                    if (!resourcePath.startsWith("/")) {
+                        resourcePath = "/" + resourcePath;
+                    }
+                    try {
+                        java.net.URL imgURL = getClass().getResource(resourcePath);
+                        if (imgURL != null) {
+                            img = javax.imageio.ImageIO.read(imgURL);
+                        }
+                    } catch (Exception ignored) {}
+                }
+
+                if (img != null) {
+                    int imgW = img.getWidth(null);
+                    int imgH = img.getHeight(null);
+                    if (imgW > 0 && imgH > 0) {
+                        double scale = Math.min(140.0 / imgW, 100.0 / imgH);
+                        int targetW = (int) (imgW * scale);
+                        int targetH = (int) (imgH * scale);
+                        Image scaled = img.getScaledInstance(targetW, targetH, Image.SCALE_SMOOTH);
+                        imgLabel.setIcon(new ImageIcon(scaled));
+                        imgLabel.setText("");
+                    }
+                } else {
+                    imgLabel.setText("No Image");
+                    imgLabel.setFont(new Font("Arial", Font.ITALIC, 10));
+                }
+            } else {
+                imgLabel.setText("UIT Bakery");
+                imgLabel.setFont(new Font("Arial", Font.BOLD, 12));
+            }
+        } catch (Exception e) {
+            imgLabel.setText("Error");
+        }
         
         JLabel lblName = new JLabel("<html><center>" + sp.getTenSP() + "</center></html>", SwingConstants.CENTER);
         lblName.setFont(new Font("Arial", Font.BOLD, 12));
@@ -400,7 +454,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         btnThem.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnThem.addActionListener(e -> { if(presenter != null) presenter.themSanPhamVaoGio(sp); });
 
-        card.add(imgPlaceholder, BorderLayout.NORTH);
+        card.add(imgLabel, BorderLayout.NORTH);
         card.add(info, BorderLayout.CENTER);
         card.add(btnThem, BorderLayout.SOUTH);
         return card;
@@ -708,63 +762,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         return cart;
     }
 
-    private JPanel createTabTheoDoi() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        JPanel content = new JPanel(new GridBagLayout());
-        content.setBackground(COLOR_CARD);
-        content.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(0,0,0,20)),
-            BorderFactory.createTitledBorder(null, "Cập nhật trạng thái đơn", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16), COLOR_PRIMARY)
-        ));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL; gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        txtMaDonTraCuu = new JTextField(15);
-        btnTraCuu = new JButton("Tra cứu"); styleButton(btnTraCuu, COLOR_PRIMARY, Color.WHITE);
-
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        searchPanel.setOpaque(false);
-        searchPanel.add(txtMaDonTraCuu); searchPanel.add(btnTraCuu);
-
-        lblErrTraCuu = new JLabel(); lblErrTraCuu.setForeground(ERROR);
-        txtKhachHangReadonly = new JTextField(20); txtKhachHangReadonly.setEditable(false); txtKhachHangReadonly.setBackground(COLOR_SURFACE);
-        txtTrangThaiHienTaiReadonly = new JTextField(20); txtTrangThaiHienTaiReadonly.setEditable(false); txtTrangThaiHienTaiReadonly.setBackground(COLOR_SURFACE);
-        txtTongTienReadonly = new JTextField(20); txtTongTienReadonly.setEditable(false); txtTongTienReadonly.setBackground(COLOR_SURFACE);
-
-        cbTrangThaiMoi = new JComboBox<>();
-        btnLuuCapNhat = new JButton("Lưu cập nhật"); styleButton(btnLuuCapNhat, COLOR_PRIMARY, Color.WHITE);
-
-        JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        updatePanel.setOpaque(false);
-        updatePanel.add(cbTrangThaiMoi); updatePanel.add(btnLuuCapNhat);
-
-        lblErrTrangThaiMoi = new JLabel(); lblErrTrangThaiMoi.setForeground(ERROR);
-        lblThongBaoTab2 = new JLabel(); lblThongBaoTab2.setForeground(SUCCESS);
-
-        int row = 0;
-        addGridRow(content, gbc, row++, "Mã đơn:", searchPanel);
-        gbc.gridy = row++; gbc.gridx = 1; content.add(lblErrTraCuu, gbc);
-        addGridRow(content, gbc, row++, "Khách hàng:", txtKhachHangReadonly);
-        addGridRow(content, gbc, row++, "Trạng thái hiện tại:", txtTrangThaiHienTaiReadonly);
-        addGridRow(content, gbc, row++, "Tổng tiền đơn:", txtTongTienReadonly);
-        content.add(new JSeparator(), gbc); row++;
-        addGridRow(content, gbc, row++, "Trạng thái mới:", updatePanel);
-        gbc.gridy = row++; gbc.gridx = 1; content.add(lblErrTrangThaiMoi, gbc);
-        gbc.gridy = row++; gbc.gridx = 1; content.add(lblThongBaoTab2, gbc);
-
-        JPanel wrap = new JPanel(new BorderLayout());
-        wrap.setOpaque(false);
-        wrap.add(content, BorderLayout.NORTH);
-        panel.add(wrap, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel createTabTheoDoiV2() {
+    private JScrollPane createTabTheoDoiV2() {
         JPanel panel = new JPanel(new BorderLayout(0, 12));
         panel.setOpaque(false);
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -773,7 +771,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         filterPanel.setOpaque(false);
         filterPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0, 0, 0, 20)),
-                "Tim kiem don theo ngay/gio nhan",
+                "Tìm kiếm đơn theo ngày/giờ nhận",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 14),
@@ -782,19 +780,19 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         dpNgayTheoDoi = new SwingDatePicker();
         dpNgayTheoDoi.setSelectedDate(LocalDate.now(ZONE_VN));
         cbGioTheoDoi = new JComboBox<>();
-        cbGioTheoDoi.addItem("Tat ca");
+        cbGioTheoDoi.addItem("Tất cả");
         for (int i = 0; i < 24; i++) {
             cbGioTheoDoi.addItem(String.format("%02d:00", i));
         }
-        btnTimTheoNgayGio = new JButton("Tim");
+        btnTimTheoNgayGio = new JButton("Tìm");
         styleButton(btnTimTheoNgayGio, COLOR_PRIMARY, Color.WHITE);
-        filterPanel.add(new JLabel("Ngay:"));
+        filterPanel.add(new JLabel("Ngày:"));
         filterPanel.add(dpNgayTheoDoi);
-        filterPanel.add(new JLabel("Gio:"));
+        filterPanel.add(new JLabel("Giờ:"));
         filterPanel.add(cbGioTheoDoi);
         filterPanel.add(btnTimTheoNgayGio);
 
-        String[] columns = {"Ma don", "Ngay gio nhan", "Khach hang", "Trang thai", "Tong tien"};
+        String[] columns = {"Mã đơn", "Ngày giờ nhận", "Khách hàng", "Trạng thái", "Tổng tiền"};
         theoDoiTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -804,9 +802,10 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         tblDonTheoDoi = new JTable(theoDoiTableModel);
         tblDonTheoDoi.setRowHeight(28);
         JScrollPane scrollDon = new JScrollPane(tblDonTheoDoi);
+        scrollDon.setPreferredSize(new Dimension(0, 250));
         scrollDon.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0, 0, 0, 20)),
-                "Danh sach don chua hoan thanh",
+                "Danh sách đơn chưa hoàn thành",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 14),
@@ -817,7 +816,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         content.setBackground(COLOR_CARD);
         content.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0, 0, 0, 20)),
-                BorderFactory.createTitledBorder(null, "Cap nhat trang thai don", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16), COLOR_PRIMARY)
+                BorderFactory.createTitledBorder(null, "Cập nhật trạng thái đơn", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16), COLOR_PRIMARY)
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -826,7 +825,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         gbc.anchor = GridBagConstraints.WEST;
 
         txtMaDonTraCuu = new JTextField(15);
-        btnTraCuu = new JButton("Tra cuu");
+        btnTraCuu = new JButton("Tra cứu");
         styleButton(btnTraCuu, COLOR_PRIMARY, Color.WHITE);
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         searchPanel.setOpaque(false);
@@ -846,8 +845,8 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         txtTongTienReadonly.setBackground(COLOR_SURFACE);
 
         cbTrangThaiMoi = new JComboBox<>();
-        btnLuuCapNhat = new JButton("Luu cap nhat");
-        styleButton(btnLuuCapNhat, COLOR_PRIMARY, Color.WHITE);
+        btnLuuCapNhat = new JButton("Lưu cập nhật ✓");
+        styleButton(btnLuuCapNhat, SUCCESS, Color.WHITE);
         JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         updatePanel.setOpaque(false);
         updatePanel.add(cbTrangThaiMoi);
@@ -859,16 +858,16 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         lblThongBaoTab2.setForeground(SUCCESS);
 
         int row = 0;
-        addGridRow(content, gbc, row++, "Ma don:", searchPanel);
+        addGridRow(content, gbc, row++, "Mã đơn:", searchPanel);
         gbc.gridy = row++;
         gbc.gridx = 1;
         content.add(lblErrTraCuu, gbc);
-        addGridRow(content, gbc, row++, "Khach hang:", txtKhachHangReadonly);
-        addGridRow(content, gbc, row++, "Trang thai hien tai:", txtTrangThaiHienTaiReadonly);
-        addGridRow(content, gbc, row++, "Tong tien don:", txtTongTienReadonly);
+        addGridRow(content, gbc, row++, "Khách hàng:", txtKhachHangReadonly);
+        addGridRow(content, gbc, row++, "Trạng thái hiện tại:", txtTrangThaiHienTaiReadonly);
+        addGridRow(content, gbc, row++, "Tổng tiền đơn:", txtTongTienReadonly);
         content.add(new JSeparator(), gbc);
         row++;
-        addGridRow(content, gbc, row++, "Trang thai moi:", updatePanel);
+        addGridRow(content, gbc, row++, "Trạng thái mới:", updatePanel);
         gbc.gridy = row++;
         gbc.gridx = 1;
         content.add(lblErrTrangThaiMoi, gbc);
@@ -879,7 +878,13 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         panel.add(filterPanel, BorderLayout.NORTH);
         panel.add(scrollDon, BorderLayout.CENTER);
         panel.add(content, BorderLayout.SOUTH);
-        return panel;
+
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        return scrollPane;
     }
 
     private void styleButton(AbstractButton btn, Color bg, Color fg) {
