@@ -1,6 +1,6 @@
 -- Hàm tính giá vốn của một sản phẩm dựa trên định mức nguyên liệu
 CREATE OR REPLACE FUNCTION FUNC_TONGGIAVON(
-    P_MASP IN NUMBER
+    P_MASP IN SANPHAM.MASP%type
 )
 RETURN NUMBER
 IS

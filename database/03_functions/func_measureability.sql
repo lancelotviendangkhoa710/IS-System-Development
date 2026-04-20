@@ -1,6 +1,6 @@
 -- Hàm xác định số lượng bánh tùy chỉnh còn trống có thể nhận được trong một ngày
 CREATE OR REPLACE FUNCTION FUNC_DIEMKHADUNG(
-    P_NGAYCANKIEMTRA IN DATE
+    P_NGAYCANKIEMTRA IN NANGLUCSANXUAT.NGAYSANXUAT%type
 ) RETURN NUMBER
 IS
     V_GIOIHAN NUMBER := 0;

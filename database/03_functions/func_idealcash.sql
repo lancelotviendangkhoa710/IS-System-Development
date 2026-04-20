@@ -1,6 +1,6 @@
 -- Hàm tính tổng tiền mặt lý tưởng của một ca làm việc để đối soát
 CREATE OR REPLACE FUNCTION FUNC_TIENMATLYTUONG(
-    P_MACA IN NUMBER
+    P_MACA IN CALAMVIEC.MACA%type
 )
 RETURN NUMBER
 IS
