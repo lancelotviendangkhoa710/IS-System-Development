@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="02_Constraint" type="DatabaseScript">
+    <script-file value="$PROJECT_DIR$/database/02_constraints/01_ck_emp_cus.sql" />
+    <script-file value="$PROJECT_DIR$/database/02_constraints/02_ck_product.sql" />
+    <script-file value="$PROJECT_DIR$/database/02_constraints/03_ck_stock_recipe.sql" />
+    <script-file value="$PROJECT_DIR$/database/02_constraints/04_ck_order.sql" />
+    <script-file value="$PROJECT_DIR$/database/02_constraints/05_ck_finance.sql" />
+    <script-file value="$PROJECT_DIR$/database/02_constraints/ck_status.sql" />
+    <script-file value="$PROJECT_DIR$/database/02_constraints/package_error_codes.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="8e551302-316f-46a5-b3ee-75d5f4734b80" namespace="schema/&quot;BAKERY_MANAGEMENT&quot;" />
+    <method v="2" />
+  </configuration>
+</component>

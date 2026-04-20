@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="05_Procedure" type="DatabaseScript">
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_customer_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_employee_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_finance_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_material_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_order_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_product_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/cud/proc_stock_cud.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/proc_backup.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/proc_cancel_refund.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/proc_change_status.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/proc_checking_shift.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/proc_open_shift.sql" />
+    <script-file value="$PROJECT_DIR$/database/05_procedures/proc_payment_uprannk.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="8e551302-316f-46a5-b3ee-75d5f4734b80" />
+    <method v="2" />
+  </configuration>
+</component>

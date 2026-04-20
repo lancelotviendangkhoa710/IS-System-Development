@@ -49,6 +49,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20663, 'Lỗi hệ thống khi Tạo Đơn Hàng: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng: ' || SQLERRM);
 END;
 /
