@@ -1,20 +1,20 @@
 package com.bakery.services;
 
-import com.bakery.dao.DanhMucSPDAO;
-import com.bakery.dao.DonDatHangDAO;
-import com.bakery.dao.HoaDonDAO;
-import com.bakery.dao.KhachHangDAO;
-import com.bakery.dao.SanPhamDAO;
-import com.bakery.dto.CTDonHangDTO;
-import com.bakery.dto.CTDonTuyChinhDTO;
-import com.bakery.dto.DanhMucSPDTO;
-import com.bakery.dto.DonDatHangDTO;
-import com.bakery.dto.HoaDonDTO;
-import com.bakery.dto.KhachHangDTO;
-import com.bakery.dto.SanPhamDTO;
-import com.bakery.dto.TrangThaiDonDTO;
-import com.bakery.dto.YeuCauChiTietDonHangDTO;
-import com.bakery.dto.YeuCauTaoDonHangDTO;
+import com.bakery.model.dao.DanhMucSPDAO;
+import com.bakery.model.dao.DonDatHangDAO;
+import com.bakery.model.dao.HoaDonDAO;
+import com.bakery.model.dao.KhachHangDAO;
+import com.bakery.model.dao.SanPhamDAO;
+import com.bakery.model.dto.CTDonHangDTO;
+import com.bakery.model.dto.CTDonTuyChinhDTO;
+import com.bakery.model.dto.DanhMucSPDTO;
+import com.bakery.model.dto.DonDatHangDTO;
+import com.bakery.model.dto.HoaDonDTO;
+import com.bakery.model.dto.KhachHangDTO;
+import com.bakery.model.dto.SanPhamDTO;
+import com.bakery.model.dto.TrangThaiDonDTO;
+import com.bakery.model.dto.YeuCauChiTietDonHangDTO;
+import com.bakery.model.dto.YeuCauTaoDonHangDTO;
 
 import java.sql.SQLException;
 import java.text.Normalizer;
@@ -131,10 +131,10 @@ public class OrderService {
         String trangThaiHienTai = chuanHoaTrangThai(tenTrangThaiHienTai);
         String trangThaiMoi = chuanHoaTrangThai(tenTrangThaiMoi);
         if ("HOAN_THANH".equals(trangThaiHienTai)) {
-            throw new IllegalStateException("Don da hoan thanh khong duoc cap nhat trang thai.");
+            throw new IllegalStateException("Đơn hàng đã được cập nhật trạng thái.");
         }
         if (trangThaiHienTai.equals(trangThaiMoi)) {
-            throw new IllegalArgumentException("Trang thai moi khong duoc trung trang thai hien tai.");
+            throw new IllegalArgumentException("Trạng thái mới không trùng với trạng thái hiện tại.");
         }
 
         try {
