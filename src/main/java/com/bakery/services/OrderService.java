@@ -81,7 +81,7 @@ public class OrderService {
         }
     }
 
-    public void thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
+    public HoaDonDTO thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
         int maTrangThaiHoanThanh = layMaTrangThaiHoanThanh();
         request.setMaTrangThai(maTrangThaiHoanThanh);
 
@@ -106,6 +106,12 @@ public class OrderService {
         }
 
         thanhToanDon(maHD, request.getMaKH(), tongTien, soTienKhachDua);
+
+        HoaDonDTO hoaDonVuaTao = hoaDonDAO.layHoaDonTheoMa(maHD);
+        if (hoaDonVuaTao == null) {
+            throw new Exception("Khong the tai thong tin hoa don vua tao.");
+        }
+        return hoaDonVuaTao;
     }
 
     public void thanhToanDon(int maHD, Integer maKH, double tongTienHoaDon, double soTienKhachDua) throws Exception {
@@ -263,14 +269,14 @@ public class OrderService {
     }
 
     private void kiemTraYeuCauDonHang(YeuCauTaoDonHangDTO request) {
-        if (request == null) throw new IllegalArgumentException("Yeu cau tao don hang bi trong.");
+        if (request == null) throw new IllegalArgumentException("Yêu câù tạo đơn hàng bị trống.");
         if (request.getMaNVLap() <= 0) throw new IllegalArgumentException("Ma nhan vien lap don khong hop le.");
-        if (request.getTienDaCoc() < 0) throw new IllegalArgumentException("Tien dat coc khong duoc am.");
+        if (request.getTienDaCoc() < 0) throw new IllegalArgumentException("Tiền đặt cọc không được âm.");
         if (request.getHinhThucNhan() == null || (request.getHinhThucNhan() != 1 && request.getHinhThucNhan() != 2)) throw new IllegalArgumentException("Hinh thuc nhan chi duoc la Truc tiep (1) hoac Dat hang (2).");
         if (request.getHinhThucNhan() == 2 && (request.getDiaChiGiao() == null || request.getDiaChiGiao().trim().isEmpty())) throw new IllegalArgumentException("Don dat hang bat buoc nhap dia chi giao.");
         if (request.getHinhThucNhan() == 1) request.setDiaChiGiao(null);
-        if (request.getNgayGioNhanBanh() == null) throw new IllegalArgumentException("Ngay gio nhan banh bat buoc nhap.");
-        if (request.getNgayGioNhanBanh().isBefore(LocalDateTime.now())) throw new IllegalArgumentException("Ngay gio nhan banh khong duoc nam trong qua khu.");
+        if (request.getNgayGioNhanBanh() == null) throw new IllegalArgumentException("Ngày giờ nhận bánh bắt buộc nhập.");
+        if (request.getNgayGioNhanBanh().isBefore(LocalDateTime.now())) throw new IllegalArgumentException("Ngày giờ nhận bánh không được nằm trong quá khứ.");
 
         List<YeuCauChiTietDonHangDTO> items = request.getItems();
         if (items == null || items.isEmpty()) throw new IllegalArgumentException("Don hang phai co it nhat 1 san pham.");

@@ -13,6 +13,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -27,18 +28,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
+import java.net.URL;
 
 public class OrderViewPanel extends JPanel implements IOrderView {
     private static final ZoneId ZONE_VN = ZoneId.of("Asia/Ho_Chi_Minh");
-    // Bảng màu từ thiết kế Tailwind
-    private final Color COLOR_PRIMARY = new Color(165, 54, 13);
-    private final Color COLOR_SIDEBAR = new Color(246, 244, 236);
-    private final Color COLOR_SURFACE = new Color(251, 249, 242);
+    // Bảng màu chuẩn H3K Bakery (.agents/UI.md)
+    private final Color COLOR_PRIMARY = new Color(146, 64, 14);       // #92400E
+    private final Color COLOR_PRIMARY_DARK = new Color(120, 53, 15);  // #78350F
+    private final Color COLOR_PRIMARY_LIGHT = new Color(254, 243, 199); // #FEF3C7
+    private final Color COLOR_SIDEBAR = new Color(253, 251, 247);     // #FDFBF7
+    private final Color COLOR_SURFACE = new Color(255, 251, 235);     // #FFFBEB
     private final Color COLOR_CARD = Color.WHITE;
-    private final Color COLOR_TEXT = new Color(27, 28, 24);
-    private final Color COLOR_ACCENT = new Color(253, 174, 149);
-    private final Color SUCCESS = new Color(39, 174, 96);
-    private final Color ERROR = new Color(192, 57, 43);
+    private final Color COLOR_TEXT = new Color(17, 24, 39);           // #111827
+    private final Color COLOR_HEADING = new Color(69, 26, 3);         // #451A03
+    private final Color COLOR_SUB_TEXT = new Color(107, 114, 128);    // #6B7280
+    private final Color COLOR_DISABLED = new Color(243, 244, 246);    // #F3F4F6
+    private final Color COLOR_ACCENT = new Color(180, 83, 9);         // #B45309
+    private final Color SUCCESS = new Color(22, 163, 74);             // #16A34A
+    private final Color ERROR = new Color(220, 38, 38);               // #DC2626
 
     private OrderPresenter presenter;
 
@@ -102,7 +109,15 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         chkXacNhanThuTien.addActionListener(e -> { if(presenter != null) presenter.capNhatGioHangVaTien(); });
 
         btnTaoDonHang.addActionListener(e -> { if(presenter != null) presenter.xuLyDatBanh(); });
-        btnThanhToan.addActionListener(e -> moDialogXacNhanThanhToan());
+        btnThanhToan.addActionListener(e -> {
+            if (presenter == null) {
+                return;
+            }
+            if (!presenter.kiemTraNgayNhanHopLeChoThanhToan()) {
+                return;
+            }
+            moDialogXacNhanThanhToan();
+        });
         /* btnThanhToan.addActionListener(e -> {
             if(presenter != null) {
                 // 1. Lấy thông tin hiện tại
@@ -253,8 +268,11 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         }
     }
 
-    public void inPhieuHoaDon(String tieuDe, int maDon, double tongTien, double daThu, List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam) {
-        String maDonStr = (maDon != -1) ? "#" + maDon : "N/A";
+    public void inPhieuHoaDon(String tieuDe, Integer maDon, Integer maHoaDon, LocalDateTime ngayLapHoaDon,
+                              double tongTien, double daThu, List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam) {
+        String maDonStr = (maDon != null && maDon > 0) ? "#" + maDon : "N/A";
+        String maHoaDonStr = (maHoaDon != null && maHoaDon > 0) ? "#" + maHoaDon : "N/A";
+        String ngayLapHoaDonStr = ngayLapHoaDon == null ? "N/A" : ngayLapHoaDon.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         String khachHang = lblTenKhachHang.getText();
         String tienGiamGia = (pGiam > 0) ? lblTienGiamGia.getText() : null;
         String tienKhachDua = txtTienKhachDua.getText().trim();
@@ -264,7 +282,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         String tienThua = (tienThuaNum > 0) ? formatTien(tienThuaNum) : null;
 
         UITBakeryReceipt receipt = new UITBakeryReceipt(
-                tieuDe, maDonStr, khachHang, cart, data, 
+                tieuDe, maDonStr, maHoaDonStr, ngayLapHoaDonStr, khachHang, cart, data,
                 tienGiamGia, formatTien(tongTien), formatTien(daThu), 
                 tienKhachDua, tienThua
         );
@@ -318,6 +336,8 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         return UITBakeryReceipt.taoPanelHoaDon(
                 tieuDe,
                 maDonStr,
+                "N/A",
+                LocalDateTime.now(ZONE_VN).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 khachHang,
                 localGioHangHienTai,
                 localDanhSachSP,
@@ -355,7 +375,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         currentCategory = cat;
         JButton[] btns = {btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread};
         for (JButton b : btns) {
-            b.setBackground(Color.WHITE);
+            b.setBackground(COLOR_CARD);
             b.setForeground(COLOR_TEXT);
         }
         btn.setBackground(COLOR_PRIMARY);
@@ -363,10 +383,25 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         apDungBoLoc();
     }
 
+    private java.awt.Image tryLoadFromResource(String path) {
+        if (path == null) return null;
+        String resPath = path.startsWith("/") ? path : "/" + path;
+        try (java.io.InputStream is = getClass().getResourceAsStream(resPath)) {
+            if (is != null) {
+                java.awt.Image image = javax.imageio.ImageIO.read(is);
+                if (image != null) {
+                    System.out.println("  -> Successfully loaded from: " + resPath);
+                    return image;
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
     private JPanel createProductCard(SanPhamDTO sp) {
         JPanel card = new JPanel(new BorderLayout());
-        card.setPreferredSize(new Dimension(160, 180));
-        card.setMaximumSize(new Dimension(160, 180));
+        card.setPreferredSize(new Dimension(160, 200));
+        card.setMaximumSize(new Dimension(160, 200));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.setBackground(COLOR_CARD);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -376,65 +411,71 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
         // Phần hiển thị hình ảnh
         JLabel imgLabel = new JLabel("", SwingConstants.CENTER);
-        imgLabel.setPreferredSize(new Dimension(0, 100));
+        imgLabel.setPreferredSize(new Dimension(140, 100));
         imgLabel.setOpaque(true);
         imgLabel.setBackground(COLOR_SURFACE);
         imgLabel.setForeground(COLOR_PRIMARY);
 
-        try {
-            String path = sp.getHinhAnh();
-            if (path != null && !path.trim().isEmpty()) {
-                Image img = null;
-                
-                // 1. Thử load từ File system
-                java.io.File file = new java.io.File(path);
-                if (file.exists()) {
-                    try {
-                        img = javax.imageio.ImageIO.read(file);
-                    } catch (Exception ignored) {}
-                }
+        java.awt.Image img = null;
+        String hinhAnhPath = sp.getHinhAnh();
 
-                // 2. Nếu không có file hoặc lỗi, thử load từ Resources
+        if (hinhAnhPath != null && !hinhAnhPath.isEmpty()) {
+            System.out.println("[DEBUG] Loading image for " + sp.getTenSP() + " (DB Path: " + hinhAnhPath + ")");
+            try {
+                String fileName = new java.io.File(hinhAnhPath).getName();
+                String nameWithoutExt = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+
+                // 1. Thử load từ Resources qua Stream (An toàn nhất cho Java Module)
+                img = tryLoadFromResource(hinhAnhPath);
+                if (img == null) img = tryLoadFromResource("/" + fileName);
+
+                // 2. ƯU TIÊN MAPPING THEO MÃ SẢN PHẨM (MaSP)
                 if (img == null) {
-                    String resourcePath = path;
-                    if (resourcePath.startsWith("src/main/resources")) {
-                        resourcePath = resourcePath.substring("src/main/resources".length());
-                    }
-                    if (!resourcePath.startsWith("/")) {
-                        resourcePath = "/" + resourcePath;
-                    }
-                    try {
-                        java.net.URL imgURL = getClass().getResource(resourcePath);
-                        if (imgURL != null) {
-                            img = javax.imageio.ImageIO.read(imgURL);
-                        }
-                    } catch (Exception ignored) {}
+                    int maSP = sp.getMaSP();
+                    img = tryLoadFromResource("/cake" + maSP + ".jpg");
+                    if (img == null) img = tryLoadFromResource("/cake" + maSP + ".png");
+                    if (img != null) System.out.println("  -> Successfully mapped to cake" + maSP + " based on MaSP.");
                 }
 
-                if (img != null) {
-                    int imgW = img.getWidth(null);
-                    int imgH = img.getHeight(null);
-                    if (imgW > 0 && imgH > 0) {
-                        double scale = Math.min(140.0 / imgW, 100.0 / imgH);
-                        int targetW = (int) (imgW * scale);
-                        int targetH = (int) (imgH * scale);
-                        Image scaled = img.getScaledInstance(targetW, targetH, Image.SCALE_SMOOTH);
-                        imgLabel.setIcon(new ImageIcon(scaled));
-                        imgLabel.setText("");
+                // 3. SMART FALLBACK: Nếu vẫn không thấy, thử tìm theo tên sản phẩm
+                if (img == null) {
+                    String tenSP = sp.getTenSP().toLowerCase();
+                    String fallback = null;
+                    if (tenSP.contains("vani")) fallback = "/cake1.jpg";
+                    else if (tenSP.contains("socola")) fallback = "/cake2.png";
+                    else if (tenSP.contains("velvet")) fallback = "/cake3.jpg";
+                    else if (tenSP.contains("tiramisu")) fallback = "/cake4.jpg";
+                    else if (tenSP.contains("cookie")) fallback = "/cake2.png";
+                    else if (tenSP.contains("bread") || tenSP.contains("mi")) fallback = "/cake3.jpg";
+
+                    if (fallback != null) {
+                        img = tryLoadFromResource(fallback);
                     }
-                } else {
-                    imgLabel.setText("No Image");
-                    imgLabel.setFont(new Font("Arial", Font.ITALIC, 10));
                 }
-            } else {
-                imgLabel.setText("UIT Bakery");
-                imgLabel.setFont(new Font("Arial", Font.BOLD, 12));
+            } catch (Exception e) {
+                System.err.println("  -> Error: " + e.getMessage());
             }
-        } catch (Exception e) {
-            imgLabel.setText("Error");
         }
-        
+        if (img == null) System.out.println("  -> FAILED to load image for " + sp.getTenSP());
+
+        if (img != null) {
+            int imgW = img.getWidth(null);
+            int imgH = img.getHeight(null);
+            if (imgW > 0 && imgH > 0) {
+                double scale = Math.min(140.0 / imgW, 100.0 / imgH);
+                int targetW = (int) (imgW * scale);
+                int targetH = (int) (imgH * scale);
+                java.awt.Image scaled = img.getScaledInstance(targetW, targetH, java.awt.Image.SCALE_SMOOTH);
+                imgLabel.setIcon(new javax.swing.ImageIcon(scaled));
+                imgLabel.setText(""); // Xóa text nếu load được ảnh
+            }
+        } else {
+            imgLabel.setText("No Image");
+            imgLabel.setFont(new java.awt.Font("Arial", java.awt.Font.ITALIC, 10));
+        }
+
         JLabel lblName = new JLabel("<html><center>" + sp.getTenSP() + "</center></html>", SwingConstants.CENTER);
+
         lblName.setFont(new Font("Arial", Font.BOLD, 12));
         
         JLabel lblPrice = new JLabel(formatTien(sp.getGiaCoBan()), SwingConstants.CENTER);
@@ -448,8 +489,9 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         
         JButton btnThem = new JButton("Thêm");
         btnThem.setBackground(COLOR_ACCENT);
-        btnThem.setForeground(COLOR_PRIMARY);
+        btnThem.setForeground(Color.WHITE);
         btnThem.setFocusPainted(false);
+        btnThem.setFont(new Font("Arial", Font.BOLD, 10));
         btnThem.setBorderPainted(false);
         btnThem.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnThem.addActionListener(e -> { if(presenter != null) presenter.themSanPhamVaoGio(sp); });
@@ -471,7 +513,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         cardPanel = new JPanel(cardLayout);
         cardPanel.setOpaque(false);
         
-        cardPanel.add(createTabTaoDon(), "TAO_DON");
+         cardPanel.add(createTabTaoDon(), "TAO_DON");
         cardPanel.add(createTabTheoDoiV2(), "THEO_DOI");
         
         centerPanel.add(cardPanel, BorderLayout.CENTER);
@@ -482,21 +524,25 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     private JPanel createSidebar() {
         JPanel sidebar = new JPanel();
-        sidebar.setPreferredSize(new Dimension(250, 0));
+        sidebar.setPreferredSize(new Dimension(180, 0));
         sidebar.setBackground(COLOR_SIDEBAR);
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBorder(new EmptyBorder(30, 20, 30, 20));
+        sidebar.setBorder(new EmptyBorder(30, 14, 30, 14));
 
-        JLabel logo = new JLabel("UIT Bakery");
-        logo.setFont(new Font("Arial", Font.BOLD, 21));
+        JLabel logo = new JLabel("H3K Bakery");
+        logo.setFont(new Font("Segoe UI", Font.BOLD, 19));
         logo.setForeground(COLOR_PRIMARY);
+        logo.setAlignmentX(Component.CENTER_ALIGNMENT);
         sidebar.add(logo);
 
         sidebar.add(Box.createVerticalStrut(40));
 
-        navItemTaoDon = createNavItem("Tạo đơn & Thanh toán");
-        navItemTheoDoi = createNavItem("Theo dõi & Cập nhật");
+        navItemTaoDon = createNavItem("POS");
+        navItemTheoDoi = createNavItem("Theo dõi");
         
+        navItemTaoDon.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navItemTheoDoi.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         navItemTaoDon.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) { switchTab("TAO_DON"); }
         });
@@ -512,15 +558,15 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     private JPanel createNavItem(String text) {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 8));
         p.setOpaque(true);
         p.setBackground(COLOR_SIDEBAR);
-        p.setMaximumSize(new Dimension(250, 45));
+        p.setMaximumSize(new Dimension(150, 40));
         p.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         JLabel l = new JLabel(text);
-        l.setFont(new Font("Arial", Font.PLAIN, 14));
-        l.setForeground(new Color(88, 66, 59));
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        l.setForeground(COLOR_SUB_TEXT);
         p.add(l);
         return p;
     }
@@ -533,21 +579,21 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     private void updateNavStyle(JPanel p, boolean active) {
-        p.setBackground(active ? new Color(234, 232, 225) : COLOR_SIDEBAR);
+        p.setBackground(active ? COLOR_PRIMARY_LIGHT : COLOR_SIDEBAR);
         JLabel l = (JLabel) p.getComponent(0);
-        l.setFont(new Font("Arial", active ? Font.BOLD : Font.PLAIN, 14));
-        l.setForeground(active ? COLOR_PRIMARY : new Color(89, 66, 59));
+        l.setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 13));
+        l.setForeground(active ? COLOR_PRIMARY : COLOR_SUB_TEXT);
     }
 
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(Color.WHITE);
+        header.setBackground(COLOR_CARD);
         header.setPreferredSize(new Dimension(0, 70));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(224, 192, 182)));
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, COLOR_PRIMARY_LIGHT));
         
         JLabel title = new JLabel("POS - Bán hàng & Quản lý đơn");
-        title.setFont(new Font("Arial", Font.BOLD, 18));
-        title.setForeground(COLOR_PRIMARY);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setForeground(COLOR_HEADING);
         title.setBorder(new EmptyBorder(0, 25, 0, 0));
         
         header.add(title, BorderLayout.WEST);
@@ -590,12 +636,10 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         for(int i=0; i<filterBtns.length; i++) {
             JButton b = filterBtns[i];
             String c = cats[i];
-            b.setFocusPainted(false);
-            b.setBackground(Color.WHITE);
-            b.setForeground(COLOR_TEXT);
+            styleButton(b, COLOR_CARD, COLOR_TEXT);
             b.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0,0,0,20)),
-                new EmptyBorder(5, 15, 5, 15)
+                    BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
+                    new EmptyBorder(5, 15, 5, 15)
             ));
             b.addActionListener(e -> setActiveFilter(c, b));
             filterBar.add(b);
@@ -603,9 +647,12 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         
         txtTimKiemSanPham = new JTextField(15);
         txtTimKiemSanPham.setPreferredSize(new Dimension(200, 30));
+        styleInput(txtTimKiemSanPham);
         JPanel searchWrap = new JPanel(new BorderLayout(5, 0));
         searchWrap.setOpaque(false);
-        searchWrap.add(new JLabel("Tìm kiếm:"), BorderLayout.WEST);
+        JLabel lblSearch = new JLabel("Tìm kiếm:");
+        lblSearch.setForeground(COLOR_TEXT);
+        searchWrap.add(lblSearch, BorderLayout.WEST);
         searchWrap.add(txtTimKiemSanPham, BorderLayout.CENTER);
         filterBar.add(Box.createHorizontalStrut(20));
         filterBar.add(searchWrap);
@@ -615,7 +662,11 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         
         setActiveFilter("ALL", btnLocTatCa);
 
-        JScrollPane scrollPane = new JScrollPane(tileSanPham);
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(tileSanPham, BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(wrapper);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
@@ -633,7 +684,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         JPanel cart = new JPanel(new BorderLayout());
         cart.setBackground(COLOR_CARD);
         cart.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(0,0,0,20)),
+            BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
             new EmptyBorder(20, 20, 20, 20)
         ));
 
@@ -644,6 +695,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         gbc.fill = GridBagConstraints.HORIZONTAL; gbc.insets = new Insets(4, 4, 4, 4);
 
         txtSoDienThoai = new JTextField(10);
+        styleInput(txtSoDienThoai);
         btnTimKhach = new JButton("Kiểm tra");
         styleButton(btnTimKhach, COLOR_PRIMARY, Color.WHITE);
 
@@ -654,10 +706,13 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
         lblTenKhachHang = new JLabel("Khách vãng lai");
         lblTenKhachHang.setForeground(COLOR_PRIMARY);
-        lblTenKhachHang.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 13));
+        lblTenKhachHang.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 13));
 
         cbHinhThucNhan = new JComboBox<>(new String[]{"Trực tiếp", "Đặt hàng"});
-        txtDiaChiGiao = new JTextField(); txtDiaChiGiao.setEnabled(false);
+        txtDiaChiGiao = new JTextField();
+        styleInput(txtDiaChiGiao);
+        txtDiaChiGiao.setEnabled(false);
+        txtDiaChiGiao.setBackground(COLOR_DISABLED);
         lblErrDiaChiGiao = new JLabel(); lblErrDiaChiGiao.setForeground(ERROR);
 
         dpNgayNhanBanh = new SwingDatePicker();
@@ -677,30 +732,41 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         addGridRow(formPanel, gbc, 2, "Nhận bánh:", cbHinhThucNhan);
         addGridRow(formPanel, gbc, 3, "Địa chỉ:", txtDiaChiGiao);
         gbc.gridy = 4; gbc.gridx = 1; formPanel.add(lblErrDiaChiGiao, gbc);
-        addGridRow(formPanel, gbc, 5, "Giờ ngày nhận:", timePanel);
-        gbc.gridy = 6; gbc.gridx = 1; formPanel.add(lblErrNgayNhanBanh, gbc);
+        // Moved Giờ ngày nhận to bottom
 
         // 2. Table Giỏ Hàng
         String[] columns = {"Sản phẩm", "SL", "Đơn giá", "Tổng"};
         cartTableModel = new DefaultTableModel(columns, 0) { @Override public boolean isCellEditable(int row, int column) { return false; } };
         tblGioHang = new JTable(cartTableModel); 
-        tblGioHang.setRowHeight(30);
-        tblGioHang.setFont(new Font("Arial", Font.PLAIN, 12));
+        styleTable(tblGioHang, 30);
         JScrollPane scrollTable = new JScrollPane(tblGioHang);
         scrollTable.setPreferredSize(new Dimension(0, 150));
-        scrollTable.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,20)));
+        scrollTable.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT));
 
         JPanel tableControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         tableControls.setOpaque(false);
-        JButton btnGiam = new JButton("SL (-)"); styleButton(btnGiam, Color.LIGHT_GRAY, COLOR_TEXT);
-        JButton btnTang = new JButton("SL (+)"); styleButton(btnTang, Color.LIGHT_GRAY, COLOR_TEXT);
+        JButton btnNhapSL = new JButton("Nhập SL"); styleButton(btnNhapSL, COLOR_PRIMARY, Color.WHITE);
+        JButton btnGiam = new JButton("SL (-)"); styleButton(btnGiam, COLOR_PRIMARY, Color.WHITE);
+        JButton btnTang = new JButton("SL (+)"); styleButton(btnTang, COLOR_PRIMARY, Color.WHITE);
         JButton btnXoa = new JButton("Xóa"); styleButton(btnXoa, ERROR, Color.WHITE);
 
+        btnNhapSL.addActionListener(e -> {
+            int row = tblGioHang.getSelectedRow();
+            if (row < 0) { hienThiLoi("Vui lòng chọn 1 sản phẩm"); return; }
+            String input = JOptionPane.showInputDialog(this, "Nhập số lượng:", "Cập nhật SL", JOptionPane.QUESTION_MESSAGE);
+            if (input != null && !input.trim().isEmpty()) {
+                try {
+                    int newQty = Integer.parseInt(input.trim());
+                    if (newQty > 0) presenter.thayDoiSoLuongMon(row, newQty - localGioHangHienTai.get(row).getSoLuong());
+                    else presenter.thayDoiSoLuongMon(row, 0);
+                } catch (Exception ex) { hienThiLoi("Số lượng không hợp lệ!"); }
+            }
+        });
         btnGiam.addActionListener(e -> { if(presenter != null) presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), -1); });
         btnTang.addActionListener(e -> { if(presenter != null) presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), 1); });
         btnXoa.addActionListener(e -> { if(presenter != null) presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), 0); });
 
-        tableControls.add(btnGiam); tableControls.add(btnTang); tableControls.add(btnXoa);
+        tableControls.add(btnNhapSL); tableControls.add(btnGiam); tableControls.add(btnTang); tableControls.add(btnXoa);
 
         JPanel tableWrap = new JPanel(new BorderLayout());
         tableWrap.setOpaque(false);
@@ -711,18 +777,22 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         JPanel bottomPanel = new JPanel(new GridBagLayout());
         bottomPanel.setOpaque(false);
         GridBagConstraints gbcPay = new GridBagConstraints();
-        gbcPay.fill = GridBagConstraints.HORIZONTAL; gbcPay.insets = new Insets(4, 5, 4, 5);
+        gbcPay.fill = GridBagConstraints.HORIZONTAL; gbcPay.insets = new Insets(8, 8, 8, 8);
 
-        lblTongTienHang = new JLabel("0 đ");
-        lblTienGiamGia = new JLabel("0 đ"); lblTienGiamGia.setForeground(SUCCESS);
-        lblTongThanhToan = new JLabel("0 đ"); lblTongThanhToan.setFont(new Font("Arial", Font.BOLD, 18)); lblTongThanhToan.setForeground(COLOR_PRIMARY);
-        lblMinDeposit = new JLabel("0 đ");
-        lblConLai = new JLabel("0 đ"); lblConLai.setForeground(COLOR_PRIMARY);
-        lblTienThua = new JLabel("0 đ");
+        Font boldFont = new Font("Arial", Font.BOLD, 12);
+        lblTongTienHang = new JLabel("0 đ"); lblTongTienHang.setFont(boldFont);
+        lblTienGiamGia = new JLabel("0 đ"); lblTienGiamGia.setForeground(SUCCESS); lblTienGiamGia.setFont(boldFont);
+        lblTongThanhToan = new JLabel("0 đ"); lblTongThanhToan.setFont(new Font("Arial", Font.BOLD, 18)); lblTongThanhToan.setForeground(ERROR);
+        lblMinDeposit = new JLabel("0 đ"); lblMinDeposit.setFont(boldFont);
+        lblConLai = new JLabel("0 đ"); lblConLai.setForeground(COLOR_PRIMARY); lblConLai.setFont(boldFont);
+        lblTienThua = new JLabel("0 đ"); lblTienThua.setFont(boldFont);
 
         txtTienCoc = new JTextField("0"); txtTienKhachDua = new JTextField("0");
+        styleInput(txtTienCoc); txtTienCoc.setFont(boldFont);
+        styleInput(txtTienKhachDua); txtTienKhachDua.setFont(boldFont);
         chkXacNhanThuTien = new JCheckBox("Đã thu đủ tiền");
-        chkXacNhanThuTien.setOpaque(false); chkXacNhanThuTien.setFont(new Font("Arial", Font.BOLD, 12));
+        chkXacNhanThuTien.setOpaque(false);
+        chkXacNhanThuTien.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         int row = 0;
         addPaymentRow(bottomPanel, gbcPay, row++, "Tiền hàng:", lblTongTienHang, "Giảm giá:", lblTienGiamGia);
@@ -732,23 +802,44 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         gbcPay.gridy = row++; gbcPay.gridx = 0; gbcPay.gridwidth = 4; bottomPanel.add(chkXacNhanThuTien, gbcPay);
 
         btnTaoDonHang = new JButton("ĐẶT BÁNH");
-        btnTaoDonHang.setBackground(COLOR_ACCENT); btnTaoDonHang.setForeground(COLOR_PRIMARY); btnTaoDonHang.setFont(new Font("Arial", Font.BOLD, 14));
-        btnTaoDonHang.setPreferredSize(new Dimension(0, 45));
+        styleButton(btnTaoDonHang, COLOR_SURFACE, COLOR_PRIMARY);
+        btnTaoDonHang.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARY, 2));
+        btnTaoDonHang.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnTaoDonHang.setPreferredSize(new Dimension(0, 40));
         
         btnThanhToan = new JButton("THANH TOÁN");
-        btnThanhToan.setBackground(COLOR_PRIMARY); btnThanhToan.setForeground(Color.BLACK); btnThanhToan.setFont(new Font("Arial", Font.BOLD, 14));
-        btnThanhToan.setPreferredSize(new Dimension(0, 45));
+        styleButton(btnThanhToan, COLOR_ACCENT, Color.WHITE);
+        btnThanhToan.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btnThanhToan.setPreferredSize(new Dimension(0, 55));
 
-        JPanel actionPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        JPanel actionPanel = new JPanel(new BorderLayout(0, 8));
         actionPanel.setOpaque(false);
-        actionPanel.add(btnTaoDonHang); actionPanel.add(btnThanhToan);
+        actionPanel.add(btnTaoDonHang, BorderLayout.NORTH); 
+        actionPanel.add(btnThanhToan, BorderLayout.CENTER);
         
-        lblThongBaoTab1 = new JLabel("", SwingConstants.CENTER); lblThongBaoTab1.setFont(new Font("Arial", Font.ITALIC, 12));
+        lblThongBaoTab1 = new JLabel("", SwingConstants.CENTER);
+        lblThongBaoTab1.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        lblThongBaoTab1.setForeground(COLOR_SUB_TEXT);
 
         JPanel paymentWrap = new JPanel(new BorderLayout(0, 10));
         paymentWrap.setOpaque(false);
         paymentWrap.add(new JSeparator(), BorderLayout.NORTH);
-        paymentWrap.add(bottomPanel, BorderLayout.CENTER);
+        
+        JPanel timeWrap = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        timeWrap.setOpaque(false);
+        JLabel lblTime = new JLabel("Ngày/Giờ nhận:");
+        lblTime.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblTime.setForeground(COLOR_TEXT);
+        timeWrap.add(lblTime);
+        timeWrap.add(timePanel);
+        timeWrap.add(lblErrNgayNhanBanh);
+        
+        JPanel pnlCenter = new JPanel(new BorderLayout(0, 5));
+        pnlCenter.setOpaque(false);
+        pnlCenter.add(timeWrap, BorderLayout.NORTH);
+        pnlCenter.add(bottomPanel, BorderLayout.CENTER);
+        
+        paymentWrap.add(pnlCenter, BorderLayout.CENTER);
         
         JPanel actWrap = new JPanel(new BorderLayout());
         actWrap.setOpaque(false);
@@ -770,11 +861,11 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         filterPanel.setOpaque(false);
         filterPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(0, 0, 0, 20)),
+                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
                 "Tìm kiếm đơn theo ngày/giờ nhận",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 14),
+                new Font("Segoe UI", Font.BOLD, 14),
                 COLOR_PRIMARY
         ));
         dpNgayTheoDoi = new SwingDatePicker();
@@ -800,23 +891,23 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             }
         };
         tblDonTheoDoi = new JTable(theoDoiTableModel);
-        tblDonTheoDoi.setRowHeight(28);
+        styleTable(tblDonTheoDoi, 28);
         JScrollPane scrollDon = new JScrollPane(tblDonTheoDoi);
         scrollDon.setPreferredSize(new Dimension(0, 250));
         scrollDon.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(0, 0, 0, 20)),
+                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
                 "Danh sách đơn chưa hoàn thành",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 14),
+                new Font("Segoe UI", Font.BOLD, 14),
                 COLOR_PRIMARY
         ));
 
         JPanel content = new JPanel(new GridBagLayout());
         content.setBackground(COLOR_CARD);
         content.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0, 0, 0, 20)),
-                BorderFactory.createTitledBorder(null, "Cập nhật trạng thái đơn", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16), COLOR_PRIMARY)
+                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
+                BorderFactory.createTitledBorder(null, "Cập nhật trạng thái đơn", TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 16), COLOR_PRIMARY)
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -825,6 +916,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         gbc.anchor = GridBagConstraints.WEST;
 
         txtMaDonTraCuu = new JTextField(15);
+        styleInput(txtMaDonTraCuu);
         btnTraCuu = new JButton("Tra cứu");
         styleButton(btnTraCuu, COLOR_PRIMARY, Color.WHITE);
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -836,13 +928,13 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         lblErrTraCuu.setForeground(ERROR);
         txtKhachHangReadonly = new JTextField(20);
         txtKhachHangReadonly.setEditable(false);
-        txtKhachHangReadonly.setBackground(COLOR_SURFACE);
+        styleReadonlyField(txtKhachHangReadonly);
         txtTrangThaiHienTaiReadonly = new JTextField(20);
         txtTrangThaiHienTaiReadonly.setEditable(false);
-        txtTrangThaiHienTaiReadonly.setBackground(COLOR_SURFACE);
+        styleReadonlyField(txtTrangThaiHienTaiReadonly);
         txtTongTienReadonly = new JTextField(20);
         txtTongTienReadonly.setEditable(false);
-        txtTongTienReadonly.setBackground(COLOR_SURFACE);
+        styleReadonlyField(txtTongTienReadonly);
 
         cbTrangThaiMoi = new JComboBox<>();
         btnLuuCapNhat = new JButton("Lưu cập nhật ✓");
@@ -888,21 +980,66 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     private void styleButton(AbstractButton btn, Color bg, Color fg) {
-        btn.setBackground(bg); btn.setForeground(fg); btn.setFocusPainted(false); btn.setOpaque(true); btn.setBorderPainted(false); btn.setFont(new Font("Arial", Font.BOLD, 12)); btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setOpaque(true);
+        btn.setBorder(BorderFactory.createEmptyBorder(7, 14, 7, 14));
+        btn.setBorderPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleInput(JTextField txt) {
+        txt.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        txt.setForeground(COLOR_TEXT);
+        txt.setBackground(COLOR_CARD);
+        txt.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
+                new EmptyBorder(5, 8, 5, 8)
+        ));
+    }
+
+    private void styleReadonlyField(JTextField txt) {
+        styleInput(txt);
+        txt.setForeground(COLOR_SUB_TEXT);
+        txt.setBackground(COLOR_DISABLED);
+        txt.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
+                new EmptyBorder(5, 8, 5, 8)
+        ));
+    }
+
+    private void styleTable(JTable table, int rowHeight) {
+        table.setRowHeight(rowHeight);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        table.setForeground(COLOR_TEXT);
+        table.setSelectionBackground(COLOR_PRIMARY_LIGHT);
+        table.setSelectionForeground(COLOR_TEXT);
+        table.setGridColor(COLOR_PRIMARY_LIGHT);
+        table.setShowHorizontalLines(true);
+        table.setShowVerticalLines(false);
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(COLOR_SURFACE);
+        header.setForeground(COLOR_HEADING);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        header.setReorderingAllowed(false);
     }
 
     private void addGridRow(JPanel panel, GridBagConstraints gbc, int row, String labelText, Component comp) {
         gbc.gridy = row; gbc.gridx = 0; gbc.weightx = 0;
-        JLabel lbl = new JLabel(labelText); lbl.setForeground(COLOR_TEXT); lbl.setFont(new Font("Arial", Font.BOLD, 12));
+        JLabel lbl = new JLabel(labelText);
+        lbl.setForeground(COLOR_TEXT);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
         panel.add(lbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1; panel.add(comp, gbc);
     }
 
     private void addPaymentRow(JPanel pnl, GridBagConstraints gbc, int row, String lbl1, Component comp1, String lbl2, Component comp2) {
         gbc.gridy = row;
-        gbc.gridx = 0; gbc.weightx = 0; pnl.add(new JLabel("<html><span style='font-size:10px'>" + lbl1 + "</span></html>"), gbc);
+        gbc.gridx = 0; gbc.weightx = 0; pnl.add(new JLabel("<html><span style='font-size:11px; font-weight:bold'>" + lbl1 + "</span></html>"), gbc);
         gbc.gridx = 1; gbc.weightx = 0.5; pnl.add(comp1, gbc);
-        gbc.gridx = 2; gbc.weightx = 0; pnl.add(new JLabel("<html><span style='font-size:10px'>" + lbl2 + "</span></html>"), gbc);
+        gbc.gridx = 2; gbc.weightx = 0; pnl.add(new JLabel("<html><span style='font-size:11px; font-weight:bold'>" + lbl2 + "</span></html>"), gbc);
         gbc.gridx = 3; gbc.weightx = 0.5; pnl.add(comp2, gbc);
     }
 
@@ -913,7 +1050,14 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         cbGioNhanBanh.setSelectedItem(gioMacDinh);
     }
 
-    private double parseDoubleSafe(String raw) { try { return Double.parseDouble(raw.trim()); } catch (Exception e) { return 0; } }
+    private double parseDoubleSafe(String raw) {
+        try {
+            if (raw == null) return 0;
+            return Double.parseDouble(raw.trim().replace(" đ", "").replaceAll("[,\\.\\s]", ""));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
     private String formatTien(double val) { return String.format(Locale.US, "%,.0f đ", val); }
 
     // =========================================================
@@ -931,13 +1075,18 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
             txtDate = new JTextField(10);
             txtDate.setEditable(false);
-            txtDate.setBackground(Color.WHITE);
-            txtDate.setFont(new Font("Arial", Font.PLAIN, 13));
+            txtDate.setBackground(COLOR_CARD);
+            txtDate.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            txtDate.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
+                    new EmptyBorder(4, 8, 4, 8)
+            ));
             txtDate.setText(selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
             btnPick = new JButton("📅");
             btnPick.setFocusPainted(false);
-            btnPick.setBackground(Color.LIGHT_GRAY);
+            btnPick.setBackground(COLOR_PRIMARY_LIGHT);
+            btnPick.setForeground(COLOR_PRIMARY_DARK);
             btnPick.addActionListener(e -> showPopup());
 
             add(txtDate, BorderLayout.CENTER);
@@ -975,7 +1124,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             JButton btnPrev = new JButton("<"); btnPrev.setBackground(Color.WHITE); btnPrev.setFocusPainted(false);
             JButton btnNext = new JButton(">"); btnNext.setBackground(Color.WHITE); btnNext.setFocusPainted(false);
             lblMonthYear = new JLabel("", SwingConstants.CENTER);
-            lblMonthYear.setFont(new Font("Arial", Font.BOLD, 12));
+            lblMonthYear.setFont(new Font("Segoe UI", Font.BOLD, 12));
             lblMonthYear.setForeground(COLOR_PRIMARY);
 
             btnPrev.addActionListener(e -> { currentMonth = currentMonth.minusMonths(1); updateCalendar(); });
@@ -1002,7 +1151,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             String[] days = {"T2", "T3", "T4", "T5", "T6", "T7", "CN"};
             for (String d : days) {
                 JLabel lbl = new JLabel(d, SwingConstants.CENTER);
-                lbl.setFont(new Font("Arial", Font.BOLD, 10));
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
                 lbl.setForeground(COLOR_TEXT);
                 pnlDays.add(lbl);
             }

@@ -2,6 +2,7 @@ package com.bakery.presenters;
 
 import com.bakery.model.dto.CTDonHangDTO;
 import com.bakery.model.dto.DonDatHangDTO;
+import com.bakery.model.dto.HoaDonDTO;
 import com.bakery.model.dto.KhachHangDTO;
 import com.bakery.model.dto.SanPhamDTO;
 import com.bakery.model.dto.TrangThaiDonDTO;
@@ -12,6 +13,7 @@ import com.bakery.views.interfaces.IOrderView;
 
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,9 @@ public class OrderPresenter {
     private final List<CTDonHangDTO> gioHangDaThanhToan = new ArrayList<>();
     private double tongTienDaThanhToan = 0.0;
     private double phanTramGiamGiaDaThanhToan = 0.0;
+    private Integer maDonDaThanhToan = null;
+    private Integer maHoaDonDaThanhToan = null;
+    private LocalDateTime ngayLapHoaDonDaThanhToan = null;
 
     public OrderPresenter(IOrderView view, OrderService orderService) {
         this.view = view;
@@ -138,26 +143,31 @@ public class OrderPresenter {
         double tienCocNhapVao = view.getTienCoc();
         double soTienGhiNhan = (tienCocNhapVao > 0) ? tienCocNhapVao : Math.min(tongTienPhaiTra, tienKhachDua);
 
+        if (soTienGhiNhan > tongTienPhaiTra) {
+            view.hienThiLoi("Tien coc khong duoc vuot qua tong tien don");
+            return;
+        }
         if (soTienGhiNhan < (tongTienPhaiTra * 0.5)) {
-            view.hienThiLoi("Cọc chưa đủ 50%");
+            view.hienThiLoi("Coc chua du 50%");
             return;
         }
         if (tienKhachDua > 0 && tienKhachDua < soTienGhiNhan) {
-            view.hienThiLoi("Đưa không đủ tiền cọc");
+            view.hienThiLoi("Dua khong du tien coc");
             return;
         }
 
         Integer hinhThucNhan = view.getHinhThucNhan();
         if (hinhThucNhan == 2 && view.getDiaChiGiao().isEmpty()) {
-            view.hienThiLoi("Bắt buộc nhập địa chỉ");
+            view.hienThiLoi("Bat buoc nhap dia chi");
             return;
         }
 
         try {
             YeuCauTaoDonHangDTO request = taoYeuCauDonHangDTO(hinhThucNhan, soTienGhiNhan);
             int maDonMoi = orderService.submitNewOrder(request);
-            view.hienThiThanhCong("Tạo đơn mới thành công mã đơn: " + maDonMoi);
-            view.inPhieuHoaDon("PHIẾU HẸN LẤY BÁNH", maDonMoi, tongTienPhaiTra, soTienGhiNhan, gioHangItems, tatCaSanPham, phanTramGiamGia);
+            view.hienThiThanhCong("Tao don moi thanh cong ma don: " + maDonMoi);
+            view.inPhieuHoaDon("PHIEU HEN LAY BANH", maDonMoi, null, null,
+                    tongTienPhaiTra, soTienGhiNhan, gioHangItems, tatCaSanPham, phanTramGiamGia);
             lamMoiTrangThai();
             timKiemDonTheoDoi(LocalDate.now(), null);
         } catch (Exception e) {
@@ -172,6 +182,10 @@ public class OrderPresenter {
     }
 
     public boolean xuLyLuuDonHangVaoDB() {
+        if (!kiemTraNgayNhanHopLeChoThanhToan()) {
+            return false;
+        }
+
         double tongTienPhaiTra = view.getTongThanhToanHienTai();
         double tienKhachDua = view.getTienKhachDua();
 
@@ -182,8 +196,8 @@ public class OrderPresenter {
 
         try {
             YeuCauTaoDonHangDTO request = taoYeuCauDonHangDTO(1, tongTienPhaiTra);
-            orderService.thanhToanTrucTiep(request, tienKhachDua);
-            luuThongTinDonHangDaThanhToan(tongTienPhaiTra);
+            HoaDonDTO hoaDonDaTao = orderService.thanhToanTrucTiep(request, tienKhachDua);
+            luuThongTinDonHangDaThanhToan(tongTienPhaiTra, hoaDonDaTao);
             return true;
         } catch (Exception e) {
             view.hienThiLoi(e.getMessage());
@@ -196,7 +210,8 @@ public class OrderPresenter {
             return;
         }
         view.hienThiThanhCong("Thanh toan hoan tat!");
-        view.inPhieuHoaDon("HOA DON BAN LE", -1, tongTienDaThanhToan, tongTienDaThanhToan, gioHangDaThanhToan, tatCaSanPham, phanTramGiamGiaDaThanhToan);
+        view.inPhieuHoaDon("HOA DON BAN LE", maDonDaThanhToan, maHoaDonDaThanhToan, ngayLapHoaDonDaThanhToan,
+                tongTienDaThanhToan, tongTienDaThanhToan, gioHangDaThanhToan, tatCaSanPham, phanTramGiamGiaDaThanhToan);
         lamMoiTrangThai();
         xoaThongTinDonHangDaThanhToan();
     }
@@ -272,7 +287,7 @@ public class OrderPresenter {
         capNhatGioHangVaTien();
     }
 
-    private void luuThongTinDonHangDaThanhToan(double tongTienPhaiTra) {
+    private void luuThongTinDonHangDaThanhToan(double tongTienPhaiTra, HoaDonDTO hoaDonDaTao) {
         gioHangDaThanhToan.clear();
         for (CTDonHangDTO item : gioHangItems) {
             CTDonHangDTO clone = new CTDonHangDTO();
@@ -283,12 +298,31 @@ public class OrderPresenter {
         }
         tongTienDaThanhToan = tongTienPhaiTra;
         phanTramGiamGiaDaThanhToan = phanTramGiamGia;
+        maDonDaThanhToan = hoaDonDaTao.getMaDon();
+        maHoaDonDaThanhToan = hoaDonDaTao.getMaHD();
+        ngayLapHoaDonDaThanhToan = hoaDonDaTao.getNgayXuatHd();
     }
 
     private void xoaThongTinDonHangDaThanhToan() {
         gioHangDaThanhToan.clear();
         tongTienDaThanhToan = 0.0;
         phanTramGiamGiaDaThanhToan = 0.0;
+        maDonDaThanhToan = null;
+        maHoaDonDaThanhToan = null;
+        ngayLapHoaDonDaThanhToan = null;
+    }
+
+    public boolean kiemTraNgayNhanHopLeChoThanhToan() {
+        LocalDateTime ngayGioNhanBanh = view.getNgayGioNhanBanh();
+        if (ngayGioNhanBanh == null) {
+            view.hienThiLoi("Ngay gio nhan banh bat buoc nhap.");
+            return false;
+        }
+        if (ngayGioNhanBanh.isBefore(LocalDateTime.now())) {
+            view.hienThiLoi("Ngay gio nhan banh khong duoc nam trong qua khu.");
+            return false;
+        }
+        return true;
     }
 
     private String chuanHoaChuoi(String raw) {
@@ -297,7 +331,7 @@ public class OrderPresenter {
         }
         return Normalizer.normalize(raw, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
-                .replace("đ", "d").replace("Đ", "D")
+                .replace("Ä‘", "d").replace("Ä", "D")
                 .toUpperCase(Locale.ROOT)
                 .replace(' ', '_');
     }

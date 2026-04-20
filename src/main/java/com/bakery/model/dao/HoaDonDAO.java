@@ -79,6 +79,41 @@ public class HoaDonDAO {
         return -1;
     }
 
+    public HoaDonDTO layHoaDonTheoMa(int maHD) {
+        String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD " +
+                "FROM HOADON WHERE MAHD = ?";
+
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maHD);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    HoaDonDTO hd = new HoaDonDTO();
+                    hd.setMaHD(rs.getInt("MAHD"));
+
+                    int maDon = rs.getInt("MADON");
+                    if (!rs.wasNull()) {
+                        hd.setMaDon(maDon);
+                    }
+
+                    hd.setMaCa(rs.getInt("MACA"));
+                    if (rs.getTimestamp("NGAYXUATHD") != null) {
+                        hd.setNgayXuatHd(rs.getTimestamp("NGAYXUATHD").toLocalDateTime());
+                    }
+                    hd.setThueVAT(rs.getDouble("THUEVAT"));
+                    hd.setTongTienThanhToan(rs.getDouble("TONGTIENTHANHTOAN"));
+                    hd.setMaPTTT(rs.getInt("MAPTTT"));
+                    hd.setLoaiHD(rs.getString("LOAIHD"));
+                    return hd;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Loi DAO - layHoaDonTheoMa: " + e.getMessage());
+        }
+        return null;
+    }
+
     public boolean capNhatHoaDon(HoaDonDTO hd) {
         String sql = "UPDATE HOADON SET MADON = ?, MACA = ?, THUEVAT = ?, TONGTIENTHANHTOAN = ?, MAPTTT = ?, LOAIHD = ? WHERE MAHD = ?";
 

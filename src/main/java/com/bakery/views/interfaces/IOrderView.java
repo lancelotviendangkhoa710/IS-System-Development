@@ -51,7 +51,8 @@ public interface IOrderView {
 
     void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi);
 
-    void inPhieuHoaDon(String tieuDe, int maDon, double tongTien, double daThu, List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam);
+    void inPhieuHoaDon(String tieuDe, Integer maDon, Integer maHoaDon, LocalDateTime ngayLapHoaDon,
+                       double tongTien, double daThu, List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam);
 
     void showOrderDetails(DonDatHangDTO order);
 
