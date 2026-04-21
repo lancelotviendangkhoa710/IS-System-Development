@@ -20,37 +20,90 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-public class UITBakeryReceipt extends JFrame {
+public class Receipt extends JFrame {
 
     private static final Color COLOR_PRIMARY = new Color(165, 54, 13);
     private static final Color COLOR_TEXT_VARIANT = new Color(88, 66, 59);
     private static final Color COLOR_BORDER = new Color(224, 192, 182, 80);
 
-    public UITBakeryReceipt(String tieuDe, String maDonStr, String khachHang,
-                            List<CTDonHangDTO> cart, List<SanPhamDTO> data,
-                            String tienGiamGia, String tongTien, String daThu,
-                            String tienKhachDua, String tienThua) {
-        setTitle("Hoa don - UIT Bakery");
+    public Receipt(String tieuDe, String maDonStr, String maHoaDonStr, String ngayLapHoaDon, String khachHang,
+            List<CTDonHangDTO> cart, List<SanPhamDTO> data,
+            String tienGiamGia, String tongTien, String daThu,
+            String tienKhachDua, String tienThua) {
+        setTitle("Hóa đơn - H3k Bakery");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         getContentPane().setBackground(new Color(240, 237, 234));
 
-        setLayout(new java.awt.GridBagLayout());
-        add(taoPanelHoaDon(
-                tieuDe, maDonStr, khachHang, cart, data,
-                tienGiamGia, tongTien, daThu, tienKhachDua, tienThua, null
-        ));
+        setLayout(new BorderLayout());
+        JPanel panelHoaDon = taoPanelHoaDon(
+                tieuDe, maDonStr, maHoaDonStr, ngayLapHoaDon, khachHang, cart, data,
+                tienGiamGia, tongTien, daThu, tienKhachDua, tienThua, null);
+        add(panelHoaDon, BorderLayout.CENTER);
+
+        JButton btnSavePdf = new JButton("Lưu PDF");
+        btnSavePdf.addActionListener(e -> saveToPdf(panelHoaDon, maDonStr));
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(btnSavePdf);
+        add(bottomPanel, BorderLayout.SOUTH);
+
         pack();
         setLocationRelativeTo(null);
     }
 
-    public static JPanel taoPanelHoaDon(String tieuDe, String maDonStr, String khachHang,
-                                        List<CTDonHangDTO> cart, List<SanPhamDTO> data,
-                                        String tienGiamGia, String tongTien, String daThu,
-                                        String tienKhachDua, String tienThua,
-                                        ImageIcon qrIcon) {
+    private void saveToPdf(JPanel panelToPrint, String orderId) {
+        try {
+            File dir = new File("src/main/resources/hoadon");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            BufferedImage image = new BufferedImage(panelToPrint.getWidth(), panelToPrint.getHeight(),
+                    BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2 = image.createGraphics();
+            panelToPrint.paint(g2);
+            g2.dispose();
+
+            PDDocument document = new PDDocument();
+            PDPage page = new PDPage(new PDRectangle(panelToPrint.getWidth(), panelToPrint.getHeight()));
+            document.addPage(page);
+
+            PDImageXObject pdImage = LosslessFactory.createFromImage(document, image);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            contentStream.drawImage(pdImage, 0, 0);
+            contentStream.close();
+
+            String filename = "HoaDon_" + orderId.replace("#", "") + "_" + System.currentTimeMillis() + ".pdf";
+            File file = new File(dir, filename);
+            document.save(file);
+            document.close();
+
+            JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn tại:\n" + file.getAbsolutePath());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu PDF: " + ex.getMessage(), "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static JPanel taoPanelHoaDon(String tieuDe, String maDonStr, String maHoaDonStr, String ngayLapHoaDon,
+            String khachHang,
+            List<CTDonHangDTO> cart, List<SanPhamDTO> data,
+            String tienGiamGia, String tongTien, String daThu,
+            String tienKhachDua, String tienThua,
+            ImageIcon qrIcon) {
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -68,7 +121,7 @@ public class UITBakeryReceipt extends JFrame {
         mainPanel.setOpaque(false);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel lblBrand = new JLabel("UIT Bakery", SwingConstants.CENTER);
+        JLabel lblBrand = new JLabel("H3k Bakery", SwingConstants.CENTER);
         lblBrand.setFont(new Font("Inter", Font.BOLD, 24));
         lblBrand.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -78,10 +131,12 @@ public class UITBakeryReceipt extends JFrame {
         lblTitle.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, COLOR_BORDER));
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel metaPanel = new JPanel(new GridLayout(1, 2));
+        JPanel metaPanel = new JPanel(new GridLayout(2, 2, 8, 6));
         metaPanel.setOpaque(false);
-        metaPanel.add(createMetaItem("MA DON HANG", maDonStr, false));
-        metaPanel.add(createMetaItem("KHACH HANG", khachHang, true));
+        metaPanel.add(createMetaItem("Mã đơn hàng", maDonStr, false));
+        metaPanel.add(createMetaItem("Mã hóa đơn", maHoaDonStr, true));
+        metaPanel.add(createMetaItem("Ngày lập hóa đơn", ngayLapHoaDon, false));
+        metaPanel.add(createMetaItem("Khách hàng", khachHang, true));
 
         JPanel itemsContainer = new JPanel();
         itemsContainer.setLayout(new BoxLayout(itemsContainer, BoxLayout.Y_AXIS));
@@ -100,7 +155,8 @@ public class UITBakeryReceipt extends JFrame {
             itemPanel.setOpaque(false);
             itemPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
 
-            JLabel itemName = new JLabel("<html><b>" + tenSp + "</b> <font color='gray'>x" + item.getSoLuong() + "</font></html>");
+            JLabel itemName = new JLabel(
+                    "<html><b>" + tenSp + "</b> <font color='gray'>x" + item.getSoLuong() + "</font></html>");
             JLabel itemPrice = new JLabel(df.format(item.getDonGia() * item.getSoLuong()).replace(",", "."));
             itemPrice.setFont(new Font("Inter", Font.BOLD, 13));
 
@@ -114,18 +170,19 @@ public class UITBakeryReceipt extends JFrame {
         summaryPanel.setBackground(new Color(246, 243, 240));
         summaryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        if (tienGiamGia != null && !tienGiamGia.isEmpty() && !tienGiamGia.equals("0 d") && !tienGiamGia.equals("0.0 d")) {
-            summaryPanel.add(createSummaryRow("GIAM GIA TV", "-" + tienGiamGia, false));
+        if (tienGiamGia != null && !tienGiamGia.isEmpty() && !tienGiamGia.equals("0 d")
+                && !tienGiamGia.equals("0.0 d")) {
+            summaryPanel.add(createSummaryRow("Giảm giá thành viên", "-" + tienGiamGia, false));
             summaryPanel.add(Box.createVerticalStrut(3));
         }
-        summaryPanel.add(createSummaryRow("TONG", tongTien, false));
+        summaryPanel.add(createSummaryRow("Tổng", tongTien, false));
         summaryPanel.add(Box.createVerticalStrut(5));
-        summaryPanel.add(createSummaryRow("DA THU", daThu, true));
+        summaryPanel.add(createSummaryRow("Đã thu", daThu, true));
         summaryPanel.add(Box.createVerticalStrut(5));
-        summaryPanel.add(createSummaryRow("KHACH DUA", tienKhachDua, false));
+        summaryPanel.add(createSummaryRow("Khách đưa", tienKhachDua, false));
         if (tienThua != null && !tienThua.isEmpty()) {
             summaryPanel.add(new JSeparator());
-            summaryPanel.add(createSummaryRow("TIEN THUA", tienThua, false));
+            summaryPanel.add(createSummaryRow("Tiền thừa", tienThua, false));
         }
 
         mainPanel.add(lblBrand);
@@ -152,10 +209,14 @@ public class UITBakeryReceipt extends JFrame {
         }
 
         mainPanel.add(Box.createVerticalStrut(15));
-        JLabel lblFooter = new JLabel("Cam on quy khach!", SwingConstants.CENTER);
-        lblFooter.setAlignmentX(Component.CENTER_ALIGNMENT);
-        lblFooter.setFont(new Font("Inter", Font.ITALIC, 11));
-        mainPanel.add(lblFooter);
+        JLabel lblFooter1 = new JLabel("Cảm ơn quý khách!!", SwingConstants.CENTER);
+        lblFooter1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblFooter1.setFont(new Font("Inter", Font.ITALIC, 11));
+        mainPanel.add(lblFooter1);
+        JLabel lblFooter2 = new JLabel("Chúc quý khách ngon miệng", SwingConstants.CENTER);
+        lblFooter2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblFooter2.setFont(new Font("Inter", Font.ITALIC, 11));
+        mainPanel.add(lblFooter2);
 
         return mainPanel;
     }

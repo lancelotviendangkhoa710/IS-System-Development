@@ -58,7 +58,8 @@ public class OrderService {
         this.kieuTrangTriDAO = new KieuTrangTriDAO();
     }
 
-    public OrderService(DonDatHangDAO donDatHangDAO, HoaDonDAO hoaDonDAO, SanPhamDAO sanPhamDAO, DanhMucSPDAO danhMucSPDAO, KhachHangDAO khachHangDAO) {
+    public OrderService(DonDatHangDAO donDatHangDAO, HoaDonDAO hoaDonDAO, SanPhamDAO sanPhamDAO,
+            DanhMucSPDAO danhMucSPDAO, KhachHangDAO khachHangDAO) {
         this.donDatHangDAO = donDatHangDAO;
         this.hoaDonDAO = hoaDonDAO;
         this.sanPhamDAO = sanPhamDAO;
@@ -137,9 +138,12 @@ public class OrderService {
     }
 
     public void thanhToanDon(int maHD, Integer maKH, double tongTienHoaDon, double soTienKhachDua) throws Exception {
-        if (maHD <= 0) throw new IllegalArgumentException("Ma hoa don sai dinh dang.");
-        if (tongTienHoaDon <= 0) throw new IllegalArgumentException("Tong tien hoa don sai dinh dang.");
-        if (soTienKhachDua < tongTienHoaDon) throw new IllegalArgumentException("So tien khach dua khong du de thanh toan.");
+        if (maHD <= 0)
+            throw new IllegalArgumentException("Ma hoa don sai dinh dang.");
+        if (tongTienHoaDon <= 0)
+            throw new IllegalArgumentException("Tong tien hoa don sai dinh dang.");
+        if (soTienKhachDua < tongTienHoaDon)
+            throw new IllegalArgumentException("So tien khach dua khong du de thanh toan.");
 
         try {
             hoaDonDAO.thanhToanVaThangHang(maHD, maKH, tongTienHoaDon);
@@ -150,11 +154,16 @@ public class OrderService {
 
     public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan,
             String tenTrangThaiHienTai, String tenTrangThaiMoi) throws Exception {
-        if (maDon <= 0) throw new IllegalArgumentException("Ma don sai dinh dang.");
-        if (maTrangThaiMoi <= 0) throw new IllegalArgumentException("Ma trang thai moi sai dinh dang.");
-        if (maNvCapNhat <= 0) throw new IllegalArgumentException("Ma nhan vien cap nhat sai dinh dang.");
-        if (tenTrangThaiHienTai == null || tenTrangThaiHienTai.trim().isEmpty()) throw new IllegalArgumentException("Trang thai hien tai chua duoc nhap.");
-        if (tenTrangThaiMoi == null || tenTrangThaiMoi.trim().isEmpty()) throw new IllegalArgumentException("Trang thai moi chua duoc nhap.");
+        if (maDon <= 0)
+            throw new IllegalArgumentException("Ma don sai dinh dang.");
+        if (maTrangThaiMoi <= 0)
+            throw new IllegalArgumentException("Ma trang thai moi sai dinh dang.");
+        if (maNvCapNhat <= 0)
+            throw new IllegalArgumentException("Ma nhan vien cap nhat sai dinh dang.");
+        if (tenTrangThaiHienTai == null || tenTrangThaiHienTai.trim().isEmpty())
+            throw new IllegalArgumentException("Trang thai hien tai chua duoc nhap.");
+        if (tenTrangThaiMoi == null || tenTrangThaiMoi.trim().isEmpty())
+            throw new IllegalArgumentException("Trang thai moi chua duoc nhap.");
 
         String trangThaiHienTai = chuanHoaTrangThai(tenTrangThaiHienTai);
         String trangThaiMoi = chuanHoaTrangThai(tenTrangThaiMoi);
@@ -194,11 +203,16 @@ public class OrderService {
         }
     }
 
-    public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai) throws Exception {
-        if (maDon <= 0) throw new IllegalArgumentException("Ma don huy sai dinh dang.");
-        if (maNvCapNhat <= 0) throw new IllegalArgumentException("Ma nhan vien cap nhat sai dinh dang.");
-        if (lyDoHuy == null || lyDoHuy.trim().isEmpty()) throw new IllegalArgumentException("Ly do huy don chua duoc nhap.");
-        if (kiemTraTrangThaiCamHuy(tenTrangThaiHienTai)) throw new IllegalStateException("Don hang dang o trang thai khong cho phep huy.");
+    public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai)
+            throws Exception {
+        if (maDon <= 0)
+            throw new IllegalArgumentException("Ma don huy sai dinh dang.");
+        if (maNvCapNhat <= 0)
+            throw new IllegalArgumentException("Ma nhan vien cap nhat sai dinh dang.");
+        if (lyDoHuy == null || lyDoHuy.trim().isEmpty())
+            throw new IllegalArgumentException("Ly do huy don chua duoc nhap.");
+        if (kiemTraTrangThaiCamHuy(tenTrangThaiHienTai))
+            throw new IllegalStateException("Don hang dang o trang thai khong cho phep huy.");
 
         try {
             donDatHangDAO.huyDonVaHoanKho(maDon, lyDoHuy.trim(), maNvCapNhat);
@@ -208,10 +222,12 @@ public class OrderService {
     }
 
     public String theoDoiDonHang(int maDon) throws Exception {
-        if (maDon <= 0) throw new IllegalArgumentException("Ma don theo doi khong hop le.");
+        if (maDon <= 0)
+            throw new IllegalArgumentException("Ma don theo doi khong hop le.");
         try {
             String tenTrangThai = donDatHangDAO.layTenTrangThaiDon(maDon);
-            if (tenTrangThai == null || tenTrangThai.trim().isEmpty()) throw new Exception("Khong tim thay don hang voi ma " + maDon + ".");
+            if (tenTrangThai == null || tenTrangThai.trim().isEmpty())
+                throw new Exception("Khong tim thay don hang voi ma " + maDon + ".");
             return tenTrangThai;
         } catch (SQLException e) {
             throw new Exception("Khong the theo doi don hang: " + e.getMessage(), e);
@@ -219,17 +235,20 @@ public class OrderService {
     }
 
     public DonDatHangDTO layTomTatDonHang(int maDon) throws Exception {
-        if (maDon <= 0) throw new IllegalArgumentException("Ma don theo doi khong hop le.");
+        if (maDon <= 0)
+            throw new IllegalArgumentException("Ma don theo doi khong hop le.");
         try {
             DonDatHangDTO tomTat = donDatHangDAO.layTomTatDonHang(maDon);
-            if (tomTat == null) throw new Exception("Khong tim thay don hang voi ma " + maDon + ".");
+            if (tomTat == null)
+                throw new Exception("Khong tim thay don hang voi ma " + maDon + ".");
             return tomTat;
         } catch (SQLException e) {
             throw new Exception("Khong the lay thong tin don hang: " + e.getMessage(), e);
         }
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) throws Exception {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu,
+            LocalTime gioDen) throws Exception {
         try {
             return donDatHangDAO.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen);
         } catch (SQLException e) {
@@ -251,7 +270,8 @@ public class OrderService {
     }
 
     public KhachHangDTO timKhachHangTheoSoDienThoai(String sdt) {
-        if (sdt == null || sdt.trim().isEmpty()) return null;
+        if (sdt == null || sdt.trim().isEmpty())
+            return null;
         return khachHangDAO.timKhachHangBangSDT(sdt.trim());
     }
 
@@ -259,10 +279,21 @@ public class OrderService {
         return sanPhamDAO.tinhGiaBanhTuyChinh(maSP, maKC, maCot, maNhan, maTrangTri);
     }
 
-    public List<KichCoBanhDTO> layDanhSachKichCo() { return kichCoBanhDAO.layDanhSachPhuPhi(); }
-    public List<CotBanhDTO> layDanhSachCotBanh() { return cotBanhDAO.layDanhSachPhuPhi(); }
-    public List<NhanBanhDTO> layDanhSachNhanBanh() { return nhanBanhDAO.layDanhSachPhuPhi(); }
-    public List<KieuTrangTriDTO> layDanhSachKieuTrangTri() { return kieuTrangTriDAO.layDanhSachPhuPhi(); }
+    public List<KichCoBanhDTO> layDanhSachKichCo() {
+        return kichCoBanhDAO.layDanhSachPhuPhi();
+    }
+
+    public List<CotBanhDTO> layDanhSachCotBanh() {
+        return cotBanhDAO.layDanhSachPhuPhi();
+    }
+
+    public List<NhanBanhDTO> layDanhSachNhanBanh() {
+        return nhanBanhDAO.layDanhSachPhuPhi();
+    }
+
+    public List<KieuTrangTriDTO> layDanhSachKieuTrangTri() {
+        return kieuTrangTriDAO.layDanhSachPhuPhi();
+    }
 
     public List<TrangThaiDonDTO> layDanhSachTrangThaiDon() throws Exception {
         try {
@@ -276,7 +307,8 @@ public class OrderService {
         List<TrangThaiDonDTO> dsTrangThai = layDanhSachTrangThaiDon();
         for (TrangThaiDonDTO trangThai : dsTrangThai) {
             String normalized = chuanHoaTrangThai(trangThai.getTenTrangThai());
-            if ("DA_COC".equals(normalized)) return trangThai.getMaTrangThai();
+            if ("DA_COC".equals(normalized))
+                return trangThai.getMaTrangThai();
         }
         return layMaTrangThaiMoiDat();
     }
@@ -285,7 +317,8 @@ public class OrderService {
         List<TrangThaiDonDTO> dsTrangThai = layDanhSachTrangThaiDon();
         for (TrangThaiDonDTO trangThai : dsTrangThai) {
             String normalized = chuanHoaTrangThai(trangThai.getTenTrangThai());
-            if ("HOAN_THANH".equals(normalized)) return trangThai.getMaTrangThai();
+            if ("HOAN_THANH".equals(normalized))
+                return trangThai.getMaTrangThai();
         }
         throw new Exception("Khong tim thay trang thai HOAN_THANH.");
     }
@@ -294,23 +327,34 @@ public class OrderService {
         List<TrangThaiDonDTO> dsTrangThai = layDanhSachTrangThaiDon();
         for (TrangThaiDonDTO trangThai : dsTrangThai) {
             String normalized = chuanHoaTrangThai(trangThai.getTenTrangThai());
-            if ("MOI_DAT".equals(normalized) || "CHO_XU_LY".equals(normalized)) return trangThai.getMaTrangThai();
+            if ("MOI_DAT".equals(normalized) || "CHO_XU_LY".equals(normalized))
+                return trangThai.getMaTrangThai();
         }
         throw new Exception("Khong tim thay trang thai mac dinh MOI_DAT/CHO_XU_LY.");
     }
 
     private void kiemTraYeuCauDonHang(YeuCauTaoDonHangDTO request) {
-        if (request == null) throw new IllegalArgumentException("Yêu câù tạo đơn hàng bị trống.");
-        if (request.getMaNVLap() <= 0) throw new IllegalArgumentException("Ma nhan vien lap don khong hop le.");
-        if (request.getTienDaCoc() < 0) throw new IllegalArgumentException("Tiền đặt cọc không được âm.");
-        if (request.getHinhThucNhan() == null || (request.getHinhThucNhan() != 1 && request.getHinhThucNhan() != 2)) throw new IllegalArgumentException("Hinh thuc nhan chi duoc la Truc tiep (1) hoac Dat hang (2).");
-        if (request.getHinhThucNhan() == 2 && (request.getDiaChiGiao() == null || request.getDiaChiGiao().trim().isEmpty())) throw new IllegalArgumentException("Don dat hang bat buoc nhap dia chi giao.");
-        if (request.getHinhThucNhan() == 1) request.setDiaChiGiao(null);
-        if (request.getNgayGioNhanBanh() == null) throw new IllegalArgumentException("Ngày giờ nhận bánh bắt buộc nhập.");
-        if (request.getNgayGioNhanBanh().isBefore(LocalDateTime.now())) throw new IllegalArgumentException("Ngày giờ nhận bánh không được nằm trong quá khứ.");
+        if (request == null)
+            throw new IllegalArgumentException("Yêu câù tạo đơn hàng bị trống.");
+        if (request.getMaNVLap() <= 0)
+            throw new IllegalArgumentException("Ma nhan vien lap don khong hop le.");
+        if (request.getTienDaCoc() < 0)
+            throw new IllegalArgumentException("Tiền đặt cọc không được âm.");
+        if (request.getHinhThucNhan() == null || (request.getHinhThucNhan() != 1 && request.getHinhThucNhan() != 2))
+            throw new IllegalArgumentException("Hinh thuc nhan chi duoc la Truc tiep (1) hoac Dat hang (2).");
+        if (request.getHinhThucNhan() == 2
+                && (request.getDiaChiGiao() == null || request.getDiaChiGiao().trim().isEmpty()))
+            throw new IllegalArgumentException("Don dat hang bat buoc nhap dia chi giao.");
+        if (request.getHinhThucNhan() == 1)
+            request.setDiaChiGiao(null);
+        if (request.getNgayGioNhanBanh() == null)
+            throw new IllegalArgumentException("Ngày giờ nhận bánh bắt buộc nhập.");
+        if (request.getNgayGioNhanBanh().isBefore(LocalDateTime.now()))
+            throw new IllegalArgumentException("Ngày giờ nhận bánh không được nằm trong quá khứ.");
 
         List<YeuCauChiTietDonHangDTO> items = request.getItems();
-        if (items == null || items.isEmpty()) throw new IllegalArgumentException("Don hang phai co it nhat 1 san pham.");
+        if (items == null || items.isEmpty())
+            throw new IllegalArgumentException("Don hang phai co it nhat 1 san pham.");
     }
 
     private DonDatHangDTO chuyenSangDonDatHangDTO(YeuCauTaoDonHangDTO request, int maTrangThai) {
@@ -325,13 +369,17 @@ public class OrderService {
         return donDatHang;
     }
 
-    private void chuyenDoiChiTietDonHang(List<YeuCauChiTietDonHangDTO> items, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) {
+    private void chuyenDoiChiTietDonHang(List<YeuCauChiTietDonHangDTO> items, List<CTDonHangDTO> dsCtDonHang,
+            List<CTDonTuyChinhDTO> dsCtTuyChinh) {
         for (YeuCauChiTietDonHangDTO item : items) {
             if (item.isCustom() && item instanceof YeuCauChiTietDonTuyChinhDTO) {
                 YeuCauChiTietDonTuyChinhDTO customItem = (YeuCauChiTietDonTuyChinhDTO) item;
                 CTDonTuyChinhDTO ctTuyChinh = new CTDonTuyChinhDTO();
-                ctTuyChinh.setMaSP(item.getMaSP()); ctTuyChinh.setSoLuong(item.getSoLuong()); ctTuyChinh.setDonGia(item.getDonGia());
-                ctTuyChinh.setLoiChucTrenBanh(customItem.getLoiChucTrenBanh()); ctTuyChinh.setGhiChuThoBanh(customItem.getGhiChuThoBanh());
+                ctTuyChinh.setMaSP(item.getMaSP());
+                ctTuyChinh.setSoLuong(item.getSoLuong());
+                ctTuyChinh.setDonGia(item.getDonGia());
+                ctTuyChinh.setLoiChucTrenBanh(customItem.getLoiChucTrenBanh());
+                ctTuyChinh.setGhiChuThoBanh(customItem.getGhiChuThoBanh());
                 ctTuyChinh.setMaKC(customItem.getMaKC());
                 ctTuyChinh.setMaCot(customItem.getMaCot());
                 ctTuyChinh.setMaNhan(customItem.getMaNhan());
@@ -339,12 +387,17 @@ public class OrderService {
                 dsCtTuyChinh.add(ctTuyChinh);
             } else if (item.isCustom()) {
                 CTDonTuyChinhDTO ctTuyChinh = new CTDonTuyChinhDTO();
-                ctTuyChinh.setMaSP(item.getMaSP()); ctTuyChinh.setSoLuong(item.getSoLuong()); ctTuyChinh.setDonGia(item.getDonGia());
-                ctTuyChinh.setLoiChucTrenBanh(item.getGhiChu()); ctTuyChinh.setGhiChuThoBanh(item.getPhuKien());
+                ctTuyChinh.setMaSP(item.getMaSP());
+                ctTuyChinh.setSoLuong(item.getSoLuong());
+                ctTuyChinh.setDonGia(item.getDonGia());
+                ctTuyChinh.setLoiChucTrenBanh(item.getGhiChu());
+                ctTuyChinh.setGhiChuThoBanh(item.getPhuKien());
                 dsCtTuyChinh.add(ctTuyChinh);
             } else {
                 CTDonHangDTO ctDonHang = new CTDonHangDTO();
-                ctDonHang.setMaSP(item.getMaSP()); ctDonHang.setSoLuong(item.getSoLuong()); ctDonHang.setDonGia(item.getDonGia());
+                ctDonHang.setMaSP(item.getMaSP());
+                ctDonHang.setSoLuong(item.getSoLuong());
+                ctDonHang.setDonGia(item.getDonGia());
                 dsCtDonHang.add(ctDonHang);
             }
         }
@@ -356,13 +409,15 @@ public class OrderService {
     }
 
     private String chuanHoaTrangThai(String rawStatus) {
-        if (rawStatus == null) return "";
+        if (rawStatus == null)
+            return "";
         String normalized = Normalizer.normalize(rawStatus.trim(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .replace("đ", "d").replace("Đ", "D")
                 .replace("Ä‘", "d").replace("Ä", "D")
                 .toUpperCase().replace(' ', '_');
-        if (normalized.contains("KHACH") && normalized.contains("LAY")) return "CHO_KHACH_LAY";
+        if (normalized.contains("KHACH") && normalized.contains("LAY"))
+            return "CHO_KHACH_LAY";
         return normalized;
     }
 }

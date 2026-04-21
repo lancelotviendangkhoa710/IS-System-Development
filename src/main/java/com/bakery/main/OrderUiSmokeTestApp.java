@@ -10,19 +10,8 @@ import javax.swing.*;
 public class OrderUiSmokeTestApp {
     public static void main(String[] args) {
 
-        // Liệt kê các file trong thư mục resources (nếu có thể)
-        try {
-            java.io.File resDir = new java.io.File("src/main/resources");
-            if (resDir.exists() && resDir.isDirectory()) {
-                System.out.println("Files in src/main/resources:");
-                for (String f : resDir.list()) System.out.println("  - " + f);
-            } else {
-                System.out.println("Directory 'src/main/resources' NOT FOUND at project root.");
-            }
-        } catch (Exception e) {
-            System.out.println("Error listing local resources: " + e.getMessage());
-        }
-        System.out.println("====================");
+
+
 
         SwingUtilities.invokeLater(() -> {
             try {
