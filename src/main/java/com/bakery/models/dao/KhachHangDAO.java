@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KhachHangDAO {
 
@@ -68,6 +70,62 @@ public class KhachHangDAO {
             System.err.println("Lỗi DAO - timKhachHangXoa: " + e.getMessage());
         }
         return null;
+    }
+
+    public List<KhachHangDTO> layDanhSachKhachHangHoatDong() throws SQLException {
+        String sql = "SELECT * FROM KHACHHANG WHERE THOIDIEMXOA IS NULL ORDER BY MAKH DESC";
+        List<KhachHangDTO> dsKhach = new ArrayList<>();
+
+        try (Connection conn = DBConnect.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                dsKhach.add(mapResultSetToKhachHang(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Loi DAO - layDanhSachKhachHangHoatDong: " + e.getMessage());
+            throw e;
+        }
+
+        return dsKhach;
+    }
+
+    public List<KhachHangDTO> timKhachHangTheoTuKhoa(String tuKhoa) throws SQLException {
+        String sql = """
+                SELECT *
+                FROM KHACHHANG
+                WHERE THOIDIEMXOA IS NULL
+                  AND (
+                        LOWER(HOTEN) LIKE ?
+                        OR SDT LIKE ?
+                        OR TO_CHAR(MAKH) LIKE ?
+                  )
+                ORDER BY MAKH DESC
+                """;
+
+        String keyword = tuKhoa == null ? "" : tuKhoa.trim().toLowerCase();
+        List<KhachHangDTO> dsKhach = new ArrayList<>();
+
+        try (Connection conn = DBConnect.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String searchPattern = "%" + keyword + "%";
+            pstmt.setString(1, searchPattern);
+            pstmt.setString(2, searchPattern);
+            pstmt.setString(3, searchPattern);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    dsKhach.add(mapResultSetToKhachHang(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Loi DAO - timKhachHangTheoTuKhoa: " + e.getMessage());
+            throw e;
+        }
+
+        return dsKhach;
     }
 
     // ====== THÊM ======
@@ -220,20 +278,14 @@ public class KhachHangDAO {
 
     private String mapProcedureErrorToMessage(SQLException e) {
         int errorCode = e.getErrorCode();
-        
-        switch (errorCode) {
-            case -20100:
-                return "Lỗi hệ thống khi thêm Khách hàng";
-            case -20101:
-                return "Khách hàng không tồn tại để cập nhật";
-            case -20102:
-                return "Lỗi hệ thống khi cập nhật Khách hàng";
-            case -20103:
-                return "Khách hàng không tồn tại để xóa";
-            case -20104:
-                return "Lỗi hệ thống khi xóa Khách hàng";
-            default:
-                return "Lỗi cơ sở dữ liệu: " + e.getMessage();
-        }
+
+        return switch (errorCode) {
+            case -20100 -> "Lỗi hệ thống khi thêm Khách hàng";
+            case -20101 -> "Khách hàng không tồn tại để cập nhật";
+            case -20102 -> "Lỗi hệ thống khi cập nhật Khách hàng";
+            case -20103 -> "Khách hàng không tồn tại để xóa";
+            case -20104 -> "Lỗi hệ thống khi xóa Khách hàng";
+            default -> "Lỗi cơ sở dữ liệu: " + e.getMessage();
+        };
     }
 }

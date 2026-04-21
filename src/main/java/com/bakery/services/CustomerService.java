@@ -3,6 +3,7 @@ package com.bakery.services;
 import com.bakery.models.dao.KhachHangDAO;
 import com.bakery.models.dto.KhachHangDTO;
 import java.sql.SQLException;
+import java.util.List;
 
 public class CustomerService {
 
@@ -151,6 +152,17 @@ public class CustomerService {
         }
 
         return khachHangDAO.timKhachHangBangSDT(sdt);
+    }
+
+    public List<KhachHangDTO> layTatCaKhachHang() throws SQLException {
+        return khachHangDAO.layDanhSachKhachHangHoatDong();
+    }
+
+    public List<KhachHangDTO> timKhachHangTheoTuKhoa(String tuKhoa) throws SQLException {
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
+            return layTatCaKhachHang();
+        }
+        return khachHangDAO.timKhachHangTheoTuKhoa(tuKhoa);
     }
 
     // ====== CAP NHAT DIEM ======
