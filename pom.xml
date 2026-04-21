@@ -46,6 +46,11 @@
             <artifactId>flatlaf</artifactId>
             <version>3.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
+            <version>3.6</version>
+        </dependency>
 
         <!-- JUnit for Testing -->
         <dependency>
