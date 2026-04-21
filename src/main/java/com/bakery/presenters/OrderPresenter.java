@@ -38,6 +38,11 @@ public class OrderPresenter {
     private Integer maDonDaThanhToan = null;
     private Integer maHoaDonDaThanhToan = null;
     private LocalDateTime ngayLapHoaDonDaThanhToan = null;
+    
+    private String lastSearchMaDon = "";
+    private LocalDate lastSearchNgay = LocalDate.now();
+    private LocalTime lastSearchTu = null;
+    private LocalTime lastSearchDen = null;
 
     private List<CTDonHangDTO> convertToCTDonHangList(List<YeuCauChiTietDonHangDTO> items) {
         List<CTDonHangDTO> list = new ArrayList<>();
@@ -83,7 +88,7 @@ public class OrderPresenter {
                 orderService.layDanhSachNhanBanh(), orderService.layDanhSachKieuTrangTri());
 
         view.taiDanhSachTrangThai(new ArrayList<>(mapTrangThaiMoi.keySet()));
-        timKiemDonTheoDoi(LocalDate.now(), null);
+        timKiemDonTheoDoi(null, LocalDate.now(), null, null);
     }
 
     public void themSanPhamVaoGio(SanPhamDTO sp) {
@@ -198,9 +203,15 @@ public class OrderPresenter {
         }
 
         Integer hinhThucNhan = view.getHinhThucNhan();
-        if (hinhThucNhan == 2 && view.getDiaChiGiao().isEmpty()) {
-            view.hienThiLoi("Bắt buộc nhập địa chỉ");
-            return;
+        if (hinhThucNhan == 2) {
+            if (view.getDiaChiGiao().isEmpty()) {
+                view.hienThiLoi("Bắt buộc nhập địa chỉ");
+                return;
+            }
+            if (view.getSoDienThoai().isEmpty()) {
+                view.hienThiLoi("Bắt buộc nhập số điện thoại khi giao hàng");
+                return;
+            }
         }
 
         try {
@@ -211,7 +222,7 @@ public class OrderPresenter {
                     tongTienPhaiTra, soTienGhiNhan, convertToCTDonHangList(gioHangItems), tatCaSanPham,
                     phanTramGiamGia);
             lamMoiTrangThai();
-            timKiemDonTheoDoi(LocalDate.now(), null);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen);
         } catch (Exception e) {
             view.hienThiLoi(e.getMessage());
         }
@@ -271,7 +282,7 @@ public class OrderPresenter {
         }
     }
 
-    public void capNhatTrangThai(String maDonStr, String ttMoi) {
+    public void capNhatTrangThai(String maDonStr, String ttMoi, String ttHienTai) {
         try {
             int maDon = Integer.parseInt(maDonStr.trim());
             Integer maTtMoi = mapTrangThaiMoi.get(ttMoi);
@@ -281,19 +292,21 @@ public class OrderPresenter {
 
             DonDatHangDTO donHienTai = orderService.loadOrderById(maDon);
             orderService.chuyenTrangThaiDon(maDon, maTtMoi, MOCK_CURRENT_USER_ID, donHienTai.getHinhThucNhan(),
-                    view.getTrangThaiHienTaiTraCuu(), ttMoi);
-            view.hienThiKetQuaTraCuu(null, ttMoi, -1);
-            view.hienThiThongBaoTraCuu("Cập nhật thành công!");
-            timKiemDonTheoDoi(LocalDate.now(), null);
+                    ttHienTai, ttMoi);
+            view.hienThiThongBaoTraCuu("Cập nhật thành công đơn #" + maDon);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
         }
     }
 
-    public void timKiemDonTheoDoi(LocalDate ngayNhan, LocalTime gioNhan) {
+    public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) {
+        this.lastSearchMaDon = maDonSearch;
+        this.lastSearchNgay = ngayNhan;
+        this.lastSearchTu = gioTu;
+        this.lastSearchDen = gioDen;
         try {
-            Integer gio = gioNhan == null ? null : gioNhan.getHour();
-            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(ngayNhan, gio);
+            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen);
             view.hienThiDanhSachDonTheoDoi(dsDon);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
@@ -308,7 +321,15 @@ public class OrderPresenter {
         req.setMaTrangThai(0);
         req.setTienDaCoc(tienDaCoc);
         req.setHinhThucNhan(hinhThuc);
-        req.setDiaChiGiao(hinhThuc == 2 ? view.getDiaChiGiao() : null);
+        
+        String diaChi = hinhThuc == 2 ? view.getDiaChiGiao() : null;
+        if (hinhThuc == 2) {
+            String sdt = view.getSoDienThoai();
+            if (sdt != null && !sdt.isEmpty()) {
+                diaChi = diaChi + " - SĐT liên hệ: " + sdt;
+            }
+        }
+        req.setDiaChiGiao(diaChi);
 
         req.setItems(new ArrayList<>(gioHangItems));
         return req;

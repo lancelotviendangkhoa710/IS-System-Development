@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -145,7 +146,7 @@ public class DonDatHangDAO {
         return null;
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(LocalDate ngayNhan, Integer gioNhan) throws SQLException {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) throws SQLException {
         List<DonDatHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN " +
@@ -155,11 +156,17 @@ public class DonDatHangDAO {
                         "SELECT TTH.MATRANGTHAI FROM TRANGTHAIDON TTH " +
                         "WHERE TTH.TENTRANGTHAI = N'Hoàn thành' FETCH FIRST 1 ROW ONLY)");
 
+        if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
+            sql.append(" AND DDH.MADON = ?");
+        }
         if (ngayNhan != null) {
             sql.append(" AND TRUNC(DDH.NGAYGIONHANBANH) = ?");
         }
-        if (gioNhan != null) {
-            sql.append(" AND TO_CHAR(DDH.NGAYGIONHANBANH, 'HH24') = ?");
+        if (gioTu != null) {
+            sql.append(" AND TO_CHAR(DDH.NGAYGIONHANBANH, 'HH24:MI') >= ?");
+        }
+        if (gioDen != null) {
+            sql.append(" AND TO_CHAR(DDH.NGAYGIONHANBANH, 'HH24:MI') <= ?");
         }
         sql.append(" ORDER BY DDH.NGAYGIONHANBANH ASC, DDH.MADON ASC");
 
@@ -167,11 +174,17 @@ public class DonDatHangDAO {
             if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
             try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
                 int paramIndex = 1;
+                if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
+                    pstmt.setInt(paramIndex++, Integer.parseInt(maDonSearch.trim()));
+                }
                 if (ngayNhan != null) {
                     pstmt.setTimestamp(paramIndex++, Timestamp.valueOf(ngayNhan.atStartOfDay()));
                 }
-                if (gioNhan != null) {
-                    pstmt.setString(paramIndex, String.format("%02d", gioNhan));
+                if (gioTu != null) {
+                    pstmt.setString(paramIndex++, gioTu.toString());
+                }
+                if (gioDen != null) {
+                    pstmt.setString(paramIndex++, gioDen.toString());
                 }
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {

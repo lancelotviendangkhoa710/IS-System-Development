@@ -21,6 +21,8 @@ public interface IOrderView {
 
     String getDiaChiGiao();
 
+    String getSoDienThoai();
+
     Integer getHinhThucNhan();
 
     boolean isXacNhanThuTien();

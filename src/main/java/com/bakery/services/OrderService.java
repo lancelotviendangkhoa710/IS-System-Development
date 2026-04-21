@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -228,9 +229,9 @@ public class OrderService {
         }
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(LocalDate ngayNhan, Integer gioNhan) throws Exception {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) throws Exception {
         try {
-            return donDatHangDAO.layDanhSachDonTheoDoi(ngayNhan, gioNhan);
+            return donDatHangDAO.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen);
         } catch (SQLException e) {
             throw new Exception("Khong the tai danh sach theo doi don: " + e.getMessage(), e);
         }

@@ -78,18 +78,18 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     private DefaultTableModel cartTableModel;
     private JLabel lblTenKhachHang, lblThongBaoTab1, lblErrDiaChiGiao, lblErrNgayNhanBanh;
     private JLabel lblTongTienHang, lblTienGiamGia, lblTongThanhToan, lblMinDeposit, lblConLai, lblTienThua;
-    private JComboBox<String> cbHinhThucNhan, cbGioNhanBanh, cbTrangThaiMoi;
+    private JComboBox<String> cbHinhThucNhan, cbGioNhanBanh;
     private SwingDatePicker dpNgayNhanBanh;
     private JCheckBox chkXacNhanThuTien;
     private JButton btnTaoDonHang, btnThanhToan, btnTimKhach;
 
-    private JTextField txtMaDonTraCuu, txtKhachHangReadonly, txtTrangThaiHienTaiReadonly, txtTongTienReadonly;
-    private JLabel lblErrTraCuu, lblErrTrangThaiMoi, lblThongBaoTab2;
-    private JButton btnTraCuu, btnLuuCapNhat, btnTimTheoNgayGio;
+    private JTextField txtSearchMaDon;
+    private JLabel lblThongBaoTab2;
+    private JButton btnTimTheoNgayGio;
     private SwingDatePicker dpNgayTheoDoi;
-    private JComboBox<String> cbGioTheoDoi;
-    private JTable tblDonTheoDoi;
-    private DefaultTableModel theoDoiTableModel;
+    private JComboBox<String> cbGioTu, cbGioDen;
+    private JPanel listDonContainer;
+    private List<String> listTrangThai = new ArrayList<>();
 
     private JPanel cardPanel;
     private CardLayout cardLayout;
@@ -143,29 +143,13 @@ public class OrderViewPanel extends JPanel implements IOrderView {
                 // Luong moi dung PaymentConfirmationDialog, khong luu DB tai listener cu.
             }
         }); */
-        btnTraCuu.addActionListener(e -> { if(presenter != null) presenter.traCuuDonHang(txtMaDonTraCuu.getText()); });
         btnTimTheoNgayGio.addActionListener(e -> {
             if (presenter == null) return;
-            String gioRaw = cbGioTheoDoi.getSelectedItem() == null ? "Tat ca" : cbGioTheoDoi.getSelectedItem().toString();
-            LocalTime gioTheoDoi = "Tat ca".equalsIgnoreCase(gioRaw) ? null : LocalTime.parse(gioRaw);
-            presenter.timKiemDonTheoDoi(dpNgayTheoDoi.getValue(), gioTheoDoi);
-        });
-        btnLuuCapNhat.addActionListener(e -> {
-            if(presenter != null && cbTrangThaiMoi.getSelectedItem() != null)
-                presenter.capNhatTrangThai(txtMaDonTraCuu.getText(), cbTrangThaiMoi.getSelectedItem().toString());
-        });
-        tblDonTheoDoi.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int selectedRow = tblDonTheoDoi.getSelectedRow();
-                if (selectedRow < 0 || selectedRow >= localDonTheoDoi.size()) return;
-                DonDatHangDTO don = localDonTheoDoi.get(selectedRow);
-                txtMaDonTraCuu.setText(String.valueOf(don.getMaDon()));
-                txtKhachHangReadonly.setText(don.getMaKH() == null ? "Khach le" : "Ma KH: " + don.getMaKH());
-                txtTrangThaiHienTaiReadonly.setText(don.getTenTrangThai() == null ? "" : don.getTenTrangThai());
-                txtTongTienReadonly.setText(formatTien(don.getTongTienHDBan()));
-                lblErrTraCuu.setText("");
-            }
+            String maSearch = txtSearchMaDon.getText().trim();
+            LocalDate ngay = dpNgayTheoDoi.getValue();
+            LocalTime tu = cbGioTu.getSelectedIndex() == 0 ? null : LocalTime.parse(cbGioTu.getSelectedItem().toString());
+            LocalTime den = cbGioDen.getSelectedIndex() == 0 ? null : LocalTime.parse(cbGioDen.getSelectedItem().toString());
+            presenter.timKiemDonTheoDoi(maSearch, ngay, tu, den);
         });
     }
 
@@ -173,9 +157,10 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     public double getTienCoc() { return parseDoubleSafe(txtTienCoc.getText()); }
     public double getTongThanhToanHienTai() { return parseDoubleSafe(lblTongThanhToan.getText().replace(" đ", "").replace(",", "")); }
     public String getDiaChiGiao() { return txtDiaChiGiao.getText().trim(); }
+    public String getSoDienThoai() { return txtSoDienThoai.getText().trim(); }
     public Integer getHinhThucNhan() { return "Trực tiếp".equals(cbHinhThucNhan.getSelectedItem()) ? 1 : 2; }
     public boolean isXacNhanThuTien() { return chkXacNhanThuTien.isSelected(); }
-    public String getTrangThaiHienTaiTraCuu() { return txtTrangThaiHienTaiReadonly.getText(); }
+    public String getTrangThaiHienTaiTraCuu() { return ""; }
 
     public LocalDateTime getNgayGioNhanBanh() {
         LocalDate date = dpNgayNhanBanh.getValue();
@@ -225,23 +210,16 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     public void hienThiLoi(String msg) { lblThongBaoTab1.setForeground(ERROR); lblThongBaoTab1.setText(msg); }
     public void hienThiThanhCong(String msg) { lblThongBaoTab1.setForeground(SUCCESS); lblThongBaoTab1.setText(msg); }
-    public void hienThiLoiTraCuu(String msg) { lblThongBaoTab2.setForeground(ERROR); lblThongBaoTab2.setText(msg); lblErrTraCuu.setText(msg); }
-    public void hienThiThongBaoTraCuu(String msg) { lblThongBaoTab2.setForeground(SUCCESS); lblThongBaoTab2.setText(msg); lblErrTraCuu.setText(""); }
+    public void hienThiLoiTraCuu(String msg) { lblThongBaoTab2.setForeground(ERROR); lblThongBaoTab2.setText(msg); }
+    public void hienThiThongBaoTraCuu(String msg) { lblThongBaoTab2.setForeground(SUCCESS); lblThongBaoTab2.setText(msg); }
 
     public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {
-        if(kh != null) txtKhachHangReadonly.setText(kh);
-        if(tt != null) txtTrangThaiHienTaiReadonly.setText(tt);
-        if(tongTien >= 0) txtTongTienReadonly.setText(formatTien(tongTien));
+        // Not used
     }
 
     @Override
     public void showOrderDetails(DonDatHangDTO order) {
-        if (order == null) {
-            return;
-        }
-        txtMaDonTraCuu.setText(String.valueOf(order.getMaDon()));
-        txtKhachHangReadonly.setText(order.getMaKH() == null ? "Khách lẻ" : "Mã KH: " + order.getMaKH());
-        txtTongTienReadonly.setText(formatTien(order.getTongTienHDBan()));
+        // Not used
     }
 
     @Override
@@ -263,8 +241,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     public void taiDanhSachTrangThai(List<String> list) {
-        cbTrangThaiMoi.removeAllItems();
-        list.forEach(cbTrangThaiMoi::addItem);
+        this.listTrangThai = list;
     }
     
     public void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo, List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh, List<KieuTrangTriDTO> trangTri) {
@@ -329,19 +306,16 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     @Override
     public void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi) {
-        theoDoiTableModel.setRowCount(0);
+        if (listDonContainer == null) return;
+        listDonContainer.removeAll();
         localDonTheoDoi.clear();
         for (DonDatHangDTO don : dsDonTheoDoi) {
             localDonTheoDoi.add(don);
-            String ngayGioNhan = don.getNgayGioNhanBanh() == null ? "" : don.getNgayGioNhanBanh().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-            theoDoiTableModel.addRow(new Object[]{
-                    don.getMaDon(),
-                    ngayGioNhan,
-                    don.getMaKH() == null ? "Khach le" : ("Ma KH: " + don.getMaKH()),
-                    don.getTenTrangThai(),
-                    formatTien(don.getTongTienHDBan())
-            });
+            listDonContainer.add(createOrderCard(don));
+            listDonContainer.add(Box.createVerticalStrut(10));
         }
+        listDonContainer.revalidate();
+        listDonContainer.repaint();
     }
 
     public void inPhieuHoaDon(String tieuDe, Integer maDon, Integer maHoaDon, LocalDateTime ngayLapHoaDon,
@@ -394,8 +368,6 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     private String taoMaThamChieuDonHang() {
-        String maDonTraCuu = (txtMaDonTraCuu == null || txtMaDonTraCuu.getText().trim().isEmpty()) ? "" : txtMaDonTraCuu.getText().trim();
-        if (!maDonTraCuu.isEmpty()) return maDonTraCuu;
         return "POS" + LocalDateTime.now(ZONE_VN).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     }
 
@@ -1064,125 +1036,122 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         panel.setOpaque(false);
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        // FILTER SECTION
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         filterPanel.setOpaque(false);
         filterPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
-                "Tìm kiếm đơn theo ngày/giờ nhận",
-                TitledBorder.LEFT,
-                TitledBorder.TOP,
-                new Font("Segoe UI", Font.BOLD, 14),
-                COLOR_PRIMARY
+                "Tìm kiếm & Lọc đơn hàng", TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 14), COLOR_PRIMARY
         ));
+
+        txtSearchMaDon = new JTextField(10);
+        styleInput(txtSearchMaDon);
+
         dpNgayTheoDoi = new SwingDatePicker();
         dpNgayTheoDoi.setSelectedDate(LocalDate.now(ZONE_VN));
-        cbGioTheoDoi = new JComboBox<>();
-        cbGioTheoDoi.addItem("Tất cả");
-        for (int i = 0; i < 24; i++) {
-            cbGioTheoDoi.addItem(String.format("%02d:00", i));
-        }
-        btnTimTheoNgayGio = new JButton("Tìm");
-        styleButton(btnTimTheoNgayGio, COLOR_PRIMARY, Color.WHITE);
-        filterPanel.add(new JLabel("Ngày:"));
-        filterPanel.add(dpNgayTheoDoi);
-        filterPanel.add(new JLabel("Giờ:"));
-        filterPanel.add(cbGioTheoDoi);
-        filterPanel.add(btnTimTheoNgayGio);
 
-        String[] columns = {"Mã đơn", "Ngày giờ nhận", "Khách hàng", "Trạng thái", "Tổng tiền"};
-        theoDoiTableModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+        cbGioTu = new JComboBox<>();
+        cbGioTu.addItem("00:00");
+        cbGioDen = new JComboBox<>();
+        cbGioDen.addItem("23:59");
+        for (int i = 0; i <= 24; i++) {
+            if (i < 24) {
+               cbGioTu.addItem(String.format("%02d:00", i));
+               cbGioDen.addItem(String.format("%02d:00", i));
             }
-        };
-        tblDonTheoDoi = new JTable(theoDoiTableModel);
-        styleTable(tblDonTheoDoi, 28);
-        JScrollPane scrollDon = new JScrollPane(tblDonTheoDoi);
-        scrollDon.setPreferredSize(new Dimension(0, 250));
-        scrollDon.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
-                "Danh sách đơn chưa hoàn thành",
-                TitledBorder.LEFT,
-                TitledBorder.TOP,
-                new Font("Segoe UI", Font.BOLD, 14),
-                COLOR_PRIMARY
-        ));
+        }
 
-        JPanel content = new JPanel(new GridBagLayout());
-        content.setBackground(COLOR_CARD);
-        content.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
-                BorderFactory.createTitledBorder(null, "Cập nhật trạng thái đơn", TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 16), COLOR_PRIMARY)
-        ));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        txtMaDonTraCuu = new JTextField(15);
-        styleInput(txtMaDonTraCuu);
-        btnTraCuu = new JButton("Tra cứu");
-        styleButton(btnTraCuu, COLOR_PRIMARY, Color.WHITE);
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        searchPanel.setOpaque(false);
-        searchPanel.add(txtMaDonTraCuu);
-        searchPanel.add(btnTraCuu);
-
-        lblErrTraCuu = new JLabel();
-        lblErrTraCuu.setForeground(ERROR);
-        txtKhachHangReadonly = new JTextField(20);
-        txtKhachHangReadonly.setEditable(false);
-        styleReadonlyField(txtKhachHangReadonly);
-        txtTrangThaiHienTaiReadonly = new JTextField(20);
-        txtTrangThaiHienTaiReadonly.setEditable(false);
-        styleReadonlyField(txtTrangThaiHienTaiReadonly);
-        txtTongTienReadonly = new JTextField(20);
-        txtTongTienReadonly.setEditable(false);
-        styleReadonlyField(txtTongTienReadonly);
-
-        cbTrangThaiMoi = new JComboBox<>();
-        btnLuuCapNhat = new JButton("Lưu cập nhật ✓");
-        styleButton(btnLuuCapNhat, SUCCESS, Color.WHITE);
-        JPanel updatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        updatePanel.setOpaque(false);
-        updatePanel.add(cbTrangThaiMoi);
-        updatePanel.add(btnLuuCapNhat);
-
-        lblErrTrangThaiMoi = new JLabel();
-        lblErrTrangThaiMoi.setForeground(ERROR);
+        btnTimTheoNgayGio = new JButton("Lọc / Tìm kiếm");
+        styleButton(btnTimTheoNgayGio, COLOR_PRIMARY, Color.WHITE);
+        
         lblThongBaoTab2 = new JLabel();
         lblThongBaoTab2.setForeground(SUCCESS);
+        lblThongBaoTab2.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        int row = 0;
-        addGridRow(content, gbc, row++, "Mã đơn:", searchPanel);
-        gbc.gridy = row++;
-        gbc.gridx = 1;
-        content.add(lblErrTraCuu, gbc);
-        addGridRow(content, gbc, row++, "Khách hàng:", txtKhachHangReadonly);
-        addGridRow(content, gbc, row++, "Trạng thái hiện tại:", txtTrangThaiHienTaiReadonly);
-        addGridRow(content, gbc, row++, "Tổng tiền đơn:", txtTongTienReadonly);
-        content.add(new JSeparator(), gbc);
-        row++;
-        addGridRow(content, gbc, row++, "Trạng thái mới:", updatePanel);
-        gbc.gridy = row++;
-        gbc.gridx = 1;
-        content.add(lblErrTrangThaiMoi, gbc);
-        gbc.gridy = row++;
-        gbc.gridx = 1;
-        content.add(lblThongBaoTab2, gbc);
+        filterPanel.add(new JLabel("Mã đơn:")); filterPanel.add(txtSearchMaDon);
+        filterPanel.add(Box.createHorizontalStrut(10));
+        filterPanel.add(new JLabel("Ngày:")); filterPanel.add(dpNgayTheoDoi);
+        filterPanel.add(Box.createHorizontalStrut(10));
+        filterPanel.add(new JLabel("Từ:")); filterPanel.add(cbGioTu);
+        filterPanel.add(new JLabel("Đến:")); filterPanel.add(cbGioDen);
+        filterPanel.add(Box.createHorizontalStrut(15));
+        filterPanel.add(btnTimTheoNgayGio);
+        filterPanel.add(lblThongBaoTab2);
+
+        // CONTENT SECTION
+        listDonContainer = new JPanel();
+        listDonContainer.setLayout(new BoxLayout(listDonContainer, BoxLayout.Y_AXIS));
+        listDonContainer.setOpaque(false);
+
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(listDonContainer, BorderLayout.NORTH);
+
+        JScrollPane scrollDon = new JScrollPane(wrapper);
+        scrollDon.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
+                "Danh sách đơn hàng", TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 14), COLOR_PRIMARY
+        ));
+        scrollDon.setOpaque(false);
+        scrollDon.getViewport().setOpaque(false);
+        scrollDon.getVerticalScrollBar().setUnitIncrement(16);
 
         panel.add(filterPanel, BorderLayout.NORTH);
         panel.add(scrollDon, BorderLayout.CENTER);
-        panel.add(content, BorderLayout.SOUTH);
 
-        JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setBorder(null);
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        return scrollPane;
+        return new JScrollPane(panel);
+    }
+    
+    private JPanel createOrderCard(DonDatHangDTO don) {
+        JPanel card = new JPanel(new BorderLayout(10, 10));
+        card.setBackground(COLOR_CARD);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT, 2, true),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        card.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Info
+        JPanel infoPanel = new JPanel(new GridLayout(2, 2, 10, 5));
+        infoPanel.setOpaque(false);
+        infoPanel.add(new JLabel("<html><span style='font-size:12px'><b>Mã đơn:</b> #" + don.getMaDon() + "</span></html>"));
+        String kh = don.getMaKH() == null ? "Khách lẻ" : "Mã KH: " + don.getMaKH();
+        infoPanel.add(new JLabel("<html><span style='font-size:12px'><b>Khách:</b> " + kh + "</span></html>"));
+        
+        String time = don.getNgayGioNhanBanh() != null ? don.getNgayGioNhanBanh().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "";
+        infoPanel.add(new JLabel("<html><span style='font-size:12px'><b>Nhận lúc:</b> " + time + "</span></html>"));
+        infoPanel.add(new JLabel("<html><span style='font-size:12px'><b>Tổng:</b> <font color='#DC2626'>" + formatTien(don.getTongTienHDBan()) + "</font></span></html>"));
+
+        // Action
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        actionPanel.setOpaque(false);
+        
+        JLabel lblStatus = new JLabel("TT: " + don.getTenTrangThai());
+        lblStatus.setForeground(COLOR_ACCENT);
+        lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        
+        JComboBox<String> cbStatus = new JComboBox<>();
+        for (String s : listTrangThai) cbStatus.addItem(s);
+        if (don.getTenTrangThai() != null) cbStatus.setSelectedItem(don.getTenTrangThai());
+        
+        JButton btnUpdate = new JButton("Cập nhật");
+        styleButton(btnUpdate, SUCCESS, Color.WHITE);
+        btnUpdate.addActionListener(e -> {
+            if (presenter != null) {
+                presenter.capNhatTrangThai(String.valueOf(don.getMaDon()), cbStatus.getSelectedItem().toString(), don.getTenTrangThai());
+            }
+        });
+
+        actionPanel.add(lblStatus);
+        actionPanel.add(new JLabel("-> Đổi:"));
+        actionPanel.add(cbStatus);
+        actionPanel.add(btnUpdate);
+
+        card.add(infoPanel, BorderLayout.CENTER);
+        card.add(actionPanel, BorderLayout.EAST);
+
+        return card;
     }
 
     private void styleButton(AbstractButton btn, Color bg, Color fg) {
@@ -1200,16 +1169,6 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         txt.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         txt.setForeground(COLOR_TEXT);
         txt.setBackground(COLOR_CARD);
-        txt.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
-                new EmptyBorder(5, 8, 5, 8)
-        ));
-    }
-
-    private void styleReadonlyField(JTextField txt) {
-        styleInput(txt);
-        txt.setForeground(COLOR_SUB_TEXT);
-        txt.setBackground(COLOR_DISABLED);
         txt.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT),
                 new EmptyBorder(5, 8, 5, 8)
