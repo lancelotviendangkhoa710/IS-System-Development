@@ -83,4 +83,37 @@ public class SanPhamDAO {
 
         return sp;
     }
+
+    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) {
+        String sql = "{ ? = call FUNC_TINH_GIA_TUY_CHINH(?, ?, ?, ?, ?) }";
+        try (Connection conn = DBConnect.getConnection();
+                java.sql.CallableStatement cstmt = conn.prepareCall(sql)) {
+
+            cstmt.registerOutParameter(1, java.sql.Types.NUMERIC);
+            cstmt.setInt(2, maSP);
+
+            if (maKC != null)
+                cstmt.setInt(3, maKC);
+            else
+                cstmt.setNull(3, java.sql.Types.NUMERIC);
+            if (maCot != null)
+                cstmt.setInt(4, maCot);
+            else
+                cstmt.setNull(4, java.sql.Types.NUMERIC);
+            if (maNhan != null)
+                cstmt.setInt(5, maNhan);
+            else
+                cstmt.setNull(5, java.sql.Types.NUMERIC);
+            if (maTrangTri != null)
+                cstmt.setInt(6, maTrangTri);
+            else
+                cstmt.setNull(6, java.sql.Types.NUMERIC);
+
+            cstmt.execute();
+            return cstmt.getDouble(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }

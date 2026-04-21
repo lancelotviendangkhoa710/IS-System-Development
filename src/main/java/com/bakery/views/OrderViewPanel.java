@@ -3,6 +3,10 @@ package com.bakery.views;
 import com.bakery.model.dto.CTDonHangDTO;
 import com.bakery.model.dto.DonDatHangDTO;
 import com.bakery.model.dto.SanPhamDTO;
+import com.bakery.model.dto.KichCoBanhDTO;
+import com.bakery.model.dto.CotBanhDTO;
+import com.bakery.model.dto.NhanBanhDTO;
+import com.bakery.model.dto.KieuTrangTriDTO;
 import com.bakery.presenters.OrderPresenter;
 import com.bakery.views.interfaces.IOrderView;
 
@@ -28,8 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
-import java.net.URL;
-
 public class OrderViewPanel extends JPanel implements IOrderView {
     private static final ZoneId ZONE_VN = ZoneId.of("Asia/Ho_Chi_Minh");
     // Bảng màu chuẩn H3K Bakery (.agents/UI.md)
@@ -55,9 +57,23 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     private Map<Integer, String> localMapDanhMuc;
 
     private JTextField txtTimKiemSanPham, txtSoDienThoai, txtDiaChiGiao, txtTienCoc, txtTienKhachDua;
-    private JButton btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread;
+    private JButton btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread, btnLocTuyChinh;
     private String currentCategory = "ALL";
     private JPanel tileSanPham;
+    private JPanel panelProductsContainer;
+    private CardLayout productCardLayout;
+    
+    // Custom cake components
+    private JComboBox<SanPhamDTO> cbCustomSp;
+    private JComboBox<KichCoBanhDTO> cbCustomKichCo;
+    private JComboBox<CotBanhDTO> cbCustomCotBanh;
+    private JComboBox<NhanBanhDTO> cbCustomNhanBanh;
+    private JComboBox<KieuTrangTriDTO> cbCustomTrangTri;
+    private JTextArea txtCustomLoiChuc;
+    private JTextArea txtCustomGhiChu;
+    private JLabel lblCustomPrice;
+    private JButton btnAddCustomToCart;
+
     private JTable tblGioHang;
     private DefaultTableModel cartTableModel;
     private JLabel lblTenKhachHang, lblThongBaoTab1, lblErrDiaChiGiao, lblErrNgayNhanBanh;
@@ -250,6 +266,66 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         cbTrangThaiMoi.removeAllItems();
         list.forEach(cbTrangThaiMoi::addItem);
     }
+    
+    public void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo, List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh, List<KieuTrangTriDTO> trangTri) {
+        cbCustomSp.removeAllItems();
+        cbCustomKichCo.removeAllItems();
+        cbCustomCotBanh.removeAllItems();
+        cbCustomNhanBanh.removeAllItems();
+        cbCustomTrangTri.removeAllItems();
+        
+        cbCustomKichCo.addItem(null);
+        cbCustomCotBanh.addItem(null);
+        cbCustomNhanBanh.addItem(null);
+        cbCustomTrangTri.addItem(null);
+        
+        spTuyChinh.forEach(cbCustomSp::addItem);
+        kichCo.forEach(cbCustomKichCo::addItem);
+        cotBanh.forEach(cbCustomCotBanh::addItem);
+        nhanBanh.forEach(cbCustomNhanBanh::addItem);
+        trangTri.forEach(cbCustomTrangTri::addItem);
+        
+        // Setup Renderers
+        cbCustomSp.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof SanPhamDTO) setText(((SanPhamDTO) value).getTenSP() + " (" + formatTien(((SanPhamDTO) value).getGiaCoBan()) + ")");
+                return this;
+            }
+        });
+        cbCustomKichCo.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) setText("--- Không chọn ---");
+                else if (value instanceof KichCoBanhDTO) setText(((KichCoBanhDTO) value).getTenKC() + " (+" + formatTien(((KichCoBanhDTO) value).getPhuPhi()) + ")");
+                return this;
+            }
+        });
+        cbCustomCotBanh.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) setText("--- Không chọn ---");
+                else if (value instanceof CotBanhDTO) setText(((CotBanhDTO) value).getTenCot() + " (+" + formatTien(((CotBanhDTO) value).getPhuPhi()) + ")");
+                return this;
+            }
+        });
+        cbCustomNhanBanh.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) setText("--- Không chọn ---");
+                else if (value instanceof NhanBanhDTO) setText(((NhanBanhDTO) value).getTenNhan() + " (+" + formatTien(((NhanBanhDTO) value).getPhuPhi()) + ")");
+                return this;
+            }
+        });
+        cbCustomTrangTri.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) setText("--- Không chọn ---");
+                else if (value instanceof KieuTrangTriDTO) setText(((KieuTrangTriDTO) value).getTenTrangTri() + " (+" + formatTien(((KieuTrangTriDTO) value).getPhuPhi()) + ")");
+                return this;
+            }
+        });
+    }
 
     @Override
     public void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi) {
@@ -373,14 +449,20 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     private void setActiveFilter(String cat, JButton btn) {
         currentCategory = cat;
-        JButton[] btns = {btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread};
+        JButton[] btns = {btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread, btnLocTuyChinh};
         for (JButton b : btns) {
             b.setBackground(COLOR_CARD);
             b.setForeground(COLOR_TEXT);
         }
         btn.setBackground(COLOR_PRIMARY);
         btn.setForeground(Color.WHITE);
-        apDungBoLoc();
+        
+        if ("CUSTOM".equals(cat)) {
+            productCardLayout.show(panelProductsContainer, "CUSTOM_CAKE");
+        } else {
+            productCardLayout.show(panelProductsContainer, "PRODUCTS");
+            apDungBoLoc();
+        }
     }
 
     private java.awt.Image tryLoadFromResource(String path) {
@@ -423,7 +505,6 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             System.out.println("[DEBUG] Loading image for " + sp.getTenSP() + " (DB Path: " + hinhAnhPath + ")");
             try {
                 String fileName = new java.io.File(hinhAnhPath).getName();
-                String nameWithoutExt = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
 
                 // 1. Thử load từ Resources qua Stream (An toàn nhất cho Java Module)
                 img = tryLoadFromResource(hinhAnhPath);
@@ -432,7 +513,11 @@ public class OrderViewPanel extends JPanel implements IOrderView {
                 // 2. ƯU TIÊN MAPPING THEO MÃ SẢN PHẨM (MaSP)
                 if (img == null) {
                     int maSP = sp.getMaSP();
-                    img = tryLoadFromResource("/cake" + maSP + ".jpg");
+                    if (maSP == 1) img = tryLoadFromResource("/images/products/cake_vani_16.png");
+                    else if (maSP == 2) img = tryLoadFromResource("/images/products/cake_socola_18.png");
+                    else if (maSP == 3) img = tryLoadFromResource("/images/products/cake_redvelvet_16.png");
+                    
+                    if (img == null) img = tryLoadFromResource("/cake" + maSP + ".jpg");
                     if (img == null) img = tryLoadFromResource("/cake" + maSP + ".png");
                     if (img != null) System.out.println("  -> Successfully mapped to cake" + maSP + " based on MaSP.");
                 }
@@ -629,9 +714,10 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         btnLocCake = new JButton("Cake");
         btnLocCookie = new JButton("Cookie");
         btnLocBread = new JButton("Bread");
+        btnLocTuyChinh = new JButton("Bánh Tùy Chỉnh");
         
-        JButton[] filterBtns = {btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread};
-        String[] cats = {"ALL", "Cake", "Cookie", "Bread"};
+        JButton[] filterBtns = {btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread, btnLocTuyChinh};
+        String[] cats = {"ALL", "Cake", "Cookie", "Bread", "CUSTOM"};
         
         for(int i=0; i<filterBtns.length; i++) {
             JButton b = filterBtns[i];
@@ -659,9 +745,6 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
         tileSanPham = new JPanel(new GridLayout(0, 3, 15, 15));
         tileSanPham.setOpaque(false);
-        
-        setActiveFilter("ALL", btnLocTatCa);
-
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
         wrapper.add(tileSanPham, BorderLayout.NORTH);
@@ -675,9 +758,132 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setWheelScrollingEnabled(true);
 
+        productCardLayout = new CardLayout();
+        panelProductsContainer = new JPanel(productCardLayout);
+        panelProductsContainer.setOpaque(false);
+        panelProductsContainer.add(scrollPane, "PRODUCTS");
+        panelProductsContainer.add(buildCustomCakePanel(), "CUSTOM_CAKE");
+        
+        setActiveFilter("ALL", btnLocTatCa);
+
         panel.add(filterBar, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(panelProductsContainer, BorderLayout.CENTER);
         return panel;
+    }
+
+    private JPanel buildCustomCakePanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(8, 8, 8, 8);
+        
+        cbCustomSp = new JComboBox<>();
+        cbCustomKichCo = new JComboBox<>();
+        cbCustomCotBanh = new JComboBox<>();
+        cbCustomNhanBanh = new JComboBox<>();
+        cbCustomTrangTri = new JComboBox<>();
+        txtCustomLoiChuc = new JTextArea(3, 20);
+        txtCustomGhiChu = new JTextArea(3, 20);
+        lblCustomPrice = new JLabel("0 đ", SwingConstants.RIGHT);
+        lblCustomPrice.setFont(new Font("Arial", Font.BOLD, 18));
+        lblCustomPrice.setForeground(COLOR_PRIMARY);
+        btnAddCustomToCart = new JButton("Thêm vào giỏ");
+        styleButton(btnAddCustomToCart, COLOR_ACCENT, Color.WHITE);
+        
+        // Listeners
+        java.awt.event.ActionListener calcPriceListener = e -> calculateCustomPrice();
+        cbCustomSp.addActionListener(calcPriceListener);
+        cbCustomKichCo.addActionListener(calcPriceListener);
+        cbCustomCotBanh.addActionListener(calcPriceListener);
+        cbCustomNhanBanh.addActionListener(calcPriceListener);
+        cbCustomTrangTri.addActionListener(calcPriceListener);
+        
+        btnAddCustomToCart.addActionListener(e -> {
+            if (presenter == null) return;
+            SanPhamDTO sp = (SanPhamDTO) cbCustomSp.getSelectedItem();
+            if (sp == null) {
+                hienThiLoi("Vui lòng chọn sản phẩm nền.");
+                return;
+            }
+            KichCoBanhDTO kc = (KichCoBanhDTO) cbCustomKichCo.getSelectedItem();
+            CotBanhDTO cot = (CotBanhDTO) cbCustomCotBanh.getSelectedItem();
+            NhanBanhDTO nhan = (NhanBanhDTO) cbCustomNhanBanh.getSelectedItem();
+            KieuTrangTriDTO tt = (KieuTrangTriDTO) cbCustomTrangTri.getSelectedItem();
+            
+            double donGia = parseDoubleSafe(lblCustomPrice.getText().replace(" đ", "").replace(",", ""));
+            presenter.themBanhTuyChinhVaoGio(sp, 1, donGia, 
+                kc != null ? kc.getMaKC() : null,
+                cot != null ? cot.getMaCot() : null,
+                nhan != null ? nhan.getMaNhan() : null,
+                tt != null ? tt.getMaTrangTri() : null,
+                txtCustomLoiChuc.getText().trim(),
+                txtCustomGhiChu.getText().trim());
+            hienThiThanhCong("Đã thêm bánh tùy chỉnh vào giỏ!");
+        });
+
+        int row = 0;
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Sản phẩm nền:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; panel.add(cbCustomSp, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Kích cỡ:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; panel.add(cbCustomKichCo, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Cốt bánh:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; panel.add(cbCustomCotBanh, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Nhân bánh:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; panel.add(cbCustomNhanBanh, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Trang trí:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; panel.add(cbCustomTrangTri, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Lời chúc trên bánh:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; 
+        JScrollPane scrollLoiChuc = new JScrollPane(txtCustomLoiChuc);
+        panel.add(scrollLoiChuc, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Ghi chú cho thợ:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; 
+        JScrollPane scrollGhiChu = new JScrollPane(txtCustomGhiChu);
+        panel.add(scrollGhiChu, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0.2; panel.add(new JLabel("Giá dự tính:"), gbc);
+        gbc.gridx = 1; gbc.gridy = row++; gbc.weightx = 0.8; panel.add(lblCustomPrice, gbc);
+        
+        gbc.gridx = 1; gbc.gridy = row++; gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.EAST;
+        panel.add(btnAddCustomToCart, gbc);
+
+        JPanel outerPanel = new JPanel(new BorderLayout());
+        outerPanel.setOpaque(false);
+        outerPanel.add(panel, BorderLayout.NORTH);
+        JScrollPane mainScroll = new JScrollPane(outerPanel);
+        mainScroll.setBorder(null);
+        mainScroll.setOpaque(false);
+        mainScroll.getViewport().setOpaque(false);
+        return outerPanel;
+    }
+
+    private void calculateCustomPrice() {
+        if (presenter == null) return;
+        SanPhamDTO sp = (SanPhamDTO) cbCustomSp.getSelectedItem();
+        if (sp == null) {
+            lblCustomPrice.setText("0 đ");
+            return;
+        }
+        KichCoBanhDTO kc = (KichCoBanhDTO) cbCustomKichCo.getSelectedItem();
+        CotBanhDTO cot = (CotBanhDTO) cbCustomCotBanh.getSelectedItem();
+        NhanBanhDTO nhan = (NhanBanhDTO) cbCustomNhanBanh.getSelectedItem();
+        KieuTrangTriDTO tt = (KieuTrangTriDTO) cbCustomTrangTri.getSelectedItem();
+        
+        double price = presenter.tinhGiaBanhTuyChinh(
+            sp.getMaSP(), 
+            kc != null ? kc.getMaKC() : null,
+            cot != null ? cot.getMaCot() : null,
+            nhan != null ? nhan.getMaNhan() : null,
+            tt != null ? tt.getMaTrangTri() : null
+        );
+        lblCustomPrice.setText(formatTien(price));
     }
 
     private JPanel buildCartPanel() {
@@ -1199,7 +1405,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
                     bankId, accountNo, amount, info, accountName.replace(" ", "%20")
             );
 
-            java.net.URL url = new java.net.URL(urlString);
+            java.net.URL url = java.net.URI.create(urlString).toURL();
             Image image = javax.imageio.ImageIO.read(url);
 
             // Resize ảnh cho vừa vặn với cửa sổ thông báo (ví dụ 300x300)

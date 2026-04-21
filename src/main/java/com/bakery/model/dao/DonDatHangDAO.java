@@ -243,7 +243,11 @@ public class DonDatHangDAO {
                         .append("\"donGia\":").append(item.getDonGia()).append(",")
                         .append("\"isCustom\":\"true\",")
                         .append("\"ghiChu\":\"").append(thoatKyTuJson(item.getLoiChucTrenBanh())).append("\",")
-                        .append("\"phuKien\":\"").append(thoatKyTuJson(item.getGhiChuThoBanh())).append("\"")
+                        .append("\"phuKien\":\"").append(thoatKyTuJson(item.getGhiChuThoBanh())).append("\",")
+                        .append("\"maKC\":").append(item.getMaKC() != null ? item.getMaKC() : "null").append(",")
+                        .append("\"maCot\":").append(item.getMaCot() != null ? item.getMaCot() : "null").append(",")
+                        .append("\"maNhan\":").append(item.getMaNhan() != null ? item.getMaNhan() : "null").append(",")
+                        .append("\"maTrangTri\":").append(item.getMaTrangTri() != null ? item.getMaTrangTri() : "null")
                         .append("}");
             }
         }

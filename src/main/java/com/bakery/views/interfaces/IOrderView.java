@@ -3,6 +3,10 @@ package com.bakery.views.interfaces;
 import com.bakery.model.dto.CTDonHangDTO;
 import com.bakery.model.dto.DonDatHangDTO;
 import com.bakery.model.dto.SanPhamDTO;
+import com.bakery.model.dto.KichCoBanhDTO;
+import com.bakery.model.dto.CotBanhDTO;
+import com.bakery.model.dto.NhanBanhDTO;
+import com.bakery.model.dto.KieuTrangTriDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +52,8 @@ public interface IOrderView {
     void hienThiDanhSachSanPham(List<SanPhamDTO> ds, Map<Integer, String> dict);
 
     void taiDanhSachTrangThai(List<String> list);
+    
+    void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo, List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh, List<KieuTrangTriDTO> trangTri);
 
     void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi);
 

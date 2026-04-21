@@ -14,7 +14,16 @@ import com.bakery.model.dto.KhachHangDTO;
 import com.bakery.model.dto.SanPhamDTO;
 import com.bakery.model.dto.TrangThaiDonDTO;
 import com.bakery.model.dto.YeuCauChiTietDonHangDTO;
+import com.bakery.model.dto.YeuCauChiTietDonTuyChinhDTO;
 import com.bakery.model.dto.YeuCauTaoDonHangDTO;
+import com.bakery.model.dao.KichCoBanhDAO;
+import com.bakery.model.dao.CotBanhDAO;
+import com.bakery.model.dao.NhanBanhDAO;
+import com.bakery.model.dao.KieuTrangTriDAO;
+import com.bakery.model.dto.KichCoBanhDTO;
+import com.bakery.model.dto.CotBanhDTO;
+import com.bakery.model.dto.NhanBanhDTO;
+import com.bakery.model.dto.KieuTrangTriDTO;
 
 import java.sql.SQLException;
 import java.text.Normalizer;
@@ -31,6 +40,10 @@ public class OrderService {
     private final SanPhamDAO sanPhamDAO;
     private final DanhMucSPDAO danhMucSPDAO;
     private final KhachHangDAO khachHangDAO;
+    private final KichCoBanhDAO kichCoBanhDAO;
+    private final CotBanhDAO cotBanhDAO;
+    private final NhanBanhDAO nhanBanhDAO;
+    private final KieuTrangTriDAO kieuTrangTriDAO;
 
     public OrderService() {
         this.donDatHangDAO = new DonDatHangDAO();
@@ -38,6 +51,10 @@ public class OrderService {
         this.sanPhamDAO = new SanPhamDAO();
         this.danhMucSPDAO = new DanhMucSPDAO();
         this.khachHangDAO = new KhachHangDAO();
+        this.kichCoBanhDAO = new KichCoBanhDAO();
+        this.cotBanhDAO = new CotBanhDAO();
+        this.nhanBanhDAO = new NhanBanhDAO();
+        this.kieuTrangTriDAO = new KieuTrangTriDAO();
     }
 
     public OrderService(DonDatHangDAO donDatHangDAO, HoaDonDAO hoaDonDAO, SanPhamDAO sanPhamDAO, DanhMucSPDAO danhMucSPDAO, KhachHangDAO khachHangDAO) {
@@ -46,6 +63,10 @@ public class OrderService {
         this.sanPhamDAO = sanPhamDAO;
         this.danhMucSPDAO = danhMucSPDAO;
         this.khachHangDAO = khachHangDAO;
+        this.kichCoBanhDAO = new KichCoBanhDAO();
+        this.cotBanhDAO = new CotBanhDAO();
+        this.nhanBanhDAO = new NhanBanhDAO();
+        this.kieuTrangTriDAO = new KieuTrangTriDAO();
     }
 
     public DonDatHangDTO loadOrderById(int maDon) throws Exception {
@@ -233,6 +254,15 @@ public class OrderService {
         return khachHangDAO.timKhachHangBangSDT(sdt.trim());
     }
 
+    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) {
+        return sanPhamDAO.tinhGiaBanhTuyChinh(maSP, maKC, maCot, maNhan, maTrangTri);
+    }
+
+    public List<KichCoBanhDTO> layDanhSachKichCo() { return kichCoBanhDAO.layDanhSachPhuPhi(); }
+    public List<CotBanhDTO> layDanhSachCotBanh() { return cotBanhDAO.layDanhSachPhuPhi(); }
+    public List<NhanBanhDTO> layDanhSachNhanBanh() { return nhanBanhDAO.layDanhSachPhuPhi(); }
+    public List<KieuTrangTriDTO> layDanhSachKieuTrangTri() { return kieuTrangTriDAO.layDanhSachPhuPhi(); }
+
     public List<TrangThaiDonDTO> layDanhSachTrangThaiDon() throws Exception {
         try {
             return donDatHangDAO.layDanhSachTrangThaiDon();
@@ -296,7 +326,17 @@ public class OrderService {
 
     private void chuyenDoiChiTietDonHang(List<YeuCauChiTietDonHangDTO> items, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) {
         for (YeuCauChiTietDonHangDTO item : items) {
-            if (item.isCustom()) {
+            if (item.isCustom() && item instanceof YeuCauChiTietDonTuyChinhDTO) {
+                YeuCauChiTietDonTuyChinhDTO customItem = (YeuCauChiTietDonTuyChinhDTO) item;
+                CTDonTuyChinhDTO ctTuyChinh = new CTDonTuyChinhDTO();
+                ctTuyChinh.setMaSP(item.getMaSP()); ctTuyChinh.setSoLuong(item.getSoLuong()); ctTuyChinh.setDonGia(item.getDonGia());
+                ctTuyChinh.setLoiChucTrenBanh(customItem.getLoiChucTrenBanh()); ctTuyChinh.setGhiChuThoBanh(customItem.getGhiChuThoBanh());
+                ctTuyChinh.setMaKC(customItem.getMaKC());
+                ctTuyChinh.setMaCot(customItem.getMaCot());
+                ctTuyChinh.setMaNhan(customItem.getMaNhan());
+                ctTuyChinh.setMaTrangTri(customItem.getMaTrangTri());
+                dsCtTuyChinh.add(ctTuyChinh);
+            } else if (item.isCustom()) {
                 CTDonTuyChinhDTO ctTuyChinh = new CTDonTuyChinhDTO();
                 ctTuyChinh.setMaSP(item.getMaSP()); ctTuyChinh.setSoLuong(item.getSoLuong()); ctTuyChinh.setDonGia(item.getDonGia());
                 ctTuyChinh.setLoiChucTrenBanh(item.getGhiChu()); ctTuyChinh.setGhiChuThoBanh(item.getPhuKien());
