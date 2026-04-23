@@ -269,6 +269,59 @@ public class DonDatHangDAO {
         return json.toString();
     }
 
+    public List<CTDonHangDTO> layChiTietDonHang(int maDon) throws SQLException {
+        List<CTDonHangDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM CTDONHANG WHERE MADON = ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, maDon);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        CTDonHangDTO item = new CTDonHangDTO();
+                        item.setMaCTHD(rs.getInt("MACTHD"));
+                        item.setMaDon(rs.getInt("MADON"));
+                        item.setMaSP(rs.getInt("MASP"));
+                        item.setSoLuong(rs.getInt("SOLUONG"));
+                        item.setDonGia(rs.getDouble("DONGIA"));
+                        item.setDonGiaVon(rs.getDouble("DONGIAVON"));
+                        item.setPhanTramGiam(rs.getDouble("PHANTRAMGIAM"));
+                        list.add(item);
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<CTDonTuyChinhDTO> layChiTietTuyChinh(int maDon) throws SQLException {
+        List<CTDonTuyChinhDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM CTDON_TUYCHINH WHERE MADON = ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, maDon);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        CTDonTuyChinhDTO item = new CTDonTuyChinhDTO();
+                        item.setMaCTTC(rs.getInt("MACTTC"));
+                        item.setMaDon(rs.getInt("MADON"));
+                        item.setMaSP(rs.getInt("MASP"));
+                        item.setSoLuong(rs.getInt("SOLUONG"));
+                        item.setDonGia(rs.getDouble("DONGIA"));
+                        item.setDonGiaVon(rs.getDouble("DONGIAVON"));
+                        item.setMaKC(rs.getInt("MAKC"));
+                        item.setMaCot(rs.getInt("MACOT"));
+                        item.setMaNhan(rs.getInt("MANHAN"));
+                        item.setMaTrangTri(rs.getInt("MATRANGTRI"));
+                        item.setLoiChucTrenBanh(rs.getString("LOICHUCTRENBANH"));
+                        item.setGhiChuThoBanh(rs.getString("GHICHUTHOBANH"));
+                        list.add(item);
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
     private String thoatKyTuJson(String value) {
         if (value == null) return "";
         return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");

@@ -1,6 +1,7 @@
 package com.bakery.presenters;
 
 import com.bakery.model.dto.CTDonHangDTO;
+import com.bakery.model.dto.CTDonTuyChinhDTO;
 import com.bakery.model.dto.DonDatHangDTO;
 import com.bakery.model.dto.HoaDonDTO;
 import com.bakery.model.dto.KhachHangDTO;
@@ -28,17 +29,9 @@ public class OrderPresenter {
     private final List<YeuCauChiTietDonHangDTO> gioHangItems = new ArrayList<>();
     private final Map<String, Integer> mapTrangThaiMoi = new HashMap<>();
     private final Map<Integer, String> mapDanhMuc = new HashMap<>();
-    private Integer maKhachHangDangChon = null;
     private double phanTramGiamGia = 0.0;
     private static final int MOCK_CURRENT_USER_ID = 1;
 
-    private final List<YeuCauChiTietDonHangDTO> gioHangDaThanhToan = new ArrayList<>();
-    private double tongTienDaThanhToan = 0.0;
-    private double phanTramGiamGiaDaThanhToan = 0.0;
-    private Integer maDonDaThanhToan = null;
-    private Integer maHoaDonDaThanhToan = null;
-    private LocalDateTime ngayLapHoaDonDaThanhToan = null;
-    
     private String lastSearchMaDon = "";
     private LocalDate lastSearchNgay = LocalDate.now();
     private LocalTime lastSearchTu = null;
@@ -143,12 +136,11 @@ public class OrderPresenter {
         try {
             KhachHangDTO kh = orderService.timKhachHangTheoSoDienThoai(sdt);
             if (kh != null) {
-                maKhachHangDangChon = kh.getMaKH();
                 phanTramGiamGia = 0.10;
                 view.hienThiThongTinKhach(kh.getHoTen() + " (Thành viên -10%)", true);
             } else {
                 lamMoiKhachHang();
-                view.hienThiThongTinKhach("Khách vãng lai (Chưa ĐK)", false);
+                view.hienThiThongTinKhach("Khách chưa là thành viên! ", false);
             }
         } catch (Exception e) {
             lamMoiKhachHang();
@@ -158,117 +150,107 @@ public class OrderPresenter {
     }
 
     private void lamMoiKhachHang() {
-        maKhachHangDangChon = null;
         phanTramGiamGia = 0.0;
-        view.hienThiThongTinKhach("Khách vãng lai", false);
     }
 
     public void capNhatGioHangVaTien() {
         double tongTienHang = gioHangItems.stream().mapToDouble(i -> i.getDonGia() * i.getSoLuong()).sum();
         double tienGiamGia = tongTienHang * phanTramGiamGia;
         double tongTienPhaiTra = tongTienHang - tienGiamGia;
-        double tienKhachDua = view.getTienKhachDua();
-        double tienCocNhapVao = view.getTienCoc();
-
-        double soTienGhiNhan = (tienCocNhapVao > 0) ? tienCocNhapVao : Math.min(tongTienPhaiTra, tienKhachDua);
-        double conLai = Math.max(0, tongTienPhaiTra - soTienGhiNhan);
-        double tienThua = Math.max(0, tienKhachDua - soTienGhiNhan);
-
-        view.lamMoiBaoCaoTien(tongTienHang, tienGiamGia, tongTienPhaiTra, tongTienPhaiTra * 0.5, conLai, tienThua,
-                tienKhachDua < soTienGhiNhan);
+        double minCoc = tongTienPhaiTra * 0.5;
+        // Truyền 0 cho các giá trị không còn nhập trên màn hình chính
+        view.lamMoiBaoCaoTien(tongTienHang, tienGiamGia, tongTienPhaiTra, minCoc, 0, 0, false);
         view.lamMoiBangGioHang(convertToCTDonHangList(gioHangItems), tatCaSanPham);
-        view.batTatNutThanhToan(!gioHangItems.isEmpty() && view.isXacNhanThuTien());
+        view.batTatNutThanhToan(!gioHangItems.isEmpty());
     }
 
-    public void xuLyDatBanh() {
-        if (!kiemTraNgayNhanHopLeChoThanhToan()) {
+    /**
+     * Mở CreateOrderDialog và xử lý kết quả.
+     * Đây là phương thức trung tâm của luồng tạo đơn mới.
+     */
+    public void moDialogTaoDon() {
+        if (gioHangItems.isEmpty()) {
+            view.hienThiLoi("Đơn hàng đang trống!");
             return;
         }
-        double tongTienPhaiTra = view.getTongThanhToanHienTai();
-        double tienKhachDua = view.getTienKhachDua();
-        double tienCocNhapVao = view.getTienCoc();
-        double soTienGhiNhan = (tienCocNhapVao > 0) ? tienCocNhapVao : Math.min(tongTienPhaiTra, tienKhachDua);
+        double tongTienPhaiTra = gioHangItems.stream()
+                .mapToDouble(i -> i.getDonGia() * i.getSoLuong()).sum() * (1 - phanTramGiamGia);
 
-        if (soTienGhiNhan > tongTienPhaiTra) {
-            view.hienThiLoi("Tiền cọc không được vượt quá tổng tiền đơn");
-            return;
-        }
-        if (soTienGhiNhan < (tongTienPhaiTra * 0.5)) {
-            view.hienThiLoi("Cọc chưa đủ 50%");
-            return;
-        }
-        if (tienKhachDua > 0 && tienKhachDua < soTienGhiNhan) {
-            view.hienThiLoi("Khách đưa không đủ tiền cọc");
-            return;
-        }
+        com.bakery.views.CreateOrderDialog.CustomerLookup lookup = sdt -> {
+            try {
+                KhachHangDTO kh = orderService.timKhachHangTheoSoDienThoai(sdt);
+                if (kh != null) return new String[]{ String.valueOf(kh.getMaKH()), kh.getHoTen() };
+            } catch (Exception ignored) {}
+            return null;
+        };
 
-        Integer hinhThucNhan = view.getHinhThucNhan();
-        if (hinhThucNhan == 2) {
-            if (view.getDiaChiGiao().isEmpty()) {
-                view.hienThiLoi("Bắt buộc nhập địa chỉ");
-                return;
-            }
-            if (view.getSoDienThoai().isEmpty()) {
-                view.hienThiLoi("Bắt buộc nhập số điện thoại khi giao hàng");
-                return;
-            }
-        }
+        com.bakery.views.CreateOrderDialog dialog = new com.bakery.views.CreateOrderDialog(
+                null, tongTienPhaiTra, lookup);
+        dialog.setVisible(true);
+
+        com.bakery.views.CreateOrderDialog.OrderRequest req = dialog.getResult();
+        if (!req.confirmed) return;
+
+        // Áp dụng thông tin khách hàng từ dialog
+        phanTramGiamGia = (req.maKH != null) ? 0.10 : 0.0;
+        view.hienThiThongTinKhach(req.tenKhach, req.maKH != null);
 
         try {
-            YeuCauTaoDonHangDTO request = taoYeuCauDonHangDTO(hinhThucNhan, soTienGhiNhan);
-            int maDonMoi = orderService.submitNewOrder(request);
-            view.hienThiThanhCong("Tạo đơn mới thành công-Mã đơn: " + maDonMoi);
-            view.inPhieuHoaDon("PHIẾU HẸN ĐẶT HÀNG", maDonMoi, null, LocalDateTime.now(),
-                    tongTienPhaiTra, soTienGhiNhan, convertToCTDonHangList(gioHangItems), tatCaSanPham,
-                    phanTramGiamGia);
+            if (req.orderType == com.bakery.views.CreateOrderDialog.OrderType.IMMEDIATE) {
+                xuLyThanhToanNgay(req, tongTienPhaiTra);
+            } else {
+                xuLyDatTruoc(req, tongTienPhaiTra);
+            }
             lamMoiTrangThai();
             timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen);
         } catch (Exception e) {
-            view.hienThiLoi(e.getMessage());
+            view.hienThiLoi("Lỗi: " + e.getMessage());
         }
     }
 
-    public void xuLyThanhToanTrucTiep() {
-        if (xuLyLuuDonHangVaoDB()) {
-            xuLySauKhiLuuDonThanhCong();
-        }
+    /** Luồng 1: Thanh toán ngay (trực tiếp tại quầy) */
+    private void xuLyThanhToanNgay(com.bakery.views.CreateOrderDialog.OrderRequest req, double tongTien) throws Exception {
+        YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
+        request.setMaKH(req.maKH);
+        request.setMaNVLap(MOCK_CURRENT_USER_ID);
+        request.setTienDaCoc(tongTien);
+        request.setHinhThucNhan(1); // Trực tiếp
+        // Đặt thời gian nhận = ngay bây giờ + đệm 30s để tránh lỗi validation "quá khứ" phía DB
+        request.setNgayGioNhanBanh(LocalDateTime.now().plusSeconds(30));
+        request.setDiaChiGiao(null);
+        request.setItems(new ArrayList<>(gioHangItems));
+
+        HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua);
+        view.hienThiThanhCong("Đã thanh toán! Mã HĐ: #" + hd.getMaHD());
+        view.inPhieuHoaDon("HÓA ĐƠN BÁN LẾ",
+                hd.getMaDon(), hd.getMaHD(), hd.getNgayXuatHd(),
+                tongTien, tongTien,
+                convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia);
     }
 
-    public boolean xuLyLuuDonHangVaoDB() {
-        if (!kiemTraNgayNhanHopLeChoThanhToan()) {
-            return false;
-        }
+    /** Luồng 2: Đặt trước (pre-order) */
+    private void xuLyDatTruoc(com.bakery.views.CreateOrderDialog.OrderRequest req, double tongTien) throws Exception {
+        YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
+        request.setMaKH(req.maKH);
+        request.setMaNVLap(MOCK_CURRENT_USER_ID);
+        request.setTienDaCoc(req.tienCoc);
+        request.setHinhThucNhan(2); // Đặt hàng
+        request.setNgayGioNhanBanh(req.ngayGioNhan);
+        request.setDiaChiGiao(req.diaChiGiao);
+        request.setItems(new ArrayList<>(gioHangItems));
 
-        double tongTienPhaiTra = view.getTongThanhToanHienTai();
-        double tienKhachDua = view.getTienKhachDua();
-
-        if (tienKhachDua < tongTienPhaiTra) {
-            view.hienThiLoi("Khách đưa chưa đủ tiền!");
-            return false;
-        }
-
-        try {
-            YeuCauTaoDonHangDTO request = taoYeuCauDonHangDTO(1, tongTienPhaiTra);
-            HoaDonDTO hoaDonDaTao = orderService.thanhToanTrucTiep(request, tienKhachDua);
-            luuThongTinDonHangDaThanhToan(tongTienPhaiTra, hoaDonDaTao);
-            return true;
-        } catch (Exception e) {
-            view.hienThiLoi(e.getMessage());
-            return false;
-        }
+        int maDon = orderService.submitNewOrder(request);
+        view.hienThiThanhCong("Đặt đơn thành công! Mã đơn: #" + maDon);
+        view.inPhieuHoaDon("PHIẾU HẸN LẤY BÁNH",
+                maDon, null, req.ngayGioNhan,
+                tongTien, req.tienCoc,
+                convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia);
     }
 
-    public void xuLySauKhiLuuDonThanhCong() {
-        if (gioHangDaThanhToan.isEmpty()) {
-            return;
-        }
-        view.hienThiThanhCong("Thanh toán hoàn tất!");
-        view.inPhieuHoaDon("HÓA ĐƠN BÁN LẺ", maDonDaThanhToan, maHoaDonDaThanhToan, ngayLapHoaDonDaThanhToan,
-                tongTienDaThanhToan, tongTienDaThanhToan, convertToCTDonHangList(gioHangDaThanhToan), tatCaSanPham,
-                phanTramGiamGiaDaThanhToan);
-        lamMoiTrangThai();
-        xoaThongTinDonHangDaThanhToan();
-    }
+    /** Giữ lại để tương thích ngược */
+    public void xuLyThanhToanModern() { moDialogTaoDon(); }
+    public void xuLyDatBanh() { moDialogTaoDon(); }
+    public void xuLyThanhToanTrucTiep() { moDialogTaoDon(); }
 
     public void traCuuDonHang(String maDonStr) {
         try {
@@ -291,8 +273,57 @@ public class OrderPresenter {
             }
 
             DonDatHangDTO donHienTai = orderService.loadOrderById(maDon);
-            orderService.chuyenTrangThaiDon(maDon, maTtMoi, MOCK_CURRENT_USER_ID, donHienTai.getHinhThucNhan(),
+
+            HoaDonDTO hoaDonMoi = null;
+            // Nếu chuyển sang trạng thái Hoàn thành, yêu cầu xác nhận thu tiền còn lại
+            if ("HOAN_THANH".equals(chuanHoaTrangThai(ttMoi))) {
+                double tongTien = donHienTai.getTongTienHDBan();
+                double daCoc = donHienTai.getTienDaCoc();
+                double conLai = Math.max(0, tongTien - daCoc);
+
+                if (conLai > 0) {
+                    boolean xacNhan = view.hienThiXacNhanThanhToan(maDon, tongTien, daCoc, conLai);
+                    if (!xacNhan) {
+                        return; // Hủy cập nhật nếu không xác nhận thanh toán
+                    }
+                }
+            }
+
+            hoaDonMoi = orderService.chuyenTrangThaiDon(maDon, maTtMoi, MOCK_CURRENT_USER_ID,
+                    donHienTai.getHinhThucNhan(),
                     ttHienTai, ttMoi);
+
+            // Nếu có tạo hóa đơn (đã thanh toán), thực hiện in hóa đơn
+            if (hoaDonMoi != null) {
+                try {
+                    List<CTDonHangDTO> items = orderService.layChiTietDonHang(maDon);
+                    List<CTDonTuyChinhDTO> customItems = orderService.layChiTietTuyChinh(maDon);
+
+                    // Gộp các món tùy chỉnh vào danh sách in (convert đơn giản)
+                    for (CTDonTuyChinhDTO c : customItems) {
+                        CTDonHangDTO clone = new CTDonHangDTO();
+                        clone.setMaSP(c.getMaSP());
+                        clone.setSoLuong(c.getSoLuong());
+                        clone.setDonGia(c.getDonGia());
+                        items.add(clone);
+                    }
+
+                    view.inPhieuHoaDon(
+                            "HOÁ ĐƠN THANH TOÁN",
+                            maDon,
+                            hoaDonMoi.getMaHD(),
+                            hoaDonMoi.getNgayXuatHd(),
+                            donHienTai.getTongTienHDBan(),
+                            donHienTai.getTongTienHDBan(), // Thu đủ tổng tiền sau khi nộp nốt
+                            items,
+                            tatCaSanPham, // Dùng dữ liệu đã load sẵn
+                            0.0 // Giảm giá đã tính vào tổng tiền đơn hàng từ trước
+                    );
+                } catch (Exception ex) {
+                    view.showError("Không thể tải chi tiết đơn hàng để in hóa đơn.");
+                }
+            }
+
             view.hienThiThongBaoTraCuu("Cập nhật thành công đơn #" + maDon);
             timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen);
         } catch (Exception e) {
@@ -313,67 +344,13 @@ public class OrderPresenter {
         }
     }
 
-    private YeuCauTaoDonHangDTO taoYeuCauDonHangDTO(Integer hinhThuc, double tienDaCoc) {
-        YeuCauTaoDonHangDTO req = new YeuCauTaoDonHangDTO();
-        req.setNgayGioNhanBanh(view.getNgayGioNhanBanh());
-        req.setMaKH(maKhachHangDangChon);
-        req.setMaNVLap(MOCK_CURRENT_USER_ID);
-        req.setMaTrangThai(0);
-        req.setTienDaCoc(tienDaCoc);
-        req.setHinhThucNhan(hinhThuc);
-        
-        String diaChi = hinhThuc == 2 ? view.getDiaChiGiao() : null;
-        if (hinhThuc == 2) {
-            String sdt = view.getSoDienThoai();
-            if (sdt != null && !sdt.isEmpty()) {
-                diaChi = diaChi + " - SĐT liên hệ: " + sdt;
-            }
-        }
-        req.setDiaChiGiao(diaChi);
 
-        req.setItems(new ArrayList<>(gioHangItems));
-        return req;
-    }
 
     private void lamMoiTrangThai() {
         gioHangItems.clear();
         lamMoiKhachHang();
         view.lamMoiForm();
         capNhatGioHangVaTien();
-    }
-
-    private void luuThongTinDonHangDaThanhToan(double tongTienPhaiTra, HoaDonDTO hoaDonDaTao) {
-        gioHangDaThanhToan.clear();
-        for (YeuCauChiTietDonHangDTO item : gioHangItems) {
-            if (item instanceof YeuCauChiTietDonTuyChinhDTO) {
-                YeuCauChiTietDonTuyChinhDTO c = (YeuCauChiTietDonTuyChinhDTO) item;
-                gioHangDaThanhToan.add(new YeuCauChiTietDonTuyChinhDTO(
-                        c.getMaSP(), c.getSoLuong(), c.getDonGia(), c.getGhiChu(), c.getPhuKien(),
-                        c.getMaKC(), c.getMaCot(), c.getMaNhan(), c.getMaTrangTri(), c.getLoiChucTrenBanh(),
-                        c.getGhiChuThoBanh()));
-            } else {
-                YeuCauChiTietDonHangDTO clone = new YeuCauChiTietDonHangDTO();
-                clone.setMaSP(item.getMaSP());
-                clone.setSoLuong(item.getSoLuong());
-                clone.setDonGia(item.getDonGia());
-                clone.setCustom(false);
-                gioHangDaThanhToan.add(clone);
-            }
-        }
-        tongTienDaThanhToan = tongTienPhaiTra;
-        phanTramGiamGiaDaThanhToan = phanTramGiamGia;
-        maDonDaThanhToan = hoaDonDaTao.getMaDon();
-        maHoaDonDaThanhToan = hoaDonDaTao.getMaHD();
-        ngayLapHoaDonDaThanhToan = hoaDonDaTao.getNgayXuatHd();
-    }
-
-    private void xoaThongTinDonHangDaThanhToan() {
-        gioHangDaThanhToan.clear();
-        tongTienDaThanhToan = 0.0;
-        phanTramGiamGiaDaThanhToan = 0.0;
-        maDonDaThanhToan = null;
-        maHoaDonDaThanhToan = null;
-        ngayLapHoaDonDaThanhToan = null;
     }
 
     public boolean kiemTraNgayNhanHopLeChoThanhToan() {
@@ -394,5 +371,18 @@ public class OrderPresenter {
             }
         }
         return true;
+    }
+
+    private String chuanHoaTrangThai(String rawStatus) {
+        if (rawStatus == null)
+            return "";
+        String normalized = java.text.Normalizer.normalize(rawStatus.trim(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replace("đ", "d").replace("Đ", "D")
+                .replace("Ä‘", "d").replace("Ä ", "D")
+                .toUpperCase().replace(' ', '_');
+        if (normalized.contains("KHACH") && normalized.contains("LAY"))
+            return "CHO_KHACH_LAY";
+        return normalized;
     }
 }

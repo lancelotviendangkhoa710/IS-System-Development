@@ -42,15 +42,27 @@ public class Receipt extends JFrame {
     public Receipt(String tieuDe, String maDonStr, String maHoaDonStr, String ngayLapHoaDon, String khachHang,
             List<CTDonHangDTO> cart, List<SanPhamDTO> data,
             String tienGiamGia, String tongTien, String daThu,
-            String tienKhachDua, String tienThua) {
+            String tienKhachDua, String tienThua, Double customQrAmount) {
         setTitle("Hóa đơn - H3k Bakery");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         getContentPane().setBackground(new Color(240, 237, 234));
 
+        // Tự động tạo QR code cho hóa đơn
+        double amountToQr = 0;
+        if (customQrAmount != null && customQrAmount > 0) {
+            amountToQr = customQrAmount;
+        } else {
+            try {
+                amountToQr = Double.parseDouble(tongTien.replaceAll("[^0-9]", ""));
+            } catch (Exception e) {}
+        }
+        
+        ImageIcon qrIcon = taoMaVietQR(amountToQr, maDonStr != null ? maDonStr : "DonHang");
+
         setLayout(new BorderLayout());
         JPanel panelHoaDon = taoPanelHoaDon(
                 tieuDe, maDonStr, maHoaDonStr, ngayLapHoaDon, khachHang, cart, data,
-                tienGiamGia, tongTien, daThu, tienKhachDua, tienThua, null);
+                tienGiamGia, tongTien, daThu, tienKhachDua, tienThua, qrIcon);
         add(panelHoaDon, BorderLayout.CENTER);
 
         JButton btnSavePdf = new JButton("Lưu PDF");
@@ -257,5 +269,13 @@ public class Receipt extends JFrame {
         p.add(l1, BorderLayout.WEST);
         p.add(l2, BorderLayout.EAST);
         return p;
+    }
+
+    private ImageIcon taoMaVietQR(double amount, String orderId) {
+        ImageIcon icon = com.bakery.utils.QRGenerator.generateDefaultQR(amount, orderId);
+        if (icon != null) {
+            return new ImageIcon(icon.getImage().getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH));
+        }
+        return null;
     }
 }

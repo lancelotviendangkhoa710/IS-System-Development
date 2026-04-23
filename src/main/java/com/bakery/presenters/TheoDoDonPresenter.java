@@ -127,9 +127,13 @@ public class TheoDoDonPresenter {
                     maDon, maTtMoi, MOCK_CURRENT_USER_ID,
                     donHienTai.getHinhThucNhan(), ttHienTai, ttMoi);
 
-            // Nếu chuyển sang HOÀN_THÀNH → tạo hóa đơn
+            // Nếu chuyển sang HOÀN_THÀNH → tạo hóa đơn và in
             if (donHoanThanh != null) {
-                thanhToanService.chotHoaDonDatHang(donHoanThanh);
+                com.bakery.model.dto.HoaDonDTO hd = thanhToanService.chotHoaDonDatHang(donHoanThanh);
+                if (hd != null) {
+                    List<com.bakery.model.dto.CTDonHangDTO> dsItems = donHangService.layChiTietDonHang(maDon);
+                    view.inHoaDonHoanThanh(donHoanThanh, hd, dsItems);
+                }
             }
 
             view.hienThiThongBaoTraCuu("Cập nhật thành công đơn #" + maDon);

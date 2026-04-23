@@ -73,7 +73,8 @@ public class GioHangPresenter {
      * change = 0: xóa hẳn; change > 0: tăng; change < 0: giảm.
      */
     public void thayDoiSoLuongMon(int index, int change) {
-        if (index < 0 || index >= gioHangItems.size()) return;
+        if (index < 0 || index >= gioHangItems.size())
+            return;
 
         YeuCauChiTietDonHangDTO item = gioHangItems.get(index);
         if (change == 0) {
@@ -109,7 +110,7 @@ public class GioHangPresenter {
         view.lamMoiBaoCaoTien(tongTienHang, tienGiamGia, tongTienPhaiTra,
                 tongTienPhaiTra * 0.5, conLai, tienThua, tienKhachDua < soTienGhiNhan);
         view.lamMoiBangGioHang(convertToCTDonHangList(gioHangItems), tatCaSanPham);
-        view.batTatNutThanhToan(!gioHangItems.isEmpty() && view.isXacNhanThuTien());
+        view.batTatNutThanhToan(!gioHangItems.isEmpty());
     }
 
     // =========================================================

@@ -2,8 +2,6 @@ package com.bakery.presenters;
 
 import com.bakery.model.dto.KhachHangDTO;
 import com.bakery.model.dto.SanPhamDTO;
-import com.bakery.model.dto.TrangThaiDonDTO;
-import com.bakery.services.DonHangService;
 import com.bakery.services.KhachHangService;
 import com.bakery.services.SanPhamService;
 import com.bakery.services.TuyChinhBanhService;
@@ -14,29 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Presenter duy nhất chịu trách nhiệm khởi tạo dữ liệu ban đầu cho View:
- * Sản phẩm POS, danh mục, tùy chọn tùy chỉnh, tìm kiếm khách hàng.
- * (SRP – Single Responsibility Principle)
- */
 public class KhoiTaoDuLieuPresenter {
 
     private final IOrderView view;
     private final SanPhamService sanPhamService;
     private final TuyChinhBanhService tuyChinhBanhService;
-    private final DonHangService donHangService;
     private final KhachHangService khachHangService;
     private final GioHangPresenter gioHangPresenter;
     private final TheoDoDonPresenter theoDoDonPresenter;
 
     public KhoiTaoDuLieuPresenter(IOrderView view, SanPhamService sanPhamService,
-            TuyChinhBanhService tuyChinhBanhService, DonHangService donHangService,
+            TuyChinhBanhService tuyChinhBanhService,
             KhachHangService khachHangService, GioHangPresenter gioHangPresenter,
             TheoDoDonPresenter theoDoDonPresenter) {
         this.view = view;
         this.sanPhamService = sanPhamService;
         this.tuyChinhBanhService = tuyChinhBanhService;
-        this.donHangService = donHangService;
         this.khachHangService = khachHangService;
         this.gioHangPresenter = gioHangPresenter;
         this.theoDoDonPresenter = theoDoDonPresenter;
@@ -93,7 +84,7 @@ public class KhoiTaoDuLieuPresenter {
     /**
      * Tra cứu khách hàng theo SĐT.
      * Nếu tìm thấy → áp dụng giảm giá thành viên 10%.
-     * Nếu không   → reset về khách vãng lai.
+     * Nếu không → reset về khách vãng lai.
      */
     public void timKhachHang(String sdt) {
         if (sdt == null || sdt.trim().isEmpty()) {
@@ -123,6 +114,5 @@ public class KhoiTaoDuLieuPresenter {
 
     private void lamMoiKhachHang() {
         gioHangPresenter.setPhanTramGiamGia(0.0);
-        view.hienThiThongTinKhach("Khách vãng lai", false);
     }
 }

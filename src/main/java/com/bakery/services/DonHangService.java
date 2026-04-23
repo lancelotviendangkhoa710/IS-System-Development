@@ -166,6 +166,26 @@ public class DonHangService {
         }
     }
 
+    /** Lấy danh sách chi tiết sản phẩm của đơn hàng. */
+    public List<CTDonHangDTO> layChiTietDonHang(int maDon) throws Exception {
+        if (maDon <= 0) throw new IllegalArgumentException("Mã đơn không hợp lệ.");
+        try {
+            return donDatHangDAO.layChiTietDonHang(maDon);
+        } catch (SQLException e) {
+            throw new Exception("Không thể lấy chi tiết đơn hàng: " + e.getMessage(), e);
+        }
+    }
+
+    /** Lấy danh sách chi tiết tùy chỉnh (bánh custom) của đơn hàng. */
+    public List<CTDonTuyChinhDTO> layChiTietTuyChinh(int maDon) throws Exception {
+        if (maDon <= 0) throw new IllegalArgumentException("Mã đơn không hợp lệ.");
+        try {
+            return donDatHangDAO.layChiTietTuyChinh(maDon);
+        } catch (SQLException e) {
+            throw new Exception("Không thể lấy chi tiết tùy chỉnh: " + e.getMessage(), e);
+        }
+    }
+
     /** Lấy danh sách tất cả trạng thái đơn hàng từ DB. */
     public List<TrangThaiDonDTO> layDanhSachTrangThaiDon() throws Exception {
         try {

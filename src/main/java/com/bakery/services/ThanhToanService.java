@@ -80,7 +80,7 @@ public class ThanhToanService {
      * Tạo và chốt hóa đơn khi đơn đặt hàng chuyển sang HOÀN_THÀNH.
      * Được gọi bởi TheoDoDonService sau khi chuyển trạng thái.
      */
-    public void chotHoaDonDatHang(DonDatHangDTO donHang) throws Exception {
+    public HoaDonDTO chotHoaDonDatHang(DonDatHangDTO donHang) throws Exception {
         if (donHang == null)
             throw new IllegalArgumentException("Thông tin đơn hàng bị trống.");
 
@@ -99,7 +99,9 @@ public class ThanhToanService {
             int maHD = hoaDonDAO.themHoaDonMoi(hd);
             if (maHD > 0) {
                 hoaDonDAO.thanhToanVaThangHang(maHD, donHang.getMaKH(), tongTien);
+                return hoaDonDAO.layHoaDonTheoMa(maHD);
             }
+            return null;
         } catch (SQLException e) {
             throw new Exception("Chốt hóa đơn đặt hàng thất bại: " + e.getMessage(), e);
         }

@@ -10,9 +10,6 @@ import javax.swing.*;
 public class OrderUiSmokeTestApp {
     public static void main(String[] args) {
 
-
-
-
         SwingUtilities.invokeLater(() -> {
             try {
                 FlatLightLaf.setup();

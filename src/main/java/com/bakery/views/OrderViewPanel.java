@@ -46,7 +46,8 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     private final Color COLOR_TEXT = new Color(31, 41, 55); // #1F2937 - Slate Gray (Xám đá, dễ đọc hơn đen)
     private final Color COLOR_HEADING = new Color(69, 26, 3); // #451A03 - Deep Coffee (Nâu cà phê đậm)
     private final Color COLOR_SUB_TEXT = new Color(107, 114, 128); // #6B7280 - Muted Gray (Xám dịu)
-    private final Color COLOR_DISABLED = new Color(243, 244, 246); // #F3F4F6 (Xám nhạt cho trạng thái tắt)
+    // private final Color COLOR_DISABLED = new Color(243, 244, 246); // #F3F4F6
+    // (Xám nhạt cho trạng thái tắt)
     private final Color COLOR_ACCENT = new Color(159, 18, 57); // #9F1239 - Berry Red (Đỏ dâu cho điểm nhấn)
     private final Color SUCCESS = new Color(5, 150, 105); // #059669 - Emerald (Xanh ngọc lục bảo)
     private final Color ERROR = new Color(225, 29, 72); // #E11D48 - Rose Red (Đỏ hoa hồng)
@@ -58,7 +59,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     private final List<DonDatHangDTO> localDonTheoDoi = new ArrayList<>();
     private Map<Integer, String> localMapDanhMuc;
 
-    private JTextField txtTimKiemSanPham, txtSoDienThoai, txtDiaChiGiao, txtTienCoc, txtTienKhachDua;
+    private JTextField txtTimKiemSanPham;
     private JButton btnLocTatCa, btnLocCake, btnLocCookie, btnLocBread, btnLocTuyChinh;
     private String danhMucHienTai = "ALL";
     private JPanel tileSanPham;
@@ -78,16 +79,12 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     private JTable tblGioHang;
     private DefaultTableModel modelBangGioHang;
-    private JLabel lblTenKhachHang, lblThongBaoTab1, lblErrDiaChiGiao, lblErrNgayNhanBanh;
+    private JLabel lblTenKhachHang, lblThongBaoTab1;
     private JLabel lblTongTienHang, lblTienGiamGia, lblTongThanhToan, lblCocToiThieu, lblConLai, lblTienThua;
-    private JComboBox<String> cbHinhThucNhan, cbGioNhanBanh;
-    private SwingDatePicker dpNgayNhanBanh;
-    private JCheckBox chkXacNhanThuTien;
-    private JButton btnTaoDonHang, btnThanhToan, btnTimKhach;
+    private JButton btnThanhToan, btnTimTheoNgayGio;
 
     private JTextField txtTimMaDon;
     private JLabel lblThongBaoTab2;
-    private JButton btnTimTheoNgayGio;
     private SwingDatePicker dpNgayTheoDoi;
     private JComboBox<String> cbGioTu, cbGioDen;
     private JPanel panelChuaDon;
@@ -110,119 +107,44 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     private void ganSuKien() {
         txtTimKiemSanPham.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                apDungBoLoc();
-            }
-        });
-        btnTimKhach.addActionListener(e -> {
-            if (presenter != null)
-                presenter.timKhachHang(txtSoDienThoai.getText());
-        });
-        cbHinhThucNhan.addActionListener(e -> {
-            boolean isDatHang = "Đặt hàng".equals(cbHinhThucNhan.getSelectedItem());
-            txtDiaChiGiao.setEnabled(isDatHang);
-            if (!isDatHang) {
-                txtDiaChiGiao.setText("");
-                lblErrDiaChiGiao.setText("");
-            }
-        });
-
-        DocumentListener calcListener = new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                if (presenter != null)
-                    presenter.capNhatGioHangVaTien();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                if (presenter != null)
-                    presenter.capNhatGioHangVaTien();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                if (presenter != null)
-                    presenter.capNhatGioHangVaTien();
-            }
-        };
-        txtTienCoc.getDocument().addDocumentListener(calcListener);
-        txtTienKhachDua.getDocument().addDocumentListener(calcListener);
-        chkXacNhanThuTien.addActionListener(e -> {
-            if (presenter != null)
-                presenter.capNhatGioHangVaTien();
-        });
-
-        btnTaoDonHang.addActionListener(e -> {
-            if (presenter != null)
-                presenter.xuLyDatBanh();
-        });
-        btnThanhToan.addActionListener(e -> {
-            if (presenter == null) {
-                return;
-            }
-            if (!presenter.kiemTraNgayNhanHopLeChoThanhToan()) {
-                return;
-            }
-            moDialogXacNhanThanhToan();
+            @Override public void keyReleased(KeyEvent e) { apDungBoLoc(); }
         });
 
         btnTimTheoNgayGio.addActionListener(e -> {
-            if (presenter == null)
-                return;
+            if (presenter == null) return;
             String maSearch = txtTimMaDon.getText().trim();
             LocalDate ngay = dpNgayTheoDoi.getValue();
-            LocalTime tu = cbGioTu.getSelectedIndex() == 0 ? null
-                    : LocalTime.parse(cbGioTu.getSelectedItem().toString());
-            LocalTime den = cbGioDen.getSelectedIndex() == 0 ? null
-                    : LocalTime.parse(cbGioDen.getSelectedItem().toString());
+            LocalTime tu = cbGioTu.getSelectedIndex() == 0 ? null : LocalTime.parse(cbGioTu.getSelectedItem().toString());
+            LocalTime den = cbGioDen.getSelectedIndex() == 0 ? null : LocalTime.parse(cbGioDen.getSelectedItem().toString());
             presenter.timKiemDonTheoDoi(maSearch, ngay, tu, den);
         });
     }
 
-    public double getTienKhachDua() {
-        return chuyenSoAnToan(txtTienKhachDua.getText());
-    }
+    public double getTienKhachDua() { return 0; }
 
-    public double getTienCoc() {
-        return chuyenSoAnToan(txtTienCoc.getText());
-    }
+    public double getTienCoc() { return 0; }
 
     public double getTongThanhToanHienTai() {
         return chuyenSoAnToan(lblTongThanhToan.getText().replace(" đ", "").replace(",", ""));
     }
 
-    public String getDiaChiGiao() {
-        return txtDiaChiGiao.getText().trim();
-    }
+    public String getDiaChiGiao() { return ""; }
 
-    public String getSoDienThoai() {
-        return txtSoDienThoai.getText().trim();
-    }
+    public String getSoDienThoai() { return ""; }
 
-    public Integer getHinhThucNhan() {
-        return "Trực tiếp".equals(cbHinhThucNhan.getSelectedItem()) ? 1 : 2;
-    }
+    public Integer getHinhThucNhan() { return 1; }
 
-    public boolean isXacNhanThuTien() {
-        return chkXacNhanThuTien.isSelected();
-    }
+    public String getTrangThaiHienTaiTraCuu() { return ""; }
 
-    public String getTrangThaiHienTaiTraCuu() {
-        return "";
-    }
-
-    public LocalDateTime getNgayGioNhanBanh() {
-        LocalDate date = dpNgayNhanBanh.getValue();
-        LocalTime time = LocalTime.parse(cbGioNhanBanh.getSelectedItem().toString());
-        return LocalDateTime.of(date, time);
-    }
+    public LocalDateTime getNgayGioNhanBanh() { return LocalDateTime.now(); }
 
     public void hienThiThongTinKhach(String text, boolean isVip) {
-        lblTenKhachHang.setText(text);
-        lblTenKhachHang.setForeground(isVip ? SUCCESS : COLOR_PRIMARY);
+        if (lblTenKhachHang != null) {
+            lblTenKhachHang.setText(text);
+            lblTenKhachHang.setForeground(isVip ? SUCCESS : COLOR_PRIMARY);
+        }
     }
+
 
     public void lamMoiBaoCaoTien(double tongHang, double giamGia, double tongThanhToan, double minCoc, double conLai,
             double tienThua, boolean isThieuTienThua) {
@@ -232,16 +154,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         lblCocToiThieu.setText(dinhDangTien(minCoc));
         lblConLai.setText(dinhDangTien(conLai));
 
-        if (txtTienKhachDua.getText().trim().isEmpty()) {
-            lblTienThua.setText("0 đ");
-            lblTienThua.setForeground(Color.BLACK);
-        } else if (isThieuTienThua) {
-            lblTienThua.setText("Thiếu " + dinhDangTien(Math.abs(tienThua)));
-            lblTienThua.setForeground(ERROR);
-        } else {
-            lblTienThua.setText(dinhDangTien(tienThua));
-            lblTienThua.setForeground(COLOR_PRIMARY);
-        }
+        lblTienThua.setText("");
     }
 
     public void lamMoiBangGioHang(List<CTDonHangDTO> items, List<SanPhamDTO> originData) {
@@ -262,14 +175,14 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     public void batTatNutThanhToan(boolean state) {
-        btnTaoDonHang.setEnabled(state);
-        btnThanhToan.setEnabled(state);
+        if (btnThanhToan != null) btnThanhToan.setEnabled(state);
     }
 
     public void hienThiLoi(String msg) {
         lblThongBaoTab1.setForeground(ERROR);
         lblThongBaoTab1.setText(msg);
     }
+
 
     public void hienThiThanhCong(String msg) {
         lblThongBaoTab1.setForeground(SUCCESS);
@@ -296,20 +209,31 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     @Override
+    public boolean hienThiXacNhanThanhToan(int maDon, double tongTien, double daCoc, double conLai) {
+        String message = String.format(
+                "XÁC NHẬN THANH TOÁN ĐƠN HÀNG #%d\n\n" +
+                        "Tổng tiền: %s\n" +
+                        "Đã cọc: %s\n" +
+                        "----------------------------\n" +
+                        "CẦN THU THÊM: %s\n\n" +
+                        "Bạn đã thu đủ số tiền còn lại chưa?",
+                maDon, dinhDangTien(tongTien), dinhDangTien(daCoc), dinhDangTien(conLai));
+
+        int choice = JOptionPane.showConfirmDialog(
+                this, message, "Xác nhận hoàn tất đơn hàng",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        return choice == JOptionPane.YES_OPTION;
+    }
+
+    @Override
     public void showError(String msg) {
         hienThiLoi(msg);
     }
 
     public void lamMoiForm() {
-        txtTienCoc.setText("");
-        txtTienKhachDua.setText("");
-        txtSoDienThoai.setText("");
-        txtDiaChiGiao.setText("");
-        chkXacNhanThuTien.setSelected(false);
         lblThongBaoTab1.setText("");
-        lblErrDiaChiGiao.setText("");
-        dpNgayNhanBanh.setSelectedDate(LocalDate.now(ZONE_VN));
-        datGioNhanMacDinhTheoHienTai();
+        // Giỏ hàng được làm mới qua presenter.lamMoiTrangThai()
     }
 
     public void hienThiDanhSachSanPham(List<SanPhamDTO> ds, Map<Integer, String> dict) {
@@ -361,7 +285,8 @@ public class OrderViewPanel extends JPanel implements IOrderView {
                 if (value == null)
                     setText("--- Không chọn ---");
                 else if (value instanceof KichCoBanhDTO)
-                    setText(((KichCoBanhDTO) value).getTenKC() + " (+" + dinhDangTien(((KichCoBanhDTO) value).getPhuPhi())
+                    setText(((KichCoBanhDTO) value).getTenKC() + " (+"
+                            + dinhDangTien(((KichCoBanhDTO) value).getPhuPhi())
                             + ")");
                 return this;
             }
@@ -428,81 +353,44 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         String maHoaDonStr = (maHoaDon != null && maHoaDon > 0) ? "#" + maHoaDon : "N/A";
         String ngayLapHoaDonStr = ngayLapHoaDon == null ? "N/A"
                 : ngayLapHoaDon.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        String khachHang = lblTenKhachHang.getText();
+        String khachHang = (lblTenKhachHang != null) ? lblTenKhachHang.getText() : "Khách hàng";
         String tienGiamGia = (pGiam > 0) ? lblTienGiamGia.getText() : null;
-        String tienKhachDua = txtTienKhachDua.getText().trim();
-        if (tienKhachDua.isEmpty())
-            tienKhachDua = dinhDangTien(daThu);
-        else
-            tienKhachDua = dinhDangTien(chuyenSoAnToan(tienKhachDua));
-
-        double tienThuaNum = chuyenSoAnToan(txtTienKhachDua.getText()) - daThu;
-        String tienThua = (tienThuaNum > 0) ? dinhDangTien(tienThuaNum) : null;
+        String tienKhachDua = "N/A";
+        String tienThua = null;
 
         Receipt receipt = new Receipt(
                 tieuDe, maDonStr, maHoaDonStr, ngayLapHoaDonStr, khachHang, cart, data,
                 tienGiamGia, dinhDangTien(tongTien), dinhDangTien(daThu),
-                tienKhachDua, tienThua);
+                tienKhachDua, tienThua, null);
         receipt.setVisible(true);
     }
 
-    private void moDialogXacNhanThanhToan() {
-        if (presenter == null)
-            return;
+    @Override
+    public void inHoaDonHoanThanh(DonDatHangDTO don, com.bakery.model.dto.HoaDonDTO hd, List<com.bakery.model.dto.CTDonHangDTO> dsItems) {
+        String maDonStr = "#" + don.getMaDon();
+        String maHoaDonStr = "#" + hd.getMaHD();
+        String ngayLapStr = hd.getNgayXuatHd() != null 
+                ? hd.getNgayXuatHd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                : LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        
+        String khachHang = don.getMaKH() != null ? "KH #" + don.getMaKH() : "Khách hàng";
 
-        String orderId = taoMaThamChieuDonHang();
-        double amount = getTongThanhToanHienTai();
-        ImageIcon qrIcon = null;
-        try {
-            qrIcon = taoMaVietQR(amount, orderId);
-            if (qrIcon != null) {
-                // Resize QR to be smaller (200x200)
-                qrIcon = new ImageIcon(qrIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH));
-            }
-        } catch (Exception ignored) {
-        }
-
-        PaymentConfirmationDialog dialog = new PaymentConfirmationDialog(
-                SwingUtilities.getWindowAncestor(this),
-                presenter,
-                taoPanelHoaDonXacNhanV2(qrIcon),
-                amount,
-                orderId);
-        dialog.setVisible(true);
-
-        if (dialog.isSuccess()) {
-            presenter.xuLySauKhiLuuDonThanhCong();
-        }
-    }
-
-    private String taoMaThamChieuDonHang() {
-        return "POS" + LocalDateTime.now(ZONE_VN).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-    }
-
-    private JPanel taoPanelHoaDonXacNhanV2(ImageIcon qrIcon) {
-        String tieuDe = "XÁC NHẬN GIAO DỊCH";
-        String maDonStr = "#" + taoMaThamChieuDonHang();
-        String khachHang = lblTenKhachHang.getText();
-        String tienGiamGia = lblTienGiamGia.getText();
-        String tongTien = lblTongThanhToan.getText();
-        String daThu = lblTongThanhToan.getText();
-        String tienKhachDua = dinhDangTien(getTienKhachDua());
-        String tienThua = lblTienThua.getText();
-
-        return Receipt.taoPanelHoaDon(
-                tieuDe,
+        Receipt receipt = new Receipt(
+                "HÓA ĐƠN HOÀN TẤT",
                 maDonStr,
-                "N/A",
-                LocalDateTime.now(ZONE_VN).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                maHoaDonStr,
+                ngayLapStr,
                 khachHang,
-                localGioHangHienTai,
+                dsItems,
                 localDanhSachSP,
-                tienGiamGia,
-                tongTien,
-                daThu,
-                tienKhachDua,
-                tienThua,
-                qrIcon);
+                null,
+                dinhDangTien(don.getTongTienHDBan()), // Tổng đơn
+                dinhDangTien(don.getTienDaCoc()),     // Đã cọc
+                dinhDangTien(hd.getTongTienThanhToan()), // Thanh toán nốt
+                null,
+                hd.getTongTienThanhToan() // QR cho số tiền còn lại
+        );
+        receipt.setVisible(true);
     }
 
     private void apDungBoLoc() {
@@ -568,8 +456,8 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
     private JPanel taoCardSanPham(SanPhamDTO sp) {
         JPanel card = new JPanel(new BorderLayout());
-        card.setPreferredSize(new Dimension(160, 200));
-        card.setMaximumSize(new Dimension(160, 200));
+        card.setPreferredSize(new Dimension(160, 220));
+        card.setMaximumSize(new Dimension(160, 220));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.setBackground(COLOR_CARD);
         card.putClientProperty(FlatClientProperties.STYLE, "arc: 12");
@@ -659,13 +547,13 @@ public class OrderViewPanel extends JPanel implements IOrderView {
 
         JLabel lblName = new JLabel("<html><center>" + sp.getTenSP() + "</center></html>", SwingConstants.CENTER);
         lblName.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 12
+                font: bold 12 $defaultFont;
                 """);
 
         JLabel lblPrice = new JLabel(dinhDangTien(sp.getGiaCoBan()), SwingConstants.CENTER);
         lblPrice.setForeground(COLOR_PRIMARY);
         lblPrice.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 14
+                font: bold 14 $defaultFont;
                 """);
 
         JPanel info = new JPanel(new GridLayout(2, 1));
@@ -673,24 +561,43 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         info.add(lblName);
         info.add(lblPrice);
 
-        JButton btnThem = new JButton("Thêm");
+        // Dòng điều chỉnh số lượng: [➖] [Thêm] [➕]
+        JButton btnGiam = new JButton("➖");
+        JButton btnThem = new JButton("Thêm +");
+        JButton btnTang = new JButton("➕");
+
+        taoKieuNut(btnGiam, COLOR_PRIMARY_LIGHT, COLOR_PRIMARY_DARK);
         taoKieuNut(btnThem, COLOR_ACCENT, Color.WHITE);
-        btnThem.putClientProperty(FlatClientProperties.STYLE, """
-                arc: 8;
-                margin: 2,10,2,10;
-                borderWidth: 0;
-                focusWidth: 0;
-                innerFocusWidth: 0;
-                font: bold 10
-                """);
-        btnThem.addActionListener(e -> {
-            if (presenter != null)
-                presenter.themSanPhamVaoGio(sp);
+        taoKieuNut(btnTang, COLOR_PRIMARY_LIGHT, COLOR_PRIMARY_DARK);
+
+        String qtyBtnStyle = "arc: 6; margin: 2,6,2,6; borderWidth: 0; focusWidth: 0; innerFocusWidth: 0; font: bold 11 $defaultFont;";
+        btnGiam.putClientProperty(FlatClientProperties.STYLE, qtyBtnStyle);
+        btnTang.putClientProperty(FlatClientProperties.STYLE, qtyBtnStyle);
+        btnThem.putClientProperty(FlatClientProperties.STYLE,
+                "arc: 6; margin: 2,8,2,8; borderWidth: 0; focusWidth: 0; innerFocusWidth: 0; font: bold 10 $defaultFont;");
+
+        btnThem.addActionListener(e -> { if (presenter != null) presenter.themSanPhamVaoGio(sp); });
+        btnTang.addActionListener(e -> { if (presenter != null) presenter.themSanPhamVaoGio(sp); });
+        btnGiam.addActionListener(e -> {
+            if (presenter == null) return;
+            // Tìm index sản phẩm trong giỏ và giảm 1
+            for (int i = 0; i < localGioHangHienTai.size(); i++) {
+                if (localGioHangHienTai.get(i).getMaSP() == sp.getMaSP()) {
+                    presenter.thayDoiSoLuongMon(i, -1);
+                    return;
+                }
+            }
         });
+
+        JPanel btnRow = new JPanel(new BorderLayout(3, 0));
+        btnRow.setOpaque(false);
+        btnRow.add(btnGiam, BorderLayout.WEST);
+        btnRow.add(btnThem, BorderLayout.CENTER);
+        btnRow.add(btnTang, BorderLayout.EAST);
 
         card.add(imgLabel, BorderLayout.NORTH);
         card.add(info, BorderLayout.CENTER);
-        card.add(btnThem, BorderLayout.SOUTH);
+        card.add(btnRow, BorderLayout.SOUTH);
         return card;
     }
 
@@ -725,7 +632,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         logo.setForeground(COLOR_PRIMARY);
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
         logo.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 19
+                font: bold 19 $defaultFont;
                 """);
         sidebar.add(logo);
 
@@ -768,6 +675,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         JLabel l = new JLabel(text);
         l.setForeground(COLOR_SUB_TEXT);
         l.putClientProperty(FlatClientProperties.STYLE, """
+                font: $defaultFont;
                 """);
         p.add(l);
         return p;
@@ -785,8 +693,8 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         JLabel l = (JLabel) p.getComponent(0);
         l.setForeground(active ? COLOR_PRIMARY : COLOR_SUB_TEXT);
         l.putClientProperty(FlatClientProperties.STYLE, active
-                ? "font: bold"
-                : "font: plain");
+                ? "font: bold $defaultFont"
+                : "font: $defaultFont");
     }
 
     private JPanel taoHeader() {
@@ -799,7 +707,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         title.setForeground(COLOR_HEADING);
         title.setBorder(new EmptyBorder(0, 25, 0, 0));
         title.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 18
+                font: bold 18 $defaultFont;
                 """);
 
         header.add(title, BorderLayout.WEST);
@@ -916,7 +824,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         lblGiaTuyChinh = new JLabel("0 đ", SwingConstants.RIGHT);
         lblGiaTuyChinh.setForeground(COLOR_PRIMARY);
         lblGiaTuyChinh.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 18
+                font: bold 18 $defaultFont;
                 """);
         btnThemTuyChinhVaoGio = new JButton("Thêm vào giỏ");
         taoKieuNut(btnThemTuyChinhVaoGio, COLOR_ACCENT, Color.WHITE);
@@ -1067,80 +975,23 @@ public class OrderViewPanel extends JPanel implements IOrderView {
     }
 
     private JPanel xayDungPanelGioHang() {
-        JPanel cart = new JPanel(new BorderLayout());
+        JPanel cart = new JPanel(new BorderLayout(0, 10));
         cart.setBackground(COLOR_CARD);
         cart.putClientProperty(FlatClientProperties.STYLE, "arc: 12");
-        cart.setBorder(new EmptyBorder(20, 20, 20, 20));
+        cart.setBorder(new EmptyBorder(16, 16, 16, 16));
 
-        // 1. Form Khách hàng & Cài đặt giao hàng
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setOpaque(false);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(4, 4, 4, 4);
-
-        txtSoDienThoai = new JTextField(10);
-        taoKieuONhap(txtSoDienThoai);
-        txtSoDienThoai.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập SĐT khách hàng");
-
-        btnTimKhach = new JButton("Kiểm tra");
-        taoKieuNut(btnTimKhach, COLOR_PRIMARY, Color.WHITE);
-
-        JPanel phonePanel = new JPanel(new BorderLayout(5, 0));
-        phonePanel.setOpaque(false);
-        phonePanel.add(txtSoDienThoai, BorderLayout.CENTER);
-        phonePanel.add(btnTimKhach, BorderLayout.EAST);
-
-        lblTenKhachHang = new JLabel("Khách vãng lai");
-        lblTenKhachHang.setForeground(COLOR_PRIMARY);
-        lblTenKhachHang.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold italic 13
-                """);
-
-        cbHinhThucNhan = new JComboBox<>(new String[] { "Trực tiếp", "Đặt hàng" });
-        txtDiaChiGiao = new JTextField();
-        taoKieuONhap(txtDiaChiGiao);
-        txtDiaChiGiao.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập địa chỉ giao bánh");
-        txtDiaChiGiao.setEnabled(false);
-        lblErrDiaChiGiao = new JLabel();
-        lblErrDiaChiGiao.setForeground(ERROR);
-
-        dpNgayNhanBanh = new SwingDatePicker();
-        cbGioNhanBanh = new JComboBox<>();
-        for (int i = 0; i < 24; i++) {
-            cbGioNhanBanh.addItem(String.format("%02d:00", i));
-        }
-        datGioNhanMacDinhTheoHienTai();
-
-        JPanel timePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        timePanel.setOpaque(false);
-        timePanel.add(dpNgayNhanBanh);
-        timePanel.add(cbGioNhanBanh);
-        lblErrNgayNhanBanh = new JLabel();
-        lblErrNgayNhanBanh.setForeground(ERROR);
-
-        themDongLuoi(formPanel, gbc, 0, "SĐT khách:", phonePanel);
-        themDongLuoi(formPanel, gbc, 1, "Tên khách:", lblTenKhachHang);
-        themDongLuoi(formPanel, gbc, 2, "Nhận bánh:", cbHinhThucNhan);
-        themDongLuoi(formPanel, gbc, 3, "Địa chỉ:", txtDiaChiGiao);
-        gbc.gridy = 4;
-        gbc.gridx = 1;
-        formPanel.add(lblErrDiaChiGiao, gbc);
-
-        // 2. Table Giỏ Hàng
+        // 1. Bảng giỏ hàng
         String[] columns = { "Sản phẩm", "SL", "Đơn giá", "Tổng" };
         modelBangGioHang = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         tblGioHang = new JTable(modelBangGioHang);
         taoKieuBang(tblGioHang, 30);
         JScrollPane scrollTable = new JScrollPane(tblGioHang);
-        scrollTable.setPreferredSize(new Dimension(0, 150));
+        scrollTable.setPreferredSize(new Dimension(0, 160));
         scrollTable.setBorder(BorderFactory.createLineBorder(COLOR_PRIMARY_LIGHT));
 
+        // Nút điều chỉnh SL
         JPanel tableControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         tableControls.setOpaque(false);
         JButton btnNhapSL = new JButton("Nhập SL");
@@ -1151,161 +1002,72 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         taoKieuNut(btnTang, COLOR_PRIMARY, Color.WHITE);
         JButton btnXoa = new JButton("Xóa");
         taoKieuNut(btnXoa, ERROR, Color.WHITE);
-
         btnNhapSL.addActionListener(e -> {
             int row = tblGioHang.getSelectedRow();
-            if (row < 0) {
-                hienThiLoi("Vui lòng chọn 1 sản phẩm");
-                return;
-            }
-            String input = JOptionPane.showInputDialog(this, "Nhập số lượng:", "Cập nhật SL",
-                    JOptionPane.QUESTION_MESSAGE);
+            if (row < 0) { hienThiLoi("Vui lòng chọn sản phẩm"); return; }
+            String input = JOptionPane.showInputDialog(this, "Nhập số lượng:", "Cập nhật SL", JOptionPane.QUESTION_MESSAGE);
             if (input != null && !input.trim().isEmpty()) {
                 try {
-                    int newQty = Integer.parseInt(input.trim());
-                    if (newQty > 0)
-                        presenter.thayDoiSoLuongMon(row, newQty - localGioHangHienTai.get(row).getSoLuong());
-                    else
-                        presenter.thayDoiSoLuongMon(row, 0);
-                } catch (Exception ex) {
-                    hienThiLoi("Số lượng không hợp lệ!");
-                }
+                    int qty = Integer.parseInt(input.trim());
+                    presenter.thayDoiSoLuongMon(row, qty > 0 ? qty - localGioHangHienTai.get(row).getSoLuong() : 0);
+                } catch (Exception ex) { hienThiLoi("Số lượng không hợp lệ!"); }
             }
         });
-        btnGiam.addActionListener(e -> {
-            if (presenter != null)
-                presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), -1);
-        });
-        btnTang.addActionListener(e -> {
-            if (presenter != null)
-                presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), 1);
-        });
-        btnXoa.addActionListener(e -> {
-            if (presenter != null)
-                presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), 0);
-        });
-
-        tableControls.add(btnNhapSL);
-        tableControls.add(btnGiam);
-        tableControls.add(btnTang);
-        tableControls.add(btnXoa);
+        btnGiam.addActionListener(e -> { if (presenter != null) presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), -1); });
+        btnTang.addActionListener(e -> { if (presenter != null) presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), 1); });
+        btnXoa.addActionListener(e -> { if (presenter != null) presenter.thayDoiSoLuongMon(tblGioHang.getSelectedRow(), 0); });
+        tableControls.add(btnNhapSL); tableControls.add(btnGiam); tableControls.add(btnTang); tableControls.add(btnXoa);
 
         JPanel tableWrap = new JPanel(new BorderLayout());
         tableWrap.setOpaque(false);
         tableWrap.add(scrollTable, BorderLayout.CENTER);
         tableWrap.add(tableControls, BorderLayout.SOUTH);
 
-        // 3. Payment Area
-        JPanel bottomPanel = new JPanel(new GridBagLayout());
-        bottomPanel.setOpaque(false);
-        GridBagConstraints gbcPay = new GridBagConstraints();
-        gbcPay.fill = GridBagConstraints.HORIZONTAL;
-        gbcPay.insets = new Insets(8, 8, 8, 8);
+        // 2. Tóm tắt tiền
+        Font bf = new Font("Arial", Font.BOLD, 13);
+        lblTongTienHang   = new JLabel("0 đ"); lblTongTienHang.setFont(bf);
+        lblTienGiamGia    = new JLabel("0 đ"); lblTienGiamGia.setForeground(SUCCESS); lblTienGiamGia.setFont(bf);
+        lblTongThanhToan  = new JLabel("0 đ"); lblTongThanhToan.setFont(new Font("Arial", Font.BOLD, 20)); lblTongThanhToan.setForeground(ERROR);
+        lblCocToiThieu    = new JLabel("0 đ"); lblCocToiThieu.setFont(bf);
+        lblConLai         = new JLabel("0 đ"); lblConLai.setForeground(COLOR_PRIMARY); lblConLai.setFont(bf);
+        lblTienThua       = new JLabel("0 đ"); lblTienThua.setFont(bf);
 
-        lblTongTienHang = new JLabel("0 đ");
-        lblTongTienHang.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
-        lblTienGiamGia = new JLabel("0 đ");
-        lblTienGiamGia.setForeground(SUCCESS);
-        lblTienGiamGia.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
-        lblTongThanhToan = new JLabel("0 đ");
-        lblTongThanhToan.putClientProperty(FlatClientProperties.STYLE, "font: bold 18");
-        lblTongThanhToan.setForeground(ERROR);
-        lblCocToiThieu = new JLabel("0 đ");
-        lblCocToiThieu.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
-        lblConLai = new JLabel("0 đ");
-        lblConLai.setForeground(COLOR_PRIMARY);
-        lblConLai.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
-        lblTienThua = new JLabel("0 đ");
-        lblTienThua.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
+        JPanel summaryPanel = new JPanel(new GridBagLayout());
+        summaryPanel.setOpaque(false);
+        summaryPanel.setBorder(new EmptyBorder(8, 0, 8, 0));
+        GridBagConstraints gs = new GridBagConstraints();
+        gs.fill = GridBagConstraints.HORIZONTAL;
+        gs.insets = new Insets(4, 6, 4, 6);
+        themDongThanhToan(summaryPanel, gs, 0, "Tiền hàng:", lblTongTienHang, "Giảm giá TV:", lblTienGiamGia);
+        themDongThanhToan(summaryPanel, gs, 1, "Cần trả:", lblTongThanhToan, "Cọc tối thiểu:", lblCocToiThieu);
 
-        txtTienCoc = new JTextField("0");
-        txtTienKhachDua = new JTextField("0");
-        taoKieuONhap(txtTienCoc);
-        txtTienCoc.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
-        taoKieuONhap(txtTienKhachDua);
-        txtTienKhachDua.putClientProperty(FlatClientProperties.STYLE, "font: bold 12");
-        chkXacNhanThuTien = new JCheckBox("Đã thu đủ tiền");
-        chkXacNhanThuTien.setOpaque(false);
-        chkXacNhanThuTien.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 12
-                """);
-
-        int row = 0;
-        themDongThanhToan(bottomPanel, gbcPay, row++, "Tiền hàng:", lblTongTienHang, "Giảm giá:", lblTienGiamGia);
-        themDongThanhToan(bottomPanel, gbcPay, row++, "Cần trả:", lblTongThanhToan, "Cọc tối thiểu:", lblCocToiThieu);
-        themDongThanhToan(bottomPanel, gbcPay, row++, "Khách đưa:", txtTienKhachDua, "Tiền thừa:", lblTienThua);
-        themDongThanhToan(bottomPanel, gbcPay, row++, "Khách cọc:", txtTienCoc, "Còn nợ:", lblConLai);
-        gbcPay.gridy = row++;
-        gbcPay.gridx = 0;
-        gbcPay.gridwidth = 4;
-        bottomPanel.add(chkXacNhanThuTien, gbcPay);
-
-        btnTaoDonHang = new JButton("ĐẶT BÁNH");
-        taoKieuNut(btnTaoDonHang, COLOR_SURFACE, COLOR_PRIMARY);
-        btnTaoDonHang.putClientProperty(FlatClientProperties.STYLE, """
-                arc: 8;
-                margin: 4,14,4,14;
-                borderWidth: 0;
-                focusWidth: 0;
-                innerFocusWidth: 0;
-                font: bold 14
-                """);
-        btnTaoDonHang.setPreferredSize(new Dimension(0, 40));
-
-        btnThanhToan = new JButton("THANH TOÁN");
+        // 3. Nút tạo đơn
+        btnThanhToan = new JButton("🛒  TẠO ĐƠN HÀNG");
         taoKieuNut(btnThanhToan, COLOR_ACCENT, Color.WHITE);
         btnThanhToan.putClientProperty(FlatClientProperties.STYLE, """
-                arc: 8;
-                margin: 4,14,4,14;
-                borderWidth: 0;
-                focusWidth: 0;
-                innerFocusWidth: 0;
-                font: bold 18
+                arc: 12; margin: 4,20,4,20; borderWidth: 0;
+                focusWidth: 0; innerFocusWidth: 0; font: bold 18 $defaultFont;
                 """);
-        btnThanhToan.setPreferredSize(new Dimension(0, 55));
-
-        JPanel actionPanel = new JPanel(new BorderLayout(0, 8));
-        actionPanel.setOpaque(false);
-        actionPanel.add(btnTaoDonHang, BorderLayout.NORTH);
-        actionPanel.add(btnThanhToan, BorderLayout.CENTER);
+        btnThanhToan.setPreferredSize(new Dimension(0, 60));
+        btnThanhToan.setEnabled(false);
+        btnThanhToan.addActionListener(e -> { if (presenter != null) presenter.moDialogTaoDon(); });
 
         lblThongBaoTab1 = new JLabel("", SwingConstants.CENTER);
         lblThongBaoTab1.setForeground(COLOR_SUB_TEXT);
-        lblThongBaoTab1.putClientProperty(FlatClientProperties.STYLE, """
-                font: italic 12
-                """);
+        lblThongBaoTab1.putClientProperty(FlatClientProperties.STYLE, "font: italic 12 $defaultFont;");
 
-        JPanel paymentWrap = new JPanel(new BorderLayout(0, 10));
-        paymentWrap.setOpaque(false);
-        paymentWrap.add(new JSeparator(), BorderLayout.NORTH);
-
-        JPanel timeWrap = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        timeWrap.setOpaque(false);
-        JLabel lblTime = new JLabel("Ngày/Giờ nhận:");
-        lblTime.setForeground(COLOR_TEXT);
-        lblTime.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 13
-                """);
-        timeWrap.add(lblTime);
-        timeWrap.add(timePanel);
-        timeWrap.add(lblErrNgayNhanBanh);
-
-        JPanel pnlCenter = new JPanel(new BorderLayout(0, 5));
-        pnlCenter.setOpaque(false);
-        pnlCenter.add(timeWrap, BorderLayout.NORTH);
-        pnlCenter.add(bottomPanel, BorderLayout.CENTER);
-
-        paymentWrap.add(pnlCenter, BorderLayout.CENTER);
-
-        JPanel actWrap = new JPanel(new BorderLayout());
+        JPanel bottomPanel = new JPanel(new BorderLayout(0, 6));
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(new JSeparator(), BorderLayout.NORTH);
+        bottomPanel.add(summaryPanel, BorderLayout.CENTER);
+        JPanel actWrap = new JPanel(new BorderLayout(0, 4));
         actWrap.setOpaque(false);
         actWrap.add(lblThongBaoTab1, BorderLayout.NORTH);
-        actWrap.add(actionPanel, BorderLayout.CENTER);
-        paymentWrap.add(actWrap, BorderLayout.SOUTH);
+        actWrap.add(btnThanhToan, BorderLayout.CENTER);
+        bottomPanel.add(actWrap, BorderLayout.SOUTH);
 
-        cart.add(formPanel, BorderLayout.NORTH);
         cart.add(tableWrap, BorderLayout.CENTER);
-        cart.add(paymentWrap, BorderLayout.SOUTH);
+        cart.add(bottomPanel, BorderLayout.SOUTH);
         return cart;
     }
 
@@ -1350,7 +1112,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         lblThongBaoTab2 = new JLabel();
         lblThongBaoTab2.setForeground(SUCCESS);
         lblThongBaoTab2.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 12
+                font: bold 12 $defaultFont;
                 """);
 
         filterPanel.add(new JLabel("Mã đơn:"));
@@ -1424,7 +1186,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         JLabel lblStatus = new JLabel("TT: " + don.getTenTrangThai());
         lblStatus.setForeground(COLOR_ACCENT);
         lblStatus.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 12
+                font: bold 12 $defaultFont;
                 """);
 
         JComboBox<String> cbStatus = new JComboBox<>();
@@ -1463,7 +1225,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
                 borderWidth: 0;
                 focusWidth: 0;
                 innerFocusWidth: 0;
-                font: bold
+                font: bold $defaultFont;
                 """);
     }
 
@@ -1473,6 +1235,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         txt.putClientProperty(FlatClientProperties.STYLE, """
                 arc: 6;
                 margin: 4,8,4,8;
+                font: $defaultFont;
                 """);
     }
 
@@ -1485,32 +1248,20 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         table.setShowHorizontalLines(true);
         table.setShowVerticalLines(false);
         table.putClientProperty(FlatClientProperties.STYLE, """
+                font: $defaultFont;
                 """);
         JTableHeader header = table.getTableHeader();
         header.setBackground(COLOR_SURFACE);
         header.setForeground(COLOR_HEADING);
         header.setReorderingAllowed(false);
         header.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold
+                font: bold $defaultFont;
                 """);
     }
 
-    private void themDongLuoi(JPanel panel, GridBagConstraints gbc, int row, String labelText, Component comp) {
-        gbc.gridy = row;
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        JLabel lbl = new JLabel(labelText);
-        lbl.setForeground(COLOR_TEXT);
-        lbl.putClientProperty(FlatClientProperties.STYLE, """
-                font: bold 12
-                """);
-        panel.add(lbl, gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        panel.add(comp, gbc);
-    }
 
-    private void themDongThanhToan(JPanel pnl, GridBagConstraints gbc, int row, String lbl1, Component comp1, String lbl2,
+    private void themDongThanhToan(JPanel pnl, GridBagConstraints gbc, int row, String lbl1, Component comp1,
+            String lbl2,
             Component comp2) {
         gbc.gridy = row;
         gbc.gridx = 0;
@@ -1527,13 +1278,6 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         pnl.add(comp2, gbc);
     }
 
-    private void datGioNhanMacDinhTheoHienTai() {
-        if (cbGioNhanBanh == null)
-            return;
-        int gioHienTai = LocalTime.now(ZONE_VN).getHour();
-        String gioMacDinh = String.format("%02d:00", gioHienTai);
-        cbGioNhanBanh.setSelectedItem(gioMacDinh);
-    }
 
     private double chuyenSoAnToan(String raw) {
         try {
@@ -1568,6 +1312,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             txtNgay.putClientProperty(FlatClientProperties.STYLE, """
                     arc: 6;
                     margin: 4,8,4,8;
+                    font: $defaultFont;
                     """);
             txtNgay.setText(ngayDaChon.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
@@ -1622,7 +1367,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
             lblThangNam = new JLabel("", SwingConstants.CENTER);
             lblThangNam.setForeground(COLOR_PRIMARY);
             lblThangNam.putClientProperty(FlatClientProperties.STYLE, """
-                    font: bold 12
+                    font: bold 12 $defaultFont;
                     """);
 
             btnPrev.addActionListener(e -> {
@@ -1657,7 +1402,7 @@ public class OrderViewPanel extends JPanel implements IOrderView {
                 JLabel lbl = new JLabel(d, SwingConstants.CENTER);
                 lbl.setForeground(COLOR_TEXT);
                 lbl.putClientProperty(FlatClientProperties.STYLE, """
-                        font: bold 10
+                        font: bold 10 $defaultFont;
                         """);
                 panelNgay.add(lbl);
             }
@@ -1695,37 +1440,82 @@ public class OrderViewPanel extends JPanel implements IOrderView {
         }
     }
 
-    private ImageIcon taoMaVietQR(double amount, String orderId) {
-        try {
-            // Thông tin cấu hình
-            String bankId = "vcb";
-            String accountNo = "1049423992";
-            String accountName = "VIEN DANG KHOA";
-
-            String info = "DonHang_" + orderId;
-
-            String urlString = String.format(
-                    "https://img.vietqr.io/image/%s-%s-compact.jpg?amount=%.0f&addInfo=%s&accountName=%s",
-                    bankId, accountNo, amount, info, accountName.replace(" ", "%20"));
-
-            java.net.URL url = java.net.URI.create(urlString).toURL();
-            Image image = javax.imageio.ImageIO.read(url);
-
-            return new ImageIcon(image.getScaledInstance(300, 300, Image.SCALE_SMOOTH));
-        } catch (Exception e) {
-            System.out.println("Lỗi tạo QR: " + e.getMessage());
-            return null;
-        }
-
+    @Override
+    public int hienThiChonHinhThucThanhToan() {
+        String[] options = { "Tiền mặt", "Chuyển khoản" };
+        int choice = JOptionPane.showOptionDialog(this,
+                "Chọn hình thức thanh toán:",
+                "Thanh toán đơn hàng",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null, options, options[0]);
+        return choice; // 0: Tiền mặt, 1: Chuyển khoản, -1: Đóng/Hủy
     }
 
-    public void hienThiPopupQR(double amount, String orderId) {
-        ImageIcon qrIcon = taoMaVietQR(amount, orderId);
-        if (qrIcon != null) {
-            JLabel lblQR = new JLabel(qrIcon);
-            JOptionPane.showMessageDialog(this, lblQR, "Quét mã thanh toán Vietcombank", JOptionPane.PLAIN_MESSAGE);
-        } else {
-            hienThiLoi("Không thể kết nối máy chủ VietQR!");
+    @Override
+    public boolean hienThiXacNhanThuTien(double soTien) {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JLabel msg = new JLabel("<html><div style='text-align: center;'>"
+                + "<span style='font-size: 14px;'>Vui lòng thu tiền mặt từ khách:</span><br>"
+                + "<span style='font-size: 20px; color: #A5360D; font-weight: bold;'>" + dinhDangTien(soTien)
+                + "</span>"
+                + "</div></html>");
+        panel.add(msg, BorderLayout.CENTER);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Xác nhận thu tiền", JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+        return result == JOptionPane.YES_OPTION;
+    }
+
+    @Override
+    public boolean hienThiQRVaXacNhan(double soTien, String moTa) {
+        ImageIcon qrIcon = taoMaVietQR(soTien, moTa);
+        if (qrIcon == null) {
+            hienThiLoi("Không thể tạo mã QR vào lúc này!");
+            return false;
         }
+
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(15, 20, 15, 20));
+
+        JLabel lblQR = new JLabel(qrIcon);
+        lblQR.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel lblInfo = new JLabel("<html><center>"
+                + "<span style='font-size: 11px; color: gray;'>Vui lòng quét mã bên dưới</span><br>"
+                + "<span style='font-size: 16px; font-weight: bold; color: #A5360D;'>" + dinhDangTien(soTien)
+                + "</span>"
+                + "</center></html>", SwingConstants.CENTER);
+
+        panel.add(lblQR, BorderLayout.CENTER);
+        panel.add(lblInfo, BorderLayout.SOUTH);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Chuyển khoản VietQR", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        return result == JOptionPane.OK_OPTION;
+    }
+
+    private ImageIcon taoMaVietQR(double amount, String orderId) {
+        return com.bakery.utils.QRGenerator.generateDefaultQR(amount, orderId);
+    }
+
+    @Override
+    public void hienThiPopupQR(double amount, String orderId) {
+        hienThiQRVaXacNhan(amount, orderId);
+    }
+
+    @Override
+    public PaymentResult hienThiManHinhThanhToanModern(double tongTien, String moTa) {
+        PaymentConfirmationDialog dialog = new PaymentConfirmationDialog(
+                javax.swing.SwingUtilities.getWindowAncestor(this), tongTien, moTa);
+        dialog.setVisible(true);
+
+        return new PaymentResult(
+                dialog.isConfirmed(),
+                dialog.isRetail(),
+                dialog.getSoTienThanhToan(),
+                dialog.getHinhThucThanhToan());
     }
 }

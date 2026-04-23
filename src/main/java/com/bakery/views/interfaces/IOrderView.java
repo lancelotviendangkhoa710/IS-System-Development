@@ -25,8 +25,6 @@ public interface IOrderView {
 
     Integer getHinhThucNhan();
 
-    boolean isXacNhanThuTien();
-
     String getTrangThaiHienTaiTraCuu();
 
     LocalDateTime getNgayGioNhanBanh();
@@ -64,5 +62,21 @@ public interface IOrderView {
 
     void showOrderDetails(DonDatHangDTO order);
 
+    boolean hienThiXacNhanThanhToan(int maDon, double tongTien, double daCoc, double conLai);
+
     void showError(String msg);
+
+    int hienThiChonHinhThucThanhToan(); // 0: Tiền mặt, 1: Chuyển khoản, -1: Hủy
+
+    boolean hienThiXacNhanThuTien(double soTien);
+
+    boolean hienThiQRVaXacNhan(double soTien, String moTa);
+
+    void hienThiPopupQR(double amount, String orderId);
+
+    // Modern payment flow
+    record PaymentResult(boolean confirmed, boolean isRetail, double soTienThanhToan, String hinhThuc) {}
+    PaymentResult hienThiManHinhThanhToanModern(double tongTien, String moTa);
+
+    void inHoaDonHoanThanh(DonDatHangDTO don, com.bakery.model.dto.HoaDonDTO hd, List<com.bakery.model.dto.CTDonHangDTO> dsItems);
 }
