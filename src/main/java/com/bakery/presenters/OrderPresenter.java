@@ -11,6 +11,7 @@ import com.bakery.model.dto.YeuCauChiTietDonHangDTO;
 import com.bakery.model.dto.YeuCauChiTietDonTuyChinhDTO;
 import com.bakery.model.dto.YeuCauTaoDonHangDTO;
 import com.bakery.services.OrderService;
+import com.bakery.views.interfaces.IOrderDialogFactory;
 import com.bakery.views.interfaces.IOrderView;
 
 import java.time.LocalDate;
@@ -24,6 +25,8 @@ import java.util.Map;
 public class OrderPresenter {
     private final IOrderView view;
     private final OrderService orderService;
+    // Phương án A: Presenter gọi dialog qua interface factory
+    private IOrderDialogFactory dialogFactory;
 
     private List<SanPhamDTO> tatCaSanPham = new ArrayList<>();
     private final List<YeuCauChiTietDonHangDTO> gioHangItems = new ArrayList<>();
@@ -52,6 +55,11 @@ public class OrderPresenter {
     public OrderPresenter(IOrderView view, OrderService orderService) {
         this.view = view;
         this.orderService = orderService;
+    }
+
+    /** Inject dialog factory sau khi khởi tạo (Phương án A — tránh circular dep) */
+    public void setDialogFactory(IOrderDialogFactory dialogFactory) {
+        this.dialogFactory = dialogFactory;
     }
 
     public void taiDuLieuBanDau() {
@@ -173,10 +181,16 @@ public class OrderPresenter {
             view.hienThiLoi("Đơn hàng đang trống!");
             return;
         }
+        if (dialogFactory == null) {
+            view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+            return;
+        }
+
         double tongTienPhaiTra = gioHangItems.stream()
                 .mapToDouble(i -> i.getDonGia() * i.getSoLuong()).sum() * (1 - phanTramGiamGia);
 
-        com.bakery.views.CreateOrderDialog.CustomerLookup lookup = sdt -> {
+        // Phương án A: Presenter gọi factory qua interface, không biết JavaFX
+        IOrderDialogFactory.CustomerLookup lookup = sdt -> {
             try {
                 KhachHangDTO kh = orderService.timKhachHangTheoSoDienThoai(sdt);
                 if (kh != null) return new String[]{ String.valueOf(kh.getMaKH()), kh.getHoTen() };
@@ -184,19 +198,15 @@ public class OrderPresenter {
             return null;
         };
 
-        com.bakery.views.CreateOrderDialog dialog = new com.bakery.views.CreateOrderDialog(
-                null, tongTienPhaiTra, lookup);
-        dialog.setVisible(true);
-
-        com.bakery.views.CreateOrderDialog.OrderRequest req = dialog.getResult();
-        if (!req.confirmed) return;
+        IOrderDialogFactory.OrderRequest req = dialogFactory.showCreateOrderDialog(tongTienPhaiTra, lookup);
+        if (!req.confirmed()) return;
 
         // Áp dụng thông tin khách hàng từ dialog
-        phanTramGiamGia = (req.maKH != null) ? 0.10 : 0.0;
-        view.hienThiThongTinKhach(req.tenKhach, req.maKH != null);
+        phanTramGiamGia = (req.maKH() != null) ? 0.10 : 0.0;
+        view.hienThiThongTinKhach(req.tenKhach(), req.maKH() != null);
 
         try {
-            if (req.orderType == com.bakery.views.CreateOrderDialog.OrderType.IMMEDIATE) {
+            if (req.orderType() == IOrderDialogFactory.OrderType.IMMEDIATE) {
                 xuLyThanhToanNgay(req, tongTienPhaiTra);
             } else {
                 xuLyDatTruoc(req, tongTienPhaiTra);
@@ -209,9 +219,9 @@ public class OrderPresenter {
     }
 
     /** Luồng 1: Thanh toán ngay (trực tiếp tại quầy) */
-    private void xuLyThanhToanNgay(com.bakery.views.CreateOrderDialog.OrderRequest req, double tongTien) throws Exception {
+    private void xuLyThanhToanNgay(IOrderDialogFactory.OrderRequest req, double tongTien) throws Exception {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
-        request.setMaKH(req.maKH);
+        request.setMaKH(req.maKH());
         request.setMaNVLap(MOCK_CURRENT_USER_ID);
         request.setTienDaCoc(tongTien);
         request.setHinhThucNhan(1); // Trực tiếp
@@ -220,7 +230,7 @@ public class OrderPresenter {
         request.setDiaChiGiao(null);
         request.setItems(new ArrayList<>(gioHangItems));
 
-        HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua);
+        HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua());
         view.hienThiThanhCong("Đã thanh toán! Mã HĐ: #" + hd.getMaHD());
         view.inPhieuHoaDon("HÓA ĐƠN BÁN LẾ",
                 hd.getMaDon(), hd.getMaHD(), hd.getNgayXuatHd(),
@@ -229,21 +239,21 @@ public class OrderPresenter {
     }
 
     /** Luồng 2: Đặt trước (pre-order) */
-    private void xuLyDatTruoc(com.bakery.views.CreateOrderDialog.OrderRequest req, double tongTien) throws Exception {
+    private void xuLyDatTruoc(IOrderDialogFactory.OrderRequest req, double tongTien) throws Exception {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
-        request.setMaKH(req.maKH);
+        request.setMaKH(req.maKH());
         request.setMaNVLap(MOCK_CURRENT_USER_ID);
-        request.setTienDaCoc(req.tienCoc);
+        request.setTienDaCoc(req.tienCoc());
         request.setHinhThucNhan(2); // Đặt hàng
-        request.setNgayGioNhanBanh(req.ngayGioNhan);
-        request.setDiaChiGiao(req.diaChiGiao);
+        request.setNgayGioNhanBanh(req.ngayGioNhan());
+        request.setDiaChiGiao(req.diaChiGiao());
         request.setItems(new ArrayList<>(gioHangItems));
 
         int maDon = orderService.submitNewOrder(request);
         view.hienThiThanhCong("Đặt đơn thành công! Mã đơn: #" + maDon);
         view.inPhieuHoaDon("PHIẾU HẸN LẤY BÁNH",
-                maDon, null, req.ngayGioNhan,
-                tongTien, req.tienCoc,
+                maDon, null, req.ngayGioNhan(),
+                tongTien, req.tienCoc(),
                 convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia);
     }
 
@@ -282,7 +292,10 @@ public class OrderPresenter {
                 double conLai = Math.max(0, tongTien - daCoc);
 
                 if (conLai > 0) {
-                    boolean xacNhan = view.hienThiXacNhanThanhToan(maDon, tongTien, daCoc, conLai);
+                    // Phương án A: dùng factory nếu có, fallback về view nếu không có factory
+                    boolean xacNhan = (dialogFactory != null)
+                            ? dialogFactory.showPaymentConfirmation(maDon, tongTien, daCoc, conLai)
+                            : view.hienThiXacNhanThanhToan(maDon, tongTien, daCoc, conLai);
                     if (!xacNhan) {
                         return; // Hủy cập nhật nếu không xác nhận thanh toán
                     }

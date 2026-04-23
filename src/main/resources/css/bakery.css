@@ -1,0 +1,447 @@
+/* =====================================================================
+ * BAKERY.CSS — La Boulangerie Management System
+ * Amber Design System — Ánh xạ từ ui_spec.md
+ * Áp dụng cho toàn bộ JavaFX Scene
+ * ===================================================================== */
+
+/* ─── ROOT & FONT ─── */
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-background-color: #FDFBF7; /* COLOR_BG_APP */
+}
+
+/* ─── BACKGROUND UTILITIES ─── */
+.bg-app     { -fx-background-color: #FDFBF7; }
+.bg-surface { -fx-background-color: #FFFFFF; }
+.bg-muted   { -fx-background-color: #F9FAFB; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 0 1 0 0;
+    -fx-pref-width: 220px;
+    -fx-min-width: 220px;
+}
+
+.sidebar-logo {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #78350F;
+    -fx-padding: 24px 20px 8px 20px;
+}
+
+.sidebar-tagline {
+    -fx-font-size: 10px;
+    -fx-text-fill: #D97706;
+    -fx-padding: 0 20px 20px 20px;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #B45309;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 16px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+    -fx-max-width: Infinity;
+}
+
+.nav-item:hover {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+}
+
+.nav-item-active {
+    -fx-background-color: #92400E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ─── HEADER ─── */
+.app-header {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 64px;
+    -fx-max-height: 64px;
+    -fx-padding: 0 32px;
+}
+
+.header-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1C0A00;
+}
+
+/* ─── BUTTONS ─── */
+
+/* Nút chính (Primary) */
+.btn-primary {
+    -fx-background-color: #92400E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #78350F;
+}
+
+.btn-primary:disabled {
+    -fx-background-color: #D1D5DB;
+    -fx-text-fill: #9CA3AF;
+}
+
+/* Nút phụ (Secondary) */
+.btn-secondary {
+    -fx-background-color: white;
+    -fx-text-fill: #92400E;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 18px;
+    -fx-background-radius: 10px;
+    -fx-border-color: #92400E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #FEF3C7;
+}
+
+/* Nút nguy hiểm (Danger) */
+.btn-danger {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #B91C1C;
+}
+
+/* Nút thành công (Success) */
+.btn-success {
+    -fx-background-color: #16A34A;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+
+.btn-success:hover {
+    -fx-background-color: #15803D;
+}
+
+/* Nút nhỏ điều chỉnh số lượng */
+.btn-qty {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 8px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.btn-qty:hover {
+    -fx-background-color: #FDE68A;
+}
+
+/* ToggleButton (bộ lọc danh mục) */
+.toggle-filter {
+    -fx-background-color: white;
+    -fx-text-fill: #1C0A00;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+    -fx-border-radius: 999px;
+    -fx-background-radius: 999px;
+    -fx-font-size: 12px;
+    -fx-padding: 5px 16px;
+    -fx-cursor: hand;
+}
+
+.toggle-filter:selected, .toggle-filter:hover {
+    -fx-background-color: #92400E;
+    -fx-text-fill: white;
+    -fx-border-color: #92400E;
+}
+
+/* ─── INPUTS ─── */
+.text-field, .combo-box, .date-picker .text-field {
+    -fx-background-color: #F9FAFB;
+    -fx-text-fill: #1C0A00;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 10px;
+    -fx-background-radius: 10px;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+}
+
+.text-field:focused, .combo-box:focused {
+    -fx-border-color: #FCD34D;
+}
+
+.text-area {
+    -fx-background-color: #F9FAFB;
+    -fx-text-fill: #1C0A00;
+    -fx-font-size: 13px;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 6px 10px;
+}
+
+/* ─── LABELS (TYPOGRAPHY) ─── */
+.lbl-title-screen  { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1C0A00; }
+.lbl-title-card    { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1C0A00; }
+.lbl-title-dialog  { -fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #78350F; }
+.lbl-body-lg       { -fx-font-size: 15px; -fx-text-fill: #1C0A00; }
+.lbl-body          { -fx-font-size: 13px; -fx-text-fill: #1C0A00; }
+.lbl-body-bold     { -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1C0A00; }
+.lbl-small         { -fx-font-size: 11px; -fx-text-fill: #6B7280; }
+.lbl-small-bold    { -fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6B7280; }
+.lbl-price         { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #92400E; }
+.lbl-kpi           { -fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1C0A00; }
+.lbl-primary       { -fx-text-fill: #92400E; -fx-font-weight: bold; }
+.lbl-muted         { -fx-text-fill: #6B7280; }
+.lbl-success       { -fx-text-fill: #16A34A; -fx-font-weight: bold; }
+.lbl-danger        { -fx-text-fill: #DC2626; -fx-font-weight: bold; }
+.lbl-info          { -fx-text-fill: #2563EB; -fx-font-weight: bold; }
+
+/* ─── CARD (Panel) ─── */
+.card {
+    -fx-background-color: white;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+}
+
+.card-header {
+    -fx-background-color: #FFFBEB;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12px 16px;
+}
+
+/* Product card */
+.product-card {
+    -fx-background-color: white;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+    -fx-pref-width: 160px;
+    -fx-pref-height: 220px;
+}
+
+.product-card:hover {
+    -fx-border-color: #D97706;
+    -fx-effect: dropshadow(gaussian, rgba(146,64,14,0.18), 8, 0, 0, 2);
+}
+
+/* ─── TABLE ─── */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #FEF3C7;
+}
+
+.table-row-cell {
+    -fx-border-color: transparent;
+    -fx-cell-size: 44px;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #1C0A00;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #FFFBEB;
+}
+
+/* ─── BADGE TRẠNG THÁI ─── */
+.badge {
+    -fx-padding: 3px 10px;
+    -fx-background-radius: 6px;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.badge-new       { -fx-background-color: #FEF3C7; -fx-text-fill: #D97706; }
+.badge-deposited { -fx-background-color: #FEF3C7; -fx-text-fill: #D97706; }
+.badge-processing{ -fx-background-color: #DBEAFE; -fx-text-fill: #1D4ED8; }
+.badge-shipping  { -fx-background-color: #EDE9FE; -fx-text-fill: #6D28D9; }
+.badge-pickup    { -fx-background-color: #EDE9FE; -fx-text-fill: #6D28D9; }
+.badge-done      { -fx-background-color: #DCFCE7; -fx-text-fill: #15803D; }
+.badge-cancelled { -fx-background-color: #F3F4F6; -fx-text-fill: #6B7280; }
+
+/* ─── DIALOG ─── */
+.dialog-header {
+    -fx-background-color: #92400E;
+    -fx-padding: 20px 25px;
+}
+
+.dialog-header-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.dialog-step-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #FDE68A;
+}
+
+.dialog-body {
+    -fx-background-color: #FDFBF7;
+    -fx-padding: 24px 32px;
+}
+
+.dialog-footer {
+    -fx-background-color: #FDFBF7;
+    -fx-padding: 10px 16px;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ─── RECEIPT ─── */
+.receipt-panel {
+    -fx-background-color: white;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+}
+
+.receipt-brand {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #92400E;
+}
+
+.receipt-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #92400E;
+    -fx-border-color: #E0C0B6;
+    -fx-border-width: 1 0 1 0;
+    -fx-padding: 6px 0;
+}
+
+.receipt-item-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.receipt-item-price {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.receipt-summary {
+    -fx-background-color: #F6F3F0;
+    -fx-padding: 10px;
+    -fx-background-radius: 8px;
+}
+
+.receipt-total-row {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #92400E;
+}
+
+/* ─── SCROLL BAR ─── */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #FDE68A;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+/* ─── SEPARATOR ─── */
+.separator .line {
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+}
+
+/* ─── ORDER TRACKING CARD ─── */
+.order-card {
+    -fx-background-color: white;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);
+}
+
+.order-card:hover {
+    -fx-border-color: #D97706;
+    -fx-effect: dropshadow(gaussian, rgba(146,64,14,0.15), 10, 0, 0, 3);
+}
+
+/* ─── PROGRESS / LOADING ─── */
+.progress-indicator {
+    -fx-accent: #92400E;
+}
+
+/* ─── COMBO BOX ─── */
+.combo-box .list-cell:hover {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+}
+
+.combo-box .list-cell:selected {
+    -fx-background-color: #92400E;
+    -fx-text-fill: white;
+}
+
+/* ─── DATE PICKER ─── */
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+}
+
+.date-picker-popup .today {
+    -fx-border-color: #D97706;
+    -fx-text-fill: #92400E;
+}
