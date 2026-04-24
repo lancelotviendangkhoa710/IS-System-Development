@@ -4,8 +4,9 @@ import java.time.LocalDateTime;
 
 /**
  * Interface factory cho các Dialog trong luồng tạo đơn hàng.
- * Presenter gọi qua interface này — KHÔNG biết UI framework cụ thể (JavaFX hay Swing).
- * Tuân thủ Phương án A: MVP thuần túy, Presenter tách biệt hoàn toàn với Dialog.
+ * Presenter gọi qua interface này — KHÔNG biết UI framework cụ thể
+ * Tuân thủ Phương án A: MVP thuần túy, Presenter tách biệt hoàn toàn với
+ * Dialog.
  */
 public interface IOrderDialogFactory {
 
@@ -24,8 +25,7 @@ public interface IOrderDialogFactory {
             // Đặt trước
             LocalDateTime ngayGioNhan,
             String diaChiGiao,
-            double tienCoc
-    ) {
+            double tienCoc) {
         /** Tạo OrderRequest báo hủy (không xác nhận) */
         public static OrderRequest cancelled() {
             return new OrderRequest(false, null, "Khách vãng lai", "", null,
@@ -33,7 +33,9 @@ public interface IOrderDialogFactory {
         }
     }
 
-    enum OrderType { IMMEDIATE, PREORDER }
+    enum OrderType {
+        IMMEDIATE, PREORDER
+    }
 
     /** Callback tra cứu khách hàng theo SĐT — Presenter inject vào Dialog */
     @FunctionalInterface

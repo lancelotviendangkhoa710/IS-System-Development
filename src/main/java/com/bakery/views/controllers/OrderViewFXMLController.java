@@ -13,18 +13,23 @@ import com.bakery.presenters.OrderPresenter;
 import com.bakery.services.AuthorizationService;
 import com.bakery.services.OrderService;
 import com.bakery.utils.UserSession;
-import com.bakery.views.Receipt;
+import com.bakery.views.controllers.ReceiptViewFXMLController;
 import com.bakery.views.interfaces.IOrderView;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -505,54 +510,57 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     public void inPhieuHoaDon(String tieuDe, Integer maDon, Integer maHoaDon,
                               LocalDateTime ngayLapHoaDon, double tongTien, double daThu,
                               List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam) {
-        String maDonStr = maDon == null ? "N/A" : "#" + maDon;
-        String maHoaDonStr = maHoaDon == null ? "N/A" : "#" + maHoaDon;
-        String ngayLap = ngayLapHoaDon == null ? "N/A" : ngayLapHoaDon.format(FMT_NGAY_GIO);
-        String khachHang = lblTenKhachHang.getText() == null ? "Khách hàng" : lblTenKhachHang.getText();
-        String tienGiam = pGiam > 0 ? lblTienGiamGia.getText() : null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReceiptView.fxml"));
+            Parent root = loader.load();
 
-        Receipt receipt = new Receipt(
-                tieuDe,
-                maDonStr,
-                maHoaDonStr,
-                ngayLap,
-                khachHang,
-                cart,
-                data,
-                tienGiam,
-                dinhDangTien(tongTien),
-                dinhDangTien(daThu),
-                "N/A",
-                null,
-                null
-        );
-        receipt.setVisible(true);
+            ReceiptViewFXMLController controller = loader.getController();
+            
+            // Tạo DTO giả lập từ các tham số rời rạc để tái sử dụng logic Controller
+            HoaDonDTO hd = new HoaDonDTO();
+            hd.setMaHD(maHoaDon != null ? maHoaDon : 0);
+            hd.setNgayXuatHd(ngayLapHoaDon != null ? ngayLapHoaDon : LocalDateTime.now());
+            hd.setTongTienThanhToan(tongTien);
+            
+            DonDatHangDTO don = new DonDatHangDTO();
+            don.setMaDon(maDon != null ? maDon : 0);
+            
+            String tenKhach = lblTenKhachHang != null ? lblTenKhachHang.getText() : "Khách hàng";
+            
+            controller.setReceiptData(hd, don, cart, data, tenKhach, daThu, 0);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle(tieuDe);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            hienThiLoi("Không thể in hóa đơn: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void inHoaDonHoanThanh(DonDatHangDTO don, HoaDonDTO hd, List<CTDonHangDTO> dsItems) {
-        String maDonStr = "#" + don.getMaDon();
-        String maHoaDonStr = "#" + hd.getMaHD();
-        String ngayLap = hd.getNgayXuatHd() == null ? LocalDateTime.now().format(FMT_NGAY_GIO)
-                : hd.getNgayXuatHd().format(FMT_NGAY_GIO);
-        String khachHang = don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReceiptView.fxml"));
+            Parent root = loader.load();
 
-        Receipt receipt = new Receipt(
-                "HÓA ĐƠN HOÀN THÀNH",
-                maDonStr,
-                maHoaDonStr,
-                ngayLap,
-                khachHang,
-                dsItems,
-                new ArrayList<>(mapSanPhamById.values()),
-                null,
-                dinhDangTien(don.getTongTienHDBan()),
-                dinhDangTien(hd.getTongTienThanhToan()),
-                "N/A",
-                null,
-                null
-        );
-        receipt.setVisible(true);
+            ReceiptViewFXMLController controller = loader.getController();
+            
+            String tenKhach = don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH();
+            
+            controller.setReceiptData(hd, don, dsItems, new ArrayList<>(mapSanPhamById.values()), 
+                                      tenKhach, hd.getTongTienThanhToan(), 0);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("HÓA ĐƠN HOÀN THÀNH");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            hienThiLoi("Không thể in hóa đơn hoàn thành: " + e.getMessage());
+        }
     }
 
     @Override

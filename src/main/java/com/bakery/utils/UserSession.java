@@ -1,5 +1,7 @@
 package com.bakery.utils;
 
+// UserSession giống như một cái "Thẻ ID đeo trên ngực"
+//  của nhân viên trong suốt thời gian họ sử dụng phần mềm.
 import com.bakery.model.dto.NhanVienDTO;
 
 public final class UserSession {
