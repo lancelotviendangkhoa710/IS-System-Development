@@ -39,6 +39,7 @@ public class OrderPresenter {
     private LocalDate lastSearchNgay = LocalDate.now();
     private LocalTime lastSearchTu = null;
     private LocalTime lastSearchDen = null;
+    private String lastSearchTrangThai = "ALL";
 
     private List<CTDonHangDTO> convertToCTDonHangList(List<YeuCauChiTietDonHangDTO> items) {
         List<CTDonHangDTO> list = new ArrayList<>();
@@ -89,7 +90,7 @@ public class OrderPresenter {
                 orderService.layDanhSachNhanBanh(), orderService.layDanhSachKieuTrangTri());
 
         view.taiDanhSachTrangThai(new ArrayList<>(mapTrangThaiMoi.keySet()));
-        timKiemDonTheoDoi(null, LocalDate.now(), null, null);
+        timKiemDonTheoDoi(null, LocalDate.now(), null, null, "ALL");
     }
 
     public void themSanPhamVaoGio(SanPhamDTO sp) {
@@ -212,7 +213,7 @@ public class OrderPresenter {
                 xuLyDatTruoc(req, tongTienPhaiTra);
             }
             lamMoiTrangThai();
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoi("Lỗi: " + e.getMessage());
         }
@@ -292,10 +293,11 @@ public class OrderPresenter {
                 double conLai = Math.max(0, tongTien - daCoc);
 
                 if (conLai > 0) {
-                    // Phương án A: dùng factory nếu có, fallback về view nếu không có factory
-                    boolean xacNhan = (dialogFactory != null)
-                            ? dialogFactory.showPaymentConfirmation(maDon, tongTien, daCoc, conLai)
-                            : view.hienThiXacNhanThanhToan(maDon, tongTien, daCoc, conLai);
+                    if (dialogFactory == null) {
+                        view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+                        return;
+                    }
+                    boolean xacNhan = dialogFactory.showPaymentConfirmation(maDon, tongTien, daCoc, conLai);
                     if (!xacNhan) {
                         return; // Hủy cập nhật nếu không xác nhận thanh toán
                     }
@@ -338,23 +340,28 @@ public class OrderPresenter {
             }
 
             view.hienThiThongBaoTraCuu("Cập nhật thành công đơn #" + maDon);
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+        } catch (Exception e) {
+            view.hienThiLoiTraCuu(e.getMessage());
+        }
+    }
+
+    public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) {
+        this.lastSearchMaDon = maDonSearch;
+        this.lastSearchNgay = ngayNhan;
+        this.lastSearchTu = gioTu;
+        this.lastSearchDen = gioDen;
+        this.lastSearchTrangThai = trangThaiFilter == null ? "ALL" : trangThaiFilter;
+        try {
+            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, this.lastSearchTrangThai);
+            view.hienThiDanhSachDonTheoDoi(dsDon);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
         }
     }
 
     public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) {
-        this.lastSearchMaDon = maDonSearch;
-        this.lastSearchNgay = ngayNhan;
-        this.lastSearchTu = gioTu;
-        this.lastSearchDen = gioDen;
-        try {
-            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen);
-            view.hienThiDanhSachDonTheoDoi(dsDon);
-        } catch (Exception e) {
-            view.hienThiLoiTraCuu(e.getMessage());
-        }
+        timKiemDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
 
 

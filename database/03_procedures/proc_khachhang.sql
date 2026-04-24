@@ -1,0 +1,60 @@
+-- Procedure Thêm khách hàng mới
+CREATE OR REPLACE PROCEDURE PROC_THEMKHACHHANG (
+    P_HOTEN     IN NVARCHAR2,
+    P_SDT       IN VARCHAR2,
+    P_DIACHI    IN NVARCHAR2,
+    P_MAKH_OUT  OUT NUMBER
+) AS
+    V_COUNT NUMBER;
+BEGIN
+    -- 1. Kiểm tra số điện thoại trùng
+    SELECT COUNT(*) INTO V_COUNT FROM KHACHHANG WHERE SDT = P_SDT AND THOIDIEMXOA IS NULL;
+    IF V_COUNT > 0 THEN
+        RAISE_APPLICATION_ERROR(-20010, 'Số điện thoại khách hàng đã tồn tại.');
+    END IF;
+
+    -- 2. Thêm khách hàng
+    INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI)
+    VALUES (P_HOTEN, P_SDT, P_DIACHI)
+    RETURNING MAKH INTO P_MAKH_OUT;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END PROC_THEMKHACHHANG;
+/
+
+-- Procedure Cập nhật thông tin khách hàng
+CREATE OR REPLACE PROCEDURE PROC_CAPNHATKHACHHANG (
+    P_MAKH      IN NUMBER,
+    P_HOTEN     IN NVARCHAR2,
+    P_SDT       IN VARCHAR2,
+    P_DIACHI    IN NVARCHAR2
+) AS
+    V_COUNT NUMBER;
+BEGIN
+    -- 1. Kiểm tra khách hàng tồn tại
+    SELECT COUNT(*) INTO V_COUNT FROM KHACHHANG WHERE MAKH = P_MAKH AND THOIDIEMXOA IS NULL;
+    IF V_COUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20011, 'Không tìm thấy khách hàng để cập nhật.');
+    END IF;
+
+    -- 2. Kiểm tra SĐT trùng với khách hàng khác
+    SELECT COUNT(*) INTO V_COUNT FROM KHACHHANG WHERE SDT = P_SDT AND MAKH != P_MAKH AND THOIDIEMXOA IS NULL;
+    IF V_COUNT > 0 THEN
+        RAISE_APPLICATION_ERROR(-20012, 'Số điện thoại này đã thuộc về khách hàng khác.');
+    END IF;
+
+    -- 3. Cập nhật
+    UPDATE KHACHHANG SET HOTEN = P_HOTEN, SDT = P_SDT, DIACHI = P_DIACHI
+    WHERE MAKH = P_MAKH;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END PROC_CAPNHATKHACHHANG;
+/

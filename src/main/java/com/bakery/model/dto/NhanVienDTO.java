@@ -4,6 +4,7 @@ import java.time.LocalDate;
 public class NhanVienDTO {
     private int maNV;
     private int maVaiTro;
+    private String tenVaiTro;
     private String hoTen;
     private LocalDate ngaySinh;
     private String sdt;
@@ -29,6 +30,9 @@ public class NhanVienDTO {
 
     public int getMaVaiTro() { return maVaiTro; }
     public void setMaVaiTro(int maVaiTro) { this.maVaiTro = maVaiTro; }
+
+    public String getTenVaiTro() { return tenVaiTro; }
+    public void setTenVaiTro(String tenVaiTro) { this.tenVaiTro = tenVaiTro; }
 
     public String getHoTen() { return hoTen; }
     public void setHoTen(String hoTen) { this.hoTen = hoTen; }

@@ -12,7 +12,7 @@ import java.util.Locale;
  * Hiển thị thông tin thanh toán còn lại và chờ thu ngân xác nhận.
  * Implements IOrderDialogFactory.showPaymentConfirmation() thông qua cơ chế Stage result.
  */
-public class PaymentDialogController {
+public class PaymentDialogViewFXMLController {
 
     @FXML private Label lblMaDon;
     @FXML private Label lblTongTien;
@@ -25,7 +25,7 @@ public class PaymentDialogController {
     // ─── INJECT DỮ LIỆU ───────────────────────────────────────────────────
 
     /**
-     * Được gọi từ CreateOrderController sau khi load FXML,
+     * Được gọi từ CreateOrderViewFXMLController sau khi load FXML,
      * trước khi showAndWait().
      */
     public void initData(int maDon, double tongTien, double daCoc, double conLai) {
@@ -64,7 +64,7 @@ public class PaymentDialogController {
     }
 
     private String dinhDangTien(double amount) {
-        NumberFormat fmt = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+        NumberFormat fmt = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
         fmt.setMaximumFractionDigits(0);
         return fmt.format(amount) + " đ";
     }

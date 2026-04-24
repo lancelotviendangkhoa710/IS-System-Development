@@ -13,7 +13,7 @@
 -->
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.CreateOrderController"
+            fx:controller="com.bakery.views.controllers.CreateOrderViewFXMLController"
             minWidth="520" minHeight="420"
             style="-fx-background-color: #FDFBF7;">
 
@@ -45,13 +45,17 @@
                         <Button text="🔍 Tìm" styleClass="btn-secondary"
                                 onAction="#onTimKhach"/>
                     </HBox>
+                    <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Button text="＋ Thêm KH" onAction="#onThemKhachHang" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
+                        <Button text="✏ Sửa KH" onAction="#onSuaKhachHang" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
+                    </HBox>
 
-                    <Label text="Khách hàng:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                    <Label text="Khách hàng:" GridPane.columnIndex="0" GridPane.rowIndex="2"
                            styleClass="lbl-small-bold"/>
                     <Label fx:id="lblKhachInfo"
                            text="Chưa xác định — sẽ tạo đơn vãng lai"
                            styleClass="lbl-muted"
-                           GridPane.columnIndex="1" GridPane.rowIndex="1"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2"
                            wrapText="true"/>
                 </GridPane>
 

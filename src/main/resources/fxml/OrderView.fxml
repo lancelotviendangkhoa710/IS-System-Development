@@ -12,7 +12,7 @@
 -->
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.OrderController"
+            fx:controller="com.bakery.views.controllers.OrderViewFXMLController"
             styleClass="bg-app">
 
     <!-- ═══════════════ SIDEBAR TRÁI (220px) ═══════════════ -->
@@ -20,8 +20,9 @@
         <VBox styleClass="sidebar" spacing="0">
 
             <!-- Logo Block -->
-            <VBox styleClass="bg-surface" alignment="CENTER_LEFT">
-                <Label text="🥐 La Boulangerie" styleClass="sidebar-logo"/>
+            <VBox styleClass="bg-surface" alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 16 20 16 20;">
+                <Button text="← Quay lại Menu" styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
+                <Label text="🥐 H3K Bakery" styleClass="sidebar-logo"/>
                 <Label text="BAKERY MANAGEMENT" styleClass="sidebar-tagline"/>
                 <Separator/>
             </VBox>
@@ -56,8 +57,8 @@
                 </padding>
                 <Label text="👤" style="-fx-font-size: 24px;"/>
                 <VBox spacing="2">
-                    <Label text="Thu ngân" styleClass="lbl-body-bold"/>
-                    <Label text="H3K Bakery" styleClass="lbl-small"/>
+                    <Label fx:id="lblNguoiDungDangNhap" text="Nguoi dung" styleClass="lbl-body-bold"/>
+                    <Label fx:id="lblQuyenDangNhap" text="Role Access" styleClass="lbl-small"/>
                 </VBox>
             </HBox>
         </VBox>
@@ -237,6 +238,10 @@
                                    text="Khách vãng lai"
                                    styleClass="lbl-small"
                                    wrapText="true"/>
+                            <HBox spacing="8">
+                                <Button text="＋ Thêm KH" onAction="#onThemKhachHang" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
+                                <Button text="✏ Sửa KH" onAction="#onSuaKhachHang" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
+                            </HBox>
                         </VBox>
 
                         <!-- Giỏ hàng -->
@@ -313,6 +318,9 @@
                         <ComboBox fx:id="cbGioTu" prefWidth="90" styleClass="combo-box"/>
                         <Label text="Đến:" styleClass="lbl-small-bold"/>
                         <ComboBox fx:id="cbGioDen" prefWidth="90" styleClass="combo-box"/>
+                        <Label text="Trạng thái:" styleClass="lbl-small-bold"/>
+                        <ComboBox fx:id="cbLocTrangThaiTheoDoi" prefWidth="140" styleClass="combo-box"
+                                  onAction="#onLocTrangThaiTheoDoi"/>
                         <Button text="🔍 Tìm kiếm" styleClass="btn-primary"
                                 onAction="#onTimKiemDon"/>
                         <Region HBox.hgrow="ALWAYS"/>

@@ -108,61 +108,23 @@ public interface IOrderView {
     /** @return Tổng thanh toán hiện đang hiển thị trên UI */
     double getTongThanhToanHienTai();
 
-    // ─── CÁC METHOD CỮ (Giữ để tương thích ngược — Presenter cũ gọi) ────
+    // ─── LEGACY COMPATIBILITY (BRIDGE) ──────────────────────────────────
+    // Các method này được giữ lại TẠM THỜI để tránh lỗi biên dịch ở các 
+    // Presenter cũ (GioHangPresenter, ThanhToanPresenter). 
+    // Sẽ được xóa hoàn toàn sau khi các Presenter này được migrate hoặc xóa.
 
-    /** @deprecated Không còn dùng sau khi chuyển sang IOrderDialogFactory */
+    /** @deprecated */
     @Deprecated default double getTienKhachDua() { return 0; }
 
-    /** @deprecated Không còn dùng sau khi chuyển sang IOrderDialogFactory */
+    /** @deprecated */
     @Deprecated default double getTienCoc() { return 0; }
 
-    /** @deprecated Không còn dùng sau khi chuyển sang IOrderDialogFactory */
+    /** @deprecated */
     @Deprecated default String getDiaChiGiao() { return ""; }
 
-    /** @deprecated Không còn dùng sau khi chuyển sang IOrderDialogFactory */
+    /** @deprecated */
     @Deprecated default String getSoDienThoai() { return ""; }
 
-    /** @deprecated Không còn dùng sau khi chuyển sang IOrderDialogFactory */
+    /** @deprecated */
     @Deprecated default Integer getHinhThucNhan() { return 1; }
-
-    /** @deprecated Không còn dùng sau khi chuyển sang IOrderDialogFactory */
-    @Deprecated default String getTrangThaiHienTaiTraCuu() { return ""; }
-
-    // ─── PAYMENT (Deprecated — chuyển sang IOrderDialogFactory) ─────────
-
-    /**
-     * @deprecated Dùng IOrderDialogFactory.showPaymentConfirmation() thay thế.
-     * Giữ lại để tương thích ngược với OrderPresenter trong quá trình migration.
-     */
-    @Deprecated
-    default boolean hienThiXacNhanThanhToan(int maDon, double tongTien, double daCoc, double conLai) {
-        return false;
-    }
-
-    /**
-     * @deprecated Không dùng nữa — QR hiển thị trực tiếp trong CreateOrderDialog (JavaFX).
-     */
-    @Deprecated default int hienThiChonHinhThucThanhToan() { return 0; }
-
-    /** @deprecated */
-    @Deprecated default boolean hienThiXacNhanThuTien(double soTien) { return false; }
-
-    /** @deprecated */
-    @Deprecated default boolean hienThiQRVaXacNhan(double soTien, String moTa) { return false; }
-
-    /** @deprecated */
-    @Deprecated default void hienThiPopupQR(double amount, String orderId) {}
-
-    /**
-     * @deprecated Luồng thanh toán hiện đại được xử lý bởi IOrderDialogFactory.
-     */
-    @Deprecated
-    record PaymentResult(boolean confirmed, boolean isRetail,
-                         double soTienThanhToan, String hinhThuc) {}
-
-    /** @deprecated */
-    @Deprecated
-    default PaymentResult hienThiManHinhThanhToanModern(double tongTien, String moTa) {
-        return new PaymentResult(false, true, tongTien, "Tiền mặt");
-    }
 }

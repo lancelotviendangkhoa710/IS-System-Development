@@ -146,15 +146,19 @@ public class DonDatHangDAO {
         return null;
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) throws SQLException {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws SQLException {
         List<DonDatHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN " +
                         "FROM DONDATHANG DDH " +
                         "JOIN TRANGTHAIDON TT ON TT.MATRANGTHAI = DDH.MATRANGTHAI " +
-                        "WHERE TT.MATRANGTHAI <> (" +
-                        "SELECT TTH.MATRANGTHAI FROM TRANGTHAIDON TTH " +
-                        "WHERE TTH.TENTRANGTHAI = N'Hoàn thành' FETCH FIRST 1 ROW ONLY)");
+                        "WHERE 1 = 1");
+
+        if ("COMPLETED".equalsIgnoreCase(trangThaiFilter)) {
+            sql.append(" AND UPPER(TT.TENTRANGTHAI) = UPPER(N'Hoàn thành')");
+        } else if ("NOT_COMPLETED".equalsIgnoreCase(trangThaiFilter)) {
+            sql.append(" AND UPPER(TT.TENTRANGTHAI) <> UPPER(N'Hoàn thành')");
+        }
 
         if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
             sql.append(" AND DDH.MADON = ?");

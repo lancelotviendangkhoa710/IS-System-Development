@@ -30,11 +30,15 @@ public class TheoDoiDonService {
      * mã đơn (tìm kiếm mờ), ngày nhận, khoảng giờ.
      */
     public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan,
-            LocalTime gioTu, LocalTime gioDen) throws Exception {
+            LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         try {
-            return donDatHangDAO.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen);
+            return donDatHangDAO.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
         } catch (SQLException e) {
             throw new Exception("Không thể tải danh sách theo dõi đơn: " + e.getMessage(), e);
         }
+    }
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan,
+            LocalTime gioTu, LocalTime gioDen) throws Exception {
+        return layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
 }

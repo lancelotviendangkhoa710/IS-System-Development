@@ -32,7 +32,7 @@ import java.util.Locale;
  * Dialog factory + FXML controller cho luong tao don hang.
  * Presenter chi biet IOrderDialogFactory va khong phu thuoc framework UI.
  */
-public class CreateOrderController implements IOrderDialogFactory {
+public class CreateOrderViewFXMLController implements IOrderDialogFactory {
 
     @FXML private Label lblStep;
     @FXML private VBox step1Panel;
@@ -78,7 +78,7 @@ public class CreateOrderController implements IOrderDialogFactory {
     private String tenKhach = "Khach vang lai";
     private String soDienThoai = "";
 
-    private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+    private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
 
     static {
         FMT_TIEN.setMaximumFractionDigits(0);
@@ -110,7 +110,7 @@ public class CreateOrderController implements IOrderDialogFactory {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateOrderDialog.fxml"));
             Parent root = loader.load();
-            CreateOrderController controller = loader.getController();
+            CreateOrderViewFXMLController controller = loader.getController();
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -142,7 +142,7 @@ public class CreateOrderController implements IOrderDialogFactory {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PaymentDialog.fxml"));
             Parent root = loader.load();
-            PaymentDialogController controller = loader.getController();
+            PaymentDialogViewFXMLController controller = loader.getController();
             controller.initData(maDon, tongTien, daCoc, conLai);
 
             Stage stage = new Stage();
@@ -243,6 +243,68 @@ public class CreateOrderController implements IOrderDialogFactory {
             soDienThoai = sdt;
             lblKhachInfo.setText("Khong tim thay - dat don vang lai");
             lblKhachInfo.setStyle("-fx-text-fill: #DC2626; -fx-font-weight: bold;");
+        }
+    }
+
+    @FXML
+    private void onThemKhachHang() {
+        moDialogKhachHang(null);
+    }
+
+    @FXML
+    private void onSuaKhachHang() {
+        if (maKH == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Vui lòng tìm khách hàng trước khi sửa.");
+            alert.showAndWait();
+            return;
+        }
+        
+        com.bakery.model.dto.KhachHangDTO kh = new com.bakery.model.dto.KhachHangDTO();
+        kh.setMaKH(maKH);
+        kh.setHoTen(tenKhach);
+        kh.setSdt(soDienThoai);
+        // We don't have all details here, but the dialog will load them if needed or we can just pass what we have.
+        // Actually, KhachHangDAO.timKhachHangBangSDT is better.
+        
+        com.bakery.model.dao.KhachHangDAO dao = new com.bakery.model.dao.KhachHangDAO();
+        com.bakery.model.dto.KhachHangDTO fullKh = dao.timKhachHangBangSDT(soDienThoai);
+        moDialogKhachHang(fullKh);
+    }
+
+    private void moDialogKhachHang(com.bakery.model.dto.KhachHangDTO kh) {
+        try {
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/KhachHangDialog.fxml");
+            if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy KhachHangDialog.fxml");
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
+            KhachHangDialogController controller = loader.getController();
+            
+            if (kh != null) {
+                controller.khoiTaoChinhSua(kh);
+            }
+
+            Stage dialog = new Stage();
+            dialog.setTitle(kh == null ? "H3K Bakery - Thêm Khách Hàng" : "H3K Bakery - Sửa Khách Hàng");
+            dialog.setScene(scene);
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(lblKhachInfo.getScene().getWindow());
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+            com.bakery.model.dto.KhachHangDTO kq = controller.getKetQua();
+            if (kq != null) {
+                this.maKH = kq.getMaKH();
+                this.tenKhach = kq.getHoTen();
+                this.soDienThoai = kq.getSdt();
+                txtSDT.setText(this.soDienThoai);
+                lblKhachInfo.setText("OK " + tenKhach + " - thành viên giảm 10%");
+                lblKhachInfo.setStyle("-fx-text-fill: #16A34A; -fx-font-weight: bold;");
+            }
+        } catch (Exception ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Lỗi mở dialog: " + ex.getMessage());
+            alert.showAndWait();
         }
     }
 

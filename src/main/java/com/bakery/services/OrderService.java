@@ -147,8 +147,8 @@ public class OrderService {
     }
 
     public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, 
-            LocalTime gioTu, LocalTime gioDen) throws Exception {
-        return theoDoiDonService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen);
+            LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
+        return theoDoiDonService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
     }
 
     private String chuanHoaTrangThai(String rawStatus) {

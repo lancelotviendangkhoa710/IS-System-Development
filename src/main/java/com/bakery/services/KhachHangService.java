@@ -28,4 +28,19 @@ public class KhachHangService {
             return null;
         return khachHangDAO.timKhachHangBangSDT(sdt.trim());
     }
+
+    /**
+     * Thêm khách hàng mới.
+     * @return Mã khách hàng vừa tạo
+     */
+    public int themKhachHangMoi(KhachHangDTO kh) {
+        return khachHangDAO.themKhachHangMoi(kh);
+    }
+
+    /**
+     * Cập nhật thông tin khách hàng.
+     */
+    public boolean capNhatKhachHang(KhachHangDTO kh) {
+        return khachHangDAO.capNhatKhachHang(kh);
+    }
 }

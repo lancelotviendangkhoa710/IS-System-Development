@@ -1,0 +1,42 @@
+-- Procedure Thêm nhân viên mới vào hệ thống
+CREATE OR REPLACE PROCEDURE PROC_THEMNHANVIEN (
+    P_MAVAITRO      IN NUMBER,
+    P_HOTEN         IN NVARCHAR2,
+    P_NGAYSINH      IN DATE,
+    P_SDT           IN VARCHAR2,
+    P_TENDANGNHAP   IN VARCHAR2,
+    P_MATKHAU       IN VARCHAR2,
+    P_MANV_OUT      OUT NUMBER
+) AS
+    V_COUNT NUMBER;
+BEGIN
+    -- 1. Kiểm tra số điện thoại trùng
+    SELECT COUNT(*) INTO V_COUNT FROM NHANVIEN WHERE SDT = P_SDT;
+    IF V_COUNT > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Số điện thoại đã tồn tại trong hệ thống.');
+    END IF;
+
+    -- 2. Kiểm tra tên đăng nhập trùng
+    SELECT COUNT(*) INTO V_COUNT FROM NHANVIEN WHERE TENDANGNHAP = P_TENDANGNHAP;
+    IF V_COUNT > 0 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Tên đăng nhập đã tồn tại trong hệ thống.');
+    END IF;
+
+    -- 3. Kiểm tra vai trò tồn tại
+    SELECT COUNT(*) INTO V_COUNT FROM VAITRO WHERE MAVAITRO = P_MAVAITRO AND THOIDIEMXOA IS NULL;
+    IF V_COUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20003, 'Vai trò không hợp lệ hoặc đã bị xóa.');
+    END IF;
+
+    -- 4. Thêm nhân viên
+    INSERT INTO NHANVIEN (MAVAITRO, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC)
+    VALUES (P_MAVAITRO, P_HOTEN, P_NGAYSINH, P_SDT, P_TENDANGNHAP, P_MATKHAU, 1)
+    RETURNING MANV INTO P_MANV_OUT;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END PROC_THEMNHANVIEN;
+/

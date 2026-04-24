@@ -1,6 +1,5 @@
 package com.bakery.views.interfaces;
 
-import com.bakery.views.interfaces.IOrderView.PaymentResult;
 import java.time.LocalDateTime;
 
 /**

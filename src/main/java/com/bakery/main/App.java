@@ -7,32 +7,26 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
-/**
- * Entry point của ứng dụng JavaFX.
- * Thay thế OrderUiSmokeTestApp (Swing).
- * Việc khởi tạo Presenter và inject factory được thực hiện trong OrderController.initialize().
- */
 public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        URL fxmlUrl = getClass().getResource("/fxml/OrderView.fxml");
+        URL fxmlUrl = getClass().getResource("/fxml/LoginView.fxml");
         if (fxmlUrl == null) {
-            throw new RuntimeException("Không tìm thấy file /fxml/OrderView.fxml trong resources!");
+            throw new RuntimeException("Khong tim thay file /fxml/LoginView.fxml trong resources!");
         }
 
         FXMLLoader loader = new FXMLLoader(fxmlUrl);
-        Scene scene = new Scene(loader.load(), 1280, 720);
+        Scene scene = new Scene(loader.load(), 1366, 768);
 
-        // Áp dụng Amber Design System CSS
         URL cssUrl = getClass().getResource("/css/bakery.css");
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl.toExternalForm());
         }
 
-        primaryStage.setTitle("La Boulangerie — POS & Quản lý đơn hàng");
-        primaryStage.setMinWidth(1024);
-        primaryStage.setMinHeight(640);
+        primaryStage.setTitle("H3K Bakery - Dang nhap");
+        primaryStage.setMinWidth(1280);
+        primaryStage.setMinHeight(720);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

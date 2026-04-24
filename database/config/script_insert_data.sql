@@ -347,3 +347,68 @@ COMMIT;
 
 Select * from SANPHAM
 
+-- 1. Thêm nhân viên mới với quyền Quản lý (Admin)
+ INSERT INTO NHANVIEN (MAVAITRO, HOTEN, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC)
+VALUES (
+    (SELECT MAVAITRO FROM VAITRO WHERE TENVAITRO = N'Quản lý' FETCH FIRST 1 ROW ONLY),
+    N'Viên Đăng Khoa',
+    '0889812723',
+    'khoavien', -- Tên đăng nhập
+    '123',       -- Mật khẩu mặc định (bạn có thể đổi sau)
+    1            -- Trạng thái: Đang làm việc
+    );
+
+-- 2. Xác nhận lưu thay đổi
+COMMIT;
+
+-- 3. Kiểm tra lại thông tin vừa thêm
+SELECT * FROM NHANVIEN WHERE TENDANGNHAP = 'khoavien';
+
+-- INSERT KHÁCH HÀNG MẪU
+INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI, MAHANG)
+VALUES (
+           N'Lê Thị Lan',
+           '0912345678',
+           N'12 Nguyễn Huệ, Quận 1, TP.HCM',
+           (SELECT MAHANG FROM HANGTHANHVIEN WHERE TENHANG = N'Không' FETCH FIRST 1 ROW ONLY)
+       );
+
+INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI, MAHANG)
+VALUES (
+           N'Phạm Văn Hùng',
+           '0987654321',
+           N'45 Lê Lợi, Quận 3, TP.HCM',
+           (SELECT MAHANG FROM HANGTHANHVIEN WHERE TENHANG = N'Bạc' FETCH FIRST 1 ROW ONLY)
+       );
+
+INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI, MAHANG)
+VALUES (
+           N'Trần Minh Châu',
+           '0901112233',
+           N'78 Hai Bà Trưng, Quận Bình Thạnh',
+           (SELECT MAHANG FROM HANGTHANHVIEN WHERE TENHANG = N'Vàng' FETCH FIRST 1 ROW ONLY)
+       );
+
+INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI, MAHANG)
+VALUES (
+           N'Nguyễn Thị Hoa',
+           '0856789012',
+           N'99 Đinh Tiên Hoàng, Quận Bình Thạnh',
+           (SELECT MAHANG FROM HANGTHANHVIEN WHERE TENHANG = N'Kim cương' FETCH FIRST 1 ROW ONLY)
+       );
+
+INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI, MAHANG)
+VALUES (
+           N'Viễn Đăng Khoa',
+           '0889812723',
+           N'TP.HCM',
+           (SELECT MAHANG FROM HANGTHANHVIEN WHERE TENHANG = N'Vàng' FETCH FIRST 1 ROW ONLY)
+       );
+
+COMMIT;
+
+-- Kiểm tra lại
+SELECT * FROM KHACHHANG ORDER BY MAKH DESC;
+select * from VAITRO
+select * from VAITRO_CHUCNANG
+select * from

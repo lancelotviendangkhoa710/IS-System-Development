@@ -6,10 +6,13 @@ import com.bakery.model.dto.DonDatHangDTO;
 import com.bakery.model.dto.HoaDonDTO;
 import com.bakery.model.dto.KichCoBanhDTO;
 import com.bakery.model.dto.KieuTrangTriDTO;
+import com.bakery.model.dto.NhanVienDTO;
 import com.bakery.model.dto.NhanBanhDTO;
 import com.bakery.model.dto.SanPhamDTO;
 import com.bakery.presenters.OrderPresenter;
+import com.bakery.services.AuthorizationService;
 import com.bakery.services.OrderService;
+import com.bakery.utils.UserSession;
 import com.bakery.views.Receipt;
 import com.bakery.views.interfaces.IOrderView;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -61,12 +64,14 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
-public class OrderController implements IOrderView, Initializable {
+public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @FXML private Button btnNavPOS;
     @FXML private Button btnNavTheoDoi;
     @FXML private Label lblHeaderTitle;
     @FXML private Label lblThongBaoHeader;
+    @FXML private Label lblNguoiDungDangNhap;
+    @FXML private Label lblQuyenDangNhap;
 
     @FXML private HBox tabTaoDon;
     @FXML private VBox tabTheoDoi;
@@ -111,10 +116,11 @@ public class OrderController implements IOrderView, Initializable {
     @FXML private DatePicker dpNgayTheoDoi;
     @FXML private ComboBox<String> cbGioTu;
     @FXML private ComboBox<String> cbGioDen;
+    @FXML private ComboBox<String> cbLocTrangThaiTheoDoi;
     @FXML private Label lblThongBaoTab2;
     @FXML private VBox panelChuaDon;
 
-    private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+    private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
     private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final String CSS_ERROR = "-fx-text-fill: #DC2626; -fx-font-weight: bold;";
     private static final String CSS_SUCCESS = "-fx-text-fill: #16A34A; -fx-font-weight: bold;";
@@ -125,7 +131,8 @@ public class OrderController implements IOrderView, Initializable {
         FMT_TIEN.setMaximumFractionDigits(0);
     }
 
-    private final CreateOrderController dialogFactory = new CreateOrderController();
+    private final CreateOrderViewFXMLController dialogFactory = new CreateOrderViewFXMLController();
+    private final AuthorizationService authorizationService = new AuthorizationService();
     private OrderPresenter presenter;
 
     private final List<SanPhamDTO> danhSachSanPham = new ArrayList<>();
@@ -133,12 +140,16 @@ public class OrderController implements IOrderView, Initializable {
     private final Map<Integer, String> mapDanhMuc = new HashMap<>();
     private final List<String> danhSachTrangThai = new ArrayList<>();
     private final ObservableList<CTDonHangDTO> gioHangModel = FXCollections.observableArrayList();
+    private final List<DonDatHangDTO> danhSachDonTheoDoiGoc = new ArrayList<>();
 
     private String danhMucDangLoc = "ALL";
     private double tongThanhToanHienTai = 0.0;
+    
+    private com.bakery.model.dto.KhachHangDTO khachHangHienTai = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        capNhatThongTinNguoiDung();
         khoiTaoBoLocDanhMuc();
         khoiTaoBangGioHang();
         khoiTaoComboTheoDoi();
@@ -150,6 +161,33 @@ public class OrderController implements IOrderView, Initializable {
         presenter = new OrderPresenter(this, new OrderService());
         presenter.setDialogFactory(dialogFactory);
         presenter.taiDuLieuBanDau();
+    }
+
+    public void apDungThongTinDangNhap(NhanVienDTO nhanVien) {
+        UserSession.setCurrentUser(nhanVien);
+        capNhatThongTinNguoiDung();
+    }
+
+    @FXML
+    private void onBackToMenu() {
+        try {
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load(), 1280, 720);
+            
+            MainMenuViewFXMLController controller = loader.getController();
+            controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
+            
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            
+            javafx.stage.Stage stage = (javafx.stage.Stage) lblTenKhachHang.getScene().getWindow();
+            stage.setTitle("H3K Bakery - Management Console");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            System.err.println("Lỗi quay lại Menu: " + ex.getMessage());
+        }
     }
 
     @FXML
@@ -198,7 +236,12 @@ public class OrderController implements IOrderView, Initializable {
         LocalDate ngay = dpNgayTheoDoi.getValue() != null ? dpNgayTheoDoi.getValue() : LocalDate.now();
         LocalTime gioTu = parseGioTheoDoi(cbGioTu.getValue());
         LocalTime gioDen = parseGioTheoDoi(cbGioDen.getValue());
-        presenter.timKiemDonTheoDoi(maDon, ngay, gioTu, gioDen);
+        presenter.timKiemDonTheoDoi(maDon, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
+    }
+
+    @FXML
+    private void onLocTrangThaiTheoDoi() {
+        onTimKiemDon();
     }
 
     @FXML
@@ -324,6 +367,81 @@ public class OrderController implements IOrderView, Initializable {
         panelChuaDon.getChildren().clear();
         for (DonDatHangDTO don : dsDonTheoDoi) {
             panelChuaDon.getChildren().add(taoCardTheoDoi(don));
+        }
+    }
+
+    private void hienThiDanhSachDonTheoDoiLenUI(List<DonDatHangDTO> dsDonTheoDoi) {
+        panelChuaDon.getChildren().clear();
+        for (DonDatHangDTO don : dsDonTheoDoi) {
+            panelChuaDon.getChildren().add(taoCardTheoDoi(don));
+        }
+    }
+
+    @FXML
+    private void onTimKhachHang() {
+        String sdt = txtSoDienThoai.getText().trim();
+        if (sdt.isEmpty()) {
+            hienThiLoi("Vui lòng nhập số điện thoại.");
+            return;
+        }
+        com.bakery.model.dto.KhachHangDTO kh = khachHangService.timKhachHangTheoSoDienThoai(sdt);
+        if (kh != null) {
+            khachHangHienTai = kh;
+            lblTenKhachHang.setText(kh.getHoTen() + " - Điểm: " + kh.getDiemTichLuy());
+            hienThiThanhCong("Đã tìm thấy khách hàng: " + kh.getHoTen());
+        } else {
+            khachHangHienTai = null;
+            lblTenKhachHang.setText("Khách vãng lai");
+            hienThiLoi("Không tìm thấy khách hàng mang SĐT này.");
+        }
+    }
+
+    @FXML
+    private void onThemKhachHang() {
+        moDialogKhachHang(null);
+    }
+
+    @FXML
+    private void onSuaKhachHang() {
+        if (khachHangHienTai == null) {
+            hienThiLoi("Vui lòng tìm khách hàng trước khi sửa.");
+            return;
+        }
+        moDialogKhachHang(khachHangHienTai);
+    }
+
+    private void moDialogKhachHang(com.bakery.model.dto.KhachHangDTO kh) {
+        try {
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/KhachHangDialog.fxml");
+            if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy KhachHangDialog.fxml");
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
+            KhachHangDialogController controller = loader.getController();
+            
+            if (kh != null) {
+                controller.khoiTaoChinhSua(kh);
+            } else {
+                // If the user typed a phone number before clicking "Add", let's pass it along indirectly via reflection or just ignore it for now.
+            }
+
+            javafx.stage.Stage dialog = new javafx.stage.Stage();
+            dialog.setTitle(kh == null ? "H3K Bakery - Thêm Khách Hàng" : "H3K Bakery - Sửa Khách Hàng");
+            dialog.setScene(scene);
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialog.initOwner(lblTenKhachHang.getScene().getWindow());
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+            // After dialog closes, check if a customer was saved
+            com.bakery.model.dto.KhachHangDTO kq = controller.getKetQua();
+            if (kq != null) {
+                khachHangHienTai = kq;
+                txtSoDienThoai.setText(kq.getSdt());
+                lblTenKhachHang.setText(kq.getHoTen() + " - Điểm: " + kq.getDiemTichLuy());
+                hienThiThanhCong("Đã áp dụng khách hàng: " + kq.getHoTen());
+            }
+        } catch (Exception ex) {
+            hienThiLoi("Lỗi mở dialog: " + ex.getMessage());
         }
     }
 
@@ -535,6 +653,12 @@ public class OrderController implements IOrderView, Initializable {
         }
         cbGioTu.setValue("Tất cả");
         cbGioDen.setValue("Tất cả");
+
+        cbLocTrangThaiTheoDoi.getItems().clear();
+        cbLocTrangThaiTheoDoi.getItems().add("Tất cả");
+        cbLocTrangThaiTheoDoi.getItems().add("Chưa hoàn thành");
+        cbLocTrangThaiTheoDoi.getItems().add("Hoàn thành");
+        cbLocTrangThaiTheoDoi.setValue("Chưa hoàn thành");
     }
 
     private void khoiTaoComboTuyChinh() {
@@ -613,7 +737,8 @@ public class OrderController implements IOrderView, Initializable {
                     txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim(),
                     dpNgayTheoDoi.getValue() == null ? LocalDate.now() : dpNgayTheoDoi.getValue(),
                     parseGioTheoDoi(cbGioTu.getValue()),
-                    parseGioTheoDoi(cbGioDen.getValue())
+                    parseGioTheoDoi(cbGioDen.getValue()),
+                    layTrangThaiFilterTuUI()
             );
         }
     }
@@ -863,5 +988,40 @@ public class OrderController implements IOrderView, Initializable {
 
     private String dinhDangTien(double amount) {
         return FMT_TIEN.format(amount) + " đ";
+    }
+
+
+    private String layTrangThaiFilterTuUI() {
+        String filter = cbLocTrangThaiTheoDoi == null ? null : cbLocTrangThaiTheoDoi.getValue();
+        if (filter == null || filter.isBlank() || "Tất cả".equalsIgnoreCase(filter)) {
+            return "ALL";
+        }
+        if ("Hoàn thành".equalsIgnoreCase(filter)) {
+            return "COMPLETED";
+        }
+        return "NOT_COMPLETED";
+    }
+
+    private void capNhatThongTinNguoiDung() {
+        NhanVienDTO nhanVien = UserSession.getCurrentUser();
+        if (nhanVien == null) {
+            return;
+        }
+
+        String tenHienThi = nhanVien.getHoTen() == null || nhanVien.getHoTen().isBlank()
+                ? nhanVien.getTenDangNhap()
+                : nhanVien.getHoTen();
+        boolean laAdmin = authorizationService.laAdmin(nhanVien);
+        String tenVaiTro = nhanVien.getTenVaiTro();
+        String quyenHienThi = (tenVaiTro != null && !tenVaiTro.isBlank())
+                ? (laAdmin ? tenVaiTro + " - Full Access" : tenVaiTro + " - Role Access")
+                : (laAdmin ? "Admin Access" : "Role Access");
+
+        if (lblNguoiDungDangNhap != null) {
+            lblNguoiDungDangNhap.setText(tenHienThi);
+        }
+        if (lblQuyenDangNhap != null) {
+            lblQuyenDangNhap.setText(quyenHienThi);
+        }
     }
 }
