@@ -112,11 +112,7 @@ public class DonDatHangDAO {
     }
 
     public DonDatHangDTO layTomTatDonHang(int maDon) throws SQLException {
-        String sql = "SELECT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, " +
-                "DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN, DDH.TIENDACOC, DDH.HINHTHUCNHAN " +
-                "FROM DONDATHANG DDH " +
-                "JOIN TRANGTHAIDON TT ON TT.MATRANGTHAI = DDH.MATRANGTHAI " +
-                "WHERE DDH.MADON = ?";
+        String sql = "SELECT * FROM VW_DanhSachDonHang WHERE MADON = ?";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -149,30 +145,29 @@ public class DonDatHangDAO {
     public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws SQLException {
         List<DonDatHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN " +
-                        "FROM DONDATHANG DDH " +
-                        "JOIN TRANGTHAIDON TT ON TT.MATRANGTHAI = DDH.MATRANGTHAI " +
-                        "WHERE 1 = 1");
+                "SELECT MADON, MAKH, MATRANGTHAI, TENTRANGTHAI, NGAYGIONHANBANH, TONGTIENHDBAN " +
+                "FROM VW_DanhSachDonHang " +
+                "WHERE 1 = 1");
 
         if ("COMPLETED".equalsIgnoreCase(trangThaiFilter)) {
-            sql.append(" AND UPPER(TT.TENTRANGTHAI) = UPPER(N'Hoàn thành')");
+            sql.append(" AND UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')");
         } else if ("NOT_COMPLETED".equalsIgnoreCase(trangThaiFilter)) {
-            sql.append(" AND UPPER(TT.TENTRANGTHAI) <> UPPER(N'Hoàn thành')");
+            sql.append(" AND UPPER(TENTRANGTHAI) <> UPPER(N'Hoàn thành')");
         }
 
         if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
-            sql.append(" AND DDH.MADON = ?");
+            sql.append(" AND MADON = ?");
         }
         if (ngayNhan != null) {
-            sql.append(" AND TRUNC(DDH.NGAYGIONHANBANH) = ?");
+            sql.append(" AND TRUNC(NGAYGIONHANBANH) = ?");
         }
         if (gioTu != null) {
-            sql.append(" AND TO_CHAR(DDH.NGAYGIONHANBANH, 'HH24:MI') >= ?");
+            sql.append(" AND TO_CHAR(NGAYGIONHANBANH, 'HH24:MI') >= ?");
         }
         if (gioDen != null) {
-            sql.append(" AND TO_CHAR(DDH.NGAYGIONHANBANH, 'HH24:MI') <= ?");
+            sql.append(" AND TO_CHAR(NGAYGIONHANBANH, 'HH24:MI') <= ?");
         }
-        sql.append(" ORDER BY DDH.NGAYGIONHANBANH ASC, DDH.MADON ASC");
+        sql.append(" ORDER BY NGAYGIONHANBANH ASC, MADON ASC");
 
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
