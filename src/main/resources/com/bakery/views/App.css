@@ -1,0 +1,158 @@
+/* styles/App.css */
+.root {
+    -fx-font-family: "Segoe UI", "Plus Jakarta Sans", sans-serif;
+    -fx-background-color: #f9f9f9;
+}
+
+/* Header */
+.top-bar {
+    -fx-background-color: rgba(255,255,255,0.85);
+    -fx-padding: 0 16px;
+    -fx-pref-height: 56px;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #fafaf9;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 20px 14px;
+    -fx-spacing: 10px;
+}
+
+.sidebar-logo-text {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1c1917;
+}
+
+.sidebar-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: #78716c;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #44403c;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 14px;
+    -fx-background-radius: 8px;
+    -fx-alignment: center-left;
+    -fx-graphic-text-gap: 10px;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #f5f5f4;
+}
+
+.sidebar-button-active {
+    -fx-background-color: #d4a37333;
+    -fx-text-fill: #7d562d;
+    -fx-border-color: #7d562d;
+    -fx-border-width: 0 4 0 0;
+    -fx-border-radius: 0;
+}
+
+/* Buttons */
+.primary-button {
+    -fx-background-color: #7d562d;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 6px 18px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #623f18;
+}
+
+.secondary-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #71594d;
+    -fx-border-color: #71594d;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 6px 18px;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #71594d11;
+}
+
+/* Cards */
+.stats-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 3);
+    -fx-padding: 16px;
+    -fx-spacing: 6px;
+}
+
+.card-title {
+    -fx-text-fill: #78716c;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-transform: uppercase;
+}
+
+.card-value {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1c1917;
+}
+
+/* TableView */
+.table-view {
+    -fx-background-color: white;
+    -fx-table-cell-border-color: transparent;
+    -fx-border-color: #e2e2e2;
+    -fx-border-radius: 8px;
+    -fx-padding: 0;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #eeeeee;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-text-fill: #50453b;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 6px;
+}
+
+.table-view .table-row-cell {
+    -fx-border-color: #f0f0f0;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #f9f9f9;
+}
+
+/* Pagination */
+.pagination-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #d4c4b7;
+    -fx-text-fill: #50453b;
+    -fx-padding: 2px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.pagination-button-active {
+    -fx-background-color: #7d562d;
+    -fx-text-fill: white;
+}
+
+/* Search field */
+.search-field {
+    -fx-background-color: #eeeeee;
+    -fx-background-radius: 20px;
+    -fx-padding: 6px 16px;
+    -fx-font-size: 13px;
+}

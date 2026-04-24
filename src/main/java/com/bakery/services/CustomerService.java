@@ -7,175 +7,194 @@ import java.util.List;
 
 public class CustomerService {
 
-    private final KhachHangDAO khachHangDAO;
+    private final KhachHangDAO customerDAO;
 
     public CustomerService() {
-        this.khachHangDAO = new KhachHangDAO();
+        this.customerDAO = new KhachHangDAO();
     }
 
-    // ====== VALIDATION ======
-
-    public void validateCustomerInput(KhachHangDTO kh) throws SQLException {
-        if (kh == null) {
+    // Kiem tra du lieu dau vao truoc khi goi DAO.
+    public void validateCustomerInput(KhachHangDTO customer) throws SQLException {
+        if (customer == null) {
             throw new SQLException("Du lieu khach hang khong hop le");
         }
 
-        String hoTen = kh.getHoTen() != null ? kh.getHoTen().trim() : "";
-        String sdt = kh.getSdt() != null ? kh.getSdt().trim() : "";
-        String diaChi = kh.getDiaChi() != null ? kh.getDiaChi().trim() : "";
+        String fullName = customer.getHoTen() != null ? customer.getHoTen().trim() : "";
+        String phone = customer.getSdt() != null ? customer.getSdt().trim() : "";
+        String address = customer.getDiaChi() != null ? customer.getDiaChi().trim() : "";
 
-        kh.setHoTen(hoTen);
-        kh.setSdt(sdt);
-        kh.setDiaChi(diaChi);
+        customer.setHoTen(fullName);
+        customer.setSdt(phone);
+        customer.setDiaChi(address);
 
-        if (hoTen.isEmpty()) {
+        if (fullName.isEmpty()) {
             throw new SQLException("Ten khach hang khong duoc de trong");
         }
 
-        if (hoTen.length() > 100) {
+        if (fullName.length() > 100) {
             throw new SQLException("Ten khach hang toi da 100 ky tu");
         }
 
-        if (!sdt.matches("^\\d{10}$")) {
+        if (!phone.matches("^\\d{10}$")) {
             throw new SQLException("SDT phai la 10 chu so");
         }
 
-        if (diaChi.length() > 255) {
+        if (address.length() > 255) {
             throw new SQLException("Dia chi toi da 255 ky tu");
         }
     }
 
-    // ====== TIM HOAC TAO MOI (voi restore) ======
-
-    public KhachHangDTO timHoacTaoMoi(String sdt) throws SQLException {
-        if (sdt == null || !sdt.matches("^\\d{10}$")) {
+    // Tim khach hang theo SDT (hoat dong hoac da xoa) de phuc vu luong tao moi.
+    public KhachHangDTO findOrPrepareCustomerByPhone(String phone) throws SQLException {
+        if (phone == null || !phone.matches("^\\d{10}$")) {
             throw new SQLException("SDT phai la 10 chu so");
         }
 
-        // Buoc 1: Tim khach active
-        KhachHangDTO khachActive = khachHangDAO.timKhachHangBangSDT(sdt);
-        if (khachActive != null) {
-            return khachActive;
+        KhachHangDTO activeCustomer = customerDAO.findActiveCustomerByPhone(phone);
+        if (activeCustomer != null) {
+            return activeCustomer;
         }
 
-        // Buoc 2: Tim khach da xoa (de hoi restore)
-        KhachHangDTO khachXoa = khachHangDAO.timKhachHangXoa(sdt);
-        if (khachXoa != null) {
-            return khachXoa;
+        KhachHangDTO deletedCustomer = customerDAO.findDeletedCustomerByPhone(phone);
+        if (deletedCustomer != null) {
+            return deletedCustomer;
         }
 
-        // Buoc 3: Khong co, return null - Controller se tao moi
         return null;
     }
 
-    // ====== RESTORE ======
-
-    public void khoiPhucKhachHang(int maKH) throws SQLException {
-        khachHangDAO.khoiPhucKhachHang(maKH);
+    // Khoi phuc mot khach hang da xoa mem.
+    public void restoreCustomer(int customerId) throws SQLException {
+        if (customerId <= 0) {
+            throw new SQLException("Ma khach hang khong hop le");
+        }
+        customerDAO.restoreCustomer(customerId);
     }
 
-    // ====== THEM ======
+    // Tao khach hang moi sau khi validate va kiem tra trung SDT.
+    public int createCustomer(KhachHangDTO customer) throws SQLException {
+        validateCustomerInput(customer);
 
-    public int taoKhachMoi(KhachHangDTO kh) throws SQLException {
-        validateCustomerInput(kh);
-
-        KhachHangDTO existing = khachHangDAO.timKhachHangBangSDT(kh.getSdt());
+        KhachHangDTO existing = customerDAO.findActiveCustomerByPhone(customer.getSdt());
         if (existing != null && existing.getThoiDiemXoa() == null) {
             throw new SQLException("SDT da ton tai trong he thong");
         }
 
         try {
-            return khachHangDAO.themKhachHangMoi(kh);
+            return customerDAO.createCustomer(customer);
         } catch (SQLException e) {
             throw new SQLException("Loi tao khach hang: " + e.getMessage(), e);
         }
     }
 
-    // ====== SUA ======
-
-    public void capNhatKhachHang(KhachHangDTO kh) throws SQLException {
-        if (kh.getMaKH() <= 0) {
+    // Cap nhat thong tin mot khach hang.
+    public void updateCustomer(KhachHangDTO customer) throws SQLException {
+        if (customer.getMaKH() <= 0) {
             throw new SQLException("Ma khach hang khong hop le");
         }
 
-        validateCustomerInput(kh);
+        validateCustomerInput(customer);
 
-        KhachHangDTO existing = khachHangDAO.timKhachHangBangMaKH(kh.getMaKH());
+        KhachHangDTO existing = customerDAO.findActiveCustomerById(customer.getMaKH());
         if (existing == null) {
             throw new SQLException("Khach hang khong ton tai");
         }
 
         try {
-            khachHangDAO.suaKhachHang(kh);
+            customerDAO.updateCustomer(customer);
         } catch (SQLException e) {
             throw new SQLException("Loi cap nhat khach hang: " + e.getMessage(), e);
         }
     }
 
-    // ====== XOA ======
-
-    public void xoaKhachHang(int maKH, int manvXoa) throws SQLException {
-        if (maKH <= 0 || manvXoa <= 0) {
+    // Xoa mem khach hang.
+    public void softDeleteCustomer(int customerId, int deletedByEmployeeId) throws SQLException {
+        if (customerId <= 0 || deletedByEmployeeId <= 0) {
             throw new SQLException("Du lieu khong hop le");
         }
 
-        KhachHangDTO existing = khachHangDAO.timKhachHangBangMaKH(maKH);
+        KhachHangDTO existing = customerDAO.findActiveCustomerById(customerId);
         if (existing == null) {
             throw new SQLException("Khach hang khong ton tai");
         }
 
         try {
-            khachHangDAO.xoaKhachHang(maKH, manvXoa);
+            customerDAO.softDeleteCustomer(customerId, deletedByEmployeeId);
         } catch (SQLException e) {
             throw new SQLException("Loi xoa khach hang: " + e.getMessage(), e);
         }
     }
 
-    // ====== TIM KIEM ======
-
-    public KhachHangDTO layKHTheoMaKH(int maKH) throws SQLException {
-        if (maKH <= 0) {
+    // Lay khach hang theo ma.
+    public KhachHangDTO getCustomerById(int customerId) throws SQLException {
+        if (customerId <= 0) {
             throw new SQLException("Ma khach hang khong hop le");
         }
 
-        KhachHangDTO kh = khachHangDAO.timKhachHangBangMaKH(maKH);
-        if (kh == null) {
+        KhachHangDTO customer = customerDAO.findActiveCustomerById(customerId);
+        if (customer == null) {
             throw new SQLException("Khach hang khong ton tai");
         }
 
-        return kh;
+        return customer;
     }
 
-    public KhachHangDTO layKHTheoSDT(String sdt) throws SQLException {
-        if (sdt == null || !sdt.matches("^\\d{10}$")) {
+    // Lay khach hang theo SDT.
+    public KhachHangDTO getCustomerByPhone(String phone) throws SQLException {
+        if (phone == null || !phone.matches("^\\d{10}$")) {
             throw new SQLException("SDT phai la 10 chu so");
         }
 
-        return khachHangDAO.timKhachHangBangSDT(sdt);
+        return customerDAO.findActiveCustomerByPhone(phone);
     }
 
-    public List<KhachHangDTO> layTatCaKhachHang() throws SQLException {
-        return khachHangDAO.layDanhSachKhachHangHoatDong();
-    }
-
-    public List<KhachHangDTO> timKhachHangTheoTuKhoa(String tuKhoa) throws SQLException {
-        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
-            return layTatCaKhachHang();
+    // Lay khach hang theo dia chi.
+    public KhachHangDTO getCustomerByAddress(String address) throws SQLException {
+        if (address == null || address.trim().isEmpty()) {
+            throw new SQLException("Dia chi khong hop le");
         }
-        return khachHangDAO.timKhachHangTheoTuKhoa(tuKhoa);
+        return customerDAO.findActiveCustomerByAddress(address);
     }
 
-    // ====== CAP NHAT DIEM ======
+    // Lay danh sach khach hang dang hoat dong.
+    public List<KhachHangDTO> getActiveCustomers() throws SQLException {
+        return customerDAO.getAllActiveCustomers();
+    }
 
-    public void capNhatDiem(int maKH, int diemMoi) throws SQLException {
-        if (maKH <= 0 || diemMoi < 0) {
+    // Tim kiem khach hang theo tu khoa.
+    public List<KhachHangDTO> searchCustomers(String keyword) throws SQLException {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getActiveCustomers();
+        }
+        return customerDAO.searchActiveCustomers(keyword);
+    }
+
+    // Lay danh sach khach hang da xoa mem.
+    public List<KhachHangDTO> getDeletedCustomers() {
+        return customerDAO.getAllDeletedCustomers();
+    }
+
+    // Dem tong so khach hang dang hoat dong.
+    public int countActiveCustomers() {
+        return customerDAO.countActiveCustomers();
+    }
+
+    // Dem khach hang moi trong thang.
+    public int countNewCustomersInMonth(int year, int month) {
+        return customerDAO.countNewCustomersInMonth(year, month);
+    }
+
+    // Cap nhat diem tich luy.
+    public void updateCustomerPoints(int customerId, int newPoints) throws SQLException {
+        if (customerId <= 0 || newPoints < 0) {
             throw new SQLException("Du lieu khong hop le");
         }
 
         try {
-            khachHangDAO.capNhatDiemTichLuy(maKH, diemMoi);
+            customerDAO.updateCustomerPoints(customerId, newPoints);
         } catch (SQLException e) {
             throw new SQLException("Loi cap nhat diem: " + e.getMessage(), e);
         }
     }
+
 }

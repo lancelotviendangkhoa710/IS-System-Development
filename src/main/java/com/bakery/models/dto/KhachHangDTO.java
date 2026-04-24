@@ -11,12 +11,13 @@ public class KhachHangDTO {
     private LocalDate ngayDangKy;
     private int diemTichLuy;
     private int maHang;
+    private String tenHang;
     private LocalDateTime thoiDiemXoa;
     private int maNX;
 
     public KhachHangDTO() {}
 
-    public KhachHangDTO(int maKH, String hoTen, String sdt, String diaChi, LocalDate ngayDangKy, int diemTichLuy, int maHang, LocalDateTime thoiDiemXoa, int maNX) {
+    public KhachHangDTO(int maKH, String hoTen, String sdt, String diaChi, LocalDate ngayDangKy, int diemTichLuy, int maHang, String tenHang, LocalDateTime thoiDiemXoa, int maNX) {
         this.maKH = maKH;
         this.hoTen = hoTen;
         this.sdt = sdt;
@@ -24,6 +25,7 @@ public class KhachHangDTO {
         this.ngayDangKy = ngayDangKy;
         this.diemTichLuy = diemTichLuy;
         this.maHang = maHang;
+        this.tenHang = tenHang;
         this.thoiDiemXoa = thoiDiemXoa;
         this.maNX = maNX;
     }
@@ -54,4 +56,7 @@ public class KhachHangDTO {
 
     public int getMaNX() { return maNX; }
     public void setMaNX(int maNX) { this.maNX = maNX; }
+
+    public String getTenHang() { return tenHang; }
+    public void setTenHang(String tenHang) { this.tenHang = tenHang; }
 }
