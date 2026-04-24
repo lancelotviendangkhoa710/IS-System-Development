@@ -8,22 +8,33 @@ IS
     V_MATRANGTHAI_CU NUMBER;
     V_MATT_HUY NUMBER;
 BEGIN
-    -- 1. Lấy trạng thái hiện tại của đơn hàng trước khi chết
-    SELECT MATRANGTHAI INTO V_MATRANGTHAI_CU
-    FROM DONDATHANG
-    WHERE MADON = P_MADON;
+    -- 1. Kiểm tra sự tồn tại của đơn hàng và lấy trạng thái cũ
+    BEGIN
+        SELECT MATRANGTHAI INTO V_MATRANGTHAI_CU
+        FROM DONDATHANG
+        WHERE MADON = P_MADON;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Không tìm thấy đơn hàng mã: ' || P_MADON);
+    END;
 
-    -- Lấy ID động của trạng thái "Hủy"
-    SELECT MATRANGTHAI INTO V_MATT_HUY
-    FROM TRANGTHAIDON
-    WHERE UPPER(TENTRANGTHAI) = 'HỦY';
+    -- 2. Lấy ID động của trạng thái "Hủy" (Dùng N prefix để khớp NVARCHAR2)
+    BEGIN
+        SELECT MATRANGTHAI INTO V_MATT_HUY
+        FROM TRANGTHAIDON
+        WHERE TENTRANGTHAI = N'Hủy' OR UPPER(TENTRANGTHAI) = N'HỦY'
+        FETCH FIRST 1 ROW ONLY;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Hệ thống chưa định nghĩa trạng thái [Hủy] trong bảng TRANGTHAIDON.');
+    END;
 
-    -- 2. Đổi trạng thái đơn hàng sang "Hủy"
+    -- 3. Đổi trạng thái đơn hàng sang "Hủy"
     UPDATE DONDATHANG
     SET MATRANGTHAI = V_MATT_HUY
     WHERE MADON = P_MADON;
 
-    -- 3. Quét & Hoàn kho
+    -- 4. Quét & Hoàn kho (Chỉ áp dụng cho bánh có sẵn trong CTDONHANG)
     FOR ROW_CT IN (
         SELECT MASP, SOLUONG
         FROM CTDONHANG
@@ -35,15 +46,20 @@ BEGIN
         WHERE MASP = ROW_CT.MASP;
     END LOOP;
 
-    -- 4. Audit Log (Lưu vết hành động của Nhân viên kèm Lý Do Hủy chi tiết)
+    -- 5. Audit Log (Sử dụng SUBSTR để tránh lỗi tràn 100 ký tự của cột GHICHU)
     INSERT INTO LICHSUDONHANG(MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT, GHICHU)
-    VALUES (P_MADON, V_MATRANGTHAI_CU, V_MATT_HUY, SYSDATE, P_MANV_CAPNHAT, P_LYDOHUY);
+    VALUES (P_MADON, V_MATRANGTHAI_CU, V_MATT_HUY, CURRENT_TIMESTAMP, P_MANV_CAPNHAT, SUBSTR(P_LYDOHUY, 1, 100));
 
     COMMIT;
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Lỗi hệ thống giao dịch khi thực thi hủy đơn: ' || SQLERRM);
+        -- Nếu là lỗi do chính mình ném ra (RAISE_APPLICATION_ERROR) thì ném tiếp
+        IF SQLCODE BETWEEN -20999 AND -20000 THEN
+            RAISE;
+        ELSE
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON_GIAO_DICH, 'Lỗi hệ thống khi thực thi hủy đơn: ' || SQLERRM);
+        END IF;
 END;
 /
