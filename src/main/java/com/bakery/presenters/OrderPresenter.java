@@ -13,7 +13,7 @@ import com.bakery.model.dto.YeuCauTaoDonHangDTO;
 import com.bakery.services.OrderService;
 import com.bakery.views.interfaces.IOrderDialogFactory;
 import com.bakery.views.interfaces.IOrderView;
-
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -258,10 +258,7 @@ public class OrderPresenter {
                 convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia);
     }
 
-    /** Giữ lại để tương thích ngược */
-    public void xuLyThanhToanModern() { moDialogTaoDon(); }
-    public void xuLyDatBanh() { moDialogTaoDon(); }
-    public void xuLyThanhToanTrucTiep() { moDialogTaoDon(); }
+
 
     public void traCuuDonHang(String maDonStr) {
         try {
@@ -396,7 +393,7 @@ public class OrderPresenter {
     private String chuanHoaTrangThai(String rawStatus) {
         if (rawStatus == null)
             return "";
-        String normalized = java.text.Normalizer.normalize(rawStatus.trim(), java.text.Normalizer.Form.NFD)
+        String normalized = Normalizer.normalize(rawStatus.trim(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .replace("đ", "d").replace("Đ", "D")
                 .replace("Ä‘", "d").replace("Ä ", "D")

@@ -20,6 +20,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import com.bakery.model.dao.KhachHangDAO;
+import com.bakery.model.dto.KhachHangDTO;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -260,19 +262,12 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             return;
         }
         
-        com.bakery.model.dto.KhachHangDTO kh = new com.bakery.model.dto.KhachHangDTO();
-        kh.setMaKH(maKH);
-        kh.setHoTen(tenKhach);
-        kh.setSdt(soDienThoai);
-        // We don't have all details here, but the dialog will load them if needed or we can just pass what we have.
-        // Actually, KhachHangDAO.timKhachHangBangSDT is better.
-        
-        com.bakery.model.dao.KhachHangDAO dao = new com.bakery.model.dao.KhachHangDAO();
-        com.bakery.model.dto.KhachHangDTO fullKh = dao.timKhachHangBangSDT(soDienThoai);
+        KhachHangDAO dao = new KhachHangDAO();
+        KhachHangDTO fullKh = dao.timKhachHangBangSDT(soDienThoai);
         moDialogKhachHang(fullKh);
     }
 
-    private void moDialogKhachHang(com.bakery.model.dto.KhachHangDTO kh) {
+    private void moDialogKhachHang(KhachHangDTO kh) {
         try {
             java.net.URL fxmlUrl = getClass().getResource("/fxml/KhachHangDialog.fxml");
             if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy KhachHangDialog.fxml");
@@ -292,7 +287,7 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             dialog.setResizable(false);
             dialog.showAndWait();
 
-            com.bakery.model.dto.KhachHangDTO kq = controller.getKetQua();
+            KhachHangDTO kq = controller.getKetQua();
             if (kq != null) {
                 this.maKH = kq.getMaKH();
                 this.tenKhach = kq.getHoTen();
@@ -329,18 +324,6 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
 
     @FXML
     private void onChonLoaiDon() {
-        if (btnImmediateFlow.isFocused()) {
-            btnImmediateFlow.setSelected(true);
-            btnPreorderFlow.setSelected(false);
-        } else if (btnPreorderFlow.isFocused()) {
-            btnImmediateFlow.setSelected(false);
-            btnPreorderFlow.setSelected(true);
-        }
-
-        if (!btnImmediateFlow.isSelected() && !btnPreorderFlow.isSelected()) {
-            btnImmediateFlow.setSelected(true);
-        }
-
         boolean isImmediate = btnImmediateFlow.isSelected();
         panelImmediate.setManaged(isImmediate);
         panelImmediate.setVisible(isImmediate);
@@ -350,18 +333,6 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
 
     @FXML
     private void onChonHinhThuc() {
-        if (btnCash.isFocused()) {
-            btnCash.setSelected(true);
-            btnTransfer.setSelected(false);
-        } else if (btnTransfer.isFocused()) {
-            btnCash.setSelected(false);
-            btnTransfer.setSelected(true);
-        }
-
-        if (!btnCash.isSelected() && !btnTransfer.isSelected()) {
-            btnCash.setSelected(true);
-        }
-
         boolean isCash = btnCash.isSelected();
         panelTienMat.setManaged(isCash);
         panelTienMat.setVisible(isCash);

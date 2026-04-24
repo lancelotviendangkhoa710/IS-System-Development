@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
 public class MainMenuViewFXMLController {
@@ -65,8 +66,8 @@ public class MainMenuViewFXMLController {
         if (hboxBestSellersMenu == null) return;
         hboxBestSellersMenu.getChildren().clear();
         
-        java.util.Map<String, Integer> top5 = thongKeDAO.getTop5BanChay();
-        for (java.util.Map.Entry<String, Integer> entry : top5.entrySet()) {
+        Map<String, Integer> top5 = thongKeDAO.getTop5BanChay();
+        for (Map.Entry<String, Integer> entry : top5.entrySet()) {
             VBox card = new VBox(8);
             card.setStyle("-fx-background-color: #ffffff; -fx-padding: 16 24; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);");
             card.setPrefWidth(200);
@@ -103,13 +104,13 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onThemNhanVien() {
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/ThemNhanVienDialog.fxml");
+            URL fxmlUrl = getClass().getResource("/fxml/ThemNhanVienDialog.fxml");
             if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy ThemNhanVienDialog.fxml");
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Scene scene = new Scene(loader.load());
+            URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            javafx.stage.Stage dialog = new javafx.stage.Stage();
+            Stage dialog = new Stage();
             dialog.setTitle("H3K Bakery - Thêm Nhân Viên");
             dialog.setScene(scene);
             dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);

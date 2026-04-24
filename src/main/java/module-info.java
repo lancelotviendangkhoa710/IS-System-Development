@@ -3,6 +3,8 @@ module com.bakery {
     requires javafx.fxml;
     requires transitive javafx.graphics;
     requires java.sql;
+    requires java.desktop;
+    requires javafx.swing;
     requires org.apache.pdfbox;
 
 

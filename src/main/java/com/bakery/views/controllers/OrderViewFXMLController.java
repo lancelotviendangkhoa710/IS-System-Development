@@ -145,7 +145,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     private final Map<Integer, String> mapDanhMuc = new HashMap<>();
     private final List<String> danhSachTrangThai = new ArrayList<>();
     private final ObservableList<CTDonHangDTO> gioHangModel = FXCollections.observableArrayList();
-    private final List<DonDatHangDTO> danhSachDonTheoDoiGoc = new ArrayList<>();
+
 
     private String danhMucDangLoc = "ALL";
     private double tongThanhToanHienTai = 0.0;
@@ -176,17 +176,17 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     @FXML
     private void onBackToMenu() {
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load(), 1280, 720);
+            URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Scene scene = new Scene(loader.load(), 1280, 720);
             
             MainMenuViewFXMLController controller = loader.getController();
             controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
             
-            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
             
-            javafx.stage.Stage stage = (javafx.stage.Stage) lblTenKhachHang.getScene().getWindow();
+            Stage stage = (Stage) lblTenKhachHang.getScene().getWindow();
             stage.setTitle("H3K Bakery - Management Console");
             stage.setScene(scene);
             stage.centerOnScreen();
@@ -218,10 +218,14 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @FXML
     private void onTimKhachHang() {
-        if (presenter == null) {
+        if (presenter == null) return;
+        
+        String sdt = txtSoDienThoai.getText() == null ? "" : txtSoDienThoai.getText().trim();
+        if (sdt.isEmpty()) {
+            hienThiLoi("Vui lòng nhập số điện thoại.");
             return;
         }
-        presenter.timKhachHang(txtSoDienThoai.getText());
+        presenter.timKhachHang(sdt);
     }
 
     @FXML
@@ -375,31 +379,9 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         }
     }
 
-    private void hienThiDanhSachDonTheoDoiLenUI(List<DonDatHangDTO> dsDonTheoDoi) {
-        panelChuaDon.getChildren().clear();
-        for (DonDatHangDTO don : dsDonTheoDoi) {
-            panelChuaDon.getChildren().add(taoCardTheoDoi(don));
-        }
-    }
 
-    @FXML
-    private void onTimKhachHang() {
-        String sdt = txtSoDienThoai.getText().trim();
-        if (sdt.isEmpty()) {
-            hienThiLoi("Vui lòng nhập số điện thoại.");
-            return;
-        }
-        com.bakery.model.dto.KhachHangDTO kh = khachHangService.timKhachHangTheoSoDienThoai(sdt);
-        if (kh != null) {
-            khachHangHienTai = kh;
-            lblTenKhachHang.setText(kh.getHoTen() + " - Điểm: " + kh.getDiemTichLuy());
-            hienThiThanhCong("Đã tìm thấy khách hàng: " + kh.getHoTen());
-        } else {
-            khachHangHienTai = null;
-            lblTenKhachHang.setText("Khách vãng lai");
-            hienThiLoi("Không tìm thấy khách hàng mang SĐT này.");
-        }
-    }
+
+
 
     @FXML
     private void onThemKhachHang() {

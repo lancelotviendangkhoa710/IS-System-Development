@@ -20,7 +20,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-
+import java.util.List;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.NumberFormat;
@@ -50,9 +50,9 @@ public class ReceiptViewFXMLController {
      * Điền dữ liệu từ các DTO có sẵn vào UI
      */
     public void setReceiptData(HoaDonDTO hoaDon, DonDatHangDTO donHang, 
-                               java.util.List<CTDonHangDTO> cart, 
-                               java.util.List<SanPhamDTO> originData,
-                               String tenKhach, double kháchĐưa, double tiềnThừa) {
+                               List<CTDonHangDTO> cart, 
+                               List<SanPhamDTO> originData,
+                               String tenKhach, double khachDua, double tienThua) {
         
         lblMaDon.setText(donHang != null ? "#ORD-" + donHang.getMaDon() : "N/A");
         lblMaHoaDon.setText("#INV-" + hoaDon.getMaHD());
@@ -65,8 +65,8 @@ public class ReceiptViewFXMLController {
         lblTongTien.setText(FORMAT_TIEN.format(tongTien) + " đ");
         lblGiamGia.setText("0 đ");
         lblDaThu.setText(FORMAT_TIEN.format(tongTien) + " đ");
-        lblTienKhachDua.setText(FORMAT_TIEN.format(kháchĐưa) + " đ");
-        lblTienThua.setText(FORMAT_TIEN.format(tiềnThừa) + " đ");
+        lblTienKhachDua.setText(FORMAT_TIEN.format(khachDua) + " đ");
+        lblTienThua.setText(FORMAT_TIEN.format(tienThua) + " đ");
 
         vboxItems.getChildren().clear();
         if (cart != null) {
@@ -76,7 +76,7 @@ public class ReceiptViewFXMLController {
         }
     }
 
-    private HBox createItemRow(CTDonHangDTO item, java.util.List<SanPhamDTO> originData) {
+    private HBox createItemRow(CTDonHangDTO item, List<SanPhamDTO> originData) {
         String tenSP = "Sản phẩm #" + item.getMaSP();
         if (originData != null) {
             for (SanPhamDTO sp : originData) {
