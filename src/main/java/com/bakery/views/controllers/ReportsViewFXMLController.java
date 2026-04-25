@@ -7,8 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
@@ -20,8 +24,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.io.PrintWriter;
+import java.io.File;
 
 public class ReportsViewFXMLController {
 
@@ -33,6 +41,11 @@ public class ReportsViewFXMLController {
     @FXML private Label lblLoiNhuan;
     @FXML private Label lblTongDon;
     @FXML private VBox vboxBestSellers;
+    @FXML private PieChart revenuePieChart;
+    @FXML private BarChart<String, Number> revenueBarChart;
+    
+    @FXML private ComboBox<String> cbLoaiBaoCao;
+    @FXML private DatePicker dpNgayBaoCao;
 
     private ThongKeDAO thongKeDAO = new ThongKeDAO();
 
@@ -46,37 +59,80 @@ public class ReportsViewFXMLController {
             lblAdminName.setText(name);
         }
 
-        // Fetch real data
-        double doanhThuHomNay = thongKeDAO.getDoanhThuHomNay();
-        double doanhThuHomQua = thongKeDAO.getDoanhThuHomQua();
-        int tongDon = thongKeDAO.getTongSoDonHomNay();
-        
-        lblDoanhThu.setText(String.format("%,.0fđ", doanhThuHomNay));
-        lblLoiNhuan.setText(String.format("%,.0fđ", doanhThuHomNay * 0.3)); // mock profit
-        lblTongDon.setText(String.valueOf(tongDon));
-        
-        if (doanhThuHomQua > 0) {
-            double chenhLech = doanhThuHomNay - doanhThuHomQua;
-            String text = String.format("So với %,.0fđ hôm qua (", doanhThuHomQua);
-            if (chenhLech > 0) text += "+" + String.format("%,.0fđ)", chenhLech);
-            else text += String.format("%,.0fđ)", chenhLech);
-            lblChenhLechDoanhThu.setText(text);
-        } else {
-            lblChenhLechDoanhThu.setText("So với 0đ hôm qua");
+        setupFilters();
+        refreshData();
+    }
+
+    private void setupFilters() {
+        cbLoaiBaoCao.setItems(FXCollections.observableArrayList("Ngày", "Tháng", "Quý", "Năm"));
+        cbLoaiBaoCao.setValue("Ngày");
+        dpNgayBaoCao.setValue(LocalDate.now());
+
+        cbLoaiBaoCao.valueProperty().addListener((obs, oldVal, newVal) -> refreshData());
+        dpNgayBaoCao.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.isAfter(LocalDate.now())) {
+                showAlert("Ngày không hợp lệ", "Bạn không thể xem báo cáo cho tương lai.");
+                dpNgayBaoCao.setValue(LocalDate.now());
+            } else {
+                refreshData();
+            }
+        });
+    }
+
+    private void refreshData() {
+        String loaiStr = cbLoaiBaoCao.getValue();
+        LocalDate ngay = dpNgayBaoCao.getValue();
+        if (ngay == null) ngay = LocalDate.now();
+
+        String loai = "DAY";
+        String giaTri = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        if ("Tháng".equals(loaiStr)) {
+            loai = "MONTH";
+            giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy"));
+        } else if ("Quý".equals(loaiStr)) {
+            loai = "QUARTER";
+            int quarter = (ngay.getMonthValue() - 1) / 3 + 1;
+            giaTri = quarter + "/" + ngay.getYear();
+        } else if ("Năm".equals(loaiStr)) {
+            loai = "YEAR";
+            giaTri = String.valueOf(ngay.getYear());
         }
 
-        Map<String, Double> chartData = thongKeDAO.getDoanhThu7NgayQua();
-        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
-        series1.setName("7 Ngày Gần Nhất");
-        for (Map.Entry<String, Double> entry : chartData.entrySet()) {
-            series1.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
-        }
-        revenueChart.getData().clear();
-        revenueChart.getData().add(series1);
+        double doanhThu = thongKeDAO.getDoanhThu(loai, giaTri);
+        lblDoanhThu.setText(String.format("%,.0fđ", doanhThu));
+        lblLoiNhuan.setText(String.format("%,.0fđ", doanhThu * 0.3));
 
+        updateChart(loai, giaTri);
+        updateCategoryCharts(loai, giaTri);
+        updateTable(loai, giaTri);
+        loadTopSellers();
+    }
+
+    private void updateCategoryCharts(String loai, String giaTri) {
+        Map<String, Double> categoryData = thongKeDAO.getDoanhThuTheoDanhMuc(loai, giaTri);
+        
+        // Update Pie Chart
+        revenuePieChart.getData().clear();
+        for (Map.Entry<String, Double> entry : categoryData.entrySet()) {
+            revenuePieChart.getData().add(new PieChart.Data(entry.getKey(), entry.getValue()));
+        }
+
+        // Update Bar Chart
+        XYChart.Series<String, Number> barSeries = new XYChart.Series<>();
+        for (Map.Entry<String, Double> entry : categoryData.entrySet()) {
+            barSeries.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+        revenueBarChart.getData().clear();
+        revenueBarChart.getData().add(barSeries);
+    }
+
+    private void loadTopSellers() {
         Map<String, Integer> top5 = thongKeDAO.getTop5BanChay();
         int maxQty = top5.values().stream().max(Integer::compareTo).orElse(1);
         if (maxQty == 0) maxQty = 1;
+
+        vboxBestSellers.getChildren().removeIf(node -> node instanceof VBox); // Clear old list but keep title/region
 
         VBox listBestSellers = new VBox(16);
         for (Map.Entry<String, Integer> entry : top5.entrySet()) {
@@ -99,25 +155,71 @@ public class ReportsViewFXMLController {
             listBestSellers.getChildren().add(itemBox);
         }
         vboxBestSellers.getChildren().add(1, listBestSellers);
+    }
 
-        // Mock data for TableView
+    private void updateChart(String loai, String giaTri) {
+        Map<String, Double> chartData = thongKeDAO.getXuHuongDoanhThu(loai, giaTri);
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Doanh Thu (" + giaTri + ")");
+        for (Map.Entry<String, Double> entry : chartData.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+        revenueChart.getData().clear();
+        revenueChart.getData().add(series);
+    }
+
+    private void updateTable(String loai, String giaTri) {
+        // Setup columns if first time
+        if (tableGiaoDich.getColumns().get(0).getCellValueFactory() == null) {
+            setupTableColumns();
+        }
+        List<String[]> data = thongKeDAO.getChiTietGiaoDich(loai, giaTri);
+        tableGiaoDich.setItems(FXCollections.observableArrayList(data));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setupTableColumns() {
         TableColumn<String[], String> colId = (TableColumn<String[], String>) tableGiaoDich.getColumns().get(0);
         colId.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[0]));
-
         TableColumn<String[], String> colKhach = (TableColumn<String[], String>) tableGiaoDich.getColumns().get(1);
         colKhach.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[1]));
-
         TableColumn<String[], String> colMon = (TableColumn<String[], String>) tableGiaoDich.getColumns().get(2);
         colMon.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[2]));
-
         TableColumn<String[], String> colTien = (TableColumn<String[], String>) tableGiaoDich.getColumns().get(3);
         colTien.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[3]));
-
         TableColumn<String[], String> colTrangThai = (TableColumn<String[], String>) tableGiaoDich.getColumns().get(4);
         colTrangThai.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[4]));
+    }
 
-        List<String[]> recentTx = thongKeDAO.getGiaoDichMoiNhat();
-        tableGiaoDich.setItems(FXCollections.observableArrayList(recentTx));
+    @FXML
+    private void onTaiBaoCaoNhanh() {
+        String loaiStr = cbLoaiBaoCao.getValue();
+        LocalDate ngay = dpNgayBaoCao.getValue();
+        String filename = "BaoCao_" + loaiStr + "_" + ngay.toString() + ".txt";
+        
+        try (PrintWriter writer = new PrintWriter(new File(filename))) {
+            writer.println("H3K BAKERY - BÁO CÁO DOANH THU");
+            writer.println("Loại: " + loaiStr);
+            writer.println("Thời gian: " + ngay.toString());
+            writer.println("----------------------------------");
+            writer.println("TỔNG DOANH THU: " + lblDoanhThu.getText());
+            writer.println("LỢI NHUẬN ƯỚC TÍNH: " + lblLoiNhuan.getText());
+            writer.println("\nDANH SÁCH GIAO DỊCH:");
+            for (String[] row : tableGiaoDich.getItems()) {
+                writer.println(String.join(" | ", row));
+            }
+            showAlert("Thành công", "Đã lưu báo cáo nhanh vào file: " + filename);
+        } catch (Exception e) {
+            showAlert("Lỗi", "Không thể lưu báo cáo: " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     @FXML

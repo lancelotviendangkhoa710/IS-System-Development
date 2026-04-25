@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.bakery.views.controllers.SupplierManagementViewFXMLController"
+            stylesheets="@../css/bakery.css"
+            style="-fx-background-color: #FDFBF7;">
+
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <padding><Insets bottom="20"/></padding>
+            <Button text="← Quay lại Menu chính" onAction="#onVeMenu" styleClass="btn-primary" style="-fx-background-color: #D85A30; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            <Label text="Quản lý Nhà Cung Cấp" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #92400E;"/>
+        </HBox>
+    </top>
+
+    <!-- Center: Table and Search -->
+    <center>
+        <VBox spacing="16" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <TextField fx:id="txtTimKiem" promptText="Tìm theo tên hoặc SĐT..." prefWidth="300" styleClass="text-field"/>
+                <Button text="Tra cứu" onAction="#onTimKiem" styleClass="btn-secondary"/>
+                <Button text="Tải lại" onAction="#onTaiLai" styleClass="btn-secondary"/>
+            </HBox>
+            
+            <TableView fx:id="tvNhaCungCap" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colMaNCC" text="Mã NCC" prefWidth="80"/>
+                    <TableColumn fx:id="colTenNCC" text="Tên Nhà Cung Cấp" prefWidth="250"/>
+                    <TableColumn fx:id="colSdt" text="Số Điện Thoại" prefWidth="150"/>
+                    <TableColumn fx:id="colDiaChi" text="Địa Chỉ" prefWidth="350"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- Right: Form -->
+    <right>
+        <VBox spacing="16" prefWidth="350" style="-fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+            <BorderPane.margin>
+                <Insets left="20"/>
+            </BorderPane.margin>
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            
+            <Label text="Thông tin chi tiết" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #78350F;"/>
+            
+            <VBox spacing="4">
+                <Label text="Mã Nhà Cung Cấp" style="-fx-text-fill: #4B5563; -fx-font-size: 13px;"/>
+                <TextField fx:id="txtMaNCC" disable="true" styleClass="text-field"/>
+            </VBox>
+            
+            <VBox spacing="4">
+                <Label text="Tên Nhà Cung Cấp *" style="-fx-text-fill: #4B5563; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                <TextField fx:id="txtTenNCC" styleClass="text-field"/>
+            </VBox>
+            
+            <VBox spacing="4">
+                <Label text="Số Điện Thoại" style="-fx-text-fill: #4B5563; -fx-font-size: 13px;"/>
+                <TextField fx:id="txtSdt" styleClass="text-field"/>
+            </VBox>
+            
+            <VBox spacing="4">
+                <Label text="Địa Chỉ" style="-fx-text-fill: #4B5563; -fx-font-size: 13px;"/>
+                <TextArea fx:id="txtDiaChi" prefRowCount="3" wrapText="true" styleClass="text-field"/>
+            </VBox>
+            
+            <!-- Buttons -->
+            <VBox spacing="12">
+                <padding><Insets top="20"/></padding>
+                <Button fx:id="btnThem" text="Thêm Mới" onAction="#onThem" maxWidth="Infinity" styleClass="btn-primary" prefHeight="40"/>
+                <Button fx:id="btnLuu" text="Lưu Thay Đổi" onAction="#onLuu" maxWidth="Infinity" styleClass="btn-primary" prefHeight="40"/>
+                <Button fx:id="btnXoa" text="Xóa Đối Tác" onAction="#onXoa" maxWidth="Infinity" styleClass="btn-danger" prefHeight="40"/>
+                <Button fx:id="btnHuy" text="Làm Mới Form" onAction="#onHuy" maxWidth="Infinity" styleClass="btn-secondary" prefHeight="40"/>
+            </VBox>
+        </VBox>
+    </right>
+
+</BorderPane>
