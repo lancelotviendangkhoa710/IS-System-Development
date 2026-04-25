@@ -80,6 +80,11 @@ public class CustomerService {
             throw new SQLException("SDT da ton tai trong he thong");
         }
 
+        KhachHangDTO deletedCustomer = customerDAO.findDeletedCustomerByPhone(customer.getSdt());
+        if (deletedCustomer != null) {
+            throw new SQLException("SDT da ton tai trong thung rac. Hay khoi phuc khach hang cu thay vi tao moi.");
+        }
+
         try {
             return customerDAO.createCustomer(customer);
         } catch (SQLException e) {
@@ -89,6 +94,10 @@ public class CustomerService {
 
     // Cap nhat thong tin mot khach hang.
     public void updateCustomer(KhachHangDTO customer) throws SQLException {
+        if (customer == null) {
+            throw new SQLException("Du lieu khach hang khong hop le");
+        }
+
         if (customer.getMaKH() <= 0) {
             throw new SQLException("Ma khach hang khong hop le");
         }
@@ -98,6 +107,11 @@ public class CustomerService {
         KhachHangDTO existing = customerDAO.findActiveCustomerById(customer.getMaKH());
         if (existing == null) {
             throw new SQLException("Khach hang khong ton tai");
+        }
+
+        KhachHangDTO duplicatePhoneCustomer = customerDAO.findActiveCustomerByPhone(customer.getSdt());
+        if (duplicatePhoneCustomer != null && duplicatePhoneCustomer.getMaKH() != customer.getMaKH()) {
+            throw new SQLException("SDT da ton tai trong he thong");
         }
 
         try {

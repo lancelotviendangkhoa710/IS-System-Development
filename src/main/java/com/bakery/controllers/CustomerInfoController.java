@@ -3,25 +3,38 @@ package com.bakery.controllers;
 import com.bakery.models.dto.KhachHangDTO;
 import com.bakery.services.CustomerService;
 import com.bakery.utils.SessionManager;
-import javafx.concurrent.Task;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
 public class CustomerInfoController {
+
+    // Các thành phần giao diện
     @FXML private TableView<KhachHangDTO> customerTable;
     @FXML private TableColumn<KhachHangDTO, Integer> colId;
     @FXML private TableColumn<KhachHangDTO, String> colName;
@@ -36,11 +49,19 @@ public class CustomerInfoController {
     @FXML private Label lblPageInfo;
     @FXML private TextField searchField;
     @FXML private Button btnRefresh;
+    @FXML private HBox paginationBox;
 
     private final CustomerService customerService = new CustomerService();
-    private ObservableList<KhachHangDTO> customerList;
-    private MainController mainController;
+    private ObservableList<KhachHangDTO> fullCustomerList;  // dữ liệu hiện tại (có thể đã lọc)
+    private List<KhachHangDTO> originalData;               // dữ liệu gốc từ DB (chưa lọc)
+    private boolean suppressSearchFilter = false;
 
+    // Phân trang
+    private static final int ROWS_PER_PAGE = 10;
+    private int currentPage = 1;
+    private int totalPages = 1;
+
+    // Lớp lưu dữ liệu tạm khi xóa bất đồng bộ
     private static class CustomerRefreshData {
         private final List<KhachHangDTO> activeCustomers;
         private final List<KhachHangDTO> tableCustomers;
@@ -61,47 +82,150 @@ public class CustomerInfoController {
         }
     }
 
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
-    }
-
     @FXML
     public void initialize() {
-        // Tai du lieu va tao cot khi mo man CRM.
         setupTableColumns();
+        customerTable.setFixedCellSize(36.0);
         refreshCustomerData();
         customerTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Lọc theo từ khóa tìm kiếm
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> filterCustomerList(newVal));
+        // Lọc theo từ khóa tìm kiếm mỗi khi người dùng gõ
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!suppressSearchFilter) {
+                filterCustomerList(newVal);
+            }
+        });
     }
 
-    // Dong bo du lieu CRM tu DB khi nguoi dung bam Refresh hoac khi quay lai man hinh.
+    // ==================== TẢI DỮ LIỆU & PHÂN TRANG ====================
+
     @FXML
     private void refreshCustomerData() {
+        suppressSearchFilter = true;
+        try {
+            if (searchField.getText() != null && !searchField.getText().isEmpty()) {
+                searchField.clear();
+            }
+        } finally {
+            suppressSearchFilter = false;
+        }
+
         loadTableData();
         updateStats();
 
-        String keyword = searchField != null ? searchField.getText() : "";
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            filterCustomerList(keyword);
-        }
+        // Reset về dữ liệu gốc sau khi đã làm mới danh sách
+        fullCustomerList = FXCollections.observableArrayList(originalData);
+        currentPage = 1;
+        applyPagination();
     }
 
     private void loadTableData() {
         try {
-            List<KhachHangDTO> list = customerService.getActiveCustomers();
-            customerList = FXCollections.observableArrayList(list);
-            customerTable.setItems(customerList);
+            originalData = customerService.getActiveCustomers();
+            fullCustomerList = FXCollections.observableArrayList(originalData);
+            applyPagination();
         } catch (SQLException e) {
-            customerList = FXCollections.observableArrayList();
-            customerTable.setItems(customerList);
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong tai duoc danh sach khach hang.\n" + e.getMessage());
+            fullCustomerList = FXCollections.observableArrayList();
+            originalData = List.of();
+            customerTable.setItems(fullCustomerList);
+            customerTable.refresh();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không tải được danh sách khách hàng.\n" + e.getMessage());
         }
     }
 
+    private void filterCustomerList(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            // Không có từ khóa -> trở về dữ liệu gốc
+            fullCustomerList = FXCollections.observableArrayList(originalData);
+        } else {
+            try {
+                List<KhachHangDTO> filtered = customerService.searchCustomers(keyword.trim());
+                fullCustomerList = FXCollections.observableArrayList(filtered);
+            } catch (SQLException e) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tìm kiếm.\n" + e.getMessage());
+                return;
+            }
+        }
+        currentPage = 1;
+        applyPagination();
+    }
+
+    private void applyPagination() {
+        if (fullCustomerList == null || fullCustomerList.isEmpty()) {
+            totalPages = 1;
+            currentPage = 1;
+            customerTable.setItems(FXCollections.observableArrayList());
+            lblPageInfo.setText("Hiển thị 0-0 của 0");
+            updatePaginationControls();
+            return;
+        }
+
+        totalPages = (int) Math.ceil((double) fullCustomerList.size() / ROWS_PER_PAGE);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        int fromIndex = (currentPage - 1) * ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, fullCustomerList.size());
+
+        List<KhachHangDTO> pageData = fullCustomerList.subList(fromIndex, toIndex);
+        customerTable.setItems(FXCollections.observableArrayList(pageData));
+        customerTable.refresh();
+
+        lblPageInfo.setText(String.format("Hiển thị %d-%d của %d",
+                fromIndex + 1, toIndex, fullCustomerList.size()));
+        updatePaginationControls();
+    }
+
+    private void updatePaginationControls() {
+        paginationBox.getChildren().clear();
+
+        // Nút Previous
+        Button prevBtn = new Button("◀");
+        prevBtn.getStyleClass().add("pagination-button");
+        prevBtn.setDisable(currentPage <= 1);
+        prevBtn.setOnAction(e -> goToPage(currentPage - 1));
+        paginationBox.getChildren().add(prevBtn);
+
+        // Hiển thị tối đa 5 nút số trang xung quanh trang hiện tại
+        int maxButtons = 5;
+        int start = Math.max(1, currentPage - maxButtons / 2);
+        int end = Math.min(totalPages, start + maxButtons - 1);
+        if (end - start < maxButtons - 1) {
+            start = Math.max(1, end - maxButtons + 1);
+        }
+
+        for (int i = start; i <= end; i++) {
+            Button pageBtn = new Button(String.valueOf(i));
+            if (i == currentPage) {
+                pageBtn.getStyleClass().add("pagination-button-active");
+            } else {
+                pageBtn.getStyleClass().add("pagination-button");
+            }
+            int page = i;
+            pageBtn.setOnAction(e -> goToPage(page));
+            paginationBox.getChildren().add(pageBtn);
+        }
+
+        // Nút Next
+        Button nextBtn = new Button("▶");
+        nextBtn.getStyleClass().add("pagination-button");
+        nextBtn.setDisable(currentPage >= totalPages);
+        nextBtn.setOnAction(e -> goToPage(currentPage + 1));
+        paginationBox.getChildren().add(nextBtn);
+    }
+
+    private void goToPage(int page) {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        applyPagination();
+    }
+
+    // ==================== CỘT BẢNG ====================
+
     private void setupTableColumns() {
-        // Cac cot co body trong FXML; tai day chi gan logic hien thi dac biet.
+        // Các cột Mã KH, Tên, SĐT, Địa chỉ, Ngày đăng ký đã có cellValueFactory trong FXML -> KHÔNG can thiệp.
+
+        // Cột ĐIỂM: thêm cell factory hiển thị ProgressBar + label
         colPoints.setCellFactory(col -> new TableCell<KhachHangDTO, Integer>() {
             private final ProgressBar bar = new ProgressBar(0);
             private final Label label = new Label();
@@ -111,15 +235,17 @@ public class CustomerInfoController {
                 bar.setPrefWidth(80);
                 bar.setMaxHeight(8);
                 label.setStyle("-fx-font-size: 12px;");
-                hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                hbox.setAlignment(javafx.geometry.Pos.CENTER);
             }
 
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
+                    setText(null);
                     setGraphic(null);
                 } else {
+                    setText(null);
                     label.setText(String.valueOf(item));
                     double progress = item / 1000.0;
                     if (progress > 1.0) progress = 1.0;
@@ -129,30 +255,55 @@ public class CustomerInfoController {
             }
         });
 
-        colTier.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getTenHang()));
+        // Cột HẠNG
+        // Cột Hạng: dùng Label graphic để hiển thị badge đẹp hơn
+        colTier.setCellValueFactory(cellData -> {
+            KhachHangDTO customer = cellData.getValue();
+            String tierName = customer != null ? customer.getTenHang() : null;
+            return new SimpleStringProperty(tierName == null || tierName.trim().isEmpty() ? "-" : tierName.trim());
+        });
+
         colTier.setCellFactory(col -> new TableCell<KhachHangDTO, String>() {
+            private final Label badge = new Label();
+
+            {
+                // Style cơ bản cho badge
+                badge.setStyle("-fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                setAlignment(javafx.geometry.Pos.CENTER);
+            }
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    switch (item.toLowerCase()) {
-                        case "vàng":
-                            setStyle("-fx-background-color: #d4a373; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8;");
-                            break;
-                        case "bạc":
-                            setStyle("-fx-background-color: #c0c0c0; -fx-text-fill: black; -fx-background-radius: 10; -fx-padding: 2 8;");
-                            break;
-                        default:
-                            setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: black; -fx-background-radius: 10; -fx-padding: 2 8;");
-                    }
+                    setGraphic(null);
+                    return;
                 }
+
+                badge.setText(item);
+                // Áp dụng màu sắc dựa trên tên hạng
+                switch (item.toLowerCase()) {
+                    case "vàng":
+                        badge.setStyle("-fx-background-color: #d4a373; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                        break;
+                    case "bạc":
+                        badge.setStyle("-fx-background-color: #c0c0c0; -fx-text-fill: black; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                        break;
+                    case "kim cương":
+                        badge.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                        break;
+                    case "đồng":
+                    case "không":
+                        badge.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: black; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                        break;
+                    default:
+                        badge.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: black; -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                }
+                setGraphic(badge);
             }
         });
 
+        // Cột THAO TÁC: thêm nút Sửa/Xóa
         colActions.setCellFactory(col -> new TableCell<KhachHangDTO, Void>() {
             private final Button btnEdit = new Button("Sửa");
             private final Button btnDelete = new Button("Xóa");
@@ -167,8 +318,9 @@ public class CustomerInfoController {
                     KhachHangDTO kh = getTableRow().getItem();
                     if (kh != null) softDeleteCustomer(kh);
                 });
-                btnEdit.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-                btnDelete.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+                btnEdit.setStyle("-fx-cursor: hand;");
+                btnDelete.setStyle("-fx-cursor: hand;");
+                pane.setAlignment(javafx.geometry.Pos.CENTER);
             }
 
             @Override
@@ -183,30 +335,76 @@ public class CustomerInfoController {
         });
     }
 
-    private void filterCustomerList(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            customerTable.setItems(customerList);
-            lblPageInfo.setText("Showing 1 to " + customerList.size() + " of " + customerList.size() + " entries");
-        } else {
-            try {
-                List<KhachHangDTO> filtered = customerService.searchCustomers(keyword.trim());
-                ObservableList<KhachHangDTO> data = FXCollections.observableArrayList(filtered);
-                customerTable.setItems(data);
-                lblPageInfo.setText("Showing 1 to " + data.size() + " of " + data.size() + " entries (filtered)");
-            } catch (SQLException e) {
-                showAlert(Alert.AlertType.ERROR, "Loi", "Khong tim kiem duoc khach hang.\n" + e.getMessage());
-            }
-        }
-    }
+    // ==================== THỐNG KÊ ====================
 
     private void updateStats() {
         int total = customerService.countActiveCustomers();
         lblTotalCustomers.setText(String.valueOf(total));
-        int newThisMonth = customerService.countNewCustomersInMonth(LocalDate.now().getYear(), LocalDate.now().getMonthValue());
+        int newThisMonth = customerService.countNewCustomersInMonth(
+                LocalDate.now().getYear(), LocalDate.now().getMonthValue());
         lblNewCustomers.setText(String.valueOf(newThisMonth));
     }
 
-    // Trong CustomerInfoController, sửa phương thức goToDeletedView:
+    // ==================== XUẤT EXCEL ====================
+    @FXML
+    private void exportCustomersToExcel() {
+        List<KhachHangDTO> dataToExport =
+                (fullCustomerList == null) ? List.of() : new ArrayList<>(fullCustomerList);
+
+        if (dataToExport.isEmpty()) {
+            showAlert(Alert.AlertType.INFORMATION, "Thông báo", "Không có dữ liệu để xuất.");
+            return;
+        }
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Lưu file Excel");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx"));
+        chooser.setInitialFileName("danh_sach_khach_hang_" + LocalDate.now() + ".xlsx");
+
+        File file = chooser.showSaveDialog(customerTable.getScene().getWindow());
+        if (file == null) return;
+
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        try (Workbook workbook = new XSSFWorkbook();
+            FileOutputStream out = new FileOutputStream(file)) {
+
+            Sheet sheet = workbook.createSheet("KhachHang");
+
+            String[] headers = {"Mã KH", "Họ tên", "SĐT", "Địa chỉ", "Ngày đăng ký", "Điểm", "Hạng"};
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            int rowIdx = 1;
+            for (KhachHangDTO kh : dataToExport) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(kh.getMaKH());
+                row.createCell(1).setCellValue(kh.getHoTen() == null ? "" : kh.getHoTen());
+                row.createCell(2).setCellValue(kh.getSdt() == null ? "" : kh.getSdt());
+                row.createCell(3).setCellValue(kh.getDiaChi() == null ? "" : kh.getDiaChi());
+                row.createCell(4).setCellValue(
+                        kh.getNgayDangKy() == null ? "" : kh.getNgayDangKy().format(dateFmt));
+                row.createCell(5).setCellValue(kh.getDiemTichLuy());
+                row.createCell(6).setCellValue(kh.getTenHang() == null ? "-" : kh.getTenHang());
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(out);
+            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Xuất Excel thành công.");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể xuất Excel.\n" + e.getMessage());
+        }
+    }
+
+    // ==================== DIALOG & XÓA ====================
+
     @FXML
     private void goToDeletedView() {
         try {
@@ -215,16 +413,45 @@ public class CustomerInfoController {
             CustomerDeletedController controller = loader.getController();
 
             Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL); // chặn tương tác với cửa sổ chính
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Thùng rác");
             stage.setScene(new Scene(root));
             controller.setStage(stage);
             stage.showAndWait();
 
-            // Sau khi popup dong, dong bo lai du lieu CRM.
+            // Sau khi đóng popup, refresh lại toàn bộ dữ liệu
             refreshCustomerData();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở thùng rác.\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openTierManagementDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/bakery/views/MembershipTierView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Quản lý hạng thành viên");
+            stage.setScene(new Scene(root));
+
+            Object controllerObj = loader.getController();
+            if (controllerObj instanceof MembershipTierController) {
+                ((MembershipTierController) controllerObj).setStage(stage);
+            }
+
+            stage.showAndWait();
+
+            // Sau khi đóng popup, nếu cần refresh danh sách khách hàng (ví dụ hiển thị tên hạng thay đổi) thì có thể gọi refreshCustomerData()
+        } catch (Exception e) {
+            Throwable root = e;
+            while (root.getCause() != null) {
+                root = root.getCause();
+            }
+            String detail = root.getMessage() != null ? root.getMessage() : e.toString();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở quản lý hạng.\n" + detail);
         }
     }
 
@@ -244,9 +471,10 @@ public class CustomerInfoController {
                 refreshCustomerData();
             }
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi mở dialog", "Không thể mở form thêm khách hàng. Kiểm tra file CustomerAddView.fxml.\n" + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở form thêm khách hàng.\n" + e.getMessage());
         }
     }
+
 
     private void openUpdateDialog(KhachHangDTO customer) {
         try {
@@ -264,12 +492,13 @@ public class CustomerInfoController {
                 refreshCustomerData();
             }
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi mở dialog", "Không thể mở form sửa khách hàng. Kiểm tra file CustomerUpdateView.fxml.\n" + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở form sửa khách hàng.\n" + e.getMessage());
         }
     }
 
     private void softDeleteCustomer(KhachHangDTO customer) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc muốn xóa khách hàng này?", ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có chắc muốn xóa khách hàng này?", ButtonType.YES, ButtonType.NO);
         alert.setTitle("Xác nhận xóa");
         alert.showAndWait().ifPresent(type -> {
             if (type == ButtonType.YES) {
@@ -283,17 +512,16 @@ public class CustomerInfoController {
         });
     }
 
-    // Xu ly xoa mem va reload du lieu bang bat dong bo.
     private void executeDeleteCustomerAsync(int customerId, int employeeId, String keyword) {
         setBusyState(true);
 
-        Task<CustomerRefreshData> deleteTask = new Task<CustomerRefreshData>() {
+        Task<CustomerRefreshData> deleteTask = new Task<>() {
             @Override
             protected CustomerRefreshData call() throws Exception {
                 customerService.softDeleteCustomer(customerId, employeeId);
 
                 List<KhachHangDTO> activeCustomers = customerService.getActiveCustomers();
-                String normalizedKeyword = keyword == null ? "" : keyword.trim();
+                String normalizedKeyword = (keyword == null ? "" : keyword).trim();
                 boolean isFiltered = !normalizedKeyword.isEmpty();
 
                 List<KhachHangDTO> tableCustomers = isFiltered
@@ -301,7 +529,8 @@ public class CustomerInfoController {
                         : activeCustomers;
 
                 int total = customerService.countActiveCustomers();
-                int newThisMonth = customerService.countNewCustomersInMonth(LocalDate.now().getYear(), LocalDate.now().getMonthValue());
+                int newThisMonth = customerService.countNewCustomersInMonth(
+                        LocalDate.now().getYear(), LocalDate.now().getMonthValue());
 
                 return new CustomerRefreshData(activeCustomers, tableCustomers, total, newThisMonth, isFiltered);
             }
@@ -309,19 +538,19 @@ public class CustomerInfoController {
 
         deleteTask.setOnSucceeded(event -> {
             CustomerRefreshData data = deleteTask.getValue();
-            customerList = FXCollections.observableArrayList(data.activeCustomers);
-
-            ObservableList<KhachHangDTO> tableData = FXCollections.observableArrayList(data.tableCustomers);
-            customerTable.setItems(tableData);
+            originalData = data.activeCustomers;
 
             if (data.filtered) {
-                lblPageInfo.setText("Showing 1 to " + tableData.size() + " of " + tableData.size() + " entries (filtered)");
+                fullCustomerList = FXCollections.observableArrayList(data.tableCustomers);
             } else {
-                lblPageInfo.setText("Showing 1 to " + tableData.size() + " of " + tableData.size() + " entries");
+                fullCustomerList = FXCollections.observableArrayList(data.activeCustomers);
             }
 
             lblTotalCustomers.setText(String.valueOf(data.totalCustomers));
             lblNewCustomers.setText(String.valueOf(data.newCustomersInMonth));
+
+            currentPage = 1;
+            applyPagination();
             setBusyState(false);
         });
 
@@ -329,16 +558,15 @@ public class CustomerInfoController {
             setBusyState(false);
             Throwable ex = deleteTask.getException();
 
-            // Neu du lieu da bi xoa ben ngoai app, tu dong dong bo lai man hinh CRM.
             if (isCustomerMissingError(ex)) {
                 refreshCustomerData();
-                showAlert(Alert.AlertType.INFORMATION, "Thong bao",
-                        "Khach hang nay da khong con ton tai trong CSDL.\nHe thong da tu dong dong bo lai du lieu.");
+                showAlert(Alert.AlertType.INFORMATION, "Thông báo",
+                        "Khách hàng không còn tồn tại. Hệ thống đã tự đồng bộ.");
                 return;
             }
 
-            String errorMessage = ex != null ? ex.getMessage() : "Loi khong xac dinh";
-            showAlert(Alert.AlertType.ERROR, "Loi", "Xoa khach hang that bai.\n" + errorMessage);
+            String errorMessage = ex != null ? ex.getMessage() : "Lỗi không xác định";
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Xóa khách hàng thất bại.\n" + errorMessage);
         });
 
         Thread worker = new Thread(deleteTask, "crm-delete-customer-worker");
@@ -346,7 +574,6 @@ public class CustomerInfoController {
         worker.start();
     }
 
-    // Bat/tat trang thai ban de nguoi dung khong bam lap lai khi dang xu ly DB.
     private void setBusyState(boolean busy) {
         customerTable.setDisable(busy);
         searchField.setDisable(busy);
@@ -355,14 +582,14 @@ public class CustomerInfoController {
         }
     }
 
-    // Nhan dien loi ban ghi da bi xoa ben ngoai he thong de xu ly UX mem.
     private boolean isCustomerMissingError(Throwable ex) {
         Throwable current = ex;
         while (current != null) {
             String msg = current.getMessage();
             if (msg != null) {
                 String normalized = msg.toLowerCase();
-                if (normalized.contains("khach hang khong ton tai") || normalized.contains("khong tim thay khach hang")) {
+                if (normalized.contains("khach hang khong ton tai") ||
+                        normalized.contains("khong tim thay khach hang")) {
                     return true;
                 }
             }

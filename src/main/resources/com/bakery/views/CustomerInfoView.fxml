@@ -1,124 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.111"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.controllers.CustomerInfoController"
-      spacing="24.0"
-      style="-fx-background-color: #f9f9f9;">
+<VBox spacing="24.0" style="-fx-background-color: #f9f9f9;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.controllers.CustomerInfoController">
     <padding>
-        <Insets top="32.0" right="32.0" bottom="32.0" left="32.0"/>
+        <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
     </padding>
 
-    <!-- ==================== SEARCH BAR ==================== -->
-    <HBox spacing="16" alignment="CENTER_LEFT">
-        <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: #eeeeee; -fx-background-radius: 20; -fx-padding: 4 16;">
-            <Label text="🔍" style="-fx-font-size: 16px; -fx-text-fill: #78716c;"/>
-            <TextField fx:id="searchField" promptText="Tìm theo tên, SĐT, mã KH, địa chỉ"
-                       style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 14px;"
-                       HBox.hgrow="ALWAYS"/>
-        </HBox>
-        <Region HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <!-- ==================== STAT CARD (gộp) ==================== -->
+    <VBox style="-fx-background-color: white; -fx-background-radius: 14px; -fx-padding: 18px 24px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 2, 4); -fx-border-color: #e8e8e8; -fx-border-radius: 14px;">
+        <HBox alignment="CENTER">
+            <!-- Phần Tổng khách hàng đang hoạt động -->
+            <VBox alignment="CENTER_LEFT" spacing="4" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #666; -fx-text-transform: uppercase;" text="Tổng khách hàng đang hoạt động" />
+                <Label fx:id="lblTotalCustomers" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="0" />
+                <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="👥  Khách hàng" />
+            </VBox>
 
-    <!-- ==================== STAT CARDS ==================== -->
-    <HBox spacing="24.0">
-        <!-- Card 1 -->
-        <VBox style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 2, 4); -fx-border-color: #e2e2e2; -fx-border-radius: 12px; -fx-spacing: 8px;" HBox.hgrow="ALWAYS">
-            <HBox spacing="8.0" alignment="CENTER_LEFT">
-                <Label text="Total Active Customers" style="-fx-text-fill: #78716c; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-transform: uppercase;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="👥" style="-fx-font-size: 20px;"/>
-            </HBox>
-            <Label fx:id="lblTotalCustomers" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1c1917;"/>
-            <Label text="" style="-fx-text-fill: #7d562d; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-        </VBox>
-        <!-- Card 2 -->
-        <VBox style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 2, 4); -fx-border-color: #e2e2e2; -fx-border-radius: 12px; -fx-spacing: 8px;" HBox.hgrow="ALWAYS">
-            <HBox spacing="8.0" alignment="CENTER_LEFT">
-                <Label text="New This Month" style="-fx-text-fill: #78716c; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-transform: uppercase;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="🧑‍🤝‍🧑" style="-fx-font-size: 20px;"/>
-            </HBox>
-            <Label fx:id="lblNewCustomers" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1c1917;"/>
-            <Label text="Consistent" style="-fx-text-fill: #625e56; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-        </VBox>
+            <!-- Đường phân cách -->
+            <Region prefHeight="60" prefWidth="1" style="-fx-background-color: #e0e0e0;" />
+
+            <!-- Phần Khách hàng mới trong tháng -->
+            <VBox alignment="CENTER_LEFT" spacing="4" style="-fx-padding: 0 0 0 28px;" HBox.hgrow="ALWAYS">
+                <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #666; -fx-text-transform: uppercase;" text="Khách hàng mới trong tháng" />
+                <Label fx:id="lblNewCustomers" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="0" />
+                <Label style="-fx-font-size: 13px; -fx-text-fill: #888;" text="🧑‍🤝‍🧑  Trong tháng" />
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- ==================== SEARCH BAR ==================== -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: #eeeeee; -fx-background-radius: 20; -fx-padding: 4 16;">
+            <Label style="-fx-font-size: 16px; -fx-text-fill: #78716c;" text="🔍" />
+            <TextField fx:id="searchField" prefHeight="29.0" prefWidth="303.0" promptText="Tìm theo tên, SĐT, mã KH, địa chỉ" style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 14px;" HBox.hgrow="ALWAYS" />
+        </HBox>
+        <Region HBox.hgrow="ALWAYS" />
     </HBox>
 
     <!-- ==================== HEADER & BUTTONS ==================== -->
     <HBox alignment="CENTER_LEFT" spacing="16.0">
         <Label text="Danh sách khách hàng">
             <font>
-                <Font name="System Bold" size="24.0"/>
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnRefresh" text="↻ Refresh" styleClass="secondary-button" onAction="#refreshCustomerData"/>
-        <Button text="🗑 Thùng rác" styleClass="secondary-button" onAction="#goToDeletedView"/>
-        <Button text="➕ Thêm khách hàng" styleClass="primary-button" onAction="#openAddCustomerDialog"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnRefresh" onAction="#refreshCustomerData" styleClass="secondary-button" text="↻ Làm mới" />
+        <Button onAction="#goToDeletedView" styleClass="secondary-button" text="🗑 Thùng rác" />
+        <Button onAction="#openTierManagementDialog" styleClass="secondary-button" text="🧑‍💼 Quản lý hạng" />
+        <Button onAction="#openAddCustomerDialog" styleClass="primary-button" text="➕ Thêm khách hàng" />
     </HBox>
 
-    <!-- ==================== TABLE VIEW (định nghĩa body/cột ngay trong FXML) ==================== -->
-    <TableView fx:id="customerTable"
-               VBox.vgrow="ALWAYS"
-               style="-fx-background-color: white; -fx-border-color: #e2e2e2; -fx-table-cell-border-color: #e2e2e2;">
-        <columns>
-            <TableColumn fx:id="colId" text="Mã KH" prefWidth="80.0">
-                <cellValueFactory>
-                    <PropertyValueFactory property="maKH"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="colName" text="Tên khách hàng" prefWidth="180.0">
-                <cellValueFactory>
-                    <PropertyValueFactory property="hoTen"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="colPhone" text="Số điện thoại" prefWidth="140.0">
-                <cellValueFactory>
-                    <PropertyValueFactory property="sdt"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="colAddress" text="Địa chỉ" prefWidth="200.0">
-                <cellValueFactory>
-                    <PropertyValueFactory property="diaChi"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="colRegDate" text="Ngày đăng ký" prefWidth="120.0">
-                <cellValueFactory>
-                    <PropertyValueFactory property="ngayDangKy"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="colPoints" text="Điểm" prefWidth="130.0">
-                <cellValueFactory>
-                    <PropertyValueFactory property="diemTichLuy"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="colTier" text="Hạng" prefWidth="100.0"/>
-            <TableColumn fx:id="colActions" text="Thao tác" prefWidth="120.0"/>
-        </columns>
-    </TableView>
+    <!-- ==================== TABLE + PAGINATION (gộp chung) ==================== -->
+    <VBox prefHeight="608.0" prefWidth="1077.0"
+          style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #e2e2e2; -fx-border-radius: 12;"
+          VBox.vgrow="ALWAYS">
 
-    <!-- ==================== PAGINATION ==================== -->
-    <HBox alignment="CENTER_LEFT" spacing="8.0">
-        <Label fx:id="lblPageInfo" text="Showing 1 to 4 of 0 entries"
-               style="-fx-text-fill: #50453b; -fx-font-size: 14px;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="◀" disable="true" styleClass="pagination-button"/>
-        <Button text="1" styleClass="pagination-button, pagination-button-active"/>
-        <Button text="2" styleClass="pagination-button"/>
-        <Button text="3" styleClass="pagination-button"/>
-        <Label text="..." style="-fx-text-fill: #50453b;"/>
-        <Button text="▶" styleClass="pagination-button"/>
-    </HBox>
+        <!-- Bảng dữ liệu -->
+        <TableView fx:id="customerTable"
+                   style="-fx-background-color: white; -fx-table-cell-border-color: transparent; -fx-border-color: transparent;"
+                   styleClass="customer-info-table"
+                   VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId" text="Mã KH">
+                    <cellValueFactory><PropertyValueFactory property="maKH" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colName" prefWidth="180.0" text="Tên khách hàng">
+                    <cellValueFactory><PropertyValueFactory property="hoTen" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colPhone" prefWidth="140.0" text="Số điện thoại">
+                    <cellValueFactory><PropertyValueFactory property="sdt" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colAddress" prefWidth="200.0" text="Địa chỉ">
+                    <cellValueFactory><PropertyValueFactory property="diaChi" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colRegDate" prefWidth="120.0" text="Ngày đăng ký">
+                    <cellValueFactory><PropertyValueFactory property="ngayDangKy" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colPoints" prefWidth="130.0" text="Điểm">
+                    <cellValueFactory><PropertyValueFactory property="diemTichLuy" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="colTier" prefWidth="100.0" text="Hạng" />
+                <TableColumn fx:id="colActions" prefWidth="120.0" text="Thao tác" />
+            </columns>
+        </TableView>
+
+        <!-- Đường kẻ phân cách -->
+        <Region prefHeight="1" style="-fx-background-color: #e8e8e8;" />
+
+        <!-- Thanh phân trang + nút Xuất Excel -->
+        <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-padding: 10 16;">
+            <Label fx:id="lblPageInfo"
+                   style="-fx-text-fill: #50453b; -fx-font-size: 13px;"
+                   text="Hiển thị 1-10 của 0" />
+
+            <!-- Spacer đẩy các nút sang phải -->
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Button mnemonicParsing="false" prefHeight="28.0" prefWidth="150.0"
+                    text="📥 Xuất Excel"
+                    styleClass="secondary-button" 
+                    onAction="#exportCustomersToExcel"
+                    />
+
+            <HBox fx:id="paginationBox" spacing="4.0" />
+        </HBox>
+    </VBox>
+
 </VBox>

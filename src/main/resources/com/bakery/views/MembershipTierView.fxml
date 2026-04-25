@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="550.0" prefHeight="331.0" prefWidth="621.0" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, 0, 10);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.controllers.MembershipTierController">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 16 20; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+        <VBox spacing="2.0">
+            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1c1917;" text="🏅 Quản lý hạng thành viên" />
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #78716c;" text="Thiết lập mức thưởng và điều kiện cho khách hàng thân thiết" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <!-- Bảng dữ liệu -->
+    <TableView fx:id="tierTable" style="-fx-padding: 0 0 8 0;" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colTenHang" prefWidth="180.0" text="Tên hạng" />
+            <TableColumn fx:id="colDiemToiThieu" prefWidth="167.28570556640625" style="-fx-alignment: CENTER-RIGHT;" text="Điểm tối thiểu" />
+            <TableColumn fx:id="colPhanTramGiamGia" prefWidth="127.00003051757812" style="-fx-alignment: CENTER-RIGHT;" text="Giảm giá (%)" />
+            <TableColumn fx:id="colThaoTac" prefWidth="147.28567504882812" resizable="false" text="Thao tác" />
+        </columns>
+    </TableView>
+
+    <!-- Footer -->
+    <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-padding: 12 20; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+        <Label style="-fx-text-fill: #50453b; -fx-font-size: 12px; -fx-font-style: italic;" text="* Hạng được cập nhật tự động mỗi ngày vào 0:00" />
+        <Region HBox.hgrow="ALWAYS" />
+    </HBox>
+</VBox>

@@ -37,7 +37,7 @@ public class TestDAO {
         // --------------------------------------------------------
         System.out.println("2. Đang test KhachHangDAO.timKhachHangBangSDT()...");
         String sdtTest = "0901234567"; // Thay bằng SĐT có thật trong DB
-        KhachHangDTO kh = khDAO.timKhachHangBangSDT(sdtTest);
+        KhachHangDTO kh = khDAO.findActiveCustomerByPhone(sdtTest);
         if (kh != null) {
             System.out.println(" ✅ Tìm thấy khách hàng: " + kh.getHoTen() + " - Điểm tích lũy: " + kh.getDiemTichLuy());
         } else {

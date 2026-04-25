@@ -1,66 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.111"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.controllers.CustomerUpdateController"
-      spacing="20.0"
-      style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 6);"
-      prefWidth="520.0">
+<VBox prefWidth="480.0" spacing="20.0" style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 6);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.controllers.CustomerUpdateController">
 
     <!-- Header -->
-    <Label text="Sửa thông tin khách hàng" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1c1917;"/>
+    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1c1917;" text="Sửa thông tin khách hàng" />
 
-    <!-- Grid 2 cột cho Mã KH và Hạng -->
-    <GridPane hgap="16.0" vgap="16.0">
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Mã KH" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;"/>
-            <TextField fx:id="txtMaKH" editable="false" style="-fx-background-color: #e8e8e8; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px; -fx-text-fill: #78716c;"/>
-        </VBox>
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Hạng thành viên" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;"/>
-            <ComboBox fx:id="cboHangThanhVien" promptText="Chọn hạng" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 4; -fx-font-size: 14px;"/>
-        </VBox>
-    </GridPane>
+    <!-- Mã KH (disabled) -->
+    <VBox spacing="6.0">
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Mã KH" />
+        <TextField fx:id="txtMaKH" editable="false" style="-fx-background-color: #e8e8e8; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px; -fx-text-fill: #78716c;" />
+    </VBox>
 
     <!-- Họ tên -->
     <VBox spacing="6.0">
-        <Label text="Họ tên *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;"/>
-        <TextField fx:id="txtHoTen" promptText="Nhập họ và tên" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;"/>
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Họ tên *" />
+        <TextField fx:id="txtHoTen" promptText="Nhập họ và tên" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;" />
     </VBox>
 
-    <!-- Grid 2 cột cho SĐT và Điểm -->
-    <GridPane hgap="16.0" vgap="16.0">
-        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Số điện thoại *" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;"/>
-            <TextField fx:id="txtSDT" promptText="Nhập số điện thoại" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;"/>
-        </VBox>
-        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Điểm tích lũy" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;"/>
-            <TextField fx:id="txtDiemTichLuy" editable="false" style="-fx-background-color: #e8e8e8; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px; -fx-text-fill: #78716c;"/>
-        </VBox>
-    </GridPane>
+    <!-- Số điện thoại -->
+    <VBox spacing="6.0">
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Số điện thoại *" />
+        <TextField fx:id="txtSDT" promptText="Nhập số điện thoại (10 chữ số)" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;" />
+    </VBox>
 
     <!-- Địa chỉ -->
     <VBox spacing="6.0">
-        <Label text="Địa chỉ" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;"/>
-        <TextArea fx:id="txtDiaChi" promptText="Nhập địa chỉ" wrapText="true" prefRowCount="3"
-                  style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;"/>
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Địa chỉ" />
+        <TextArea fx:id="txtDiaChi" prefRowCount="3" promptText="Nhập địa chỉ" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;" wrapText="true" />
     </VBox>
 
-    <!-- Nút -->
-    <HBox spacing="12.0" alignment="CENTER_RIGHT">
-        <Button text="Hủy" onAction="#cancel" styleClass="secondary-button"/>
-        <Button text="Cập nhật" onAction="#update" styleClass="primary-button"/>
+    <!-- Hạng thành viên + Điểm tích lũy (cùng dòng) -->
+    <HBox spacing="16.0">
+        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Hạng thành viên" />
+            <TextField fx:id="txtHangThanhVien" editable="false" style="-fx-background-color: #e8e8e8; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px; -fx-text-fill: #78716c;" />
+        </VBox>
+        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Điểm tích lũy" />
+            <TextField fx:id="txtDiemTichLuy" editable="false" style="-fx-background-color: #e8e8e8; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px; -fx-text-fill: #78716c;" />
+        </VBox>
+    </HBox>
+
+    <!-- Nút Hủy / Cập nhật -->
+    <HBox alignment="CENTER_RIGHT" spacing="12.0">
+        <Button onAction="#cancel" styleClass="secondary-button" text="Hủy" />
+        <Button onAction="#update" styleClass="primary-button" text="Cập nhật" />
     </HBox>
 </VBox>

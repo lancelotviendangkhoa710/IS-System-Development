@@ -1,12 +1,12 @@
 package com.bakery.controllers;
 
-import com.bakery.models.dto.HangThanhVienDTO;
 import com.bakery.models.dto.KhachHangDTO;
 import com.bakery.services.CustomerService;
-import com.bakery.services.CustomerTierService;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
@@ -16,15 +16,14 @@ public class CustomerUpdateController {
     @FXML private TextField txtHoTen;
     @FXML private TextField txtSDT;
     @FXML private TextField txtDiemTichLuy;
+    @FXML private TextField txtHangThanhVien;
     @FXML private TextArea txtDiaChi;
-    @FXML private ComboBox<HangThanhVienDTO> cboHangThanhVien;
 
     private Stage stage;
     private boolean updated = false;
     private KhachHangDTO customer;
 
     private final CustomerService customerService = new CustomerService();
-    private final CustomerTierService customerTierService = new CustomerTierService();
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -41,26 +40,7 @@ public class CustomerUpdateController {
 
     @FXML
     public void initialize() {
-        // Tai danh sach hang thanh vien qua Service.
-        try {
-            cboHangThanhVien.setItems(FXCollections.observableArrayList(customerTierService.getAllTiers()));
-        } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Loi", "Khong tai duoc danh sach hang thanh vien.\n" + e.getMessage());
-        }
-        cboHangThanhVien.setCellFactory(param -> new ListCell<HangThanhVienDTO>() {
-            @Override
-            protected void updateItem(HangThanhVienDTO item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.getTenHang());
-            }
-        });
-        cboHangThanhVien.setButtonCell(new ListCell<HangThanhVienDTO>() {
-            @Override
-            protected void updateItem(HangThanhVienDTO item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.getTenHang());
-            }
-        });
+        // Form update hien tai su dung text field readonly cho hang thanh vien.
     }
 
     private void populateForm() {
@@ -70,14 +50,8 @@ public class CustomerUpdateController {
         txtSDT.setText(customer.getSdt());
         txtDiaChi.setText(customer.getDiaChi());
         txtDiemTichLuy.setText(String.valueOf(customer.getDiemTichLuy()));
-
-        // Chọn hạng tương ứng
-        for (HangThanhVienDTO hang : cboHangThanhVien.getItems()) {
-            if (hang.getMaHang() == customer.getMaHang()) {
-                cboHangThanhVien.setValue(hang);
-                break;
-            }
-        }
+        String tierName = customer.getTenHang();
+        txtHangThanhVien.setText(tierName == null || tierName.trim().isEmpty() ? "-" : tierName.trim());
     }
 
     @FXML
@@ -98,14 +72,11 @@ public class CustomerUpdateController {
         customer.setHoTen(hoTen);
         customer.setSdt(sdt);
         customer.setDiaChi(diaChi);
-        if (cboHangThanhVien.getValue() != null) {
-            customer.setMaHang(cboHangThanhVien.getValue().getMaHang());
-        }
 
         try {
             customerService.updateCustomer(customer);
             updated = true;
-            stage.close();
+            closeStageSafely();
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Loi", e.getMessage());
         }
@@ -113,7 +84,13 @@ public class CustomerUpdateController {
 
     @FXML
     private void cancel() {
-        stage.close();
+        closeStageSafely();
+    }
+
+    private void closeStageSafely() {
+        if (stage != null) {
+            stage.close();
+        }
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

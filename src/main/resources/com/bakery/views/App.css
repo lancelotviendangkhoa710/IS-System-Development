@@ -134,6 +134,26 @@
     -fx-background-color: #f9f9f9;
 }
 
+.customer-info-table .table-row-cell:selected,
+.customer-info-table .table-row-cell:selected:focused {
+    -fx-background-color: #f2e7db;
+}
+
+.customer-info-table .table-row-cell:selected .text,
+.customer-info-table .table-row-cell:selected:focused .text {
+    -fx-fill: #1c1917;
+}
+
+.customer-info-table .column-header,
+.customer-info-table .table-cell {
+    -fx-border-color: transparent #e6ddd4 transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.customer-info-table .table-cell {
+    -fx-text-fill: #1c1917;
+}
+
 /* Pagination */
 .pagination-button {
     -fx-background-color: transparent;

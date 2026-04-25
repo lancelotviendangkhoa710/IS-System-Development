@@ -13,9 +13,15 @@ import java.util.List;
 
 public class KhachHangDAO {
 
-    // Tim khach hang dang hoat dong theo so dien thoai.
+    private static final String CUSTOMER_SELECT_SQL = """
+            SELECT KH.*, HTV.TENHANG AS TENHANG
+            FROM KHACHHANG KH
+            LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG
+            """;
+
+    // Tìm khách hàng đang hoạt động theo số điện thoại
     public KhachHangDTO findActiveCustomerByPhone(String phone) {
-        String sql = "SELECT * FROM KHACHHANG WHERE SDT = ? AND THOIDIEMXOA IS NULL";
+        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.SDT = ? AND KH.THOIDIEMXOA IS NULL";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, phone);
@@ -30,9 +36,9 @@ public class KhachHangDAO {
         return null;
     }
 
-    // Tim khach hang dang hoat dong theo ma khach hang.
+    // Tìm khách hàng đang hoạt động theo mã khách hàng.
     public KhachHangDTO findActiveCustomerById(int customerId) {
-        String sql = "SELECT * FROM KHACHHANG WHERE MAKH = ? AND THOIDIEMXOA IS NULL";
+        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.MAKH = ? AND KH.THOIDIEMXOA IS NULL";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, customerId);
@@ -49,7 +55,7 @@ public class KhachHangDAO {
 
     // Tim khach hang dang hoat dong theo dia chi.
     public KhachHangDTO findActiveCustomerByAddress(String address) {
-        String sql = "SELECT * FROM KHACHHANG WHERE DIACHI = ? AND THOIDIEMXOA IS NULL";
+        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.DIACHI = ? AND KH.THOIDIEMXOA IS NULL";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, address);
@@ -66,7 +72,7 @@ public class KhachHangDAO {
 
     // Tim khach hang da bi xoa theo so dien thoai.
     public KhachHangDTO findDeletedCustomerByPhone(String phone) {
-        String sql = "SELECT * FROM KHACHHANG WHERE SDT = ? AND THOIDIEMXOA IS NOT NULL";
+        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.SDT = ? AND KH.THOIDIEMXOA IS NOT NULL";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, phone);
@@ -83,7 +89,7 @@ public class KhachHangDAO {
 
     // Lay danh sach khach hang dang hoat dong.
     public List<KhachHangDTO> getAllActiveCustomers() throws SQLException {
-        String sql = "SELECT * FROM KHACHHANG WHERE THOIDIEMXOA IS NULL ORDER BY MAKH DESC";
+        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.THOIDIEMXOA IS NULL ORDER BY KH.MAKH DESC";
         List<KhachHangDTO> customers = new ArrayList<>();
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -101,16 +107,17 @@ public class KhachHangDAO {
     // Tim kiem khach hang dang hoat dong theo tu khoa.
     public List<KhachHangDTO> searchActiveCustomers(String keyword) throws SQLException {
         String sql = """
-                SELECT *
-                FROM KHACHHANG
-                WHERE THOIDIEMXOA IS NULL
+                SELECT KH.*, HTV.TENHANG AS TENHANG
+                FROM KHACHHANG KH
+                LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG
+                WHERE KH.THOIDIEMXOA IS NULL
                   AND (
-                        LOWER(HOTEN) LIKE ?
-                        OR SDT LIKE ?
-                        OR TO_CHAR(MAKH) LIKE ?
-                        OR LOWER(DIACHI) LIKE ?
+                        LOWER(KH.HOTEN) LIKE ?
+                        OR KH.SDT LIKE ?
+                        OR TO_CHAR(KH.MAKH) LIKE ?
+                        OR LOWER(KH.DIACHI) LIKE ?
                   )
-                ORDER BY MAKH DESC
+                ORDER BY KH.MAKH DESC
                 """;
         String normalizedKeyword = keyword == null ? "" : keyword.trim().toLowerCase();
         String searchPattern = "%" + normalizedKeyword + "%";
@@ -272,7 +279,7 @@ public class KhachHangDAO {
 
     // Lay danh sach khach hang da xoa.
     public List<KhachHangDTO> getAllDeletedCustomers() {
-        String sql = "SELECT * FROM KHACHHANG WHERE THOIDIEMXOA IS NOT NULL ORDER BY THOIDIEMXOA DESC";
+        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.THOIDIEMXOA IS NOT NULL ORDER BY KH.THOIDIEMXOA DESC";
         List<KhachHangDTO> customers = new ArrayList<>();
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -298,6 +305,7 @@ public class KhachHangDAO {
         }
         customer.setDiemTichLuy(rs.getInt("DIEMTICHLUY"));
         customer.setMaHang(rs.getInt("MAHANG"));
+        customer.setTenHang(rs.getString("TENHANG"));
         if (rs.getTimestamp("THOIDIEMXOA") != null) {
             customer.setThoiDiemXoa(rs.getTimestamp("THOIDIEMXOA").toLocalDateTime());
         }
@@ -316,64 +324,6 @@ public class KhachHangDAO {
             case -20104 -> "Loi he thong khi xoa khach hang";
             default -> "Loi co so du lieu: " + e.getMessage();
         };
-    }
-
-    // ===== Compatibility wrappers (CRM migration) =====
-    @Deprecated
-    public KhachHangDTO timKhachHangBangSDT(String sdt) { return findActiveCustomerByPhone(sdt); }
-    @Deprecated
-    public KhachHangDTO timKhachHangBangMaKH(int maKH) { return findActiveCustomerById(maKH); }
-    @Deprecated
-    public KhachHangDTO timKhachHangBangDiaChi(String diaChi) { return findActiveCustomerByAddress(diaChi); }
-    @Deprecated
-    public KhachHangDTO timKhachHangXoa(String sdt) { return findDeletedCustomerByPhone(sdt); }
-    @Deprecated
-    public List<KhachHangDTO> layDanhSachKhachHangHoatDong() throws SQLException { return getAllActiveCustomers(); }
-    @Deprecated
-    public List<KhachHangDTO> timKhachHangTheoTuKhoa(String tuKhoa) throws SQLException { return searchActiveCustomers(tuKhoa); }
-    @Deprecated
-    public int themKhachHangMoi(KhachHangDTO kh) throws SQLException { return createCustomer(kh); }
-    @Deprecated
-    public void suaKhachHang(KhachHangDTO kh) throws SQLException { updateCustomer(kh); }
-    @Deprecated
-    public void xoaKhachHang(int maKH, int manvXoa) throws SQLException { softDeleteCustomer(maKH, manvXoa); }
-    @Deprecated
-    public void khoiPhucKhachHang(int maKH) throws SQLException { restoreCustomer(maKH); }
-    @Deprecated
-    public void capNhatDiemTichLuy(int maKH, int diemMoi) throws SQLException { updateCustomerPoints(maKH, diemMoi); }
-    @Deprecated
-    public List<KhachHangDTO> getAllActive() {
-        try {
-            return getAllActiveCustomers();
-        } catch (SQLException e) {
-            return new ArrayList<>();
-        }
-    }
-    @Deprecated
-    public int countActive() { return countActiveCustomers(); }
-    @Deprecated
-    public int countNewThisMonth(int year, int month) { return countNewCustomersInMonth(year, month); }
-    @Deprecated
-    public List<KhachHangDTO> getAllDeleted() { return getAllDeletedCustomers(); }
-    @Deprecated
-    public boolean softDelete(int maKH, int manvXoa) {
-        try { softDeleteCustomer(maKH, manvXoa); return true; }
-        catch (SQLException e) { return false; }
-    }
-    @Deprecated
-    public boolean restore(int maKH) {
-        try { restoreCustomer(maKH); return true; }
-        catch (SQLException e) { return false; }
-    }
-    @Deprecated
-    public boolean update(KhachHangDTO customer) {
-        try { updateCustomer(customer); return true; }
-        catch (SQLException e) { return false; }
-    }
-    @Deprecated
-    public boolean insert(KhachHangDTO kh) {
-        try { createCustomer(kh); return true; }
-        catch (SQLException e) { return false; }
     }
 }
 

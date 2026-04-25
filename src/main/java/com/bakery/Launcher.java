@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class Launcher extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -17,10 +19,10 @@ public class Launcher extends Application {
         demoUser.setHoTen("Admin CRM");
         SessionManager.setCurrentUser(demoUser);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/bakery/views/MainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/bakery/views/CustomerInfoView.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root, 1366, 768);
-        scene.getStylesheets().add(getClass().getResource("/com/bakery/views/App.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/bakery/views/App.css")).toExternalForm());
         primaryStage.setTitle("Artisan Bakery Manager");
         primaryStage.setScene(scene);
         primaryStage.show();
