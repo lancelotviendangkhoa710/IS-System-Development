@@ -44,6 +44,7 @@ public class ThanhToanPresenter {
     // 1. ĐẶT BÁNH CÓ CỌC – xuất phiếu hẹn
     // =========================================================
 
+    @SuppressWarnings("deprecation")
     public void xuLyDatBanh(List<SanPhamDTO> tatCaSanPham) {
         if (!kiemTraNgayNhanHopLe())
             return;
@@ -107,6 +108,7 @@ public class ThanhToanPresenter {
      * Bước 1: Lưu đơn hàng và hóa đơn vào DB.
      * Trả về true nếu thành công để gọi bước in phiếu.
      */
+    @SuppressWarnings("deprecation")
     public boolean xuLyLuuDonHangVaoDB() {
         if (!kiemTraNgayNhanHopLe())
             return false;
@@ -181,6 +183,7 @@ public class ThanhToanPresenter {
     // PRIVATE – HỖ TRỢ NỘI BỘ
     // =========================================================
 
+    @SuppressWarnings("deprecation")
     private YeuCauTaoDonHangDTO taoYeuCauDonHangDTO(Integer hinhThuc, double tienDaCoc,
             List<YeuCauChiTietDonHangDTO> items) {
         YeuCauTaoDonHangDTO req = new YeuCauTaoDonHangDTO();

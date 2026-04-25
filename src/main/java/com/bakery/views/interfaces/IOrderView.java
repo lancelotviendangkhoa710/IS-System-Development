@@ -43,6 +43,9 @@ public interface IOrderView {
     /** Hiển thị tên khách hàng và trạng thái VIP trên UI */
     void hienThiThongTinKhach(String text, boolean isVip);
 
+    /** Cập nhật đối tượng khách hàng hiện tại vào View */
+    void capNhatKhachHangHienTai(com.bakery.model.dto.KhachHangDTO kh);
+
     // ─── SẢN PHẨM & DANH MỤC ───────────────────────────────────────────
 
     /** Tải và hiển thị danh sách sản phẩm lên grid tile */

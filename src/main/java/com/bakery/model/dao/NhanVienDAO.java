@@ -67,7 +67,7 @@ public class NhanVienDAO {
     }
 
     public int themNhanVien(NhanVienDTO nv) throws SQLException {
-        String sql = "{CALL PROC_THEMNHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnect.getConnection();
                 CallableStatement cstmt = conn.prepareCall(sql)) {

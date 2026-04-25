@@ -93,6 +93,7 @@ public class GioHangPresenter {
     // =========================================================
 
     /** Tính lại toàn bộ tổng tiền và đẩy lên View. */
+    @SuppressWarnings("deprecation")
     public void capNhatGioHangVaTien() {
         double tongTienHang = gioHangItems.stream()
                 .mapToDouble(i -> i.getDonGia() * i.getSoLuong()).sum();

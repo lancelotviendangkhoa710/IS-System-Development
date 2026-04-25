@@ -14,8 +14,14 @@
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bakery.views.controllers.CreateOrderViewFXMLController"
-            minWidth="520" minHeight="420"
+            minWidth="600" minHeight="550"
             style="-fx-background-color: #FDFBF7;">
+
+    <fx:define>
+        <ToggleGroup fx:id="tgOrderFlow"/>
+        <ToggleGroup fx:id="tgPaymentMethod"/>
+        <ToggleGroup fx:id="tgDepositType"/>
+    </fx:define>
 
     <!-- Header màu amber -->
     <top>
@@ -77,51 +83,20 @@
                 <HBox spacing="10">
                     <ToggleButton fx:id="btnImmediateFlow" text="💵 Thanh toán ngay"
                                   styleClass="toggle-filter" selected="true"
+                                  toggleGroup="$tgOrderFlow"
                                   onAction="#onChonLoaiDon"/>
                     <ToggleButton fx:id="btnPreorderFlow" text="📅 Đặt trước (Preorder)"
                                   styleClass="toggle-filter"
+                                  toggleGroup="$tgOrderFlow"
                                   onAction="#onChonLoaiDon"/>
                 </HBox>
 
                 <!-- Inner StackPane cho 2 luồng -->
-                <StackPane fx:id="innerCardPanel" VBox.vgrow="ALWAYS">
-
+                <StackPane fx:id="innerCardPanel">
                     <!-- Luồng 2A: Thanh toán ngay -->
                     <VBox fx:id="panelImmediate" spacing="12" visible="true"
                           styleClass="card">
-                        <Label text="Hình thức thanh toán:" styleClass="lbl-small-bold"/>
-                        <HBox spacing="10">
-                            <ToggleButton fx:id="btnCash" text="💵 Tiền mặt"
-                                          styleClass="toggle-filter" selected="true"
-                                          onAction="#onChonHinhThuc"/>
-                            <ToggleButton fx:id="btnTransfer" text="🏦 Chuyển khoản"
-                                          styleClass="toggle-filter"
-                                          onAction="#onChonHinhThuc"/>
-                        </HBox>
-
-                        <!-- Tiền mặt panel -->
-                        <VBox fx:id="panelTienMat" spacing="8" visible="true">
-                            <HBox alignment="CENTER_LEFT" spacing="12">
-                                <Label text="Khách đưa:" styleClass="lbl-small-bold"/>
-                                <TextField fx:id="txtKhachDua" promptText="Số tiền..."
-                                           prefWidth="150" styleClass="text-field"/>
-                            </HBox>
-                            <HBox alignment="CENTER_LEFT" spacing="12">
-                                <Label text="Tiền thừa:" styleClass="lbl-small-bold"/>
-                                <Label fx:id="lblTienThua" text="0 đ"
-                                       styleClass="lbl-success"
-                                       style="-fx-font-size: 16px;"/>
-                            </HBox>
-                        </VBox>
-
-                        <!-- QR panel (ẩn mặc định) -->
-                        <VBox fx:id="panelQR" spacing="8" visible="false" alignment="CENTER">
-                            <Label text="QUÉT MÃ ĐỂ THANH TOÁN" styleClass="lbl-small-bold"
-                                   style="-fx-text-fill: #78350F;"/>
-                            <ImageView fx:id="imgQR" fitWidth="160" fitHeight="160"
-                                       preserveRatio="true"/>
-                            <Label fx:id="lblQRAmount" text="" styleClass="lbl-primary"/>
-                        </VBox>
+                        <Label text="⚡ Đơn hàng sẽ được hoàn tất ngay sau khi thanh toán." styleClass="lbl-small"/>
                     </VBox>
 
                     <!-- Luồng 2B: Đặt trước -->
@@ -149,9 +124,11 @@
                             <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                 <ToggleButton fx:id="btnFullPay" text="Thanh toán đủ"
                                               styleClass="toggle-filter"
+                                              toggleGroup="$tgDepositType"
                                               onAction="#onChonKieuCoc"/>
                                 <ToggleButton fx:id="btnDeposit" text="Cọc 50%" selected="true"
                                               styleClass="toggle-filter"
+                                              toggleGroup="$tgDepositType"
                                               onAction="#onChonKieuCoc"/>
                             </HBox>
 
@@ -166,6 +143,49 @@
                         </GridPane>
                     </VBox>
                 </StackPane>
+
+                <Separator/>
+
+                <!-- Hình thức thanh toán chung -->
+                <VBox spacing="12" styleClass="card">
+                    <Label text="Hình thức thanh toán:" styleClass="lbl-small-bold"/>
+                    <HBox spacing="10">
+                        <ToggleButton fx:id="btnCash" text="💵 Tiền mặt"
+                                      styleClass="toggle-filter" selected="true"
+                                      toggleGroup="$tgPaymentMethod"
+                                      onAction="#onChonHinhThuc"/>
+                        <ToggleButton fx:id="btnTransfer" text="🏦 Chuyển khoản"
+                                      styleClass="toggle-filter"
+                                      toggleGroup="$tgPaymentMethod"
+                                      onAction="#onChonHinhThuc"/>
+                    </HBox>
+
+                    <StackPane VBox.vgrow="ALWAYS">
+                        <!-- Tiền mặt panel -->
+                        <VBox fx:id="panelTienMat" spacing="8" visible="true">
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Label text="Khách đưa:" styleClass="lbl-small-bold"/>
+                                <TextField fx:id="txtKhachDua" promptText="Số tiền..."
+                                           prefWidth="150" styleClass="text-field"/>
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Label text="Tiền thừa:" styleClass="lbl-small-bold"/>
+                                <Label fx:id="lblTienThua" text="0 đ"
+                                       styleClass="lbl-success"
+                                       style="-fx-font-size: 16px;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- QR panel (ẩn mặc định) -->
+                        <VBox fx:id="panelQR" spacing="8" visible="false" alignment="CENTER">
+                            <Label text="QUÉT MÃ ĐỂ THANH TOÁN" styleClass="lbl-small-bold"
+                                   style="-fx-text-fill: #78350F;"/>
+                            <ImageView fx:id="imgQR" fitWidth="160" fitHeight="160"
+                                       preserveRatio="true"/>
+                            <Label fx:id="lblQRAmount" text="" styleClass="lbl-primary"/>
+                        </VBox>
+                    </StackPane>
+                </VBox>
             </VBox>
 
         </StackPane>

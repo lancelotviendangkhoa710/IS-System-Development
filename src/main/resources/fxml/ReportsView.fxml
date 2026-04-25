@@ -35,9 +35,11 @@
                         <Label text="Tổng quan hiệu suất và doanh thu của tiệm bánh." style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
                     </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <HBox spacing="10">
-                        <Button text="📅 30 Ngày qua" styleClass="btn-secondary"/>
-                        <Button text="⬇ Xuất PDF" styleClass="btn-secondary"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Loại báo cáo:" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="cbLoaiBaoCao" prefWidth="150" promptText="Chọn loại..."/>
+                        <DatePicker fx:id="dpNgayBaoCao" prefWidth="150"/>
+                        <Button text="⬇ Tải báo cáo nhanh" onAction="#onTaiBaoCaoNhanh" styleClass="btn-secondary" style="-fx-background-color: #059669; -fx-text-fill: white;"/>
                     </HBox>
                 </HBox>
 
@@ -107,14 +109,40 @@
                         <Label text="Diễn biến doanh thu trong tuần" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
                         <LineChart fx:id="revenueChart" prefHeight="300" legendVisible="true" createSymbols="true">
                             <xAxis>
-                                <CategoryAxis side="BOTTOM"/>
+                                <CategoryAxis side="BOTTOM" label="Thời gian"/>
                             </xAxis>
                             <yAxis>
-                                <NumberAxis side="LEFT" />
+                                <NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/>
                             </yAxis>
                         </LineChart>
                     </VBox>
+                </HBox>
 
+                <!-- NEW CHARTS ROW -->
+                <HBox spacing="20">
+                    <!-- Pie Chart -->
+                    <VBox styleClass="dash-card" prefWidth="400" style="-fx-padding: 24;">
+                        <Label text="Cơ cấu doanh thu" styleClass="lbl-medium-bold"/>
+                        <Label text="Theo danh mục sản phẩm" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
+                        <PieChart fx:id="revenuePieChart" prefHeight="250" legendSide="BOTTOM" animated="false"/>
+                    </VBox>
+
+                    <!-- Bar Chart -->
+                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS" style="-fx-padding: 24;">
+                        <Label text="So sánh doanh thu" styleClass="lbl-medium-bold"/>
+                        <Label text="Giữa các danh mục" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
+                        <BarChart fx:id="revenueBarChart" prefHeight="250" legendVisible="false" animated="false">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM" label="Danh mục"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="20">
                     <!-- Best Sellers -->
                     <VBox fx:id="vboxBestSellers" styleClass="dash-card" prefWidth="350" spacing="16" style="-fx-padding: 24;">
                         <Label text="Bánh bán chạy nhất" styleClass="lbl-medium-bold"/>

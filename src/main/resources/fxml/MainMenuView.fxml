@@ -34,9 +34,11 @@
                 <Button text="Tổng quan" styleClass="dash-nav-item, dash-nav-active" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="Inventory" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="Staff" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                <Button text="Reports" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button fx:id="btnReports" text="Reports" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoReports"/>
+                <Button fx:id="btnTheoDoiDon" text="Theo dõi đơn" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoTheoDoiDon"/>
                 <Button text="KDS" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="Audit Logs" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button fx:id="btnSupplier" text="Nhà cung cấp" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSupplier"/>
             </VBox>
         </VBox>
     </left>
@@ -51,7 +53,7 @@
                     <HBox styleClass="dash-header-links" spacing="24" alignment="CENTER_LEFT">
                         <Label text="H3K Bakery" styleClass="dash-header-brand"/>
                         <Label text="Dashboard" styleClass="dash-header-link, dash-header-link-active"/>
-                        <Label text="Orders" styleClass="dash-header-link"/>
+                        <Label text="Orders" styleClass="dash-header-link" style="-fx-cursor: hand;" onMouseClicked="#onMoTheoDoiDon"/>
                         <Label text="Ingredients" styleClass="dash-header-link"/>
                     </HBox>
                     
@@ -92,13 +94,11 @@
                                     <Label text="Xin chào, " styleClass="dash-banner-title"/>
                                     <Label fx:id="lblBannerName" text="user name" styleClass="dash-banner-title-name"/>
                                 </HBox>
-                                <Label text="Ready for a productive day at the bakery? Here is a snapshot of your system modules and real-time operations." 
-                                       styleClass="dash-banner-sub" wrapText="true" maxWidth="500"/>
+                                <Label text="Chào mừng bạn quay lại với hệ thống quản lý tiệm bánh H3K!" styleClass="dash-banner-sub" wrapText="true" maxWidth="500"/>
                                 <Region prefHeight="8"/>
                                 <HBox spacing="16">
                                     <Button text="Tạo đơn hàng mới" styleClass="dash-btn-primary" onAction="#onMoPOS"/>
                                     <Button text="Thêm nhân viên" styleClass="dash-btn-secondary" onAction="#onThemNhanVien"/>
-                                    <Button text="Tải báo cáo nhanh" styleClass="dash-btn-secondary" onAction="#onMoReports"/>
                                 </HBox>
                             </VBox>
                         </HBox>
@@ -154,7 +154,7 @@
                                 <Label text="Business Reports" styleClass="dash-card-title"/>
                                 <Label text="Deep dive into financial health, popular items, and customer trends." styleClass="dash-card-desc" wrapText="true"/>
                                 <Region VBox.vgrow="ALWAYS"/>
-                                <Button fx:id="btnReports" text="Xem báo cáo →" styleClass="dash-card-action, dash-action-report" onAction="#onMoReports"/>
+                                <Button fx:id="btnReportsCard" text="Xem báo cáo →" styleClass="dash-card-action, dash-action-report" onAction="#onMoReports"/>
                             </VBox>
 
                             <!-- Card 5: KDS -->

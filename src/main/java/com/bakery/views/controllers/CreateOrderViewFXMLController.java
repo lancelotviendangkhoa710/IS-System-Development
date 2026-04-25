@@ -103,7 +103,10 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
         }
 
         if (txtKhachDua != null) {
-            txtKhachDua.textProperty().addListener((obs, oldVal, newVal) -> capNhatTienThua());
+            txtKhachDua.textProperty().addListener((obs, oldVal, newVal) -> capNhatHienThiThanhToan());
+        }
+        if (txtTienCoc != null) {
+            txtTienCoc.textProperty().addListener((obs, oldVal, newVal) -> capNhatHienThiThanhToan());
         }
     }
 
@@ -128,8 +131,8 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
 
             stage.setTitle("Tao don hang");
             stage.setScene(scene);
-            stage.setMinWidth(520);
-            stage.setMinHeight(420);
+            stage.setMinWidth(600);
+            stage.setMinHeight(550);
             controller.khoiTaoDialog(stage, tongTienPhaiTra, customerLookup);
             stage.showAndWait();
 
@@ -324,45 +327,33 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
 
     @FXML
     private void onChonLoaiDon() {
+        if (!btnImmediateFlow.isSelected() && !btnPreorderFlow.isSelected()) {
+            btnImmediateFlow.setSelected(true);
+        }
         boolean isImmediate = btnImmediateFlow.isSelected();
         panelImmediate.setManaged(isImmediate);
         panelImmediate.setVisible(isImmediate);
         panelPreorder.setManaged(!isImmediate);
         panelPreorder.setVisible(!isImmediate);
+        capNhatHienThiThanhToan();
     }
 
     @FXML
     private void onChonHinhThuc() {
-        boolean isCash = btnCash.isSelected();
-        panelTienMat.setManaged(isCash);
-        panelTienMat.setVisible(isCash);
-        panelQR.setManaged(!isCash);
-        panelQR.setVisible(!isCash);
-
-        if (!isCash) {
-            lblQRAmount.setText(dinhDangTien(tongTienPhaiTra));
-            imgQR.setImage(taoQrImage(tongTienPhaiTra, "DonHang"));
-        } else {
-            capNhatTienThua();
+        if (!btnCash.isSelected() && !btnTransfer.isSelected()) {
+            btnCash.setSelected(true);
         }
+        capNhatHienThiThanhToan();
     }
 
     @FXML
     private void onChonKieuCoc() {
-        if (btnFullPay.isFocused()) {
-            btnFullPay.setSelected(true);
-            btnDeposit.setSelected(false);
-        } else if (btnDeposit.isFocused()) {
-            btnFullPay.setSelected(false);
-            btnDeposit.setSelected(true);
-        }
-
         if (!btnFullPay.isSelected() && !btnDeposit.isSelected()) {
             btnDeposit.setSelected(true);
         }
 
         double minCoc = tongTienPhaiTra * 0.5;
-        lblCocToiThieu.setText("(toi thieu " + dinhDangTien(minCoc) + ")");
+        lblCocToiThieu.setText("(tối thiểu " + dinhDangTien(minCoc) + ")");
         if (btnFullPay.isSelected()) {
             txtTienCoc.setText(String.valueOf((long) tongTienPhaiTra));
             txtTienCoc.setDisable(true);
@@ -370,6 +361,7 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             txtTienCoc.setText(String.valueOf((long) minCoc));
             txtTienCoc.setDisable(false);
         }
+        capNhatHienThiThanhToan();
     }
 
     private void xuLyXacNhanThanhToanNgay() {
@@ -433,8 +425,22 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
         double tienCoc = parseTien(txtTienCoc.getText());
         double minCoc = tongTienPhaiTra * 0.5;
         if (tienCoc < minCoc) {
-            hienThiLoiValidate("Tien coc phai toi thieu 50% (" + dinhDangTien(minCoc) + ").");
+            hienThiLoiValidate("Tiền cọc phải tối thiểu 50% (" + dinhDangTien(minCoc) + ").");
             return;
+        }
+
+        String hinhThucThanhToan;
+        double soTienKhachDua = tienCoc;
+
+        if (btnCash.isSelected()) {
+            hinhThucThanhToan = "Tiền mặt";
+            soTienKhachDua = parseTien(txtKhachDua.getText());
+            if (soTienKhachDua < tienCoc) {
+                hienThiLoiValidate("Số tiền khách đưa chưa đủ để đặt cọc.");
+                return;
+            }
+        } else {
+            hinhThucThanhToan = "Chuyển khoản";
         }
 
         result = new OrderRequest(
@@ -443,8 +449,8 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
                 tenKhach,
                 soDienThoai,
                 OrderType.PREORDER,
-                null,
-                0,
+                hinhThucThanhToan,
+                soTienKhachDua,
                 ngayGioNhan,
                 diaChi,
                 tienCoc
@@ -452,18 +458,31 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
         dongDialog();
     }
 
-    private void capNhatTienThua() {
-        if (lblTienThua == null) {
-            return;
+    private void capNhatHienThiThanhToan() {
+        boolean isCash = btnCash.isSelected();
+        panelTienMat.setVisible(isCash);
+        panelTienMat.setManaged(isCash);
+        panelQR.setVisible(!isCash);
+        panelQR.setManaged(!isCash);
+
+        double amountToPay = tongTienPhaiTra;
+        if (btnPreorderFlow.isSelected()) {
+            amountToPay = parseTien(txtTienCoc.getText());
         }
-        double khachDua = parseTien(txtKhachDua.getText());
-        double chenhLech = khachDua - tongTienPhaiTra;
-        if (chenhLech >= 0) {
-            lblTienThua.setText(dinhDangTien(chenhLech));
-            lblTienThua.setStyle("-fx-text-fill: #16A34A; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+        if (isCash) {
+            double khachDua = parseTien(txtKhachDua.getText());
+            double chenhLech = khachDua - amountToPay;
+            if (chenhLech >= 0) {
+                lblTienThua.setText(dinhDangTien(chenhLech));
+                lblTienThua.setStyle("-fx-text-fill: #16A34A; -fx-font-size: 16px; -fx-font-weight: bold;");
+            } else {
+                lblTienThua.setText("Thiếu " + dinhDangTien(-chenhLech));
+                lblTienThua.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 16px; -fx-font-weight: bold;");
+            }
         } else {
-            lblTienThua.setText("Thieu " + dinhDangTien(-chenhLech));
-            lblTienThua.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 16px; -fx-font-weight: bold;");
+            lblQRAmount.setText(dinhDangTien(amountToPay));
+            imgQR.setImage(taoQrImage(amountToPay, "DonHang"));
         }
     }
 

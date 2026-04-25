@@ -9,11 +9,11 @@ import com.bakery.model.dto.KieuTrangTriDTO;
 import com.bakery.model.dto.NhanVienDTO;
 import com.bakery.model.dto.NhanBanhDTO;
 import com.bakery.model.dto.SanPhamDTO;
+
 import com.bakery.presenters.OrderPresenter;
 import com.bakery.services.AuthorizationService;
 import com.bakery.services.OrderService;
 import com.bakery.utils.UserSession;
-import com.bakery.views.controllers.ReceiptViewFXMLController;
 import com.bakery.views.interfaces.IOrderView;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -71,66 +71,93 @@ import java.util.function.Function;
 
 public class OrderViewFXMLController implements IOrderView, Initializable {
 
-    @FXML private Button btnNavPOS;
-    @FXML private Button btnNavTheoDoi;
-    @FXML private Label lblHeaderTitle;
-    @FXML private Label lblThongBaoHeader;
-    @FXML private Label lblNguoiDungDangNhap;
-    @FXML private Label lblQuyenDangNhap;
+    @FXML
+    private Button btnNavPOS;
+    @FXML
+    private Button btnNavTheoDoi;
+    @FXML
+    private Label lblHeaderTitle;
+    @FXML
+    private Label lblThongBaoHeader;
+    @FXML
+    private Label lblNguoiDungDangNhap;
+    @FXML
+    private Label lblQuyenDangNhap;
 
-    @FXML private HBox tabTaoDon;
-    @FXML private VBox tabTheoDoi;
+    @FXML
+    private HBox tabTaoDon;
 
-    @FXML private ToggleButton btnLocTatCa;
-    @FXML private ToggleButton btnLocCake;
-    @FXML private ToggleButton btnLocCookie;
-    @FXML private ToggleButton btnLocBread;
-    @FXML private ToggleButton btnLocTuyChinh;
-    @FXML private TextField txtTimKiemSanPham;
+    @FXML
+    private ToggleButton btnLocTatCa;
+    @FXML
+    private ToggleButton btnLocCake;
+    @FXML
+    private ToggleButton btnLocCookie;
+    @FXML
+    private ToggleButton btnLocBread;
+    @FXML
+    private ToggleButton btnLocTuyChinh;
+    @FXML
+    private TextField txtTimKiemSanPham;
 
-    @FXML private ScrollPane scrollSanPham;
-    @FXML private FlowPane tileSanPham;
-    @FXML private ScrollPane scrollTuyChinh;
-    @FXML private ComboBox<SanPhamDTO> cbCustomSp;
-    @FXML private ComboBox<KichCoBanhDTO> cbCustomKichCo;
-    @FXML private ComboBox<CotBanhDTO> cbCustomCotBanh;
-    @FXML private ComboBox<NhanBanhDTO> cbCustomNhanBanh;
-    @FXML private ComboBox<KieuTrangTriDTO> cbCustomTrangTri;
-    @FXML private TextArea txtCustomLoiChuc;
-    @FXML private TextArea txtCustomGhiChu;
-    @FXML private Spinner<Integer> spCustomSoLuong;
-    @FXML private Label lblGiaTuyChinh;
+    @FXML
+    private ScrollPane scrollSanPham;
+    @FXML
+    private FlowPane tileSanPham;
+    @FXML
+    private ScrollPane scrollTuyChinh;
+    @FXML
+    private ComboBox<SanPhamDTO> cbCustomSp;
+    @FXML
+    private ComboBox<KichCoBanhDTO> cbCustomKichCo;
+    @FXML
+    private ComboBox<CotBanhDTO> cbCustomCotBanh;
+    @FXML
+    private ComboBox<NhanBanhDTO> cbCustomNhanBanh;
+    @FXML
+    private ComboBox<KieuTrangTriDTO> cbCustomTrangTri;
+    @FXML
+    private TextArea txtCustomLoiChuc;
+    @FXML
+    private TextArea txtCustomGhiChu;
+    @FXML
+    private Spinner<Integer> spCustomSoLuong;
+    @FXML
+    private Label lblGiaTuyChinh;
 
-    @FXML private TextField txtSoDienThoai;
-    @FXML private Label lblTenKhachHang;
-    @FXML private TableView<CTDonHangDTO> tblGioHang;
-    @FXML private TableColumn<CTDonHangDTO, String> colTenSP;
-    @FXML private TableColumn<CTDonHangDTO, Integer> colSoLuong;
-    @FXML private TableColumn<CTDonHangDTO, String> colDonGia;
-    @FXML private TableColumn<CTDonHangDTO, String> colThanhTien;
-    @FXML private TableColumn<CTDonHangDTO, Void> colXoa;
+    @FXML
+    private TableView<CTDonHangDTO> tblGioHang;
+    @FXML
+    private TableColumn<CTDonHangDTO, String> colTenSP;
+    @FXML
+    private TableColumn<CTDonHangDTO, Integer> colSoLuong;
+    @FXML
+    private TableColumn<CTDonHangDTO, String> colDonGia;
+    @FXML
+    private TableColumn<CTDonHangDTO, String> colThanhTien;
+    @FXML
+    private TableColumn<CTDonHangDTO, Void> colXoa;
 
-    @FXML private Label lblTongTienHang;
-    @FXML private Label lblTienGiamGia;
-    @FXML private Label lblTongThanhToan;
-    @FXML private Label lblCocToiThieu;
-    @FXML private Label lblThongBaoTab1;
-    @FXML private Button btnThanhToan;
+    @FXML
+    private Label lblTongTienHang;
+    @FXML
+    private Label lblTienGiamGia;
+    @FXML
+    private Label lblTongThanhToan;
+    @FXML
+    private Label lblCocToiThieu;
+    @FXML
+    private Label lblThongBaoTab1;
+    @FXML
+    private Button btnThanhToan;
 
-    @FXML private TextField txtTimMaDon;
-    @FXML private DatePicker dpNgayTheoDoi;
-    @FXML private ComboBox<String> cbGioTu;
-    @FXML private ComboBox<String> cbGioDen;
-    @FXML private ComboBox<String> cbLocTrangThaiTheoDoi;
-    @FXML private Label lblThongBaoTab2;
-    @FXML private VBox panelChuaDon;
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
     private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final String CSS_ERROR = "-fx-text-fill: #DC2626; -fx-font-weight: bold;";
     private static final String CSS_SUCCESS = "-fx-text-fill: #16A34A; -fx-font-weight: bold;";
     private static final String CSS_INFO = "-fx-text-fill: #2563EB; -fx-font-weight: bold;";
-    private static final String CSS_WARN = "-fx-text-fill: #D97706; -fx-font-weight: bold;";
+
 
     static {
         FMT_TIEN.setMaximumFractionDigits(0);
@@ -146,10 +173,9 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     private final List<String> danhSachTrangThai = new ArrayList<>();
     private final ObservableList<CTDonHangDTO> gioHangModel = FXCollections.observableArrayList();
 
-
     private String danhMucDangLoc = "ALL";
     private double tongThanhToanHienTai = 0.0;
-    
+
     private com.bakery.model.dto.KhachHangDTO khachHangHienTai = null;
 
     @Override
@@ -157,7 +183,6 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         capNhatThongTinNguoiDung();
         khoiTaoBoLocDanhMuc();
         khoiTaoBangGioHang();
-        khoiTaoComboTheoDoi();
         khoiTaoComboTuyChinh();
         khoiTaoSpinnerSoLuong();
         khoiTaoTabMacDinh();
@@ -179,14 +204,15 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load(), 1280, 720);
-            
+
             MainMenuViewFXMLController controller = loader.getController();
             controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
-            
+
             URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            
-            Stage stage = (Stage) lblTenKhachHang.getScene().getWindow();
+            if (cssUrl != null)
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+
+            Stage stage = (Stage) btnNavPOS.getScene().getWindow();
             stage.setTitle("H3K Bakery - Management Console");
             stage.setScene(scene);
             stage.centerOnScreen();
@@ -201,8 +227,24 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     }
 
     @FXML
-    private void onNavTheoDoi() {
-        hienTabTheoDoi();
+    public void onNavTheoDoi() {
+        try {
+            URL fxmlUrl = getClass().getResource("/fxml/OrderTrackingView.fxml");
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+            
+            Scene scene = new Scene(root, 1366, 768);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            
+            Stage stage = (Stage) btnNavTheoDoi.getScene().getWindow();
+            stage.setTitle("H3K Bakery - Theo Dõi Đơn");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            lblThongBaoHeader.setText("Không thể mở Theo dõi đơn: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     @FXML
@@ -216,17 +258,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         apDungBoLocSanPham();
     }
 
-    @FXML
-    private void onTimKhachHang() {
-        if (presenter == null) return;
-        
-        String sdt = txtSoDienThoai.getText() == null ? "" : txtSoDienThoai.getText().trim();
-        if (sdt.isEmpty()) {
-            hienThiLoi("Vui lòng nhập số điện thoại.");
-            return;
-        }
-        presenter.timKhachHang(sdt);
-    }
+
 
     @FXML
     private void onThanhToan() {
@@ -236,22 +268,6 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         presenter.moDialogTaoDon();
     }
 
-    @FXML
-    private void onTimKiemDon() {
-        if (presenter == null) {
-            return;
-        }
-        String maDon = txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim();
-        LocalDate ngay = dpNgayTheoDoi.getValue() != null ? dpNgayTheoDoi.getValue() : LocalDate.now();
-        LocalTime gioTu = parseGioTheoDoi(cbGioTu.getValue());
-        LocalTime gioDen = parseGioTheoDoi(cbGioDen.getValue());
-        presenter.timKiemDonTheoDoi(maDon, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
-    }
-
-    @FXML
-    private void onLocTrangThaiTheoDoi() {
-        onTimKiemDon();
-    }
 
     @FXML
     private void onTuyChinhChanged() {
@@ -285,8 +301,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
                 maNhan,
                 maTrangTri,
                 txtCustomLoiChuc.getText() == null ? "" : txtCustomLoiChuc.getText().trim(),
-                txtCustomGhiChu.getText() == null ? "" : txtCustomGhiChu.getText().trim()
-        );
+                txtCustomGhiChu.getText() == null ? "" : txtCustomGhiChu.getText().trim());
     }
 
     @Override
@@ -297,7 +312,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @Override
     public void lamMoiBaoCaoTien(double tongHang, double giamGia, double tongThanhToan,
-                                 double minCoc, double conLai, double tienThua, boolean isThieuTienThua) {
+            double minCoc, double conLai, double tienThua, boolean isThieuTienThua) {
         lblTongTienHang.setText(dinhDangTien(tongHang));
         lblTienGiamGia.setText(dinhDangTien(giamGia));
         lblTongThanhToan.setText(dinhDangTien(tongThanhToan));
@@ -312,8 +327,12 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @Override
     public void hienThiThongTinKhach(String text, boolean isVip) {
-        lblTenKhachHang.setText(text);
-        lblTenKhachHang.setStyle(isVip ? CSS_SUCCESS : CSS_WARN);
+        // Customer section removed from UI
+    }
+ 
+    @Override
+    public void capNhatKhachHangHienTai(com.bakery.model.dto.KhachHangDTO kh) {
+        // Customer section removed
     }
 
     @Override
@@ -331,8 +350,8 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @Override
     public void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo,
-                                      List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh,
-                                      List<KieuTrangTriDTO> trangTri) {
+            List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh,
+            List<KieuTrangTriDTO> trangTri) {
         cbCustomSp.setItems(FXCollections.observableArrayList(spTuyChinh));
         if (!spTuyChinh.isEmpty()) {
             cbCustomSp.getSelectionModel().selectFirst();
@@ -366,86 +385,13 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     }
 
     @Override
-    public void taiDanhSachTrangThai(List<String> list) {
-        danhSachTrangThai.clear();
-        danhSachTrangThai.addAll(list);
-    }
+    public void taiDanhSachTrangThai(List<String> list) {}
 
     @Override
-    public void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi) {
-        panelChuaDon.getChildren().clear();
-        for (DonDatHangDTO don : dsDonTheoDoi) {
-            panelChuaDon.getChildren().add(taoCardTheoDoi(don));
-        }
-    }
-
-
-
-
-
-    @FXML
-    private void onThemKhachHang() {
-        moDialogKhachHang(null);
-    }
-
-    @FXML
-    private void onSuaKhachHang() {
-        if (khachHangHienTai == null) {
-            hienThiLoi("Vui lòng tìm khách hàng trước khi sửa.");
-            return;
-        }
-        moDialogKhachHang(khachHangHienTai);
-    }
-
-    private void moDialogKhachHang(com.bakery.model.dto.KhachHangDTO kh) {
-        try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/KhachHangDialog.fxml");
-            if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy KhachHangDialog.fxml");
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-            KhachHangDialogController controller = loader.getController();
-            
-            if (kh != null) {
-                controller.khoiTaoChinhSua(kh);
-            } else {
-                // If the user typed a phone number before clicking "Add", let's pass it along indirectly via reflection or just ignore it for now.
-            }
-
-            javafx.stage.Stage dialog = new javafx.stage.Stage();
-            dialog.setTitle(kh == null ? "H3K Bakery - Thêm Khách Hàng" : "H3K Bakery - Sửa Khách Hàng");
-            dialog.setScene(scene);
-            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            dialog.initOwner(lblTenKhachHang.getScene().getWindow());
-            dialog.setResizable(false);
-            dialog.showAndWait();
-
-            // After dialog closes, check if a customer was saved
-            com.bakery.model.dto.KhachHangDTO kq = controller.getKetQua();
-            if (kq != null) {
-                khachHangHienTai = kq;
-                txtSoDienThoai.setText(kq.getSdt());
-                lblTenKhachHang.setText(kq.getHoTen() + " - Điểm: " + kq.getDiemTichLuy());
-                hienThiThanhCong("Đã áp dụng khách hàng: " + kq.getHoTen());
-            }
-        } catch (Exception ex) {
-            hienThiLoi("Lỗi mở dialog: " + ex.getMessage());
-        }
-    }
+    public void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi) {}
 
     @Override
-    public void showOrderDetails(DonDatHangDTO order) {
-        String noiDung = "Mã đơn: #" + order.getMaDon() + "\n"
-                + "Trạng thái: " + order.getTenTrangThai() + "\n"
-                + "Khách hàng: " + (order.getMaKH() == null ? "Khách lẻ" : "KH #" + order.getMaKH()) + "\n"
-                + "Thời gian nhận: " + (order.getNgayGioNhanBanh() == null
-                ? "N/A" : order.getNgayGioNhanBanh().format(FMT_NGAY_GIO)) + "\n"
-                + "Tổng tiền: " + dinhDangTien(order.getTongTienHDBan()) + "\n"
-                + "Đã cọc: " + dinhDangTien(order.getTienDaCoc());
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("Chi tiết đơn hàng");
-        alert.setContentText(noiDung);
-        alert.showAndWait();
-    }
+    public void showOrderDetails(DonDatHangDTO order) {}
 
     @Override
     public void hienThiLoi(String msg) {
@@ -460,28 +406,17 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     }
 
     @Override
-    public void hienThiLoiTraCuu(String msg) {
-        lblThongBaoTab2.setStyle(CSS_ERROR);
-        lblThongBaoTab2.setText(msg);
-    }
+    public void hienThiLoiTraCuu(String msg) {}
 
     @Override
-    public void hienThiThongBaoTraCuu(String msg) {
-        lblThongBaoTab2.setStyle(CSS_SUCCESS);
-        lblThongBaoTab2.setText(msg);
-    }
+    public void hienThiThongBaoTraCuu(String msg) {}
 
     @Override
-    public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {
-        lblThongBaoTab2.setStyle(CSS_INFO);
-        lblThongBaoTab2.setText("KQ: " + kh + " | " + tt + " | " + dinhDangTien(tongTien));
-    }
+    public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {}
 
     @Override
     public void lamMoiForm() {
-        txtSoDienThoai.clear();
-        lblTenKhachHang.setText("Khách vãng lai");
-        lblTenKhachHang.setStyle("-fx-text-fill: #6B7280;");
+        khachHangHienTai = null;
         lblThongBaoTab1.setText("");
         txtCustomLoiChuc.clear();
         txtCustomGhiChu.clear();
@@ -490,25 +425,25 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @Override
     public void inPhieuHoaDon(String tieuDe, Integer maDon, Integer maHoaDon,
-                              LocalDateTime ngayLapHoaDon, double tongTien, double daThu,
-                              List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam) {
+            LocalDateTime ngayLapHoaDon, double tongTien, double daThu,
+            List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReceiptView.fxml"));
             Parent root = loader.load();
 
             ReceiptViewFXMLController controller = loader.getController();
-            
+
             // Tạo DTO giả lập từ các tham số rời rạc để tái sử dụng logic Controller
             HoaDonDTO hd = new HoaDonDTO();
             hd.setMaHD(maHoaDon != null ? maHoaDon : 0);
             hd.setNgayXuatHd(ngayLapHoaDon != null ? ngayLapHoaDon : LocalDateTime.now());
             hd.setTongTienThanhToan(tongTien);
-            
+
             DonDatHangDTO don = new DonDatHangDTO();
             don.setMaDon(maDon != null ? maDon : 0);
-            
-            String tenKhach = lblTenKhachHang != null ? lblTenKhachHang.getText() : "Khách hàng";
-            
+
+            String tenKhach = (khachHangHienTai != null) ? khachHangHienTai.getHoTen() : "Khách hàng";
+
             controller.setReceiptData(hd, don, cart, data, tenKhach, daThu, 0);
 
             Stage stage = new Stage();
@@ -529,11 +464,11 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             Parent root = loader.load();
 
             ReceiptViewFXMLController controller = loader.getController();
-            
+
             String tenKhach = don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH();
-            
-            controller.setReceiptData(hd, don, dsItems, new ArrayList<>(mapSanPhamById.values()), 
-                                      tenKhach, hd.getTongTienThanhToan(), 0);
+
+            controller.setReceiptData(hd, don, dsItems, new ArrayList<>(mapSanPhamById.values()),
+                    tenKhach, hd.getTongTienThanhToan(), 0);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -627,32 +562,10 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         });
     }
 
-    private void khoiTaoComboTheoDoi() {
-        dpNgayTheoDoi.setValue(LocalDate.now());
-        cbGioTu.getItems().clear();
-        cbGioDen.getItems().clear();
-        cbGioTu.getItems().add("Tất cả");
-        cbGioDen.getItems().add("Tất cả");
-        for (int h = 0; h < 24; h++) {
-            cbGioTu.getItems().add(String.format("%02d:00", h));
-            cbGioDen.getItems().add(String.format("%02d:00", h));
-            if (h < 23) {
-                cbGioTu.getItems().add(String.format("%02d:30", h));
-                cbGioDen.getItems().add(String.format("%02d:30", h));
-            }
-        }
-        cbGioTu.setValue("Tất cả");
-        cbGioDen.setValue("Tất cả");
-
-        cbLocTrangThaiTheoDoi.getItems().clear();
-        cbLocTrangThaiTheoDoi.getItems().add("Tất cả");
-        cbLocTrangThaiTheoDoi.getItems().add("Chưa hoàn thành");
-        cbLocTrangThaiTheoDoi.getItems().add("Hoàn thành");
-        cbLocTrangThaiTheoDoi.setValue("Chưa hoàn thành");
-    }
 
     private void khoiTaoComboTuyChinh() {
-        caiDatHienThiCombo(cbCustomSp, sp -> sp.getTenSP() + " (" + dinhDangTien(sp.getGiaCoBan()) + ")", "--- Chọn loại bánh ---");
+        caiDatHienThiCombo(cbCustomSp, sp -> sp.getTenSP() + " (" + dinhDangTien(sp.getGiaCoBan()) + ")",
+                "--- Chọn loại bánh ---");
         caiDatHienThiCombo(cbCustomKichCo,
                 kc -> kc.getTenKC() + " (+" + dinhDangTien(kc.getPhuPhi()) + ")",
                 "--- Không chọn ---");
@@ -698,7 +611,6 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     private void ganSuKienNhapLieu() {
         txtTimKiemSanPham.textProperty().addListener((obs, oldVal, newVal) -> apDungBoLocSanPham());
-        txtSoDienThoai.setOnAction(event -> onTimKhachHang());
         tabTaoDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 dialogFactory.setOwnerWindow(newScene.getWindow());
@@ -709,29 +621,10 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     private void hienTabPos() {
         tabTaoDon.setVisible(true);
         tabTaoDon.setManaged(true);
-        tabTheoDoi.setVisible(false);
-        tabTheoDoi.setManaged(false);
         datNavActive(btnNavPOS, btnNavTheoDoi);
         lblHeaderTitle.setText("POS — Bán hàng & Quản lý đơn");
     }
 
-    private void hienTabTheoDoi() {
-        tabTaoDon.setVisible(false);
-        tabTaoDon.setManaged(false);
-        tabTheoDoi.setVisible(true);
-        tabTheoDoi.setManaged(true);
-        datNavActive(btnNavTheoDoi, btnNavPOS);
-        lblHeaderTitle.setText("Theo dõi đơn hàng");
-        if (presenter != null) {
-            presenter.timKiemDonTheoDoi(
-                    txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim(),
-                    dpNgayTheoDoi.getValue() == null ? LocalDate.now() : dpNgayTheoDoi.getValue(),
-                    parseGioTheoDoi(cbGioTu.getValue()),
-                    parseGioTheoDoi(cbGioDen.getValue()),
-                    layTrangThaiFilterTuUI()
-            );
-        }
-    }
 
     private void datNavActive(Button active, Button inactive) {
         active.getStyleClass().remove("nav-item-active");
@@ -823,8 +716,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
                 path,
                 "/" + path,
                 "/images/" + path,
-                "/images/products/" + path
-        );
+                "/images/products/" + path);
         for (String candidate : candidates) {
             try (InputStream in = getClass().getResourceAsStream(candidate)) {
                 if (in != null) {
@@ -851,8 +743,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
                 getMaKichCo(),
                 getMaCot(),
                 getMaNhan(),
-                getMaTrangTri()
-        );
+                getMaTrangTri());
         lblGiaTuyChinh.setText(dinhDangTien(gia));
     }
 
@@ -894,7 +785,8 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         Label lblKhach = new Label("Khách: " + (don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH()));
         lblKhach.getStyleClass().add("lbl-small");
         Label lblNgayNhan = new Label("Nhận lúc: " + (don.getNgayGioNhanBanh() == null
-                ? "N/A" : don.getNgayGioNhanBanh().format(FMT_NGAY_GIO)));
+                ? "N/A"
+                : don.getNgayGioNhanBanh().format(FMT_NGAY_GIO)));
         lblNgayNhan.getStyleClass().add("lbl-small");
         Label lblTongTien = new Label("Tổng: " + dinhDangTien(don.getTongTienHDBan()));
         lblTongTien.getStyleClass().add("lbl-primary");
@@ -915,8 +807,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             presenter.capNhatTrangThai(
                     String.valueOf(don.getMaDon()),
                     cbTrangThai.getValue(),
-                    don.getTenTrangThai()
-            );
+                    don.getTenTrangThai());
         });
 
         Button btnChiTiet = new Button("Chi tiết");
@@ -938,12 +829,18 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
                 .replace("đ", "d")
                 .replace("Đ", "D")
                 .toUpperCase(Locale.ROOT);
-        if (normalized.contains("HOAN THANH")) return "badge-done";
-        if (normalized.contains("HUY")) return "badge-cancelled";
-        if (normalized.contains("DANG SAN XUAT")) return "badge-processing";
-        if (normalized.contains("CHO GIAO")) return "badge-shipping";
-        if (normalized.contains("CHO KHACH LAY")) return "badge-pickup";
-        if (normalized.contains("DA COC")) return "badge-deposited";
+        if (normalized.contains("HOAN THANH"))
+            return "badge-done";
+        if (normalized.contains("HUY"))
+            return "badge-cancelled";
+        if (normalized.contains("DANG SAN XUAT"))
+            return "badge-processing";
+        if (normalized.contains("CHO GIAO"))
+            return "badge-shipping";
+        if (normalized.contains("CHO KHACH LAY"))
+            return "badge-pickup";
+        if (normalized.contains("DA COC"))
+            return "badge-deposited";
         return "badge-new";
     }
 
@@ -951,9 +848,12 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         String normalized = Normalizer.normalize(tenDanhMuc, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .toUpperCase(Locale.ROOT);
-        if (normalized.contains("CAKE")) return "Cake";
-        if (normalized.contains("COOKIE")) return "Cookie";
-        if (normalized.contains("BREAD") || normalized.contains("MI")) return "Bread";
+        if (normalized.contains("CAKE"))
+            return "Cake";
+        if (normalized.contains("COOKIE"))
+            return "Cookie";
+        if (normalized.contains("BREAD") || normalized.contains("MI"))
+            return "Bread";
         return "ALL";
     }
 
@@ -979,7 +879,6 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
     private String dinhDangTien(double amount) {
         return FMT_TIEN.format(amount) + " đ";
     }
-
 
     private String layTrangThaiFilterTuUI() {
         String filter = cbLocTrangThaiTheoDoi == null ? null : cbLocTrangThaiTheoDoi.getValue();

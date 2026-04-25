@@ -370,7 +370,7 @@
     -fx-border-width: 1px;
     border-width: 1px;
     -fx-border-radius: 12px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 8, 0, 0, 2);
     -fx-cursor: hand;
     cursor: pointer;
     -fx-pref-width: 160px;
@@ -641,23 +641,28 @@
     -fx-border-color: #F0EDEA;
     -fx-border-width: 0 1px 0 0;
 }
+
 .dash-logo-box {
     -fx-padding: 32px;
 }
+
 .dash-logo-text {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #92400E;
 }
+
 .dash-logo-sub {
     -fx-font-size: 10px;
     -fx-text-fill: #A8A29E;
     -fx-font-weight: bold;
     -fx-text-transform: uppercase;
 }
+
 .dash-nav {
     -fx-padding: 0 16px;
 }
+
 .dash-nav-item {
     -fx-background-color: transparent;
     -fx-text-fill: #57534E;
@@ -667,10 +672,12 @@
     -fx-cursor: hand;
     -fx-border-width: 0;
 }
+
 .dash-nav-item:hover {
     -fx-background-color: #F5F5F4;
     -fx-text-fill: #1C1917;
 }
+
 .dash-nav-active {
     -fx-background-color: rgba(146, 64, 14, 0.1);
     -fx-text-fill: #92400E;
@@ -685,27 +692,33 @@
     -fx-padding: 0 40px;
     -fx-min-height: 80px;
 }
+
 .dash-header-brand {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #92400E;
     -fx-padding: 0 24px 0 0;
 }
+
 .dash-header-link {
     -fx-font-size: 14px;
     -fx-text-fill: #78716C;
     -fx-cursor: hand;
 }
+
 .dash-header-link:hover {
     -fx-text-fill: #92400E;
 }
+
 .dash-header-link-active {
     -fx-text-fill: #92400E;
     -fx-font-weight: bold;
     -fx-border-color: #92400E;
     -fx-border-width: 0 0 2px 0;
-    -fx-padding: 28px 0 26px 0; /* Keep baseline aligned */
+    -fx-padding: 28px 0 26px 0;
+    /* Keep baseline aligned */
 }
+
 .dash-search-bar {
     -fx-background-color: #F5F5F4;
     -fx-background-radius: 8px;
@@ -715,6 +728,7 @@
     -fx-padding: 10px 16px;
     -fx-font-size: 13px;
 }
+
 .dash-icon-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #A8A29E;
@@ -722,21 +736,25 @@
     -fx-cursor: hand;
     -fx-border-width: 0;
 }
+
 .dash-icon-btn:hover {
     -fx-text-fill: #92400E;
 }
+
 .dash-user-name {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: #1C1917;
 }
+
 .dash-user-role {
     -fx-font-size: 10px;
     -fx-text-fill: #A8A29E;
     -fx-font-weight: bold;
 }
+
 .dash-avatar {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);
 }
 
 /* Main Content Area */
@@ -751,21 +769,25 @@
     -fx-background-radius: 20px;
     -fx-padding: 40px;
 }
+
 .dash-banner-title {
     -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
 }
+
 .dash-banner-title-name {
     -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
 }
+
 .dash-banner-sub {
     -fx-font-size: 15px;
     -fx-text-fill: rgba(255, 255, 255, 0.8);
     -fx-line-spacing: 4px;
 }
+
 .dash-btn-primary {
     -fx-background-color: white;
     -fx-text-fill: #92400E;
@@ -776,9 +798,11 @@
     -fx-cursor: hand;
     -fx-border-width: 0;
 }
+
 .dash-btn-primary:hover {
     -fx-background-color: #FEF3C7;
 }
+
 .dash-btn-secondary {
     -fx-background-color: rgba(255, 255, 255, 0.15);
     -fx-text-fill: white;
@@ -789,6 +813,7 @@
     -fx-cursor: hand;
     -fx-border-width: 0;
 }
+
 .dash-btn-secondary:hover {
     -fx-background-color: rgba(255, 255, 255, 0.25);
 }
@@ -797,6 +822,7 @@
 .dash-grid {
     -fx-padding: 10px 0;
 }
+
 .dash-card {
     -fx-background-color: white;
     -fx-border-color: #F0EDEA;
@@ -806,10 +832,12 @@
     -fx-padding: 32px;
     -fx-cursor: hand;
 }
+
 .dash-card:hover {
     -fx-border-color: rgba(146, 64, 14, 0.3);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 8);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 20, 0, 0, 8);
 }
+
 .dash-icon-box {
     -fx-background-radius: 12px;
     -fx-max-width: 48px;
@@ -817,19 +845,23 @@
     -fx-min-width: 48px;
     -fx-min-height: 48px;
 }
+
 .dash-icon-text {
     -fx-font-size: 24px;
 }
+
 .dash-card-title {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #1C1917;
 }
+
 .dash-card-desc {
     -fx-font-size: 13px;
     -fx-text-fill: #78716C;
     -fx-line-spacing: 4px;
 }
+
 .dash-card-action {
     -fx-background-color: transparent;
     -fx-font-size: 13px;
@@ -840,35 +872,84 @@
 }
 
 /* Card Specific Colors */
-.dash-icon-pos { -fx-background-color: #FFEDD5; }
-.dash-icon-text-pos { -fx-text-fill: #C2410C; }
-.dash-action-pos { -fx-text-fill: #C2410C; }
+.dash-icon-pos {
+    -fx-background-color: #FFEDD5;
+}
 
-.dash-icon-inv { -fx-background-color: #CCFBF1; }
-.dash-icon-text-inv { -fx-text-fill: #0F766E; }
-.dash-action-inv { -fx-text-fill: #0F766E; }
+.dash-icon-text-pos {
+    -fx-text-fill: #C2410C;
+}
 
-.dash-icon-staff { -fx-background-color: #FEF08A; }
-.dash-icon-text-staff { -fx-text-fill: #A16207; }
-.dash-action-staff { -fx-text-fill: #A16207; }
+.dash-action-pos {
+    -fx-text-fill: #C2410C;
+}
 
-.dash-icon-report { -fx-background-color: #DBEAFE; }
-.dash-icon-text-report { -fx-text-fill: #1D4ED8; }
-.dash-action-report { -fx-text-fill: #1D4ED8; }
+.dash-icon-inv {
+    -fx-background-color: #CCFBF1;
+}
 
-.dash-icon-kds { -fx-background-color: #F3E8FF; }
-.dash-icon-text-kds { -fx-text-fill: #7E22CE; }
-.dash-action-kds { -fx-text-fill: #7E22CE; }
+.dash-icon-text-inv {
+    -fx-text-fill: #0F766E;
+}
 
-.dash-icon-audit { -fx-background-color: #E2E8F0; }
-.dash-icon-text-audit { -fx-text-fill: #334155; }
-.dash-action-audit { -fx-text-fill: #334155; }
+.dash-action-inv {
+    -fx-text-fill: #0F766E;
+}
+
+.dash-icon-staff {
+    -fx-background-color: #FEF08A;
+}
+
+.dash-icon-text-staff {
+    -fx-text-fill: #A16207;
+}
+
+.dash-action-staff {
+    -fx-text-fill: #A16207;
+}
+
+.dash-icon-report {
+    -fx-background-color: #DBEAFE;
+}
+
+.dash-icon-text-report {
+    -fx-text-fill: #1D4ED8;
+}
+
+.dash-action-report {
+    -fx-text-fill: #1D4ED8;
+}
+
+.dash-icon-kds {
+    -fx-background-color: #F3E8FF;
+}
+
+.dash-icon-text-kds {
+    -fx-text-fill: #7E22CE;
+}
+
+.dash-action-kds {
+    -fx-text-fill: #7E22CE;
+}
+
+.dash-icon-audit {
+    -fx-background-color: #E2E8F0;
+}
+
+.dash-icon-text-audit {
+    -fx-text-fill: #334155;
+}
+
+.dash-action-audit {
+    -fx-text-fill: #334155;
+}
 
 /* REPORTS MODULE SPECIFIC */
 .progress-bar-amber .bar {
     -fx-background-color: #D85A30;
     -fx-background-radius: 8;
 }
+
 .progress-bar-amber .track {
     -fx-background-color: #F3F4F6;
     -fx-background-radius: 8;
@@ -931,6 +1012,36 @@
 
 .dialog-button-save:hover {
     -fx-background-color: linear-gradient(to bottom, #C2410C, #78350F);
-} 
-  
- 
+}
+
+/* ─── CHARTS (DATA ANALYST PALETTE) ─── */
+.chart-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1C0A00;
+}
+
+/* Make axis labels explicitly visible */
+.axis {
+    -fx-tick-label-fill: #4B5563;
+    -fx-tick-label-font-size: 11px;
+}
+.axis-label {
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+/* Data Analyst Colors for Pie and Bar Charts */
+.default-color0.chart-pie, .default-color0.chart-bar { -fx-pie-color: #D85A30; -fx-bar-fill: #D85A30; }
+.default-color1.chart-pie, .default-color1.chart-bar { -fx-pie-color: #0F766E; -fx-bar-fill: #0F766E; }
+.default-color2.chart-pie, .default-color2.chart-bar { -fx-pie-color: #1D4ED8; -fx-bar-fill: #1D4ED8; }
+.default-color3.chart-pie, .default-color3.chart-bar { -fx-pie-color: #FDE68A; -fx-bar-fill: #FDE68A; }
+.default-color4.chart-pie, .default-color4.chart-bar { -fx-pie-color: #7E22CE; -fx-bar-fill: #7E22CE; }
+.default-color5.chart-pie, .default-color5.chart-bar { -fx-pie-color: #DC2626; -fx-bar-fill: #DC2626; }
+.default-color6.chart-pie, .default-color6.chart-bar { -fx-pie-color: #047857; -fx-bar-fill: #047857; }
+.default-color7.chart-pie, .default-color7.chart-bar { -fx-pie-color: #BE123C; -fx-bar-fill: #BE123C; }
+
+/* Line Chart custom colors (first series) */
+.default-color0.chart-series-line { -fx-stroke: #D85A30; -fx-stroke-width: 3px; }
+.default-color0.chart-line-symbol { -fx-background-color: #D85A30, white; -fx-background-insets: 0, 2; -fx-background-radius: 5px; -fx-padding: 5px; }

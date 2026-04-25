@@ -137,7 +137,7 @@ public class OrderPresenter {
         }
     }
 
-    public void timKhachHang(String sdt) {
+    public void traCuuKhachHang(String sdt) {
         if (sdt == null || sdt.trim().isEmpty()) {
             lamMoiKhachHang();
             return;
@@ -147,9 +147,12 @@ public class OrderPresenter {
             if (kh != null) {
                 phanTramGiamGia = 0.10;
                 view.hienThiThongTinKhach(kh.getHoTen() + " (Thành viên -10%)", true);
+                // Cập nhật khách hàng hiện tại vào View để dùng cho việc Sửa
+                view.capNhatKhachHangHienTai(kh);
             } else {
                 lamMoiKhachHang();
                 view.hienThiThongTinKhach("Khách chưa là thành viên! ", false);
+                view.capNhatKhachHangHienTai(null);
             }
         } catch (Exception e) {
             lamMoiKhachHang();

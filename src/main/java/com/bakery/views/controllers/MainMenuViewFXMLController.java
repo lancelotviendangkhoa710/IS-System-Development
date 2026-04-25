@@ -7,6 +7,7 @@ import com.bakery.services.AuthorizationService.ModuleKey;
 import com.bakery.utils.UserSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -28,8 +29,11 @@ public class MainMenuViewFXMLController {
     @FXML private Button btnInventory;
     @FXML private Button btnStaff;
     @FXML private Button btnReports;
+    @FXML private Button btnReportsCard;
+    @FXML private Button btnTheoDoiDon;
     @FXML private Button btnKds;
     @FXML private Button btnAuditLogs;
+    @FXML private Button btnSupplier;
     @FXML private HBox hboxBestSellersMenu;
 
     private final AuthorizationService authorizationService = new AuthorizationService();
@@ -56,8 +60,11 @@ public class MainMenuViewFXMLController {
         capNhatTrangThaiNut(btnInventory, modulesDuocCap.contains(ModuleKey.INVENTORY));
         capNhatTrangThaiNut(btnStaff, modulesDuocCap.contains(ModuleKey.STAFF));
         capNhatTrangThaiNut(btnReports, modulesDuocCap.contains(ModuleKey.REPORTS));
+        if (btnReportsCard != null) capNhatTrangThaiNut(btnReportsCard, modulesDuocCap.contains(ModuleKey.REPORTS));
+        if (btnTheoDoiDon != null) capNhatTrangThaiNut(btnTheoDoiDon, modulesDuocCap.contains(ModuleKey.POS));
         capNhatTrangThaiNut(btnKds, modulesDuocCap.contains(ModuleKey.KDS));
         capNhatTrangThaiNut(btnAuditLogs, modulesDuocCap.contains(ModuleKey.AUDIT_LOGS));
+        if (btnSupplier != null) capNhatTrangThaiNut(btnSupplier, modulesDuocCap.contains(ModuleKey.INVENTORY));
 
         loadBestSellers();
     }
@@ -99,6 +106,33 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoReports() {
         moScene(btnReports, "/fxml/ReportsView.fxml", "H3K Bakery - Thống kê Kinh doanh", 1366, 768, "Khong the mo Thống kê: ");
+    }
+
+    @FXML
+    private void onMoSupplier() {
+        moScene(btnSupplier, "/fxml/SupplierManagementView.fxml", "H3K Bakery - Quản lý Nhà Cung Cấp", 1280, 720, "Không thể mở Nhà Cung Cấp: ");
+    }
+
+    @FXML
+    private void onMoTheoDoiDon() {
+        try {
+            URL fxmlUrl = getClass().getResource("/fxml/OrderTrackingView.fxml");
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+            
+            Scene scene = new Scene(root, 1366, 768);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            
+            Button source = btnTheoDoiDon != null ? btnTheoDoiDon : btnPos;
+            Stage stage = (Stage) source.getScene().getWindow();
+            stage.setTitle("H3K Bakery - Theo Dõi Đơn");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            lblThongBao.setText("Không thể mở Theo dõi đơn: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     @FXML

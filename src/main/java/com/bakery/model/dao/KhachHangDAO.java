@@ -43,7 +43,7 @@ public class KhachHangDAO {
     }
 
     public int themKhachHangMoi(KhachHangDTO kh) {
-        String sql = "{CALL PROC_THEMKHACHHANG(?, ?, ?, ?)}";
+        String sql = "{CALL PROC_THEM_KHACHHANG(?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnect.getConnection();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
@@ -51,10 +51,16 @@ public class KhachHangDAO {
             cstmt.setString(1, kh.getHoTen());
             cstmt.setString(2, kh.getSdt());
             cstmt.setString(3, kh.getDiaChi());
-            cstmt.registerOutParameter(4, Types.NUMERIC);
+            cstmt.setInt(4, kh.getDiemTichLuy());
+            if (kh.getMaHang() > 0) {
+                cstmt.setInt(5, kh.getMaHang());
+            } else {
+                cstmt.setNull(5, Types.NUMERIC);
+            }
+            cstmt.registerOutParameter(6, Types.NUMERIC);
 
             cstmt.execute();
-            return cstmt.getInt(4);
+            return cstmt.getInt(6);
         } catch (SQLException e) {
             System.err.println("Lỗi DAO - themKhachHangMoi: " + e.getMessage());
         }
@@ -62,7 +68,7 @@ public class KhachHangDAO {
     }
 
     public boolean capNhatKhachHang(KhachHangDTO kh) {
-        String sql = "{CALL PROC_CAPNHATKHACHHANG(?, ?, ?, ?)}";
+        String sql = "{CALL PROC_SUA_KHACHHANG(?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnect.getConnection();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
@@ -71,11 +77,18 @@ public class KhachHangDAO {
             cstmt.setString(2, kh.getHoTen());
             cstmt.setString(3, kh.getSdt());
             cstmt.setString(4, kh.getDiaChi());
+            cstmt.setInt(5, kh.getDiemTichLuy());
+            if (kh.getMaHang() > 0) {
+                cstmt.setInt(6, kh.getMaHang());
+            } else {
+                cstmt.setNull(6, Types.NUMERIC);
+            }
 
             cstmt.execute();
             return true;
         } catch (SQLException e) {
             System.err.println("Lỗi DAO - capNhatKhachHang: " + e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }

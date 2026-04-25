@@ -223,27 +223,6 @@
                     <!-- Panel phải: Giỏ hàng (35%) -->
                     <VBox prefWidth="320" minWidth="280" spacing="12">
 
-                        <!-- Khách hàng -->
-                        <VBox styleClass="card" spacing="8">
-                            <Label text="👤 Khách hàng" styleClass="lbl-title-card"/>
-                            <HBox spacing="8">
-                                <TextField fx:id="txtSoDienThoai"
-                                           promptText="Số điện thoại..."
-                                           HBox.hgrow="ALWAYS"
-                                           styleClass="text-field"/>
-                                <Button text="Tìm" styleClass="btn-secondary"
-                                        onAction="#onTimKhachHang"/>
-                            </HBox>
-                            <Label fx:id="lblTenKhachHang"
-                                   text="Khách vãng lai"
-                                   styleClass="lbl-small"
-                                   wrapText="true"/>
-                            <HBox spacing="8">
-                                <Button text="＋ Thêm KH" onAction="#onThemKhachHang" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
-                                <Button text="✏ Sửa KH" onAction="#onSuaKhachHang" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
-                            </HBox>
-                        </VBox>
-
                         <!-- Giỏ hàng -->
                         <VBox styleClass="card" spacing="8" VBox.vgrow="ALWAYS">
                             <Label text="🛒 Giỏ hàng" styleClass="lbl-title-card"/>
@@ -299,41 +278,6 @@
                                 onAction="#onThanhToan"/>
                     </VBox>
                 </HBox>
-
-                <!-- TAB 2: Theo dõi đơn hàng -->
-                <VBox fx:id="tabTheoDoi" spacing="12" visible="false">
-                    <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
-                    </padding>
-
-                    <!-- Filter bar Theo dõi -->
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Mã đơn:" styleClass="lbl-small-bold"/>
-                        <TextField fx:id="txtTimMaDon" promptText="VD: 1001"
-                                   prefWidth="100" styleClass="text-field"/>
-                        <Label text="Ngày:" styleClass="lbl-small-bold"/>
-                        <DatePicker fx:id="dpNgayTheoDoi" styleClass="text-field"
-                                    prefWidth="150"/>
-                        <Label text="Từ:" styleClass="lbl-small-bold"/>
-                        <ComboBox fx:id="cbGioTu" prefWidth="90" styleClass="combo-box"/>
-                        <Label text="Đến:" styleClass="lbl-small-bold"/>
-                        <ComboBox fx:id="cbGioDen" prefWidth="90" styleClass="combo-box"/>
-                        <Label text="Trạng thái:" styleClass="lbl-small-bold"/>
-                        <ComboBox fx:id="cbLocTrangThaiTheoDoi" prefWidth="140" styleClass="combo-box"
-                                  onAction="#onLocTrangThaiTheoDoi"/>
-                        <Button text="🔍 Tìm kiếm" styleClass="btn-primary"
-                                onAction="#onTimKiemDon"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="lblThongBaoTab2" text="" styleClass="lbl-small-bold"/>
-                    </HBox>
-
-                    <!-- Danh sách card đơn hàng -->
-                    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                                style="-fx-background-color: transparent; -fx-background: transparent;">
-                        <VBox fx:id="panelChuaDon" spacing="10"
-                              style="-fx-background-color: transparent;"/>
-                    </ScrollPane>
-                </VBox>
 
             </StackPane>
         </VBox>
