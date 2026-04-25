@@ -1,0 +1,82 @@
+BakeryManagementSystem/
+├── .git/                               # Thư mục ẩn do Git tự sinh ra để theo dõi lịch sử
+├── .gitignore                          # RẤT QUAN TRỌNG: Khai báo các file KHÔNG đẩy lên GitHub
+├── README.md                           # File giới thiệu dự án, hướng dẫn cài đặt cho người mới
+├── pom.xml                             # File quản lý thư viện Maven (FlatLaf, ojdbc8, JasperReports, MigLayout,...)
+│
+├── database_scripts/                   # THƯ MỤC SQL CHÍNH: Quản lý toàn bộ cấu trúc Oracle
+│   ├── 01_tables/                      # CREATE TABLE, CONSTRAINT. CẤM viết comment trong thư mục này
+│   │   └── (vd: nhanvien.sql, ...)
+│   │
+│   ├── 02_data/                        # INSERT dữ liệu mẫu (mock data) để chạy demo
+│   │   └── (vd: insert_danhmuc.sql, ...)
+│   │
+│   ├── 03_packages/                    # Package PL/SQL dùng chung toàn hệ thống
+│   │   └── package_error_codes.sql     # PKG_ERROR_CODES: Toàn bộ mã lỗi chuẩn hóa
+│   │
+│   ├── 04_functions/                   # Các Function SQL (tiền tố file: func_)
+│   │   └── (vd: func_calc_price.sql, ...)
+│   │
+│   ├── 05_procedures/                  # Các Stored Procedure (tiền tố file: proc_)
+│   │   └── (vd: proc_place_order.sql, ...)
+│   │
+│   ├── 06_triggers/                    # Các Trigger (tiền tố file: trg_)
+│   │   └── (vd: trg_check_stock.sql, ...)
+│   │
+│   └── 07_views/                       # Các View phục vụ JasperReports và báo cáo (tiền tố: VW_)
+│       └── (vd: vw_hoadon_in.sql, vw_phieuhen.sql, ...)
+│
+└── src/
+    └── main/
+        ├── java/
+        │   └── com/bakery/
+        │       │
+        │       ├── App.java                            # Điểm khởi chạy: cài FlatLaf theme, mở LoginPanel
+        │       │
+        │       ├── model/                              # Tầng dữ liệu
+        │       │   ├── dto/                            # Class vật chứa dữ liệu (chỉ thuộc tính + Get/Set)
+        │       │   │   └── (vd: SanPhamDTO.java, DonHangDTO.java, ...)
+        │       │   │
+        │       │   └── dao/                            # Gọi Stored Procedure / Truy vấn SQL thuần
+        │       │       └── (vd: SanPhamDAO.java, DonHangDAO.java, ...)
+        │       │
+        │       ├── services/                           # Xử lý logic nghiệp vụ, điều phối DAO
+        │       │   └── (vd: DonHangService.java, KhoService.java, ThanhToanService.java, ...)
+        │       │
+        │       ├── presenters/                         # Kết nối View ↔ Service (không chứa logic nghiệp vụ)
+        │       │   └── (vd: POSPresenter.java, OrderPresenter.java, InventoryPresenter.java, ...)
+        │       │
+        │       ├── views/                              # Toàn bộ giao diện Swing
+        │       │   ├── interfaces/                     # Contract (interface) giữa View và Presenter
+        │       │   │   └── (vd: IPOSView.java, IOrderView.java, IInventoryView.java, ...)
+        │       │   │
+        │       │   ├── MainFrame.java                  # Cửa sổ chính: chứa Sidebar + Content Area
+        │       │   ├── LoginPanel.java                 # Màn hình đăng nhập
+        │       │   ├── DashboardPanel.java             # Màn hình tổng quan & KPI
+        │       │   ├── POSPanel.java                   # Màn hình bán hàng tại quầy
+        │       │   ├── OrderPanel.java                 # Màn hình quản lý đơn hàng & KDS bếp
+        │       │   ├── InventoryPanel.java             # Màn hình kho nguyên liệu
+        │       │   ├── CustomerPanel.java              # Màn hình khách hàng thành viên
+        │       │   ├── ReportPanel.java                # Màn hình báo cáo thống kê
+        │       │   │
+        │       │   └── dialogs/                        # Các cửa sổ popup (JDialog)
+        │       │       ├── CustomCakeDialog.java       # Popup đặt bánh tùy chỉnh (4 bước)
+        │       │       ├── PaymentDialog.java          # Popup xác nhận thanh toán
+        │       │       ├── ReconciliationDialog.java   # Popup đối soát đóng ca
+        │       │       └── ReceiptDialog.java          # Popup xem trước hóa đơn nhiệt 80mm
+        │       │
+        │       └── utils/
+        │           ├── DBConnect.java                  # Quản lý kết nối Oracle (Singleton)
+        │           ├── AlertHelper.java                # Hiển thị JOptionPane chuẩn hóa toàn app
+        │           ├── CurrencyFormatter.java          # Format tiền tệ VNĐ (1000 → 1.000đ)
+        │           └── Config.java                     # Đọc cấu hình (chuỗi kết nối - bị Git ignore)
+        │
+        └── resources/
+            ├── reports/                                # Template JasperReports (.jrxml)
+            │   ├── HoaDon.jrxml                        # Hóa đơn thanh toán khổ 80mm
+            │   └── PhieuHen.jrxml                      # Phiếu hẹn lấy bánh tùy chỉnh khổ 80mm
+            │
+            ├── fonts/                                  # Font chữ tùy chỉnh (nếu có)
+            │
+            └── images/
+                └── logo.png
