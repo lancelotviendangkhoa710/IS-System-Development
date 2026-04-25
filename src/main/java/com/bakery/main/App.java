@@ -1,18 +1,37 @@
 package com.bakery.main;
 
-import com.bakery.views.LoginFrame;
-import com.bakery.views.StartScreen;
-import com.formdev.flatlaf.FlatLightLaf;
-import javax.swing.UIManager;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class App {
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (Exception e) {
-            System.err.println("Không thể khởi tạo giao diện Flatlaf: " + e.getMessage());
+import java.net.URL;
+
+public class App extends Application {
+    public static final String LOGIN_VIEW = "/fxml/login.fxml";
+    public static final String DASHBOARD_VIEW = "/fxml/Dashboard.fxml";
+    public static final String CASHIER_DASHBOARD_VIEW = "/fxml/CashierDashboard.fxml";
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Scene scene = new Scene(loadView(LOGIN_VIEW));
+        primaryStage.setTitle("Amitie Bakery");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
+        primaryStage.show();
+    }
+
+    public static Parent loadView(String viewPath) throws Exception {
+        URL fxmlLocation = App.class.getResource(viewPath);
+        if (fxmlLocation == null) {
+            throw new IllegalStateException("Khong tim thay file FXML: " + viewPath);
         }
+        return FXMLLoader.load(fxmlLocation);
+    }
 
-        StartScreen.open();
+    public static void main(String[] args) {
+        launch(args);
     }
 }

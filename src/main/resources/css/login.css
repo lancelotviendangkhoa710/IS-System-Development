@@ -1,0 +1,33 @@
+.start-screen {
+    -fx-background-image: url('../images/start-screen.png');
+    -fx-background-size: cover;
+    -fx-background-position: center;
+}
+
+.root {
+    -fx-background-color: #f4f4f4;
+}
+
+.title-text {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-fill: #5D4037;
+}
+
+.input-field {
+    -fx-background-radius: 5;
+    -fx-padding: 8;
+}
+
+.login-button {
+    -fx-background-color: #8D6E63;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 30;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #6D4C41;
+}
+

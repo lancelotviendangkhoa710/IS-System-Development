@@ -8,6 +8,8 @@ target/
 bin/
 build/
 out/
+build-check/
+.tools/
 
 # Cấu hình IDE / Môi trường phát triển
 .vscode/
