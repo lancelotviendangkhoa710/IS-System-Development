@@ -10,7 +10,7 @@ import com.bakery.model.dto.NhanVienDTO;
 import com.bakery.model.dto.NhanBanhDTO;
 import com.bakery.model.dto.SanPhamDTO;
 
-import com.bakery.presenters.OrderPresenter;
+import com.bakery.presenters.DonHangPresenter;
 import com.bakery.services.AuthorizationService;
 import com.bakery.services.OrderService;
 import com.bakery.utils.UserSession;
@@ -59,8 +59,7 @@ import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -153,11 +152,6 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
-    private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final String CSS_ERROR = "-fx-text-fill: #DC2626; -fx-font-weight: bold;";
-    private static final String CSS_SUCCESS = "-fx-text-fill: #16A34A; -fx-font-weight: bold;";
-    private static final String CSS_INFO = "-fx-text-fill: #2563EB; -fx-font-weight: bold;";
-
 
     static {
         FMT_TIEN.setMaximumFractionDigits(0);
@@ -165,12 +159,12 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     private final CreateOrderViewFXMLController dialogFactory = new CreateOrderViewFXMLController();
     private final AuthorizationService authorizationService = new AuthorizationService();
-    private OrderPresenter presenter;
+    private DonHangPresenter presenter;
 
     private final List<SanPhamDTO> danhSachSanPham = new ArrayList<>();
     private final Map<Integer, SanPhamDTO> mapSanPhamById = new HashMap<>();
     private final Map<Integer, String> mapDanhMuc = new HashMap<>();
-    private final List<String> danhSachTrangThai = new ArrayList<>();
+
     private final ObservableList<CTDonHangDTO> gioHangModel = FXCollections.observableArrayList();
 
     private String danhMucDangLoc = "ALL";
@@ -188,7 +182,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         khoiTaoTabMacDinh();
         ganSuKienNhapLieu();
 
-        presenter = new OrderPresenter(this, new OrderService());
+        presenter = new DonHangPresenter(this, new OrderService());
         presenter.setDialogFactory(dialogFactory);
         presenter.taiDuLieuBanDau();
     }
@@ -395,13 +389,13 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @Override
     public void hienThiLoi(String msg) {
-        lblThongBaoTab1.setStyle(CSS_ERROR);
+        lblThongBaoTab1.getStyleClass().setAll("lbl-danger");
         lblThongBaoTab1.setText(msg);
     }
 
     @Override
     public void hienThiThanhCong(String msg) {
-        lblThongBaoTab1.setStyle(CSS_SUCCESS);
+        lblThongBaoTab1.getStyleClass().setAll("lbl-success");
         lblThongBaoTab1.setText(msg);
     }
 
@@ -679,6 +673,29 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             imageView.setImage(anh);
         }
 
+        javafx.scene.layout.StackPane imageContainer = new javafx.scene.layout.StackPane();
+        imageContainer.getChildren().add(imageView);
+        
+        Label lblStock = new Label();
+        lblStock.getStyleClass().add("lbl-stock-badge");
+        javafx.scene.layout.StackPane.setAlignment(lblStock, Pos.TOP_RIGHT);
+        javafx.scene.layout.StackPane.setMargin(lblStock, new Insets(4));
+        
+        Button btnThem = new Button("Thêm");
+        btnThem.getStyleClass().add("btn-primary");
+        btnThem.setMaxWidth(Double.MAX_VALUE);
+        
+        if (sanPham.getSoLuongTon() <= 0) {
+            lblStock.getStyleClass().add("stock-empty");
+            lblStock.setText("Hết");
+            card.setOpacity(0.5);
+            btnThem.setDisable(true);
+        } else {
+            lblStock.getStyleClass().add("stock-available");
+            lblStock.setText("Kho: " + (int) sanPham.getSoLuongTon());
+        }
+        imageContainer.getChildren().add(lblStock);
+
         Label ten = new Label(sanPham.getTenSP());
         ten.getStyleClass().add("lbl-body-bold");
         ten.setWrapText(true);
@@ -690,18 +707,15 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Button btnThem = new Button("Thêm");
-        btnThem.getStyleClass().add("btn-primary");
-        btnThem.setMaxWidth(Double.MAX_VALUE);
         btnThem.setOnAction(event -> {
             if (presenter != null) {
                 presenter.themSanPhamVaoGio(sanPham);
             }
         });
 
-        card.getChildren().addAll(imageView, ten, gia, spacer, btnThem);
+        card.getChildren().addAll(imageContainer, ten, gia, spacer, btnThem);
         card.setOnMouseClicked(event -> {
-            if (presenter != null) {
+            if (presenter != null && sanPham.getSoLuongTon() > 0) {
                 presenter.themSanPhamVaoGio(sanPham);
             }
         });
@@ -767,82 +781,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         return dto == null ? null : dto.getMaTrangTri();
     }
 
-    private Node taoCardTheoDoi(DonDatHangDTO don) {
-        VBox card = new VBox(10);
-        card.getStyleClass().add("order-card");
 
-        HBox header = new HBox(8);
-        Label lblMaDon = new Label("#" + don.getMaDon());
-        lblMaDon.getStyleClass().add("lbl-body-bold");
-
-        Label badge = new Label(don.getTenTrangThai() == null ? "N/A" : don.getTenTrangThai());
-        badge.getStyleClass().addAll("badge", mapStyleTrangThai(don.getTenTrangThai()));
-
-        Region pushRight = new Region();
-        HBox.setHgrow(pushRight, Priority.ALWAYS);
-        header.getChildren().addAll(lblMaDon, pushRight, badge);
-
-        Label lblKhach = new Label("Khách: " + (don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH()));
-        lblKhach.getStyleClass().add("lbl-small");
-        Label lblNgayNhan = new Label("Nhận lúc: " + (don.getNgayGioNhanBanh() == null
-                ? "N/A"
-                : don.getNgayGioNhanBanh().format(FMT_NGAY_GIO)));
-        lblNgayNhan.getStyleClass().add("lbl-small");
-        Label lblTongTien = new Label("Tổng: " + dinhDangTien(don.getTongTienHDBan()));
-        lblTongTien.getStyleClass().add("lbl-primary");
-
-        HBox action = new HBox(8);
-        action.setAlignment(Pos.CENTER_LEFT);
-        ComboBox<String> cbTrangThai = new ComboBox<>();
-        cbTrangThai.setItems(FXCollections.observableArrayList(danhSachTrangThai));
-        cbTrangThai.setValue(don.getTenTrangThai());
-        cbTrangThai.setPrefWidth(180);
-
-        Button btnCapNhat = new Button("Cập nhật");
-        btnCapNhat.getStyleClass().add("btn-primary");
-        btnCapNhat.setOnAction(event -> {
-            if (presenter == null || cbTrangThai.getValue() == null) {
-                return;
-            }
-            presenter.capNhatTrangThai(
-                    String.valueOf(don.getMaDon()),
-                    cbTrangThai.getValue(),
-                    don.getTenTrangThai());
-        });
-
-        Button btnChiTiet = new Button("Chi tiết");
-        btnChiTiet.getStyleClass().add("btn-secondary");
-        btnChiTiet.setOnAction(event -> showOrderDetails(don));
-
-        action.getChildren().addAll(cbTrangThai, btnCapNhat, btnChiTiet);
-
-        card.getChildren().addAll(header, lblKhach, lblNgayNhan, lblTongTien, action);
-        return card;
-    }
-
-    private String mapStyleTrangThai(String trangThai) {
-        if (trangThai == null) {
-            return "badge-new";
-        }
-        String normalized = Normalizer.normalize(trangThai, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .replace("đ", "d")
-                .replace("Đ", "D")
-                .toUpperCase(Locale.ROOT);
-        if (normalized.contains("HOAN THANH"))
-            return "badge-done";
-        if (normalized.contains("HUY"))
-            return "badge-cancelled";
-        if (normalized.contains("DANG SAN XUAT"))
-            return "badge-processing";
-        if (normalized.contains("CHO GIAO"))
-            return "badge-shipping";
-        if (normalized.contains("CHO KHACH LAY"))
-            return "badge-pickup";
-        if (normalized.contains("DA COC"))
-            return "badge-deposited";
-        return "badge-new";
-    }
 
     private String mapDanhMucLoc(String tenDanhMuc) {
         String normalized = Normalizer.normalize(tenDanhMuc, Normalizer.Form.NFD)
@@ -862,12 +801,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         return sp == null ? "SP #" + maSP : sp.getTenSP();
     }
 
-    private LocalTime parseGioTheoDoi(String value) {
-        if (value == null || value.isBlank() || "Tất cả".equalsIgnoreCase(value)) {
-            return null;
-        }
-        return LocalTime.parse(value);
-    }
+
 
     private Button taoNutSoLuong(String text) {
         Button button = new Button(text);
@@ -880,16 +814,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         return FMT_TIEN.format(amount) + " đ";
     }
 
-    private String layTrangThaiFilterTuUI() {
-        String filter = cbLocTrangThaiTheoDoi == null ? null : cbLocTrangThaiTheoDoi.getValue();
-        if (filter == null || filter.isBlank() || "Tất cả".equalsIgnoreCase(filter)) {
-            return "ALL";
-        }
-        if ("Hoàn thành".equalsIgnoreCase(filter)) {
-            return "COMPLETED";
-        }
-        return "NOT_COMPLETED";
-    }
+
 
     private void capNhatThongTinNguoiDung() {
         NhanVienDTO nhanVien = UserSession.getCurrentUser();

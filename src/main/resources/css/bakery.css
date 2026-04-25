@@ -343,6 +343,18 @@
     -fx-font-weight: bold;
 }
 
+.lbl-tien-thua-success {
+    -fx-text-fill: #16A34A;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.lbl-tien-thua-danger {
+    -fx-text-fill: #DC2626;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
 /* ─── CARD (Panel) ─── */
 .card {
     -fx-background-color: white;
@@ -603,6 +615,26 @@
     -fx-effect: dropshadow(gaussian, rgba(146, 64, 14, 0.15), 10, 0, 0, 3);
 }
 
+/* ─── STOCK BADGE ─── */
+.lbl-stock-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 3px 6px;
+    -fx-background-radius: 6px;
+}
+
+.stock-available {
+    -fx-background-color: rgba(255, 255, 255, 0.85);
+    -fx-text-fill: #92400E;
+    -fx-border-color: #FDE68A;
+    -fx-border-radius: 6px;
+}
+
+.stock-empty {
+    -fx-background-color: rgba(220, 38, 38, 0.85);
+    -fx-text-fill: white;
+}
+
 /* ─── PROGRESS / LOADING ─── */
 .progress-indicator {
     -fx-accent: #92400E;
@@ -797,6 +829,35 @@
     -fx-background-radius: 8px;
     -fx-cursor: hand;
     -fx-border-width: 0;
+}
+
+/* Best Seller Cards */
+.best-seller-card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 16 24;
+    -fx-background-radius: 12;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
+.best-seller-icon {
+    -fx-font-size: 24px;
+    -fx-background-color: #FFF3ED;
+    -fx-padding: 8 12;
+    -fx-background-radius: 12;
+}
+
+.best-seller-name {
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1b1c1a;
+}
+
+.best-seller-qty {
+    -fx-font-weight: bold;
+    -fx-text-fill: #D85A30;
+    -fx-font-size: 12px;
 }
 
 .dash-btn-primary:hover {

@@ -20,7 +20,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import com.bakery.model.dao.KhachHangDAO;
+import com.bakery.services.KhachHangService;
 import com.bakery.model.dto.KhachHangDTO;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -187,7 +187,7 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
 
         lblTongTien.setText(dinhDangTien(tongTienPhaiTra));
         lblKhachInfo.setText("Chua xac dinh - se tao don vang lai");
-        lblKhachInfo.setStyle("-fx-text-fill: #6B7280;");
+        lblKhachInfo.getStyleClass().setAll("lbl-muted");
         txtSDT.clear();
 
         btnImmediateFlow.setSelected(true);
@@ -214,7 +214,7 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             tenKhach = "Khach vang lai";
             soDienThoai = "";
             lblKhachInfo.setText("Khong co SDT - don vang lai");
-            lblKhachInfo.setStyle("-fx-text-fill: #6B7280;");
+            lblKhachInfo.getStyleClass().setAll("lbl-muted");
             return;
         }
 
@@ -223,7 +223,7 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             tenKhach = "Khach vang lai";
             soDienThoai = sdt;
             lblKhachInfo.setText("Khong tim thay khach hang");
-            lblKhachInfo.setStyle("-fx-text-fill: #DC2626; -fx-font-weight: bold;");
+            lblKhachInfo.getStyleClass().setAll("lbl-danger");
             return;
         }
 
@@ -234,20 +234,20 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
                 tenKhach = info[1];
                 soDienThoai = sdt;
                 lblKhachInfo.setText("OK " + tenKhach + " - thanh vien giam 10%");
-                lblKhachInfo.setStyle("-fx-text-fill: #16A34A; -fx-font-weight: bold;");
+                lblKhachInfo.getStyleClass().setAll("lbl-success");
             } else {
                 maKH = null;
                 tenKhach = "Khach chua dang ky";
                 soDienThoai = sdt;
                 lblKhachInfo.setText("Khong tim thay - dat don vang lai");
-                lblKhachInfo.setStyle("-fx-text-fill: #DC2626; -fx-font-weight: bold;");
+                lblKhachInfo.getStyleClass().setAll("lbl-danger");
             }
         } catch (Exception e) {
             maKH = null;
             tenKhach = "Khach vang lai";
             soDienThoai = sdt;
             lblKhachInfo.setText("Khong tim thay - dat don vang lai");
-            lblKhachInfo.setStyle("-fx-text-fill: #DC2626; -fx-font-weight: bold;");
+            lblKhachInfo.getStyleClass().setAll("lbl-danger");
         }
     }
 
@@ -265,8 +265,8 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             return;
         }
         
-        KhachHangDAO dao = new KhachHangDAO();
-        KhachHangDTO fullKh = dao.timKhachHangBangSDT(soDienThoai);
+        KhachHangService service = new KhachHangService();
+        KhachHangDTO fullKh = service.timKhachHangTheoSoDienThoai(soDienThoai);
         moDialogKhachHang(fullKh);
     }
 
@@ -297,7 +297,7 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
                 this.soDienThoai = kq.getSdt();
                 txtSDT.setText(this.soDienThoai);
                 lblKhachInfo.setText("OK " + tenKhach + " - thành viên giảm 10%");
-                lblKhachInfo.setStyle("-fx-text-fill: #16A34A; -fx-font-weight: bold;");
+                lblKhachInfo.getStyleClass().setAll("lbl-success");
             }
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -475,10 +475,10 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
             double chenhLech = khachDua - amountToPay;
             if (chenhLech >= 0) {
                 lblTienThua.setText(dinhDangTien(chenhLech));
-                lblTienThua.setStyle("-fx-text-fill: #16A34A; -fx-font-size: 16px; -fx-font-weight: bold;");
+                lblTienThua.getStyleClass().setAll("lbl-tien-thua-success");
             } else {
                 lblTienThua.setText("Thiếu " + dinhDangTien(-chenhLech));
-                lblTienThua.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 16px; -fx-font-weight: bold;");
+                lblTienThua.getStyleClass().setAll("lbl-tien-thua-danger");
             }
         } else {
             lblQRAmount.setText(dinhDangTien(amountToPay));

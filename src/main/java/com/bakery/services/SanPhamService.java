@@ -48,6 +48,34 @@ public class SanPhamService {
     }
 
     /**
+     * Kiểm tra tồn kho realtime cho từng sản phẩm trong giỏ hàng.
+     * Bỏ qua bánh tùy chỉnh (custom) vì là sản xuất theo yêu cầu.
+     * @return Danh sách thông báo thiếu hàng (rỗng = đủ tồn)
+     */
+    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang) {
+        List<String> dsThieu = new java.util.ArrayList<>();
+        for (com.bakery.model.dto.YeuCauChiTietDonHangDTO item : gioHang) {
+            if (item.isCustom()) {
+                continue; // Bánh tùy chỉnh – sản xuất theo đơn, không kiểm tồn
+            }
+            double tonKho = sanPhamDAO.laySoLuongTon(item.getMaSP());
+            if (tonKho < item.getSoLuong()) {
+                // Tìm tên SP để thông báo cho nhân viên
+                String tenSP = "SP #" + item.getMaSP();
+                for (com.bakery.model.dto.SanPhamDTO sp : layDanhSachSanPhamPOS()) {
+                    if (sp.getMaSP() == item.getMaSP()) {
+                        tenSP = sp.getTenSP();
+                        break;
+                    }
+                }
+                dsThieu.add(tenSP + " (Yêu cầu: " + item.getSoLuong()
+                        + ", Tồn kho: " + (int) tonKho + ")");
+            }
+        }
+        return dsThieu;
+    }
+
+    /**
      * Tính giá bánh tùy chỉnh dựa vào giá cơ bản + phụ phí
      * (kích cỡ, cốt, nhân, trang trí). Logic tính do DB đảm nhiệm.
      */

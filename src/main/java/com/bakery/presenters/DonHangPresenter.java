@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OrderPresenter {
+public class DonHangPresenter {
     private final IOrderView view;
     private final OrderService orderService;
     // Phương án A: Presenter gọi dialog qua interface factory
@@ -53,7 +53,7 @@ public class OrderPresenter {
         return list;
     }
 
-    public OrderPresenter(IOrderView view, OrderService orderService) {
+    public DonHangPresenter(IOrderView view, OrderService orderService) {
         this.view = view;
         this.orderService = orderService;
     }
@@ -187,6 +187,17 @@ public class OrderPresenter {
         }
         if (dialogFactory == null) {
             view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+            return;
+        }
+
+        // Kiểm tra tồn kho trước khi mở dialog thanh toán (Fail-Fast)
+        java.util.List<String> dsThieuTon = orderService.kiemTraTonKhoGioHang(gioHangItems);
+        if (!dsThieuTon.isEmpty()) {
+            StringBuilder sb = new StringBuilder("Không đủ tồn kho cho các sản phẩm:\n");
+            for (String thieu : dsThieuTon) {
+                sb.append("• ").append(thieu).append("\n");
+            }
+            view.hienThiLoi(sb.toString().trim());
             return;
         }
 

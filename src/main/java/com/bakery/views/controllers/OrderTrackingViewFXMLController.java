@@ -8,7 +8,7 @@ import com.bakery.model.dto.KichCoBanhDTO;
 import com.bakery.model.dto.KieuTrangTriDTO;
 import com.bakery.model.dto.NhanBanhDTO;
 import com.bakery.model.dto.SanPhamDTO;
-import com.bakery.presenters.OrderPresenter;
+import com.bakery.presenters.DonHangPresenter;
 import com.bakery.services.OrderService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.interfaces.IOrderView;
@@ -63,15 +63,12 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
     private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final String CSS_ERROR = "-fx-text-fill: #DC2626; -fx-font-weight: bold;";
-    private static final String CSS_SUCCESS = "-fx-text-fill: #16A34A; -fx-font-weight: bold;";
-    private static final String CSS_INFO = "-fx-text-fill: #2563EB; -fx-font-weight: bold;";
 
     static {
         FMT_TIEN.setMaximumFractionDigits(0);
     }
 
-    private OrderPresenter presenter;
+    private DonHangPresenter presenter;
     private final CreateOrderViewFXMLController dialogFactory = new CreateOrderViewFXMLController();
     private final List<String> danhSachTrangThai = new ArrayList<>();
 
@@ -79,7 +76,7 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
     public void initialize(URL location, ResourceBundle resources) {
         khoiTaoComboTheoDoi();
 
-        presenter = new OrderPresenter(this, new OrderService());
+        presenter = new DonHangPresenter(this, new OrderService());
         presenter.setDialogFactory(dialogFactory);
 
         // Wait for scene to be set to assign owner window to dialogFactory
@@ -286,19 +283,19 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
 
     @Override
     public void hienThiLoiTraCuu(String msg) {
-        lblThongBaoTab2.setStyle(CSS_ERROR);
+        lblThongBaoTab2.getStyleClass().setAll("lbl-danger");
         lblThongBaoTab2.setText(msg);
     }
 
     @Override
     public void hienThiThongBaoTraCuu(String msg) {
-        lblThongBaoTab2.setStyle(CSS_SUCCESS);
+        lblThongBaoTab2.getStyleClass().setAll("lbl-success");
         lblThongBaoTab2.setText(msg);
     }
 
     @Override
     public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {
-        lblThongBaoTab2.setStyle(CSS_INFO);
+        lblThongBaoTab2.getStyleClass().setAll("lbl-info");
         lblThongBaoTab2.setText("KQ: " + kh + " | " + tt + " | " + dinhDangTien(tongTien));
     }
 

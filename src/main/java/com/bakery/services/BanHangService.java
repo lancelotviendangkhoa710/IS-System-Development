@@ -22,7 +22,8 @@ import java.util.Map;
 /**
  * OrderService hiện đóng vai trò là một Facade (Cổng giao tiếp chính)
  * cho màn hình POS, giúp Presenter không phải khởi tạo quá nhiều service lẻ.
- * Mọi logic nghiệp vụ thực tế đã được chuyển sang các Service chuyên biệt (SRP).
+ * Mọi logic nghiệp vụ thực tế đã được chuyển sang các Service chuyên biệt
+ * (SRP).
  */
 public class OrderService {
     private final DonHangService donHangService;
@@ -45,7 +46,6 @@ public class OrderService {
     // 1. QUẢN LÝ ĐƠN HÀNG (Delegates to DonHangService)
     // =========================================================
 
-    /** Tương thích với OrderPresenter cũ */
     public int submitNewOrder(YeuCauTaoDonHangDTO request) throws Exception {
         return donHangService.taoDonHang(request);
     }
@@ -85,16 +85,17 @@ public class OrderService {
     /** Cập nhật trạng thái đơn và tự động chốt hóa đơn nếu hoàn thành. */
     public HoaDonDTO chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, int hinhThucNhan,
             String tenTrangThaiHienTai, String tenTrangThaiMoi) throws Exception {
-        DonDatHangDTO donHang = donHangService.chuyenTrangThaiDon(maDon, maTrangThaiMoi, maNvCapNhat, 
+        DonDatHangDTO donHang = donHangService.chuyenTrangThaiDon(maDon, maTrangThaiMoi, maNvCapNhat,
                 hinhThucNhan, tenTrangThaiHienTai, tenTrangThaiMoi);
-        
+
         if (donHang != null && "HOAN_THANH".equals(chuanHoaTrangThai(tenTrangThaiMoi))) {
             thanhToanService.chotHoaDonDatHang(donHang);
         }
         return null;
     }
 
-    public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai) throws Exception {
+    public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai)
+            throws Exception {
         donHangService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvCapNhat, tenTrangThaiHienTai);
     }
 
@@ -104,6 +105,11 @@ public class OrderService {
 
     public List<SanPhamDTO> layDanhSachSanPhamPOS() {
         return sanPhamService.layDanhSachSanPhamPOS();
+    }
+
+    /** Kiểm tra tồn kho trước khi hiện dialog thanh toán (Fail-Fast). */
+    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang) {
+        return sanPhamService.kiemTraTonKhoGioHang(gioHang);
     }
 
     public Map<Integer, String> layMapDanhMucSanPham() {
@@ -146,13 +152,14 @@ public class OrderService {
         return donHangService.theoDoiDonHang(maDon);
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, 
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan,
             LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         return theoDoiDonService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
     }
 
     private String chuanHoaTrangThai(String rawStatus) {
-        if (rawStatus == null) return "";
+        if (rawStatus == null)
+            return "";
         return Normalizer.normalize(rawStatus.trim(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .replace("đ", "d").replace("Đ", "D")

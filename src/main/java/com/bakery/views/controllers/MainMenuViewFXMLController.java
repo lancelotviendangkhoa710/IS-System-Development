@@ -1,7 +1,7 @@
 package com.bakery.views.controllers;
 
 import com.bakery.model.dto.NhanVienDTO;
-import com.bakery.model.dao.ThongKeDAO;
+import com.bakery.services.ThongKeService;
 import com.bakery.services.AuthorizationService;
 import com.bakery.services.AuthorizationService.ModuleKey;
 import com.bakery.utils.UserSession;
@@ -37,7 +37,7 @@ public class MainMenuViewFXMLController {
     @FXML private HBox hboxBestSellersMenu;
 
     private final AuthorizationService authorizationService = new AuthorizationService();
-    private final ThongKeDAO thongKeDAO = new ThongKeDAO();
+    private final ThongKeService thongKeService = new ThongKeService();
     private NhanVienDTO currentUser;
 
     public void khoiTaoThongTinDangNhap(NhanVienDTO nhanVien) {
@@ -73,20 +73,20 @@ public class MainMenuViewFXMLController {
         if (hboxBestSellersMenu == null) return;
         hboxBestSellersMenu.getChildren().clear();
         
-        Map<String, Integer> top5 = thongKeDAO.getTop5BanChay();
+        Map<String, Integer> top5 = thongKeService.getTop5BanChay();
         for (Map.Entry<String, Integer> entry : top5.entrySet()) {
             VBox card = new VBox(8);
-            card.setStyle("-fx-background-color: #ffffff; -fx-padding: 16 24; -fx-background-radius: 12; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);");
+            card.getStyleClass().add("best-seller-card");
             card.setPrefWidth(200);
 
             Label lblIcon = new Label("🧁");
-            lblIcon.setStyle("-fx-font-size: 24px; -fx-background-color: #FFF3ED; -fx-padding: 8 12; -fx-background-radius: 12;");
+            lblIcon.getStyleClass().add("best-seller-icon");
 
             Label lblName = new Label(entry.getKey());
-            lblName.setStyle("-fx-font-weight: 700; -fx-font-size: 14px; -fx-text-fill: #1b1c1a;");
+            lblName.getStyleClass().add("best-seller-name");
 
             Label lblQty = new Label(entry.getValue() + " đã bán");
-            lblQty.setStyle("-fx-font-weight: bold; -fx-text-fill: #D85A30; -fx-font-size: 12px;");
+            lblQty.getStyleClass().add("best-seller-qty");
 
             card.getChildren().addAll(lblIcon, lblName, lblQty);
             hboxBestSellersMenu.getChildren().add(card);

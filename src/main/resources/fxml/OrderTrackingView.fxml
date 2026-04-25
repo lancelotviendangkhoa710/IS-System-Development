@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.OrderTrackingViewFXMLController"
+            styleClass="bg-app">
+
+    <center>
+        <VBox>
+            <!-- Header -->
+            <HBox styleClass="app-header" alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 16 20 16 20;">
+                <Button text="← Quay lại Menu chính" styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
+                <Label text="Theo dõi đơn hàng" styleClass="header-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblThongBaoTab2" text="" styleClass="lbl-small-bold"/>
+            </HBox>
+
+            <!-- Content -->
+            <VBox fx:id="tabTheoDoi" spacing="12" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <!-- Filter bar Theo dõi -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Mã đơn:" styleClass="lbl-small-bold"/>
+                    <TextField fx:id="txtTimMaDon" promptText="VD: 1001" prefWidth="100" styleClass="text-field"/>
+                    <Label text="Ngày:" styleClass="lbl-small-bold"/>
+                    <DatePicker fx:id="dpNgayTheoDoi" styleClass="text-field" prefWidth="150"/>
+                    <Label text="Từ:" styleClass="lbl-small-bold"/>
+                    <ComboBox fx:id="cbGioTu" prefWidth="90" styleClass="combo-box"/>
+                    <Label text="Đến:" styleClass="lbl-small-bold"/>
+                    <ComboBox fx:id="cbGioDen" prefWidth="90" styleClass="combo-box"/>
+                    <Label text="Trạng thái:" styleClass="lbl-small-bold"/>
+                    <ComboBox fx:id="cbLocTrangThaiTheoDoi" prefWidth="140" styleClass="combo-box" onAction="#onLocTrangThaiTheoDoi"/>
+                    <Button text="🔍 Tìm kiếm" styleClass="btn-primary" onAction="#onTimKiemDon"/>
+                </HBox>
+
+                <!-- Danh sách card đơn hàng -->
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="panelChuaDon" spacing="10" style="-fx-background-color: transparent;"/>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

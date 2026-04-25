@@ -1,6 +1,6 @@
 package com.bakery.views.controllers;
 
-import com.bakery.model.dao.ThongKeDAO;
+import com.bakery.services.ThongKeService;
 import com.bakery.utils.UserSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -47,7 +47,7 @@ public class ReportsViewFXMLController {
     @FXML private ComboBox<String> cbLoaiBaoCao;
     @FXML private DatePicker dpNgayBaoCao;
 
-    private ThongKeDAO thongKeDAO = new ThongKeDAO();
+    private ThongKeService thongKeService = new ThongKeService();
 
     @FXML
     public void initialize() {
@@ -99,7 +99,7 @@ public class ReportsViewFXMLController {
             giaTri = String.valueOf(ngay.getYear());
         }
 
-        double doanhThu = thongKeDAO.getDoanhThu(loai, giaTri);
+        double doanhThu = thongKeService.getDoanhThu(loai, giaTri);
         lblDoanhThu.setText(String.format("%,.0fđ", doanhThu));
         lblLoiNhuan.setText(String.format("%,.0fđ", doanhThu * 0.3));
 
@@ -110,7 +110,7 @@ public class ReportsViewFXMLController {
     }
 
     private void updateCategoryCharts(String loai, String giaTri) {
-        Map<String, Double> categoryData = thongKeDAO.getDoanhThuTheoDanhMuc(loai, giaTri);
+        Map<String, Double> categoryData = thongKeService.getDoanhThuTheoDanhMuc(loai, giaTri);
         
         // Update Pie Chart
         revenuePieChart.getData().clear();
@@ -128,7 +128,7 @@ public class ReportsViewFXMLController {
     }
 
     private void loadTopSellers() {
-        Map<String, Integer> top5 = thongKeDAO.getTop5BanChay();
+        Map<String, Integer> top5 = thongKeService.getTop5BanChay();
         int maxQty = top5.values().stream().max(Integer::compareTo).orElse(1);
         if (maxQty == 0) maxQty = 1;
 
@@ -158,7 +158,7 @@ public class ReportsViewFXMLController {
     }
 
     private void updateChart(String loai, String giaTri) {
-        Map<String, Double> chartData = thongKeDAO.getXuHuongDoanhThu(loai, giaTri);
+        Map<String, Double> chartData = thongKeService.getXuHuongDoanhThu(loai, giaTri);
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Doanh Thu (" + giaTri + ")");
         for (Map.Entry<String, Double> entry : chartData.entrySet()) {
@@ -173,7 +173,7 @@ public class ReportsViewFXMLController {
         if (tableGiaoDich.getColumns().get(0).getCellValueFactory() == null) {
             setupTableColumns();
         }
-        List<String[]> data = thongKeDAO.getChiTietGiaoDich(loai, giaTri);
+        List<String[]> data = thongKeService.getChiTietGiaoDich(loai, giaTri);
         tableGiaoDich.setItems(FXCollections.observableArrayList(data));
     }
 

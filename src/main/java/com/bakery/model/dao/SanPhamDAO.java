@@ -84,6 +84,26 @@ public class SanPhamDAO {
         return sp;
     }
 
+    /**
+     * Lấy số lượng tồn kho realtime từ DB.
+     * Dùng cho kiểm tra Fail-Fast trước khi mở dialog thanh toán.
+     */
+    public double laySoLuongTon(int maSP) {
+        String sql = "SELECT NVL(SOLUONGTON, 0) FROM SANPHAM WHERE MASP = ?";
+        try (Connection conn = DBConnect.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maSP);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) {
         String sql = "{ ? = call FUNC_TINH_GIA_TUY_CHINH(?, ?, ?, ?, ?) }";
         try (Connection conn = DBConnect.getConnection();
