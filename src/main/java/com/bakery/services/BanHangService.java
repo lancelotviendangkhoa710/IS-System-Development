@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * OrderService hiện đóng vai trò là một Facade (Cổng giao tiếp chính)
+ * BanHangService hiện đóng vai trò là một Facade (Cổng giao tiếp chính)
  * cho màn hình POS, giúp Presenter không phải khởi tạo quá nhiều service lẻ.
  * Mọi logic nghiệp vụ thực tế đã được chuyển sang các Service chuyên biệt
  * (SRP).
  */
-public class OrderService {
+public class BanHangService {
     private final DonHangService donHangService;
     private final ThanhToanService thanhToanService;
     private final SanPhamService sanPhamService;
@@ -33,7 +33,7 @@ public class OrderService {
     private final TuyChinhBanhService tuyChinhBanhService;
     private final TheoDoiDonService theoDoiDonService;
 
-    public OrderService() {
+    public BanHangService() {
         this.donHangService = new DonHangService();
         this.thanhToanService = new ThanhToanService();
         this.sanPhamService = new SanPhamService();

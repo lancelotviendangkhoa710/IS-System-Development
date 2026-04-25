@@ -12,7 +12,7 @@ import com.bakery.model.dto.SanPhamDTO;
 
 import com.bakery.presenters.DonHangPresenter;
 import com.bakery.services.AuthorizationService;
-import com.bakery.services.OrderService;
+import com.bakery.services.BanHangService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.interfaces.IOrderView;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -182,7 +182,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         khoiTaoTabMacDinh();
         ganSuKienNhapLieu();
 
-        presenter = new DonHangPresenter(this, new OrderService());
+        presenter = new DonHangPresenter(this, new BanHangService());
         presenter.setDialogFactory(dialogFactory);
         presenter.taiDuLieuBanDau();
     }

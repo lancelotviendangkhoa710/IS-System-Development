@@ -10,7 +10,7 @@ import com.bakery.model.dto.TrangThaiDonDTO;
 import com.bakery.model.dto.YeuCauChiTietDonHangDTO;
 import com.bakery.model.dto.YeuCauChiTietDonTuyChinhDTO;
 import com.bakery.model.dto.YeuCauTaoDonHangDTO;
-import com.bakery.services.OrderService;
+import com.bakery.services.BanHangService;
 import com.bakery.views.interfaces.IOrderDialogFactory;
 import com.bakery.views.interfaces.IOrderView;
 import java.text.Normalizer;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class DonHangPresenter {
     private final IOrderView view;
-    private final OrderService orderService;
+    private final BanHangService orderService;
     // Phương án A: Presenter gọi dialog qua interface factory
     private IOrderDialogFactory dialogFactory;
 
@@ -53,7 +53,7 @@ public class DonHangPresenter {
         return list;
     }
 
-    public DonHangPresenter(IOrderView view, OrderService orderService) {
+    public DonHangPresenter(IOrderView view, BanHangService orderService) {
         this.view = view;
         this.orderService = orderService;
     }

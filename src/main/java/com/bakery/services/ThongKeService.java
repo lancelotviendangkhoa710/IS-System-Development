@@ -16,11 +16,11 @@ public class ThongKeService {
         this.thongKeDAO = new ThongKeDAO();
     }
 
-    public double getDoanhThu(String loaiThoiGian, int giaTri) {
+    public double getDoanhThu(String loaiThoiGian, String giaTri) {
         return thongKeDAO.getDoanhThu(loaiThoiGian, giaTri);
     }
 
-    public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, int giaTri) {
+    public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, String giaTri) {
         return thongKeDAO.getDoanhThuTheoDanhMuc(loai, giaTri);
     }
 
@@ -28,11 +28,11 @@ public class ThongKeService {
         return thongKeDAO.getTop5BanChay();
     }
 
-    public Map<String, Double> getXuHuongDoanhThu(String loai, int giaTri) {
+    public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) {
         return thongKeDAO.getXuHuongDoanhThu(loai, giaTri);
     }
 
-    public List<String[]> getChiTietGiaoDich(String loai, int giaTri) {
+    public List<String[]> getChiTietGiaoDich(String loai, String giaTri) {
         return thongKeDAO.getChiTietGiaoDich(loai, giaTri);
     }
 }

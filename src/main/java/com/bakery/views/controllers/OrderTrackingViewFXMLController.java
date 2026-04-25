@@ -9,7 +9,7 @@ import com.bakery.model.dto.KieuTrangTriDTO;
 import com.bakery.model.dto.NhanBanhDTO;
 import com.bakery.model.dto.SanPhamDTO;
 import com.bakery.presenters.DonHangPresenter;
-import com.bakery.services.OrderService;
+import com.bakery.services.BanHangService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.interfaces.IOrderView;
 import javafx.collections.FXCollections;
