@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    MainView.fxml — Khung sườn ứng dụng (Sidebar + Header + Content Area).
+    Không chứa nội dung nghiệp vụ — chỉ điều hướng và swap panel.
+    Controller: com.bakery.views.controllers.MainController
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.MainController"
+            styleClass="app-bg">
+
+    <!-- ══════════════════════════════════════════════════════
+         SIDEBAR — 256px cố định (CSS: .sidebar)
+         ══════════════════════════════════════════════════════ -->
+    <left>
+        <VBox styleClass="sidebar">
+
+            <!-- Logo block: icon + tên tiệm + tagline -->
+            <HBox styleClass="logo-block" alignment="CENTER_LEFT" spacing="12">
+                <StackPane styleClass="logo-icon">
+                    <Label text="L"
+                           style="-fx-text-fill: white; -fx-font-size: 18px;
+                                  -fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="La Boulangerie"
+                           style="-fx-font-size: 15px; -fx-font-weight: bold;
+                                  -fx-text-fill: #78350F; -fx-font-family: 'Segoe UI';"/>
+                    <Label text="QUẢN LÝ TIỆM BÁNH"
+                           style="-fx-font-size: 9px; -fx-font-weight: bold;
+                                  -fx-text-fill: #D97706; -fx-font-family: 'Segoe UI';"/>
+                </VBox>
+            </HBox>
+
+            <!-- Nav menu — cuộn được, chiếm hết không gian còn lại -->
+            <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                <VBox fx:id="vboxNavItems" spacing="2">
+                    <VBox.margin>
+                        <Insets top="12" right="12" bottom="12" left="12"/>
+                    </VBox.margin>
+                    <!-- Nav items được build bởi MainController.buildNavMenu() -->
+                </VBox>
+            </ScrollPane>
+
+            <!-- User block: avatar + tên + nút đăng xuất -->
+            <VBox styleClass="user-block" spacing="0">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <!-- Avatar tròn hiển thị chữ cái đầu -->
+                    <StackPane styleClass="avatar-circle">
+                        <Label fx:id="lblAvatar"/>
+                    </StackPane>
+
+                    <!-- Tên và vai trò -->
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblHoTen"
+                               style="-fx-font-size: 13px; -fx-font-weight: bold;
+                                      -fx-text-fill: #1C0A00; -fx-font-family: 'Segoe UI';"/>
+                        <Label fx:id="lblVaiTro"
+                               style="-fx-font-size: 11px; -fx-text-fill: #6B7280;
+                                      -fx-font-family: 'Segoe UI';"/>
+                    </VBox>
+
+                    <!-- Nút đăng xuất nhỏ -->
+                    <Button text="↩" styleClass="btn-ghost"
+                            onAction="#onDangXuat"
+                            style="-fx-font-size: 16px;"
+                            fx:id="btnDangXuat"/>
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </left>
+
+    <!-- ══════════════════════════════════════════════════════
+         PHẦN CHÍNH: Header + Content Area
+         ══════════════════════════════════════════════════════ -->
+    <center>
+        <BorderPane>
+
+            <!-- Header 64px: tiêu đề màn hình + tên nhân viên -->
+            <top>
+                <HBox styleClass="header" alignment="CENTER_LEFT" spacing="0">
+
+                    <Label fx:id="lblTieuDeManHinh" styleClass="text-title-screen"/>
+
+                    <!-- Đẩy phần tên nhân viên sang phải -->
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <HBox alignment="CENTER" spacing="8">
+                        <Label fx:id="lblNhanVienHeader"
+                               style="-fx-font-size: 13px; -fx-text-fill: #6B7280;
+                                      -fx-font-family: 'Segoe UI';"/>
+                        <StackPane styleClass="avatar-circle">
+                            <Label fx:id="lblAvatarHeader"
+                                   style="-fx-font-size: 12px; -fx-font-weight: bold;
+                                          -fx-text-fill: #92400E;"/>
+                        </StackPane>
+                    </HBox>
+
+                </HBox>
+            </top>
+
+            <!-- Content area: panel nghiệp vụ được load vào đây -->
+            <center>
+                <StackPane fx:id="contentArea" styleClass="content-area"/>
+            </center>
+
+        </BorderPane>
+    </center>
+
+</BorderPane>

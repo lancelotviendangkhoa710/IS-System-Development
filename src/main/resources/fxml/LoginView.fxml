@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    LoginView.fxml — Màn hình đăng nhập
+    Amber theme §5.6. CSS: amber.css.
+    Controller: com.bakery.views.controllers.LoginController
+-->
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.bakery.views.controllers.LoginController"
+           styleClass="app-bg">
+
+    <!-- ── Nội dung chính ── -->
+    <VBox alignment="CENTER" styleClass="app-bg">
+
+        <!-- Card đăng nhập — tối đa 440px -->
+        <VBox fx:id="cardLogin" styleClass="login-card" maxWidth="440" minWidth="360">
+
+            <!-- Header: icon + tiêu đề + mô tả -->
+            <VBox alignment="CENTER" spacing="0">
+
+                <!-- Icon store: nền amber, chữ "L" trắng -->
+                <StackPane styleClass="login-icon-circle">
+                    <Label text="L"
+                           style="-fx-text-fill: white; -fx-font-family: 'Segoe UI';
+                                  -fx-font-size: 28px; -fx-font-weight: bold;"/>
+                </StackPane>
+
+                <Region prefHeight="16"/>
+
+                <Label text="Đăng nhập" styleClass="text-title-dialog"/>
+                <Region prefHeight="6"/>
+                <Label text="Hệ thống Quản lý La Boulangerie" styleClass="text-secondary"/>
+            </VBox>
+
+            <Region prefHeight="32"/>
+
+            <!-- Form -->
+            <VBox spacing="0">
+
+                <!-- Tên đăng nhập -->
+                <Label text="TÊN ĐĂNG NHẬP" styleClass="field-label"/>
+                <Region prefHeight="6"/>
+                <TextField fx:id="tfTenDangNhap"
+                           promptText="Nhập tên đăng nhập"
+                           prefHeight="44"
+                           onAction="#onSubmitUsername"/>
+                <Label fx:id="lblErrorTenDangNhap" text=" " styleClass="field-error"/>
+
+                <Region prefHeight="12"/>
+
+                <!-- Mật khẩu -->
+                <Label text="MẬT KHẨU" styleClass="field-label"/>
+                <Region prefHeight="6"/>
+
+                <!-- StackPane: PasswordField + TextField (toggle show/hide) + nút Hiện -->
+                <StackPane>
+                    <PasswordField fx:id="pfMatKhau"
+                                   promptText="Nhập mật khẩu"
+                                   prefHeight="44"
+                                   style="-fx-padding: 8 52 8 12;"
+                                   onAction="#onDangNhap"/>
+                    <!-- TextField này hiện lên khi người dùng bật "Hiện mật khẩu" -->
+                    <TextField fx:id="tfMatKhauHien"
+                               promptText="Nhập mật khẩu"
+                               prefHeight="44"
+                               style="-fx-padding: 8 52 8 12;"
+                               visible="false" managed="false"
+                               onAction="#onDangNhap"/>
+                    <Button fx:id="btnTogglePass"
+                            text="Hiện"
+                            styleClass="btn-ghost"
+                            onAction="#onTogglePassword"
+                            StackPane.alignment="CENTER_RIGHT">
+                        <StackPane.margin>
+                            <Insets right="8"/>
+                        </StackPane.margin>
+                    </Button>
+                </StackPane>
+                <Label fx:id="lblErrorMatKhau" text=" " styleClass="field-error"/>
+
+                <Region prefHeight="4"/>
+
+                <!-- Lỗi tổng hợp (sai mật khẩu, lỗi hệ thống...) -->
+                <Label fx:id="lblErrorChung" text=" " styleClass="field-error" wrapText="true"/>
+
+                <Region prefHeight="20"/>
+
+                <!-- Nút đăng nhập -->
+                <Button fx:id="btnDangNhap"
+                        text="Đăng nhập"
+                        styleClass="btn-primary"
+                        maxWidth="Infinity"
+                        prefHeight="46"
+                        defaultButton="true"
+                        onAction="#onDangNhap"/>
+            </VBox>
+        </VBox>
+
+        <!-- Footer: phiên bản -->
+        <Region prefHeight="24"/>
+        <Label text="La Boulangerie v1.0 — H3K Team"
+               style="-fx-font-size: 11px; -fx-text-fill: #9CA3AF;"/>
+    </VBox>
+
+    <!-- ── Loading overlay — hiện khi đang gọi DB ── -->
+    <VBox fx:id="paneLoading"
+          visible="false"
+          alignment="CENTER"
+          style="-fx-background-color: rgba(0,0,0,0.35);">
+        <VBox styleClass="loading-box" alignment="CENTER" spacing="12">
+            <ProgressBar prefWidth="160" progress="-1.0"/>
+            <Label text="Đang đăng nhập..." styleClass="text-secondary"/>
+        </VBox>
+    </VBox>
+
+</StackPane>

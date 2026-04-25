@@ -1,0 +1,111 @@
+﻿package com.bakery.services;
+
+import com.bakery.model.dao.CaLamViecDAO;
+import com.bakery.model.dao.DoiSoatDAO;
+import com.bakery.model.dto.CaLamViecDTO;
+import com.bakery.model.dto.DoiSoatInfoDTO;
+import com.bakery.utils.SessionContext;
+
+import java.math.BigDecimal;
+
+/**
+ * Xử lý toàn bộ logic đối soát ca: mở ca, tính tiền lý tưởng (bí mật),
+ * tính chênh lệch và đóng ca.
+ * KHÔNG chứa SQL — chỉ điều phối DAO và bảo vệ bất biến nghiệp vụ.
+ */
+public class DoiSoatService {
+
+    private final CaLamViecDAO caLamViecDAO = new CaLamViecDAO();
+    private final DoiSoatDAO doiSoatDAO = new DoiSoatDAO();
+
+    // Tiền mặt lý tưởng theo hệ thống — BÍ MẬT, không expose ra ngoài.
+    // Phải gọi tinhTienMatLyTuong() trước khi gọi tinhChenhLech().
+    private BigDecimal tienMatLyTuong;
+
+    /**
+     * Tải toàn bộ thông tin cần thiết cho dialog Đối soát Đóng ca.
+     * Đồng thời cache tienMatLyTuong để tinhChenhLech() dùng sau.
+     */
+    public DoiSoatInfoDTO layThongTinDoiSoat(int maCa, int maNV) {
+        CaLamViecDTO ca = caLamViecDAO.layCaHienTai(maNV);
+        String maMayPOS = (ca != null && ca.getMaMayPOS() != null) ? ca.getMaMayPOS() : "—";
+
+        BigDecimal tienKhaiBaoDauCa = doiSoatDAO.layTienKhaiBaoDauCa(maCa);
+
+        // Cache tienMatLyTuong — tinhChenhLech() dùng lại không cần gọi DB lần nữa
+        this.tienMatLyTuong = doiSoatDAO.tinhTienMatLyTuong(maCa, tienKhaiBaoDauCa);
+        BigDecimal doanhThu = this.tienMatLyTuong.subtract(tienKhaiBaoDauCa);
+
+        return new DoiSoatInfoDTO(maCa, maMayPOS, tienKhaiBaoDauCa, doanhThu);
+    }
+
+    /**
+     * Mở ca làm việc mới tại máy POS chỉ định.
+     *
+     * @return maCa vừa được tạo
+     * @throws RuntimeException nếu máy đang có ca mở, hoặc dữ liệu không hợp lệ
+     */
+    public int moCa(String maMayPOS, BigDecimal tienKhaiBao, int maNV) {
+        if (maMayPOS == null || maMayPOS.isBlank()) {
+            throw new RuntimeException("Mã máy POS không được để trống.");
+        }
+        if (tienKhaiBao == null || tienKhaiBao.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Tiền khai báo đầu ca phải lớn hơn hoặc bằng 0.");
+        }
+
+        if (caLamViecDAO.kiemTraCaDangMo(maMayPOS)) {
+            throw new RuntimeException("Máy " + maMayPOS + " đang có ca làm việc chưa đóng.");
+        }
+
+        int maCa = caLamViecDAO.moCa(maMayPOS, tienKhaiBao, maNV);
+        SessionContext.getInstance().moCa(maCa);
+        return maCa;
+    }
+
+    /**
+     * Tính tiền mặt lý tưởng từ DB và lưu nội bộ — cơ chế đối soát mù.
+     * Thu ngân PHẢI tự đếm tiền và nhập vào trước khi hệ thống tiết lộ con số này.
+     * Gọi hàm này trước khi gọi tinhChenhLech().
+     */
+    public void tinhTienMatLyTuong(int maCa, BigDecimal tienKhaiBao) {
+        this.tienMatLyTuong = doiSoatDAO.tinhTienMatLyTuong(maCa, tienKhaiBao);
+    }
+
+    /**
+     * Tính chênh lệch giữa tiền thu ngân đếm thực tế và tiền hệ thống tính.
+     * Phải gọi tinhTienMatLyTuong() trước — nếu chưa gọi sẽ ném RuntimeException.
+     *
+     * @return chênh lệch = tienThucTeDem − tienMatLyTuong (âm = thiếu, dương = thừa)
+     */
+    public BigDecimal tinhChenhLech(BigDecimal tienThucTeDem) {
+        if (this.tienMatLyTuong == null) {
+            throw new RuntimeException("Chưa tính tiền mặt lý tưởng. Gọi tinhTienMatLyTuong() trước.");
+        }
+        return tienThucTeDem.subtract(this.tienMatLyTuong);
+    }
+
+    /**
+     * Đóng ca và ghi kết quả đối soát.
+     * Nếu có chênh lệch mà không có lý do → chặn luồng.
+     *
+     * @throws RuntimeException nếu chênh lệch != 0 mà lyDo để trống
+     */
+    public void dongCaDoiSoat(int maCa, BigDecimal tienThucTeDem, String lyDo) {
+        BigDecimal chenhLech = tinhChenhLech(tienThucTeDem);
+
+        boolean coChenh = chenhLech.compareTo(BigDecimal.ZERO) != 0;
+        boolean thieulLyDo = lyDo == null || lyDo.isBlank();
+
+        if (coChenh && thieulLyDo) {
+            throw new RuntimeException(
+                    "Có chênh lệch " + chenhLech + "đ — vui lòng nhập lý do trước khi đóng ca.");
+        }
+
+        doiSoatDAO.dongCaDoiSoat(maCa, tienThucTeDem, chenhLech, coChenh ? lyDo : null);
+        caLamViecDAO.dongCa(maCa);
+        SessionContext.getInstance().dongCa();
+
+        // Reset trạng thái nội bộ sau khi đóng ca xong
+        this.tienMatLyTuong = null;
+    }
+}

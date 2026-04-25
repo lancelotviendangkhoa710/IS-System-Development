@@ -18,7 +18,7 @@ public class DBConnect {
             }
 
             String dbUrl = props.getProperty("db.url", "jdbc:oracle:thin:@localhost:1521:orcl");
-            String dbUser = props.getProperty("db.user", "BAKERY_MANAGEMENT");
+            String dbUser = props.getProperty("db.user", "BakeryManagement");
             String dbPass = props.getProperty("db.password", "Admin123");
 
             return DriverManager.getConnection(dbUrl, dbUser, dbPass);
