@@ -145,7 +145,7 @@ BEGIN
             PHIENBAN = PHIENBAN + 1
         WHERE MASP = P_MASP;
     ELSE
-        -- Nếu chưa từng phát sinh doanh số, cho phép XỎA CỨNG
+        -- Nếu chưa từng phát sinh doanh số, cho phép XÓA CỨNG
         DELETE FROM SANPHAM WHERE MASP = P_MASP;
     END IF;
 

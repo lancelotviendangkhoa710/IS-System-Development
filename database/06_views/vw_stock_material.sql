@@ -1,5 +1,5 @@
 -- Lịch sử toàn bộ biến động nhập/xuất của từng nguyên liệu
-CREATE OR REPLACE VIEW VW_TheKhoNguyenLieu AS
+CREATE OR REPLACE VIEW VW_THE_KHO_NGUYEN_LIEU AS
 -- Các dòng nhập kho
 SELECT
     NL.MANL,
