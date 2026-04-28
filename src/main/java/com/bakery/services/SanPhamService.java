@@ -83,4 +83,54 @@ public class SanPhamService {
             Integer maNhan, Integer maTrangTri) {
         return sanPhamDAO.tinhGiaBanhTuyChinh(maSP, maKC, maCot, maNhan, maTrangTri);
     }
+
+    /** Lấy danh sách sản phẩm (không lọc số lượng) cho màn hình Quản lý */
+    public List<SanPhamDTO> layDanhSachSanPhamQuanLy() {
+        return sanPhamDAO.layTatCaSanPhamQuanLy();
+    }
+
+    public int themSanPham(SanPhamDTO sp) throws Exception {
+        validateSanPham(sp);
+        int maSPMoi = sanPhamDAO.themSanPham(sp);
+        if (maSPMoi <= 0) {
+            throw new Exception("Thêm sản phẩm thất bại do lỗi CSDL.");
+        }
+        return maSPMoi;
+    }
+
+    public void capNhatSanPham(SanPhamDTO sp) throws Exception {
+        validateSanPham(sp);
+        boolean success = sanPhamDAO.capNhatSanPham(sp);
+        if (!success) {
+            throw new Exception("Cập nhật sản phẩm thất bại do lỗi CSDL.");
+        }
+    }
+
+    public void xoaSanPham(int maSP, int maNX) throws Exception {
+        if (maSP <= 0) {
+            throw new Exception("Mã sản phẩm không hợp lệ.");
+        }
+        boolean success = sanPhamDAO.xoaSanPham(maSP, maNX);
+        if (!success) {
+            throw new Exception("Xóa sản phẩm thất bại do lỗi CSDL.");
+        }
+    }
+
+    private void validateSanPham(SanPhamDTO sp) throws Exception {
+        if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty()) {
+            throw new Exception("Tên sản phẩm không được để trống.");
+        }
+        if (sp.getMaDM() <= 0) {
+            throw new Exception("Vui lòng chọn danh mục hợp lệ.");
+        }
+        if (sp.getGiaCoBan() < 0) {
+            throw new Exception("Giá cơ bản không được âm.");
+        }
+        if (sp.getThoiGianBaoQuan() < 0) {
+            throw new Exception("Thời gian bảo quản không được âm.");
+        }
+        if (sp.getThoiGianChuanBi() < 0) {
+            throw new Exception("Thời gian chuẩn bị không được âm.");
+        }
+    }
 }

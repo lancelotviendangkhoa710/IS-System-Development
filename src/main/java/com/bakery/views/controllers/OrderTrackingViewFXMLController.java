@@ -76,7 +76,7 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
     public void initialize(URL location, ResourceBundle resources) {
         khoiTaoComboTheoDoi();
 
-        presenter = new DonHangPresenter(this, new OrderService());
+        presenter = new DonHangPresenter(this, new BanHangService());
         presenter.setDialogFactory(dialogFactory);
 
         // Wait for scene to be set to assign owner window to dialogFactory
