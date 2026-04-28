@@ -14,6 +14,7 @@ public class KhachHangDTO {
     private String tenHang;
     private LocalDateTime thoiDiemXoa;
     private int maNX;
+    private String tenNguoiXoa;
 
     public KhachHangDTO() {}
 
@@ -59,4 +60,7 @@ public class KhachHangDTO {
 
     public String getTenHang() { return tenHang; }
     public void setTenHang(String tenHang) { this.tenHang = tenHang; }
+
+    public String getTenNguoiXoa() { return tenNguoiXoa; }
+    public void setTenNguoiXoa(String tenNguoiXoa) { this.tenNguoiXoa = tenNguoiXoa; }
 }

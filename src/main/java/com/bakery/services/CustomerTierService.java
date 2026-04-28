@@ -9,9 +9,11 @@ import java.util.List;
 public class CustomerTierService {
 
 	private final HangThanhVienDAO tierDAO;
+	private final com.bakery.models.dao.KhachHangDAO customerDAO;
 
 	public CustomerTierService() {
 		this.tierDAO = new HangThanhVienDAO();
+		this.customerDAO = new com.bakery.models.dao.KhachHangDAO();
 	}
 
 	// Kiem tra du lieu dau vao truoc khi goi DAO.
@@ -96,7 +98,9 @@ public class CustomerTierService {
 			throw new SQLException("Ten hang thanh vien da ton tai trong thung rac. Hay khoi phuc thay vi tao moi.");
 		}
 
-		return tierDAO.createTier(tier);
+		int newTierId = tierDAO.createTier(tier);
+		customerDAO.syncAllCustomerTiers();
+		return newTierId;
 	}
 
 	// Cap nhat hang thanh vien.
@@ -118,6 +122,7 @@ public class CustomerTierService {
 		}
 
 		tierDAO.updateTier(tier);
+		customerDAO.syncAllCustomerTiers();
 	}
 
 	// Xoa mem hang thanh vien.
@@ -126,6 +131,7 @@ public class CustomerTierService {
 			throw new SQLException("Du lieu khong hop le");
 		}
 		tierDAO.softDeleteTier(tierId, deletedByEmployeeId);
+		customerDAO.syncAllCustomerTiers();
 	}
 
 	// Khoi phuc hang thanh vien.
@@ -134,5 +140,6 @@ public class CustomerTierService {
 			throw new SQLException("Ma hang thanh vien khong hop le");
 		}
 		tierDAO.restoreTier(tierId);
+		customerDAO.syncAllCustomerTiers();
 	}
 }

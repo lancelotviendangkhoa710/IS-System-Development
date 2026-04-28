@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox spacing="24.0" style="-fx-background-color: #f9f9f9;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.controllers.CustomerInfoController">
+<VBox spacing="24.0" style="-fx-background-color: #f9f9f9;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.CustomerInfoController">
     <padding>
         <Insets bottom="32.0" left="32.0" right="32.0" top="32.0" />
     </padding>
@@ -50,10 +50,10 @@
             </font>
         </Label>
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnRefresh" onAction="#refreshCustomerData" styleClass="secondary-button" text="↻ Làm mới" />
-        <Button onAction="#goToDeletedView" styleClass="secondary-button" text="🗑 Thùng rác" />
-        <Button onAction="#openTierManagementDialog" styleClass="secondary-button" text="🧑‍💼 Quản lý hạng" />
-        <Button onAction="#openAddCustomerDialog" styleClass="primary-button" text="➕ Thêm khách hàng" />
+        <Button fx:id="btnRefresh" onAction="#onRefreshClicked" styleClass="secondary-button" text="↻ Làm mới" />
+        <Button onAction="#onDeletedViewClicked" styleClass="secondary-button" text="🗑 Thùng rác" />
+        <Button onAction="#onTierManagementClicked" styleClass="secondary-button" text="🧑‍💼 Quản lý hạng" />
+        <Button onAction="#onAddCustomerClicked" styleClass="primary-button" text="➕ Thêm khách hàng" />
     </HBox>
 
     <!-- ==================== TABLE + PAGINATION (gộp chung) ==================== -->
@@ -105,7 +105,7 @@
             <Button mnemonicParsing="false" prefHeight="28.0" prefWidth="150.0"
                     text="📥 Xuất Excel"
                     styleClass="secondary-button" 
-                    onAction="#exportCustomersToExcel"
+                    onAction="#onExportExcelClicked"
                     />
 
             <HBox fx:id="paginationBox" spacing="4.0" />

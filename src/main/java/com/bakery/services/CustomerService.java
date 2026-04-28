@@ -201,13 +201,26 @@ public class CustomerService {
     // Cap nhat diem tich luy.
     public void updateCustomerPoints(int customerId, int newPoints) throws SQLException {
         if (customerId <= 0 || newPoints < 0) {
-            throw new SQLException("Du lieu khong hop le");
+            throw new SQLException("Dữ liệu không hợp lệ!");
         }
 
         try {
+            // Update points
             customerDAO.updateCustomerPoints(customerId, newPoints);
+            
+            // Auto calculate tier
+            CustomerTierService tierService = new CustomerTierService();
+            com.bakery.models.dto.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(newPoints);
+            
+            if (appropriateTier != null) {
+                KhachHangDTO customer = customerDAO.findActiveCustomerById(customerId);
+                if (customer != null && customer.getMaHang() != appropriateTier.getMaHang()) {
+                    customer.setMaHang(appropriateTier.getMaHang());
+                    customerDAO.updateCustomer(customer);
+                }
+            }
         } catch (SQLException e) {
-            throw new SQLException("Loi cap nhat diem: " + e.getMessage(), e);
+            throw new SQLException("Lỗi cập nhật điểm: " + e.getMessage(), e);
         }
     }
 

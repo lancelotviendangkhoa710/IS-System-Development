@@ -14,9 +14,10 @@ import java.util.List;
 public class KhachHangDAO {
 
     private static final String CUSTOMER_SELECT_SQL = """
-            SELECT KH.*, HTV.TENHANG AS TENHANG
+            SELECT KH.*, HTV.TENHANG AS TENHANG, NV.HOTEN AS TENNX
             FROM KHACHHANG KH
             LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG
+            LEFT JOIN NHANVIEN NV ON KH.MANX = NV.MANV
             """;
 
     // Tìm khách hàng đang hoạt động theo số điện thoại
@@ -107,9 +108,10 @@ public class KhachHangDAO {
     // Tim kiem khach hang dang hoat dong theo tu khoa.
     public List<KhachHangDTO> searchActiveCustomers(String keyword) throws SQLException {
         String sql = """
-                SELECT KH.*, HTV.TENHANG AS TENHANG
+                SELECT KH.*, HTV.TENHANG AS TENHANG, NV.HOTEN AS TENNX
                 FROM KHACHHANG KH
                 LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG
+                LEFT JOIN NHANVIEN NV ON KH.MANX = NV.MANV
                 WHERE KH.THOIDIEMXOA IS NULL
                   AND (
                         LOWER(KH.HOTEN) LIKE ?
@@ -244,6 +246,28 @@ public class KhachHangDAO {
         }
     }
 
+    // Dong bo hang thanh vien cho tat ca khach hang (khi rule hang thanh vien thay doi)
+    public void syncAllCustomerTiers() throws SQLException {
+        String sql = """
+            UPDATE KHACHHANG KH
+            SET MAHANG = (
+                SELECT MAHANG 
+                FROM HANGTHANHVIEN HTV 
+                WHERE HTV.DIEMTOITHIEU <= KH.DIEMTICHLUY 
+                  AND HTV.THOIDIEMXOA IS NULL 
+                ORDER BY HTV.DIEMTOITHIEU DESC 
+                FETCH FIRST 1 ROW ONLY
+            )
+        """;
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("DAO error - syncAllCustomerTiers: " + e.getMessage());
+            throw e;
+        }
+    }
+
     // Dem tong so khach hang dang hoat dong.
     public int countActiveCustomers() {
         String sql = "SELECT COUNT(*) FROM KHACHHANG WHERE THOIDIEMXOA IS NULL";
@@ -310,6 +334,7 @@ public class KhachHangDAO {
             customer.setThoiDiemXoa(rs.getTimestamp("THOIDIEMXOA").toLocalDateTime());
         }
         customer.setMaNX(rs.getInt("MANX"));
+        customer.setTenNguoiXoa(rs.getString("TENNX"));
         return customer;
     }
 
