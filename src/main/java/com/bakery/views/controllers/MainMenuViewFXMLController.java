@@ -34,6 +34,9 @@ public class MainMenuViewFXMLController {
     @FXML private Button btnKds;
     @FXML private Button btnAuditLogs;
     @FXML private Button btnSupplier;
+    @FXML private Button btnDanhMuc;
+    @FXML private Button btnSanPham;
+    @FXML private Button btnNguyenLieu;
     @FXML private HBox hboxBestSellersMenu;
 
     private final AuthorizationService authorizationService = new AuthorizationService();
@@ -65,6 +68,9 @@ public class MainMenuViewFXMLController {
         capNhatTrangThaiNut(btnKds, modulesDuocCap.contains(ModuleKey.KDS));
         capNhatTrangThaiNut(btnAuditLogs, modulesDuocCap.contains(ModuleKey.AUDIT_LOGS));
         if (btnSupplier != null) capNhatTrangThaiNut(btnSupplier, modulesDuocCap.contains(ModuleKey.INVENTORY));
+        if (btnDanhMuc != null) capNhatTrangThaiNut(btnDanhMuc, modulesDuocCap.contains(ModuleKey.INVENTORY));
+        if (btnSanPham != null) capNhatTrangThaiNut(btnSanPham, modulesDuocCap.contains(ModuleKey.INVENTORY));
+        if (btnNguyenLieu != null) capNhatTrangThaiNut(btnNguyenLieu, modulesDuocCap.contains(ModuleKey.INVENTORY));
 
         loadBestSellers();
     }
@@ -111,6 +117,21 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoSupplier() {
         moScene(btnSupplier, "/fxml/SupplierManagementView.fxml", "H3K Bakery - Quản lý Nhà Cung Cấp", 1280, 720, "Không thể mở Nhà Cung Cấp: ");
+    }
+
+    @FXML
+    private void onMoDanhMuc() {
+        moScene(btnDanhMuc, "/fxml/DanhMucSPView.fxml", "H3K Bakery - Quản lý Danh mục", 1280, 720, "Không thể mở Danh mục: ");
+    }
+
+    @FXML
+    private void onMoSanPham() {
+        moScene(btnSanPham, "/fxml/SanPhamView.fxml", "H3K Bakery - Quản lý Sản phẩm", 1280, 720, "Không thể mở Sản phẩm: ");
+    }
+
+    @FXML
+    private void onMoNguyenLieu() {
+        moScene(btnNguyenLieu, "/fxml/NguyenLieuView.fxml", "H3K Bakery - Quản lý Nguyên liệu", 1280, 720, "Không thể mở Nguyên liệu: ");
     }
 
     @FXML

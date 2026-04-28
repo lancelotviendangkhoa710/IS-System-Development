@@ -39,6 +39,9 @@
                 <Button text="KDS" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="Audit Logs" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button fx:id="btnSupplier" text="Nhà cung cấp" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSupplier"/>
+                <Button fx:id="btnDanhMuc"     text="Danh mục SP"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoDanhMuc"/>
+                <Button fx:id="btnSanPham"     text="Sản phẩm"      styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSanPham"/>
+                <Button fx:id="btnNguyenLieu"  text="Nguyên liệu"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNguyenLieu"/>
             </VBox>
         </VBox>
     </left>

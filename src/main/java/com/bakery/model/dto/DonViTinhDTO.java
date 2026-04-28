@@ -28,4 +28,8 @@ public class DonViTinhDTO {
     
     public Integer getMaNX() { return maNX; }
     public void setMaNX(Integer maNX) { this.maNX = maNX; }
+
+    /** Hiển thị tên trong ComboBox */
+    @Override
+    public String toString() { return tenDVT; }
 }
