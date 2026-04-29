@@ -1,6 +1,6 @@
 -- Hàm dự báo số lượng bánh tối đa có thể sản xuất dựa trên nguyên liệu tồn kho
 CREATE OR REPLACE FUNCTION FUNC_SOLUONGKHADUNG(
-    P_MASP IN NUMBER
+    P_MASP IN SANPHAM.MASP%type
 ) RETURN NUMBER
 IS
     V_MAX_CAKES NUMBER := 0;

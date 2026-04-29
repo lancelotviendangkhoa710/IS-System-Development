@@ -1,4 +1,4 @@
-package com.bakery.model.dto;
+﻿package com.bakery.model.dto;
 import java.time.LocalDateTime;
 public class HangThanhVienDTO {
     private int maHang;

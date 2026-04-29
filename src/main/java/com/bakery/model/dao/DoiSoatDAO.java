@@ -1,4 +1,4 @@
-package com.bakery.model.dao;
+﻿package com.bakery.model.dao;
 
 import com.bakery.model.dto.DoiSoatDTO;
 import com.bakery.utils.DBConnect;
@@ -32,7 +32,7 @@ public class DoiSoatDAO {
                 ds.add(dsDto);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - layDanhSachDoiSoat: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - layDanhSachDoiSoat: " + e.getMessage());
         }
         return ds;
     }
@@ -52,7 +52,7 @@ public class DoiSoatDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - themDoiSoatMoi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - themDoiSoatMoi: " + e.getMessage());
         }
         return false;
     }
@@ -72,7 +72,7 @@ public class DoiSoatDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - capNhatDoiSoat: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - capNhatDoiSoat: " + e.getMessage());
         }
         return false;
     }

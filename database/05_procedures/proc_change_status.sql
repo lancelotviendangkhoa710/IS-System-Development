@@ -1,9 +1,9 @@
 -- Procedure cập nhật trạng thái đơn hàng và lưu lịch sử thay đổi trong cùng một transaction
 CREATE OR REPLACE PROCEDURE PROC_CHUYENTRANGTHAIDON(
-    P_MADON IN NUMBER,
-    P_MATRANGTHAI_MOI IN NUMBER,
-    P_MANV_CAPNHAT IN NUMBER,
-    P_HINHTHUCNHAN IN NUMBER DEFAULT NULL
+    P_MADON IN DONDATHANG.MADON%type,
+    P_MATRANGTHAI_MOI IN TRANGTHAIDON.MATRANGTHAI%type,
+    P_MANV_CAPNHAT IN NHANVIEN.MANV%type,
+    P_HINHTHUCNHAN IN DONDATHANG.HINHTHUCNHAN%type DEFAULT NULL
 )
 IS
     V_MATRANGTHAI_CU NUMBER;
@@ -37,10 +37,7 @@ BEGIN
 
     -- 3. Chặn sửa trạng thái nếu đơn đã hoàn thành
     IF V_MATRANGTHAI_CU = V_MATT_HOANTHANH THEN
-        RAISE_APPLICATION_ERROR(
-            PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI,
-            'Đơn đã hoàn thành, không thể cập nhật trạng thái.'
-        );
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Đơn đã hoàn thành, không thể cập nhật trạng thái.');
     END IF;
 
     -- 4. Trường hợp bếp đánh dấu hoàn tất: map sang Chờ giao / Chờ khách lấy theo hình thức nhận
@@ -55,10 +52,7 @@ BEGIN
 
     -- 5. Chặn cập nhật trùng trạng thái
     IF V_MATRANGTHAI_CU = V_MATRANGTHAI_CHOT THEN
-        RAISE_APPLICATION_ERROR(
-            PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI,
-            'Trạng thái mới không được trùng trạng thái hiện tại.'
-        );
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Trạng thái mới không được trùng trạng thái hiện tại.');
     END IF;
 
     -- 6. Cập nhật đơn hàng

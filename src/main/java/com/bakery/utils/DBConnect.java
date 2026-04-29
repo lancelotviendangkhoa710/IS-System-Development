@@ -24,7 +24,7 @@ public class DBConnect {
             return DriverManager.getConnection(dbUrl, dbUser, dbPass);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-            System.err.println("Kết nối CSDL thất bại! Kiểm tra Oracle Database đang chạy.");// cái này sau này sẽ raise error
+            System.err.println("Kết nối CSDL thất bại! Kiểm tra Oracle Database đang chạy.");
             return null;
         }
     }
@@ -87,7 +87,7 @@ public class DBConnect {
                 rs = stmt.executeQuery("SELECT SYSDATE FROM DUAL");
 
                 if (rs.next()) {
-                    System.out.println(" Truy vấn thử nghiệm thành công. Thời gian Database: " + rs.getTimestamp(1));
+                    System.out.println("Truy vấn thử nghiệm thành công. Thời gian Database: " + rs.getTimestamp(1));
                 }
             } catch (SQLException e) {
                 System.err.println(" Lỗi khi chạy truy vấn test: " + e.getMessage());

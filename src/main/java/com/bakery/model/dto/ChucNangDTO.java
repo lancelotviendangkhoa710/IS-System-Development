@@ -1,4 +1,4 @@
-package com.bakery.model.dto;
+﻿package com.bakery.model.dto;
 
 public class ChucNangDTO {
     private int maChucNang;

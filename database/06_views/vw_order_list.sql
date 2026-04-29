@@ -1,5 +1,5 @@
 -- Màn hình bếp hiển thị danh sách đơn cần làm, sắp xếp theo ưu tiên
-CREATE OR REPLACE VIEW VW_KDS_DonCanLam AS
+CREATE OR REPLACE VIEW VW_KDS_DON_CAN_LAM AS
 SELECT
     DDH.MADON,
     DDH.NGAYLAP,
@@ -44,6 +44,6 @@ WHERE TT.TENTRANGTHAI IN (
     N'Mới đặt', N'Đã cọc', N'Đang sản xuất'
 )
 ORDER BY
-    KHANCAP DESC,           -- Đơn khẩn lên trước
-    NGAYSXTHUCTE ASC,      -- Đơn gần deadline lên trước
-    DDH.NGAYLAP ASC;          -- Cùng ngày thì đơn cũ hơn lên trước
+    KHANCAP DESC,         -- Đơn khẩn lên trước
+    NGAYSXTHUCTE,         -- Đơn gần deadline lên trước
+    DDH.NGAYLAP;          -- Cùng ngày thì đơn cũ hơn lên trước

@@ -71,10 +71,12 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- ========================
     -- NHÓM 02: SẢN PHẨM
     -- ========================
-    -- Số lượng bánh trong kho đã hết (dùng trong TRG_TRUKHO_PHIEUXUATTP, TRG_TRUKHO_DONHANG)
+    -- Số lượng bánh trong kho đã hết (dùng trong TRG_TRUKHO_DONHANG, TRG_TRUKHO_PHIEUXUATTP)
     ERR_SP_HET_HANG                 CONSTANT NUMBER := -20201;
-    -- Không tìm thấy sản phẩm trong hệ thống (dùng trong TRG_TRUKHO_PHIEUXUATTP, TRG_TRUKHO_DONHANG)
+
+    -- Không tìm thấy sản phẩm trong hệ thống (dùng trong TRG_TRUKHO_DONHANG, TRG_TRUKHO_PHIEUXUATTP)
     ERR_SP_KHONG_TON_TAI            CONSTANT NUMBER := -20202;
+
     -- Số lượng hủy vượt quá tồn kho hiện tại (dùng trong PROC_XUATHUYBANH)
     ERR_XUAT_HUY_BANH               CONSTANT NUMBER := -20203;
     ERR_DM_THEM_HE_THONG            CONSTANT NUMBER := -20204;
@@ -113,9 +115,6 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     ERR_TRANGTRI_KHONG_TON_TAI_XOA  CONSTANT NUMBER := -20232;
     ERR_TRANGTRI_XOA_HE_THONG       CONSTANT NUMBER := -20233;
 
-
-
-
     -- ========================
     -- NHÓM 03: KHO & CÔNG THỨC
     -- ========================
@@ -123,41 +122,40 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     ERR_NL_KHONG_DAT_VSATTP         CONSTANT NUMBER := -20301;
 
     -- Phát hiện gian lận hạn sử dụng - HSD mới lớn hơn HSD cũ (dùng trong TRG_KIEMTRA_HSD)
-    ERR_NL_GIAN_LAN_HSD             CONSTANT NUMBER := -20302;
+    ERR_GIAN_LAN_HSD             CONSTANT NUMBER := -20302;
+    ERR_HSD_KHONG_HOPLE          CONSTANT NUMBER := -20303;
+    ERR_KHONG_CO_PHIEUNHAP       CONSTANT NUMBER := -20304;
 
-    -- HSD của lô <= ngày nhập kho (dùng trong TRG_KIEMTRA_HSD)
-    ERR_NL_HSD_KHONG_HOPLE         CONSTANT NUMBER := -20303;
-
-    -- Không tìm thấy phiếu nhập kho (dùng trong TRG_KIEMTRA_HSD, TRG_TONGTIENNHAP)
-    ERR_NL_KHONG_CO_PHIEUNHAP       CONSTANT NUMBER := -20304;
+    -- Không tìm thấy phiếu nhập kho (dùng trong TRG_TONGTIENNHAP)
+    ERR_NL_KHONG_CO_PHIEUNHAP       CONSTANT NUMBER := -20305;
 
     -- Không tìm thấy lô hàng trong kho (dùng trong TRG_XUATSLNGUYENLIEU)
-    ERR_NL_KHONG_CO_LO_HANG         CONSTANT NUMBER := -20305;
+    ERR_NL_KHONG_CO_LO_HANG         CONSTANT NUMBER := -20306;
 
     -- Không tìm thấy nguyên liệu (dùng trong TRG_GIAVONTRUNGBINH_SOLUONGTONTONG)
-    ERR_NL_KHONG_TON_TAI            CONSTANT NUMBER := -20306;
+    ERR_KHONG_CO_NGUYEN_LIEU        CONSTANT NUMBER := -20307;
 
     -- Nguyên liệu đã được sử dụng, không thể hủy phiếu nhập (dùng trong PROC_HUYPHIEUNHAPKHO)
-    ERR_NL_KHONG_THE_HUY_PN         CONSTANT NUMBER := -20307;
+    ERR_NL_KHONG_THE_HUY_PN         CONSTANT NUMBER := -20308;
 
     -- Lỗi hệ thống khi thực thi Nhập kho (dùng trong PROC_NHAPKHO)
-    ERR_NHAP_KHO                    CONSTANT NUMBER := -20308;
+    ERR_NHAP_KHO                    CONSTANT NUMBER := -20309;
     -- Không đủ tồn kho nguyên liệu để xuất sản xuất (dùng trong PROC_XUATKHOSANXUAT)
-    ERR_NL_KHONG_DU                 CONSTANT NUMBER := -20309;
-    --Lỗi thêm mới nguyên liệu
+    ERR_NL_KHONG_DU                 CONSTANT NUMBER := -20310;
+
+    -- Nguyên liệu
     ERR_NL_THEM_MOI                 CONSTANT NUMBER := -20310;
-    --Lỗi update  nguyên liệu
-    ERR_NL_CAPNHAT_HE_THONG         CONSTANT NUMBER := -20311;
-    --Lỗi xóa nguyên liệu
-    ERR_NL_XOA_HE_THONG             CONSTANT NUMBER := -20312;
+    ERR_NL_KHONG_TON_TAI_CN         CONSTANT NUMBER := -20311;
+    ERR_NL_CAPNHAT_HE_THONG         CONSTANT NUMBER := -20312;
+    ERR_NL_KHONG_TON_TAI_XOA        CONSTANT NUMBER := -20313;
+    ERR_NL_XOA_HE_THONG             CONSTANT NUMBER := -20314;
+
     -- Nhà cung cấp
-    ERR_NCC_THEM_HE_THONG           CONSTANT NUMBER := -20313;
-    ERR_NCC_KHONG_TON_TAI_CN        CONSTANT NUMBER := -20314;
-    ERR_NCC_CAPNHAT_HE_THONG        CONSTANT NUMBER := -20315;
-    ERR_NCC_KHONG_TON_TAI_XOA       CONSTANT NUMBER := -20316;
-    ERR_NCC_XOA_HE_THONG            CONSTANT NUMBER := -20317;
-    ERR_NCC_TRUNG_SDT               CONSTANT NUMBER := -20318;
-    ERR_NCC_DANG_GIAO_DICH          CONSTANT NUMBER := -20319;
+    ERR_NCC_THEM_HE_THONG           CONSTANT NUMBER := -20315;
+    ERR_NCC_KHONG_TON_TAI_CN        CONSTANT NUMBER := -20316;
+    ERR_NCC_CAPNHAT_HE_THONG        CONSTANT NUMBER := -20317;
+    ERR_NCC_KHONG_TON_TAI_XOA       CONSTANT NUMBER := -20318;
+    ERR_NCC_XOA_HE_THONG            CONSTANT NUMBER := -20319;
 
     -- ========================
     -- NHÓM 04: ĐƠN HÀNG
@@ -172,6 +170,11 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- Lỗi khi chuyển trạng thái đơn hàng (dùng trong PROC_CHUYENTRANGTHAIDON)
     ERR_DON_CHUYEN_TRANGTHAI        CONSTANT NUMBER := -20403;
 
+    -- Không tìm thấy đơn hàng để cập nhật tổng tiền (dùng trong TRG_CAPNHAT_CTDONHANG)
+    ERR_DONDATHANG_KHONG_TON_TAI    CONSTANT NUMBER := -20404;
+
+    -- Lỗi hệ thống khi cập nhật tổng tiền đơn hàng (dùng trong TRG_CAPNHAT_DONHANG)
+    ERR_HUY_CAPNHAT_TONGTIEN        CONSTANT NUMBER := -20405;
 
     -- ========================
     -- NHÓM 05: TÀI CHÍNH
@@ -188,8 +191,6 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     ERR_LOAITHUCHI_KHONG_TON_TAI    CONSTANT NUMBER := -20505;
     --Lỗi thêm phiếu thu chi
     ERR_PHIEUTHUCHI_THEM_HE_THONG   CONSTANT NUMBER := -20506;
-
-
 
 END PKG_ERROR_CODES;
 /

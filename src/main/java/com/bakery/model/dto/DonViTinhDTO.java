@@ -8,8 +8,7 @@ public class DonViTinhDTO {
     private LocalDateTime thoiDiemXoa;
     private Integer maNX;
 
-    public DonViTinhDTO() {
-    }
+    public DonViTinhDTO() {}
 
     public DonViTinhDTO(int maDVT, String tenDVT, LocalDateTime thoiDiemXoa, Integer maNX) {
         this.maDVT = maDVT;
@@ -18,40 +17,15 @@ public class DonViTinhDTO {
         this.maNX = maNX;
     }
 
-    public int getMaDVT() {
-        return maDVT;
-    }
+    public int getMaDVT() { return maDVT; }
+    public void setMaDVT(int maDVT) { this.maDVT = maDVT; }
 
-    public void setMaDVT(int maDVT) {
-        this.maDVT = maDVT;
-    }
+    public String getTenDVT() { return tenDVT; }
+    public void setTenDVT(String tenDVT) { this.tenDVT = tenDVT; }
 
-    public String getTenDVT() {
-        return tenDVT;
-    }
-
-    public void setTenDVT(String tenDVT) {
-        this.tenDVT = tenDVT;
-    }
-
-    public LocalDateTime getThoiDiemXoa() {
-        return thoiDiemXoa;
-    }
-
-    public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) {
-        this.thoiDiemXoa = thoiDiemXoa;
-    }
-
-    public Integer getMaNX() {
-        return maNX;
-    }
-
-    public void setMaNX(Integer maNX) {
-        this.maNX = maNX;
-    }
-
-    @Override
-    public String toString() {
-        return tenDVT;
-    }
+    public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
+    public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
+    
+    public Integer getMaNX() { return maNX; }
+    public void setMaNX(Integer maNX) { this.maNX = maNX; }
 }

@@ -1,4 +1,4 @@
-package com.bakery.model.dao;
+﻿package com.bakery.model.dao;
 
 import com.bakery.model.dto.CaLamViecDTO;
 import com.bakery.utils.DBConnect;
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class CaLamViecDAO {
 
     public boolean moCa(int maNV, String maMayPOS) {
-        String sql = "INSERT INTO CALAMVIEC (MANV, MAMAYPOS, TRANGTHAI) VALUES (?, ?, 'Đang mở')";
+        String sql = "INSERT INTO CALAMVIEC (MANV, MAMAYPOS, TRANGTHAI) VALUES (?, ?, '─Éang mß╗ƒ')";
 
         try (Connection conn = DBConnect.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -20,13 +20,13 @@ public class CaLamViecDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - moCa: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - moCa: " + e.getMessage());
         }
         return false;
     }
 
     public CaLamViecDTO kiemTraCaDangMo(int maNV) {
-        String sql = "SELECT * FROM CALAMVIEC WHERE MANV = ? AND TRANGTHAI = 'Đang mở'";
+        String sql = "SELECT * FROM CALAMVIEC WHERE MANV = ? AND TRANGTHAI = '─Éang mß╗ƒ'";
 
         try (Connection conn = DBConnect.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -47,7 +47,7 @@ public class CaLamViecDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - kiemTraCaDangMo: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - kiemTraCaDangMo: " + e.getMessage());
         }
         return null;
     }

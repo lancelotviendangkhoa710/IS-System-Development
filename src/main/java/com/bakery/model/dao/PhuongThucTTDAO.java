@@ -1,4 +1,4 @@
-package com.bakery.model.dao;
+﻿package com.bakery.model.dao;
 
 import com.bakery.model.dto.PhuongThucTTDTO;
 import com.bakery.utils.DBConnect;
@@ -32,7 +32,7 @@ public class PhuongThucTTDAO {
                 ds.add(pttt);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - layDanhSachPhuongThucTt: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - layDanhSachPhuongThucTt: " + e.getMessage());
         }
         return ds;
     }
@@ -47,7 +47,7 @@ public class PhuongThucTTDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - themPhuongThucTtMoi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - themPhuongThucTtMoi: " + e.getMessage());
         }
         return false;
     }
@@ -63,7 +63,7 @@ public class PhuongThucTTDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - capNhatPhuongThucTt: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - capNhatPhuongThucTt: " + e.getMessage());
         }
         return false;
     }
@@ -78,7 +78,7 @@ public class PhuongThucTTDAO {
             pstmt.setInt(2, maPTTT);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - xoaMemPhuongThucTt: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - xoaMemPhuongThucTt: " + e.getMessage());
         }
         return false;
     }

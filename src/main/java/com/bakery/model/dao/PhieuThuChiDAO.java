@@ -1,4 +1,4 @@
-package com.bakery.model.dao;
+﻿package com.bakery.model.dao;
 
 import com.bakery.model.dto.PhieuThuChiDTO;
 import com.bakery.utils.DBConnect;
@@ -46,7 +46,7 @@ public class PhieuThuChiDAO {
                 ds.add(ptc);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - layDanhSachPhieuThuChi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - layDanhSachPhieuThuChi: " + e.getMessage());
         }
         return ds;
     }
@@ -75,7 +75,7 @@ public class PhieuThuChiDAO {
         try (Connection conn = DBConnect.getConnection()) {
             return themPhieuThuChiMoi(conn, ptc);
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - themPhieuThuChiMoi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - themPhieuThuChiMoi: " + e.getMessage());
         }
         return false;
     }
@@ -105,7 +105,7 @@ public class PhieuThuChiDAO {
         try (Connection conn = DBConnect.getConnection()) {
             return capNhatPhieuThuChi(conn, ptc);
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - capNhatPhieuThuChi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - capNhatPhieuThuChi: " + e.getMessage());
         }
         return false;
     }

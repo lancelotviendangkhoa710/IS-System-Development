@@ -5,16 +5,20 @@ import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.MainMenuViewFXMLController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.net.URL;
 
 public class App extends Application {
+    public static final String LOGIN_VIEW = "/fxml/login.fxml";
+    public static final String DASHBOARD_VIEW = "/fxml/Dashboard.fxml";
+    public static final String CASHIER_DASHBOARD_VIEW = "/fxml/CashierDashboard.fxml";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // TẠM BỎ QUA ĐĂNG NHẬP (MOCK DATA)
+        // TẠM BỎ QUA ĐĂNG NHẬP (MOCK DATA) — sẽ chuyển sang LOGIN_VIEW khi login UI sẵn sàng
         NhanVienDTO mockAdmin = new NhanVienDTO();
         mockAdmin.setMaNV(1);
         mockAdmin.setTenDangNhap("admin");
@@ -44,6 +48,15 @@ public class App extends Application {
         primaryStage.setMinHeight(720);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    // Helper để load FXML view (dùng khi chuyển sang login flow thực tế)
+    public static Parent loadView(String viewPath) throws Exception {
+        URL fxmlLocation = App.class.getResource(viewPath);
+        if (fxmlLocation == null) {
+            throw new IllegalStateException("Khong tim thay file FXML: " + viewPath);
+        }
+        return FXMLLoader.load(fxmlLocation);
     }
 
     public static void main(String[] args) {

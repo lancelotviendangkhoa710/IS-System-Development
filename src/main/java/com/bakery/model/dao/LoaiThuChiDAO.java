@@ -1,4 +1,4 @@
-package com.bakery.model.dao;
+﻿package com.bakery.model.dao;
 
 import com.bakery.model.dto.LoaiThuChiDTO;
 import com.bakery.utils.DBConnect;
@@ -33,7 +33,7 @@ public class LoaiThuChiDAO {
                 ds.add(ltc);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - layDanhSachLoaiThuChi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - layDanhSachLoaiThuChi: " + e.getMessage());
         }
         return ds;
     }
@@ -49,7 +49,7 @@ public class LoaiThuChiDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - themLoaiThuChiMoi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - themLoaiThuChiMoi: " + e.getMessage());
         }
         return false;
     }
@@ -66,7 +66,7 @@ public class LoaiThuChiDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - capNhatLoaiThuChi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - capNhatLoaiThuChi: " + e.getMessage());
         }
         return false;
     }
@@ -81,7 +81,7 @@ public class LoaiThuChiDAO {
             pstmt.setInt(2, maLoaiThuChi);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - xoaMemLoaiThuChi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - xoaMemLoaiThuChi: " + e.getMessage());
         }
         return false;
     }

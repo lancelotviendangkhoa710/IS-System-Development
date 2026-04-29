@@ -1,4 +1,4 @@
-package com.bakery.model.dao;
+﻿package com.bakery.model.dao;
 
 import com.bakery.model.dto.HoaDonDTO;
 import com.bakery.utils.DBConnect;
@@ -44,7 +44,7 @@ public class HoaDonDAO {
                 ds.add(hd);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - layDanhSachHoaDon: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - layDanhSachHoaDon: " + e.getMessage());
         }
         return ds;
     }
@@ -74,7 +74,7 @@ public class HoaDonDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - themHoaDonMoi: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - themHoaDonMoi: " + e.getMessage());
         }
         return -1;
     }
@@ -134,7 +134,7 @@ public class HoaDonDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - capNhatHoaDon: " + e.getMessage());
+            System.err.println("Lß╗ùi DAO - capNhatHoaDon: " + e.getMessage());
         }
         return false;
     }

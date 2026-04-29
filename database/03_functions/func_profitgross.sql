@@ -1,6 +1,6 @@
 -- Hàm tính lợi nhuận gộp thực tế của từng hóa đơn
 CREATE OR REPLACE FUNCTION FUNC_LOINHUANGOP(
-    P_MAHD IN NUMBER
+    P_MAHD IN HOADON.MAHD%type
 ) RETURN NUMBER
 IS
     V_MADON NUMBER;
