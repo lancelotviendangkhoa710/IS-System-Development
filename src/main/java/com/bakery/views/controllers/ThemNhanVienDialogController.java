@@ -9,7 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.sql.SQLException;
+
 import java.util.Map;
 
 public class ThemNhanVienDialogController {
@@ -27,8 +27,12 @@ public class ThemNhanVienDialogController {
 
     @FXML
     public void initialize() {
-        vaiTroMap = nhanVienService.layDanhSachVaiTro();
-        cbVaiTro.getItems().addAll(vaiTroMap.values());
+        try {
+            vaiTroMap = nhanVienService.layDanhSachVaiTro();
+            cbVaiTro.getItems().addAll(vaiTroMap.values());
+        } catch (Exception e) {
+            System.err.println("Lỗi tải danh sách vai trò: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -91,7 +95,7 @@ public class ThemNhanVienDialogController {
                 alert.showAndWait();
                 dongDialog();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             String msg = e.getMessage();
             if (msg.contains("ORA-20001")) {
                 lblError.setText("Số điện thoại đã tồn tại trong hệ thống.");
