@@ -1,6 +1,6 @@
 package com.bakery.views;
 
-import com.bakery.models.dto.VaiTroDTO;
+import com.bakery.model.dto.VaiTroDTO;
 import com.bakery.presenters.RegisterPresenter;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;

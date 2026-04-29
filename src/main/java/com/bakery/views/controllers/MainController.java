@@ -1,9 +1,9 @@
 package com.bakery.views.controllers;
 
 import com.bakery.main.App;
-import com.bakery.models.dto.ChucNangDTO;
-import com.bakery.models.dto.NhanVienDTO;
-import com.bakery.models.dto.VaiTroDTO;
+import com.bakery.model.dto.ChucNangDTO;
+import com.bakery.model.dto.NhanVienDTO;
+import com.bakery.model.dto.VaiTroDTO;
 import com.bakery.services.AuthService;
 import com.bakery.utils.SessionContext;
 import javafx.application.Platform;
