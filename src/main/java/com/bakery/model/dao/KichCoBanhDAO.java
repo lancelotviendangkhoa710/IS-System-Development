@@ -24,7 +24,7 @@ public class KichCoBanhDAO {
                 KichCoBanhDTO item = new KichCoBanhDTO();
                 item.setMaKC(rs.getInt("MAKC"));
                 item.setTenKC(rs.getString("TENKC"));
-                item.setPhuPhi(rs.getDouble("PHUPHI"));
+                item.setPhuPhi(rs.getBigDecimal("PHUPHI"));
 
                 int maNX = rs.getInt("MANX");
                 if (!rs.wasNull()) {

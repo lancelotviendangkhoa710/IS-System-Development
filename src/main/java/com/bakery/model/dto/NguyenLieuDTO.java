@@ -1,5 +1,6 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class NguyenLieuDTO {
@@ -7,17 +8,17 @@ public class NguyenLieuDTO {
     private String tenNL;
     private String xuatXu;
     private int maDVT;
-    private double giaVonTrungBinh;
-    private double mucTonAnToan;
-    private double soLuongTonTong;
-    private int datChuanVSATTP;
-    private int phienBan;
+    private BigDecimal giaVonTrungBinh;
+    private Double mucTonAnToan;
+    private Double soLuongTonTong;
+    private Integer datChuanVSATTP;
+    private Integer phienBan;
     private LocalDateTime thoiDiemXoa;
     private Integer maNX;
 
     public NguyenLieuDTO() {}
 
-    public NguyenLieuDTO(int maNL, String tenNL, String xuatXu, int maDVT, double giaVonTrungBinh, double mucTonAnToan, double soLuongTonTong, int datChuanVSATTP, int phienBan, LocalDateTime thoiDiemXoa, Integer maNX) {
+    public NguyenLieuDTO(int maNL, String tenNL, String xuatXu, int maDVT, BigDecimal giaVonTrungBinh, Double mucTonAnToan, Double soLuongTonTong, Integer datChuanVSATTP, Integer phienBan, LocalDateTime thoiDiemXoa, Integer maNX) {
         this.maNL = maNL;
         this.tenNL = tenNL;
         this.xuatXu = xuatXu;
@@ -43,24 +44,24 @@ public class NguyenLieuDTO {
     public int getMaDVT() { return maDVT; }
     public void setMaDVT(int maDVT) { this.maDVT = maDVT; }
 
-    public double getGiaVonTrungBinh() { return giaVonTrungBinh; }
-    public void setGiaVonTrungBinh(double giaVonTrungBinh) { this.giaVonTrungBinh = giaVonTrungBinh; }
+    public BigDecimal getGiaVonTrungBinh() { return giaVonTrungBinh; }
+    public void setGiaVonTrungBinh(BigDecimal giaVonTrungBinh) { this.giaVonTrungBinh = giaVonTrungBinh; }
 
-    public double getMucTonAnToan() { return mucTonAnToan; }
-    public void setMucTonAnToan(double mucTonAnToan) { this.mucTonAnToan = mucTonAnToan; }
+    public Double getMucTonAnToan() { return mucTonAnToan; }
+    public void setMucTonAnToan(Double mucTonAnToan) { this.mucTonAnToan = mucTonAnToan; }
 
-    public double getSoLuongTonTong() { return soLuongTonTong; }
-    public void setSoLuongTonTong(double soLuongTonTong) { this.soLuongTonTong = soLuongTonTong; }
+    public Double getSoLuongTonTong() { return soLuongTonTong; }
+    public void setSoLuongTonTong(Double soLuongTonTong) { this.soLuongTonTong = soLuongTonTong; }
 
-    public int getDatChuanVSATTP() { return datChuanVSATTP; }
-    public void setDatChuanVSATTP(int datChuanVSATTP) { this.datChuanVSATTP = datChuanVSATTP; }
+    public Integer getDatChuanVSATTP() { return datChuanVSATTP; }
+    public void setDatChuanVSATTP(Integer datChuanVSATTP) { this.datChuanVSATTP = datChuanVSATTP; }
 
-    public int getPhienBan() { return phienBan; }
-    public void setPhienBan(int phienBan) { this.phienBan = phienBan; }
+    public Integer getPhienBan() { return phienBan; }
+    public void setPhienBan(Integer phienBan) { this.phienBan = phienBan; }
 
     public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
     public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
-    
+
     public Integer getMaNX() { return maNX; }
     public void setMaNX(Integer maNX) { this.maNX = maNX; }
 }

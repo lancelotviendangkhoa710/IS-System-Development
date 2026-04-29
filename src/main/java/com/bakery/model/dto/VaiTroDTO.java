@@ -7,11 +7,11 @@ public class VaiTroDTO {
     private String tenVaiTro;
     private String moTa;
     private LocalDateTime thoiDiemXoa;
-    private int maNX;
+    private Integer maNX;
 
     public VaiTroDTO() {}
 
-    public VaiTroDTO(int maVaiTro, String tenVaiTro, String moTa, LocalDateTime thoiDiemXoa, int maNX) {
+    public VaiTroDTO(int maVaiTro, String tenVaiTro, String moTa, LocalDateTime thoiDiemXoa, Integer maNX) {
         this.maVaiTro = maVaiTro;
         this.tenVaiTro = tenVaiTro;
         this.moTa = moTa;
@@ -31,6 +31,6 @@ public class VaiTroDTO {
     public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
     public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
 
-    public int getMaNX() { return maNX; }
-    public void setMaNX(int maNX) { this.maNX = maNX; }
+    public Integer getMaNX() { return maNX; }
+    public void setMaNX(Integer maNX) { this.maNX = maNX; }
 }

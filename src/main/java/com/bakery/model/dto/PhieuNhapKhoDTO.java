@@ -1,5 +1,6 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class PhieuNhapKhoDTO {
@@ -7,11 +8,11 @@ public class PhieuNhapKhoDTO {
     private LocalDateTime ngayNhap;
     private int maNV;
     private int maNCC;
-    private double tongTienNhap;
+    private BigDecimal tongTienNhap;
 
     public PhieuNhapKhoDTO() {}
 
-    public PhieuNhapKhoDTO(int maPN, LocalDateTime ngayNhap, int maNV, int maNCC, double tongTienNhap) {
+    public PhieuNhapKhoDTO(int maPN, LocalDateTime ngayNhap, int maNV, int maNCC, BigDecimal tongTienNhap) {
         this.maPN = maPN;
         this.ngayNhap = ngayNhap;
         this.maNV = maNV;
@@ -30,7 +31,7 @@ public class PhieuNhapKhoDTO {
 
     public int getMaNCC() { return maNCC; }
     public void setMaNCC(int maNCC) { this.maNCC = maNCC; }
-    
-    public double getTongTienNhap() { return tongTienNhap; }
-    public void setTongTienNhap(double tongTienNhap) { this.tongTienNhap = tongTienNhap; }
+
+    public BigDecimal getTongTienNhap() { return tongTienNhap; }
+    public void setTongTienNhap(BigDecimal tongTienNhap) { this.tongTienNhap = tongTienNhap; }
 }

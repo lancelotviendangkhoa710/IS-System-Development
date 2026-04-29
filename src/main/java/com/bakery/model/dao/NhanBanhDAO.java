@@ -24,7 +24,7 @@ public class NhanBanhDAO {
                 NhanBanhDTO item = new NhanBanhDTO();
                 item.setMaNhan(rs.getInt("MANHAN"));
                 item.setTenNhan(rs.getString("TENNHAN"));
-                item.setPhuPhi(rs.getDouble("PHUPHI"));
+                item.setPhuPhi(rs.getBigDecimal("PHUPHI"));
 
                 int maNX = rs.getInt("MANX");
                 if (!rs.wasNull()) {

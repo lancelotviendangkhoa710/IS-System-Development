@@ -11,6 +11,14 @@ public class LoaiThuChiDTO {
 
     public LoaiThuChiDTO() {}
 
+    public LoaiThuChiDTO(int maLoaiThuChi, String tenLoaiThuChi, String phanLoai, LocalDateTime thoiDiemXoa, Integer maNX) {
+        this.maLoaiThuChi = maLoaiThuChi;
+        this.tenLoaiThuChi = tenLoaiThuChi;
+        this.phanLoai = phanLoai;
+        this.thoiDiemXoa = thoiDiemXoa;
+        this.maNX = maNX;
+    }
+
     public int getMaLoaiThuChi() { return maLoaiThuChi; }
     public void setMaLoaiThuChi(int maLoaiThuChi) { this.maLoaiThuChi = maLoaiThuChi; }
 

@@ -24,7 +24,7 @@ public class KieuTrangTriDAO {
                 KieuTrangTriDTO item = new KieuTrangTriDTO();
                 item.setMaTrangTri(rs.getInt("MATRANGTRI"));
                 item.setTenTrangTri(rs.getString("TENTRANGTRI"));
-                item.setPhuPhi(rs.getDouble("PHUPHI"));
+                item.setPhuPhi(rs.getBigDecimal("PHUPHI"));
 
                 int maNX = rs.getInt("MANX");
                 if (!rs.wasNull()) {

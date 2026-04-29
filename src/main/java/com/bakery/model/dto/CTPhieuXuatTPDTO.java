@@ -1,14 +1,16 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
+
 public class CTPhieuXuatTPDTO {
     private int maPX;
     private int maSP;
     private double soLuong;
-    private double donGiaVon;
+    private BigDecimal donGiaVon;
 
     public CTPhieuXuatTPDTO() {}
 
-    public CTPhieuXuatTPDTO(int maPX, int maSP, double soLuong, double donGiaVon) {
+    public CTPhieuXuatTPDTO(int maPX, int maSP, double soLuong, BigDecimal donGiaVon) {
         this.maPX = maPX;
         this.maSP = maSP;
         this.soLuong = soLuong;
@@ -23,7 +25,7 @@ public class CTPhieuXuatTPDTO {
 
     public double getSoLuong() { return soLuong; }
     public void setSoLuong(double soLuong) { this.soLuong = soLuong; }
-    
-    public double getDonGiaVon() { return donGiaVon; }
-    public void setDonGiaVon(double donGiaVon) { this.donGiaVon = donGiaVon; }
+
+    public BigDecimal getDonGiaVon() { return donGiaVon; }
+    public void setDonGiaVon(BigDecimal donGiaVon) { this.donGiaVon = donGiaVon; }
 }

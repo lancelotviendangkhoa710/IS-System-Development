@@ -1,5 +1,7 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
+
 public class CTDonTuyChinhDTO {
     private int maCTTC;
     private int maDon;
@@ -12,13 +14,13 @@ public class CTDonTuyChinhDTO {
     private String loiChucTrenBanh;
     private String ghiChuThoBanh;
     private String hinhAnhThamKhao;
-    private double donGia;
-    private double donGiaVon;
+    private BigDecimal donGia;
+    private BigDecimal donGiaVon;
     private Integer thoiGianChuanBi;
 
     public CTDonTuyChinhDTO() {}
 
-    public CTDonTuyChinhDTO(int maCTTC, int maDon, int maSP, int soLuong, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri, String loiChucTrenBanh, String ghiChuThoBanh, String hinhAnhThamKhao, double donGia, double donGiaVon, Integer thoiGianChuanBi) {
+    public CTDonTuyChinhDTO(int maCTTC, int maDon, int maSP, int soLuong, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri, String loiChucTrenBanh, String ghiChuThoBanh, String hinhAnhThamKhao, BigDecimal donGia, BigDecimal donGiaVon, Integer thoiGianChuanBi) {
         this.maCTTC = maCTTC;
         this.maDon = maDon;
         this.maSP = maSP;
@@ -68,11 +70,11 @@ public class CTDonTuyChinhDTO {
     public String getHinhAnhThamKhao() { return hinhAnhThamKhao; }
     public void setHinhAnhThamKhao(String hinhAnhThamKhao) { this.hinhAnhThamKhao = hinhAnhThamKhao; }
 
-    public double getDonGia() { return donGia; }
-    public void setDonGia(double donGia) { this.donGia = donGia; }
+    public BigDecimal getDonGia() { return donGia; }
+    public void setDonGia(BigDecimal donGia) { this.donGia = donGia; }
 
-    public double getDonGiaVon() { return donGiaVon; }
-    public void setDonGiaVon(double donGiaVon) { this.donGiaVon = donGiaVon; }
+    public BigDecimal getDonGiaVon() { return donGiaVon; }
+    public void setDonGiaVon(BigDecimal donGiaVon) { this.donGiaVon = donGiaVon; }
 
     public Integer getThoiGianChuanBi() { return thoiGianChuanBi; }
     public void setThoiGianChuanBi(Integer thoiGianChuanBi) { this.thoiGianChuanBi = thoiGianChuanBi; }

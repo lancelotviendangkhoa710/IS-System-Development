@@ -3,6 +3,7 @@
 import com.bakery.model.dto.HoaDonDTO;
 import com.bakery.utils.DBConnect;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -37,9 +38,11 @@ public class HoaDonDAO {
                 }
 
                 hd.setThueVAT(rs.getDouble("THUEVAT"));
-                hd.setTongTienThanhToan(rs.getDouble("TONGTIENTHANHTOAN"));
+                hd.setTongTienThanhToan(BigDecimal.valueOf(rs.getDouble("TONGTIENTHANHTOAN")));
                 hd.setMaPTTT(rs.getInt("MAPTTT"));
                 hd.setLoaiHD(rs.getString("LOAIHD"));
+                String tt = rs.getString("TRANGTHAI");
+                hd.setTrangThai(tt != null ? tt : "active");
 
                 ds.add(hd);
             }
@@ -62,7 +65,7 @@ public class HoaDonDAO {
 
             pstmt.setInt(2, hd.getMaCa());
             pstmt.setDouble(3, hd.getThueVAT());
-            pstmt.setDouble(4, hd.getTongTienThanhToan());
+            pstmt.setBigDecimal(4, hd.getTongTienThanhToan());
             pstmt.setInt(5, hd.getMaPTTT());
             pstmt.setString(6, hd.getLoaiHD());
 
@@ -114,6 +117,20 @@ public class HoaDonDAO {
         return null;
     }
 
+    public void huyHoaDon(int maHD) {
+        String sql = "UPDATE HOADON SET TRANGTHAI = 'cancelled' WHERE MAHD = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maHD);
+            int rows = pstmt.executeUpdate();
+            if (rows == 0)
+                throw new RuntimeException("Không tìm thấy hóa đơn MAHD=" + maHD);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi huỷ hóa đơn: " + e.getMessage(), e);
+        }
+    }
+
     public boolean capNhatHoaDon(HoaDonDTO hd) {
         String sql = "UPDATE HOADON SET MADON = ?, MACA = ?, THUEVAT = ?, TONGTIENTHANHTOAN = ?, MAPTTT = ?, LOAIHD = ? WHERE MAHD = ?";
 
@@ -127,7 +144,7 @@ public class HoaDonDAO {
 
             pstmt.setInt(2, hd.getMaCa());
             pstmt.setDouble(3, hd.getThueVAT());
-            pstmt.setDouble(4, hd.getTongTienThanhToan());
+            pstmt.setBigDecimal(4, hd.getTongTienThanhToan());
             pstmt.setInt(5, hd.getMaPTTT());
             pstmt.setString(6, hd.getLoaiHD());
             pstmt.setInt(7, hd.getMaHD());

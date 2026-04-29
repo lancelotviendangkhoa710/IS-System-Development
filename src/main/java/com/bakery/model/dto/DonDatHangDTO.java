@@ -1,5 +1,6 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class DonDatHangDTO {
@@ -9,16 +10,15 @@ public class DonDatHangDTO {
     private Integer maKH;
     private int maNVLap;
     private int maTrangThai;
-    private String tenTrangThai;
-    private double tongTienHDBan;
-    private double tienDaCoc;
-    private int phienBan;
+    private BigDecimal tongTienHDBan;
+    private BigDecimal tienDaCoc;
+    private Integer phienBan;
     private Integer hinhThucNhan;
     private String diaChiGiao;
 
     public DonDatHangDTO() {}
 
-    public DonDatHangDTO(int maDon, LocalDateTime ngayLap, LocalDateTime ngayGioNhanBanh, Integer maKH, int maNVLap, int maTrangThai, double tongTienHDBan, double tienDaCoc, int phienBan, Integer hinhThucNhan, String diaChiGiao) {
+    public DonDatHangDTO(int maDon, LocalDateTime ngayLap, LocalDateTime ngayGioNhanBanh, Integer maKH, int maNVLap, int maTrangThai, BigDecimal tongTienHDBan, BigDecimal tienDaCoc, Integer phienBan, Integer hinhThucNhan, String diaChiGiao) {
         this.maDon = maDon;
         this.ngayLap = ngayLap;
         this.ngayGioNhanBanh = ngayGioNhanBanh;
@@ -50,17 +50,14 @@ public class DonDatHangDTO {
     public int getMaTrangThai() { return maTrangThai; }
     public void setMaTrangThai(int maTrangThai) { this.maTrangThai = maTrangThai; }
 
-    public String getTenTrangThai() { return tenTrangThai; }
-    public void setTenTrangThai(String tenTrangThai) { this.tenTrangThai = tenTrangThai; }
+    public BigDecimal getTongTienHDBan() { return tongTienHDBan; }
+    public void setTongTienHDBan(BigDecimal tongTienHDBan) { this.tongTienHDBan = tongTienHDBan; }
 
-    public double getTongTienHDBan() { return tongTienHDBan; }
-    public void setTongTienHDBan(double tongTienHDBan) { this.tongTienHDBan = tongTienHDBan; }
+    public BigDecimal getTienDaCoc() { return tienDaCoc; }
+    public void setTienDaCoc(BigDecimal tienDaCoc) { this.tienDaCoc = tienDaCoc; }
 
-    public double getTienDaCoc() { return tienDaCoc; }
-    public void setTienDaCoc(double tienDaCoc) { this.tienDaCoc = tienDaCoc; }
-
-    public int getPhienBan() { return phienBan; }
-    public void setPhienBan(int phienBan) { this.phienBan = phienBan; }
+    public Integer getPhienBan() { return phienBan; }
+    public void setPhienBan(Integer phienBan) { this.phienBan = phienBan; }
 
     public Integer getHinhThucNhan() { return hinhThucNhan; }
     public void setHinhThucNhan(Integer hinhThucNhan) { this.hinhThucNhan = hinhThucNhan; }

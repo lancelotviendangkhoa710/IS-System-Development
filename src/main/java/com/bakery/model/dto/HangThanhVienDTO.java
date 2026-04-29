@@ -1,16 +1,19 @@
 ﻿package com.bakery.model.dto;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 public class HangThanhVienDTO {
     private int maHang;
     private String tenHang;
-    private int diemToiThieu;
-    private double phanTramGiamGia;
+    private Integer diemToiThieu;
+    private BigDecimal phanTramGiamGia;
     private LocalDateTime thoiDiemXoa;
-    private int maNX;
+    private Integer maNX;
 
     public HangThanhVienDTO() {}
 
-    public HangThanhVienDTO(int maHang, String tenHang, int diemToiThieu, double phanTramGiamGia, LocalDateTime thoiDiemXoa, int maNX) {
+    public HangThanhVienDTO(int maHang, String tenHang, Integer diemToiThieu, BigDecimal phanTramGiamGia, LocalDateTime thoiDiemXoa, Integer maNX) {
         this.maHang = maHang;
         this.tenHang = tenHang;
         this.diemToiThieu = diemToiThieu;
@@ -25,15 +28,15 @@ public class HangThanhVienDTO {
     public String getTenHang() { return tenHang; }
     public void setTenHang(String tenHang) { this.tenHang = tenHang; }
 
-    public int getDiemToiThieu() { return diemToiThieu; }
-    public void setDiemToiThieu(int diemToiThieu) { this.diemToiThieu = diemToiThieu; }
+    public Integer getDiemToiThieu() { return diemToiThieu; }
+    public void setDiemToiThieu(Integer diemToiThieu) { this.diemToiThieu = diemToiThieu; }
 
-    public double getPhanTramGiamGia() { return phanTramGiamGia; }
-    public void setPhanTramGiamGia(double phanTramGiamGia) { this.phanTramGiamGia = phanTramGiamGia; }
+    public BigDecimal getPhanTramGiamGia() { return phanTramGiamGia; }
+    public void setPhanTramGiamGia(BigDecimal phanTramGiamGia) { this.phanTramGiamGia = phanTramGiamGia; }
 
     public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
     public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
 
-    public int getMaNX() { return maNX; }
-    public void setMaNX(int maNX) { this.maNX = maNX; }
+    public Integer getMaNX() { return maNX; }
+    public void setMaNX(Integer maNX) { this.maNX = maNX; }
 }

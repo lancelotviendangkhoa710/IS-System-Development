@@ -1,17 +1,18 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class KieuTrangTriDTO {
     private int maTrangTri;
     private String tenTrangTri;
-    private double phuPhi;
+    private BigDecimal phuPhi;
     private LocalDateTime thoiDiemXoa;
     private Integer maNX;
 
     public KieuTrangTriDTO() {}
 
-    public KieuTrangTriDTO(int maTrangTri, String tenTrangTri, double phuPhi, LocalDateTime thoiDiemXoa, Integer maNX) {
+    public KieuTrangTriDTO(int maTrangTri, String tenTrangTri, BigDecimal phuPhi, LocalDateTime thoiDiemXoa, Integer maNX) {
         this.maTrangTri = maTrangTri;
         this.tenTrangTri = tenTrangTri;
         this.phuPhi = phuPhi;
@@ -25,12 +26,12 @@ public class KieuTrangTriDTO {
     public String getTenTrangTri() { return tenTrangTri; }
     public void setTenTrangTri(String tenTrangTri) { this.tenTrangTri = tenTrangTri; }
 
-    public double getPhuPhi() { return phuPhi; }
-    public void setPhuPhi(double phuPhi) { this.phuPhi = phuPhi; }
+    public BigDecimal getPhuPhi() { return phuPhi; }
+    public void setPhuPhi(BigDecimal phuPhi) { this.phuPhi = phuPhi; }
 
     public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
     public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
-    
+
     public Integer getMaNX() { return maNX; }
     public void setMaNX(Integer maNX) { this.maNX = maNX; }
 }

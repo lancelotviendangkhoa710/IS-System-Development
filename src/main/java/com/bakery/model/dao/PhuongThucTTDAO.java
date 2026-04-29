@@ -3,83 +3,62 @@
 import com.bakery.model.dto.PhuongThucTTDTO;
 import com.bakery.utils.DBConnect;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhuongThucTTDAO {
 
-    public List<PhuongThucTTDTO> layDanhSachPhuongThucTT() {
+    /**
+     * Lấy danh sách phương thức thanh toán còn hoạt động (chưa bị xóa mềm).
+     * Không bao giờ trả null — trả list rỗng nếu không có dữ liệu.
+     */
+    public List<PhuongThucTTDTO> layDanhSach() {
         List<PhuongThucTTDTO> ds = new ArrayList<>();
-        String sql = "SELECT * FROM PHUONGTHUCTT WHERE THOIDIEMXOA IS NULL";
+        String sql = "SELECT MAPTTT, TENPTTT, THOIDIEMXOA, MANX "
+                + "FROM PHUONGTHUCTT "
+                + "WHERE THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                PhuongThucTTDTO pttt = new PhuongThucTTDTO();
-                pttt.setMaPTTT(rs.getInt("MAPTTT"));
-                pttt.setTenPTTT(rs.getString("TENPTTT"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PhuongThucTTDTO pttt = new PhuongThucTTDTO();
+                    pttt.setMaPTTT(rs.getInt("MAPTTT"));
+                    pttt.setTenPTTT(rs.getString("TENPTTT"));
 
-                int maNX = rs.getInt("MANX");
-                if (!rs.wasNull())
-                    pttt.setMaNX(maNX);
+                    int maNX = rs.getInt("MANX");
+                    if (!rs.wasNull()) {
+                        pttt.setMaNX(maNX);
+                    }
 
-                ds.add(pttt);
+                    ds.add(pttt);
+                }
             }
+
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - layDanhSachPhuongThucTt: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi hệ thống khi lấy danh sách phương thức thanh toán: " + e.getMessage(), e);
         }
         return ds;
     }
 
-    public boolean themPhuongThucTTMoi(PhuongThucTTDTO pttt) {
-        String sql = "INSERT INTO PHUONGTHUCTT (TENPTTT) VALUES (?)";
+    public static void main(String[] args) {
+        PhuongThucTTDAO dao = new PhuongThucTTDAO();
 
-        try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        System.out.println("=== Test PhuongThucTTDAO ===\n");
 
-            pstmt.setString(1, pttt.getTenPTTT());
-
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - themPhuongThucTtMoi: " + e.getMessage());
+        try {
+            List<PhuongThucTTDTO> ds = dao.layDanhSach();
+            System.out.println("Tổng số phương thức thanh toán: " + ds.size());
+            for (PhuongThucTTDTO pttt : ds) {
+                System.out.printf("  [%d] %s%n",
+                        pttt.getMaPTTT(),
+                        pttt.getTenPTTT());
+            }
+        } catch (RuntimeException e) {
+            System.err.println("Lỗi: " + e.getMessage());
         }
-        return false;
-    }
-
-    public boolean capNhatPhuongThucTT(PhuongThucTTDTO pttt) {
-        String sql = "UPDATE PHUONGTHUCTT SET TENPTTT = ? WHERE MAPTTT = ? AND THOIDIEMXOA IS NULL";
-
-        try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, pttt.getTenPTTT());
-            pstmt.setInt(2, pttt.getMaPTTT());
-
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - capNhatPhuongThucTt: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean xoaMemPhuongThucTT(int maPTTT, int maNX) {
-        String sql = "UPDATE PHUONGTHUCTT SET THOIDIEMXOA = CURRENT_TIMESTAMP, MANX = ? WHERE MAPTTT = ?";
-
-        try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, maNX);
-            pstmt.setInt(2, maPTTT);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - xoaMemPhuongThucTt: " + e.getMessage());
-        }
-        return false;
     }
 }

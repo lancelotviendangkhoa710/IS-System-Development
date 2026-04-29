@@ -1,5 +1,6 @@
 ﻿package com.bakery.model.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class CTPhieuNhapDTO {
@@ -7,7 +8,7 @@ public class CTPhieuNhapDTO {
     private int maPN;
     private int maNL;
     private double soLuong;
-    private double donGia;
+    private BigDecimal donGia;
     private double soLuongConLai;
     private LocalDate ngaySanXuat;
     private LocalDate hanSuDung;
@@ -15,7 +16,7 @@ public class CTPhieuNhapDTO {
 
     public CTPhieuNhapDTO() {}
 
-    public CTPhieuNhapDTO(int maLo, int maPN, int maNL, double soLuong, double donGia, double soLuongConLai, LocalDate ngaySanXuat, LocalDate hanSuDung, String maVachLo) {
+    public CTPhieuNhapDTO(int maLo, int maPN, int maNL, double soLuong, BigDecimal donGia, double soLuongConLai, LocalDate ngaySanXuat, LocalDate hanSuDung, String maVachLo) {
         this.maLo = maLo;
         this.maPN = maPN;
         this.maNL = maNL;
@@ -29,18 +30,18 @@ public class CTPhieuNhapDTO {
 
     public int getMaLo() { return maLo; }
     public void setMaLo(int maLo) { this.maLo = maLo; }
-    
+
     public int getMaPN() { return maPN; }
     public void setMaPN(int maPN) { this.maPN = maPN; }
-    
+
     public int getMaNL() { return maNL; }
     public void setMaNL(int maNL) { this.maNL = maNL; }
 
     public double getSoLuong() { return soLuong; }
     public void setSoLuong(double soLuong) { this.soLuong = soLuong; }
 
-    public double getDonGia() { return donGia; }
-    public void setDonGia(double donGia) { this.donGia = donGia; }
+    public BigDecimal getDonGia() { return donGia; }
+    public void setDonGia(BigDecimal donGia) { this.donGia = donGia; }
 
     public double getSoLuongConLai() { return soLuongConLai; }
     public void setSoLuongConLai(double soLuongConLai) { this.soLuongConLai = soLuongConLai; }
@@ -50,7 +51,7 @@ public class CTPhieuNhapDTO {
 
     public LocalDate getHanSuDung() { return hanSuDung; }
     public void setHanSuDung(LocalDate hanSuDung) { this.hanSuDung = hanSuDung; }
-    
+
     public String getMaVachLo() { return maVachLo; }
     public void setMaVachLo(String maVachLo) { this.maVachLo = maVachLo; }
 }

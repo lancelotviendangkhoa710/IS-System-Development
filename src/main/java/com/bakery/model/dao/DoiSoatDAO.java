@@ -1,79 +1,108 @@
 ﻿package com.bakery.model.dao;
 
-import com.bakery.model.dto.DoiSoatDTO;
 import com.bakery.utils.DBConnect;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
+import java.sql.*;
 
 public class DoiSoatDAO {
 
-    public List<DoiSoatDTO> layDanhSachDoiSoat() {
-        List<DoiSoatDTO> ds = new ArrayList<>();
-        String sql = "SELECT * FROM DOISOAT";
-
+    /**
+     * Gọi FUNC_TinhTienMatLyTuong để tính tiền mặt lý tưởng trong két cuối ca.
+     * Kết quả là con số BÍ MẬT — tầng Service giữ nội bộ, KHÔNG trả lên View.
+     *
+     * @return tổng tiền mặt lý tưởng theo hệ thống
+     */
+    /**
+     * Lấy tiền khai báo đầu ca từ bảng DOISOAT.
+     */
+    public BigDecimal layTienKhaiBaoDauCa(int maCa) {
+        String sql = "SELECT NVL(TIENKHAIBAODAUCA, 0) FROM DOISOAT WHERE MACA = ?";
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                DoiSoatDTO dsDto = new DoiSoatDTO();
-                dsDto.setMaCa(rs.getInt("MACA"));
-                dsDto.setTienKhaiBaoDauCa(rs.getDouble("TIENKHAIBAODAUCA"));
-                dsDto.setTongTienHeThong(rs.getDouble("TONGTIENHETHONG"));
-                dsDto.setTienThucTeDem(rs.getDouble("TIENTHUCTEDEM"));
-                dsDto.setChenhLech(rs.getDouble("CHENHLECH"));
-                dsDto.setLyDoChenhLech(rs.getString("LYDOCHENHLECH"));
-
-                ds.add(dsDto);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maCa);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getBigDecimal(1);
             }
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - layDanhSachDoiSoat: " + e.getMessage());
+            throw new RuntimeException("Lỗi khi lấy tiền khai báo đầu ca: " + e.getMessage(), e);
         }
-        return ds;
+        return BigDecimal.ZERO;
     }
 
-    public boolean themDoiSoatMoi(DoiSoatDTO ds) {
-        String sql = "INSERT INTO DOISOAT (MACA, TIENKHAIBAODAUCA, TONGTIENHETHONG, TIENTHUCTEDEM, CHENHLECH, LYDOCHENHLECH) VALUES (?, ?, ?, ?, ?, ?)";
+    public BigDecimal tinhTienMatLyTuong(int maCa, BigDecimal tienKhaiBaoDauCa) {
+        String sql = "SELECT FUNC_TINHTIENMATLYTUONG(?, ?) FROM DUAL";
 
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, ds.getMaCa());
-            pstmt.setDouble(2, ds.getTienKhaiBaoDauCa());
-            pstmt.setDouble(3, ds.getTongTienHeThong());
-            pstmt.setDouble(4, ds.getTienThucTeDem());
-            pstmt.setDouble(5, ds.getChenhLech());
-            pstmt.setString(6, ds.getLyDoChenhLech());
+            ps.setInt(1, maCa);
+            ps.setBigDecimal(2, tienKhaiBaoDauCa);
 
-            return pstmt.executeUpdate() > 0;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getBigDecimal(1);
+            }
+
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - themDoiSoatMoi: " + e.getMessage());
+            if (e.getErrorCode() >= -20599 && e.getErrorCode() <= -20001) {
+                String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
+                throw new RuntimeException(msg, e);
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi hệ thống khi tính tiền mặt lý tưởng: " + e.getMessage(), e);
         }
-        return false;
+        return BigDecimal.ZERO;
     }
 
-    public boolean capNhatDoiSoat(DoiSoatDTO ds) {
-        String sql = "UPDATE DOISOAT SET TIENKHAIBAODAUCA = ?, TONGTIENHETHONG = ?, TIENTHUCTEDEM = ?, CHENHLECH = ?, LYDOCHENHLECH = ? WHERE MACA = ?";
+    /**
+     * Gọi PROC_DongCaDoiSoat để ghi kết quả đối soát và đóng ca làm việc.
+     * lyDoChenhLech truyền null nếu tiền khớp (chênh lệch = 0).
+     */
+    public void dongCaDoiSoat(int maCa, BigDecimal tienThucTeDem,
+                               BigDecimal chenhLech, String lyDoChenhLech) {
+        String sql = "{CALL PROC_DONGCADOISOAT(?, ?, ?, ?)}";
 
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            pstmt.setDouble(1, ds.getTienKhaiBaoDauCa());
-            pstmt.setDouble(2, ds.getTongTienHeThong());
-            pstmt.setDouble(3, ds.getTienThucTeDem());
-            pstmt.setDouble(4, ds.getChenhLech());
-            pstmt.setString(5, ds.getLyDoChenhLech());
-            pstmt.setInt(6, ds.getMaCa());
+            cs.setInt(1, maCa);
+            cs.setBigDecimal(2, tienThucTeDem);
+            cs.setBigDecimal(3, chenhLech);
 
-            return pstmt.executeUpdate() > 0;
+            if (lyDoChenhLech != null) {
+                cs.setString(4, lyDoChenhLech);
+            } else {
+                cs.setNull(4, Types.NVARCHAR);
+            }
+
+            cs.execute();
+
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - capNhatDoiSoat: " + e.getMessage());
+            if (e.getErrorCode() >= -20599 && e.getErrorCode() <= -20001) {
+                String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
+                throw new RuntimeException(msg, e);
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi hệ thống khi đóng ca đối soát: " + e.getMessage(), e);
         }
-        return false;
+    }
+
+    public static void main(String[] args) {
+        DoiSoatDAO dao = new DoiSoatDAO();
+
+        System.out.println("=== Test DoiSoatDAO ===\n");
+
+        // Test tinhTienMatLyTuong với maCa giả (maCa = 1, tiền khai báo = 500.000đ)
+        int maCaTest = 1;
+        BigDecimal tienKhaiDao = new BigDecimal("500000");
+
+        System.out.println("Gọi FUNC_TinhTienMatLyTuong với maCa=" + maCaTest
+                + ", tienKhaiBaoDauCa=" + tienKhaiDao);
+        try {
+            BigDecimal tienLyTuong = dao.tinhTienMatLyTuong(maCaTest, tienKhaiDao);
+            System.out.println("Tiền mặt lý tưởng (bí mật): " + tienLyTuong);
+        } catch (RuntimeException e) {
+            System.err.println("Lỗi: " + e.getMessage());
+        }
     }
 }

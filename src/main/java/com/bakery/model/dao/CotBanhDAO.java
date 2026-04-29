@@ -3,6 +3,7 @@
 import com.bakery.model.dto.CotBanhDTO;
 import com.bakery.utils.DBConnect;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,7 +25,7 @@ public class CotBanhDAO {
                 CotBanhDTO item = new CotBanhDTO();
                 item.setMaCot(rs.getInt("MACOT"));
                 item.setTenCot(rs.getString("TENCOT"));
-                item.setPhuPhi(rs.getDouble("PHUPHI"));
+                item.setPhuPhi(BigDecimal.valueOf(rs.getDouble("PHUPHI")));
 
                 int maNX = rs.getInt("MANX");
                 if (!rs.wasNull()) {

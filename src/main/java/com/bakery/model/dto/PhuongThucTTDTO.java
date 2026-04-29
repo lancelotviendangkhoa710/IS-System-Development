@@ -10,6 +10,13 @@ public class PhuongThucTTDTO {
 
     public PhuongThucTTDTO() {}
 
+    public PhuongThucTTDTO(int maPTTT, String tenPTTT, LocalDateTime thoiDiemXoa, Integer maNX) {
+        this.maPTTT = maPTTT;
+        this.tenPTTT = tenPTTT;
+        this.thoiDiemXoa = thoiDiemXoa;
+        this.maNX = maNX;
+    }
+
     public int getMaPTTT() { return maPTTT; }
     public void setMaPTTT(int maPTTT) { this.maPTTT = maPTTT; }
 

@@ -3,86 +3,141 @@
 import com.bakery.model.dto.LoaiThuChiDTO;
 import com.bakery.utils.DBConnect;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoaiThuChiDAO {
 
-    public List<LoaiThuChiDTO> layDanhSachLoaiThuChi() {
+    /**
+     * Lấy danh sách loại thu chi còn hoạt động (chưa bị xóa mềm).
+     * Không bao giờ trả null — trả list rỗng nếu không có dữ liệu.
+     */
+    public List<LoaiThuChiDTO> layDanhSach() {
         List<LoaiThuChiDTO> ds = new ArrayList<>();
-        String sql = "SELECT * FROM LOAITHUCHI WHERE THOIDIEMXOA IS NULL";
+        String sql = "SELECT MALOAITHUCHI, TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX "
+                + "FROM LOAITHUCHI "
+                + "WHERE THOIDIEMXOA IS NULL";
 
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LoaiThuChiDTO ltc = new LoaiThuChiDTO();
+                    ltc.setMaLoaiThuChi(rs.getInt("MALOAITHUCHI"));
+                    ltc.setTenLoaiThuChi(rs.getString("TENLOAITHUCHI"));
+                    ltc.setPhanLoai(rs.getString("PHANLOAI"));
+
+                    int maNX = rs.getInt("MANX");
+                    if (!rs.wasNull()) {
+                        ltc.setMaNX(maNX);
+                    }
+
+                    ds.add(ltc);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi hệ thống khi lấy danh sách loại thu chi: " + e.getMessage(), e);
+        }
+        return ds;
+    }
+
+    /** Lấy tất cả danh mục kể cả đã khoá (THOIDIEMXOA != NULL). */
+    public List<LoaiThuChiDTO> layTatCa() {
+        List<LoaiThuChiDTO> ds = new ArrayList<>();
+        String sql = "SELECT MALOAITHUCHI, TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX "
+                + "FROM LOAITHUCHI ORDER BY MALOAITHUCHI";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 LoaiThuChiDTO ltc = new LoaiThuChiDTO();
                 ltc.setMaLoaiThuChi(rs.getInt("MALOAITHUCHI"));
                 ltc.setTenLoaiThuChi(rs.getString("TENLOAITHUCHI"));
                 ltc.setPhanLoai(rs.getString("PHANLOAI"));
-
+                Timestamp ts = rs.getTimestamp("THOIDIEMXOA");
+                if (ts != null) ltc.setThoiDiemXoa(ts.toLocalDateTime());
                 int maNX = rs.getInt("MANX");
-                if (!rs.wasNull())
-                    ltc.setMaNX(maNX);
-
+                if (!rs.wasNull()) ltc.setMaNX(maNX);
                 ds.add(ltc);
             }
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - layDanhSachLoaiThuChi: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi hệ thống khi lấy danh sách loại: " + e.getMessage(), e);
         }
         return ds;
     }
 
-    public boolean themLoaiThuChiMoi(LoaiThuChiDTO ltc) {
+    public void moKhoa(int maLoaiThuChi) {
+        String sql = "UPDATE LOAITHUCHI SET THOIDIEMXOA = NULL WHERE MALOAITHUCHI = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maLoaiThuChi);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi mở khoá danh mục: " + e.getMessage(), e);
+        }
+    }
+
+    public void them(String tenLoaiThuChi, String phanLoai) {
         String sql = "INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI) VALUES (?, ?)";
-
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, ltc.getTenLoaiThuChi());
-            pstmt.setString(2, ltc.getPhanLoai());
-
-            return pstmt.executeUpdate() > 0;
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenLoaiThuChi);
+            ps.setString(2, phanLoai);
+            ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - themLoaiThuChiMoi: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi thêm loại thu chi: " + e.getMessage(), e);
         }
-        return false;
     }
 
-    public boolean capNhatLoaiThuChi(LoaiThuChiDTO ltc) {
-        String sql = "UPDATE LOAITHUCHI SET TENLOAITHUCHI = ?, PHANLOAI = ? WHERE MALOAITHUCHI = ? AND THOIDIEMXOA IS NULL";
-
+    public void sua(int maLoaiThuChi, String tenLoaiThuChi, String phanLoai) {
+        String sql = "UPDATE LOAITHUCHI SET TENLOAITHUCHI = ?, PHANLOAI = ? WHERE MALOAITHUCHI = ?";
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, ltc.getTenLoaiThuChi());
-            pstmt.setString(2, ltc.getPhanLoai());
-            pstmt.setInt(3, ltc.getMaLoaiThuChi());
-
-            return pstmt.executeUpdate() > 0;
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenLoaiThuChi);
+            ps.setString(2, phanLoai);
+            ps.setInt(3, maLoaiThuChi);
+            ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - capNhatLoaiThuChi: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi cập nhật loại thu chi: " + e.getMessage(), e);
         }
-        return false;
     }
 
-    public boolean xoaMemLoaiThuChi(int maLoaiThuChi, int maNX) {
-        String sql = "UPDATE LOAITHUCHI SET THOIDIEMXOA = CURRENT_TIMESTAMP, MANX = ? WHERE MALOAITHUCHI = ?";
-
+    public void xoa(int maLoaiThuChi) {
+        String sql = "UPDATE LOAITHUCHI SET THOIDIEMXOA = SYSDATE WHERE MALOAITHUCHI = ?";
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, maNX);
-            pstmt.setInt(2, maLoaiThuChi);
-            return pstmt.executeUpdate() > 0;
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maLoaiThuChi);
+            ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - xoaMemLoaiThuChi: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi xoá loại thu chi: " + e.getMessage(), e);
         }
-        return false;
+    }
+
+    public static void main(String[] args) {
+        LoaiThuChiDAO dao = new LoaiThuChiDAO();
+
+        System.out.println("=== Test LoaiThuChiDAO ===\n");
+
+        try {
+            List<LoaiThuChiDTO> ds = dao.layDanhSach();
+            System.out.println("Tổng số loại thu chi: " + ds.size());
+            for (LoaiThuChiDTO ltc : ds) {
+                System.out.printf("  [%d] %-35s | Phân loại: %s%n",
+                        ltc.getMaLoaiThuChi(),
+                        ltc.getTenLoaiThuChi(),
+                        ltc.getPhanLoai());
+            }
+        } catch (RuntimeException e) {
+            System.err.println("Lỗi: " + e.getMessage());
+        }
     }
 }

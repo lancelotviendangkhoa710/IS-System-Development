@@ -9,14 +9,14 @@ public class KhachHangDTO {
     private String sdt;
     private String diaChi;
     private LocalDate ngayDangKy;
-    private int diemTichLuy;
-    private int maHang;
+    private Integer diemTichLuy;
+    private Integer maHang;
     private LocalDateTime thoiDiemXoa;
-    private int maNX;
+    private Integer maNX;
 
     public KhachHangDTO() {}
 
-    public KhachHangDTO(int maKH, String hoTen, String sdt, String diaChi, LocalDate ngayDangKy, int diemTichLuy, int maHang, LocalDateTime thoiDiemXoa, int maNX) {
+    public KhachHangDTO(int maKH, String hoTen, String sdt, String diaChi, LocalDate ngayDangKy, Integer diemTichLuy, Integer maHang, LocalDateTime thoiDiemXoa, Integer maNX) {
         this.maKH = maKH;
         this.hoTen = hoTen;
         this.sdt = sdt;
@@ -43,15 +43,15 @@ public class KhachHangDTO {
     public LocalDate getNgayDangKy() { return ngayDangKy; }
     public void setNgayDangKy(LocalDate ngayDangKy) { this.ngayDangKy = ngayDangKy; }
 
-    public int getDiemTichLuy() { return diemTichLuy; }
-    public void setDiemTichLuy(int diemTichLuy) { this.diemTichLuy = diemTichLuy; }
+    public Integer getDiemTichLuy() { return diemTichLuy; }
+    public void setDiemTichLuy(Integer diemTichLuy) { this.diemTichLuy = diemTichLuy; }
 
-    public int getMaHang() { return maHang; }
-    public void setMaHang(int maHang) { this.maHang = maHang; }
+    public Integer getMaHang() { return maHang; }
+    public void setMaHang(Integer maHang) { this.maHang = maHang; }
 
     public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
     public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
 
-    public int getMaNX() { return maNX; }
-    public void setMaNX(int maNX) { this.maNX = maNX; }
+    public Integer getMaNX() { return maNX; }
+    public void setMaNX(Integer maNX) { this.maNX = maNX; }
 }
