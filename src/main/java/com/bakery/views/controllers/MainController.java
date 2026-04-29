@@ -6,6 +6,7 @@ import com.bakery.model.dto.NhanVienDTO;
 import com.bakery.model.dto.VaiTroDTO;
 import com.bakery.services.AuthService;
 import com.bakery.utils.SessionContext;
+import com.bakery.utils.UserSession;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -120,15 +121,20 @@ public class MainController {
         task.setOnSucceeded(event -> {
             setLoginFormDisabled(false);
             try {
-                // Determine layout based on role
-                com.bakery.utils.SessionContext.AuthSession session = authService.getCurrentSession();
-                String role = session != null ? session.getTenVaiTro().toLowerCase() : "";
-                
-                if (role.contains("thu ngân") || role.contains("thu ngan")) {
-                    switchScene(App.CASHIER_DASHBOARD_VIEW, null);
-                } else {
-                    switchScene(App.DASHBOARD_VIEW, null);
+                // Lấy session đã tạo và chuyển sang MainMenuView
+                SessionContext.AuthSession session = authService.getCurrentSession();
+                NhanVienDTO nhanVien = task.getValue();
+
+                // Đồng bộ tenVaiTro từ session sang DTO để MainMenuView hiển thị đúng
+                if (session != null) {
+                    nhanVien.setTenVaiTro(session.getTenVaiTro());
                 }
+
+                // Set UserSession cho toàn bộ ứng dụng sử dụng
+                UserSession.setCurrentUser(nhanVien);
+
+                // Chuyển sang giao diện MainMenuView
+                chuyenSangMainMenu(nhanVien);
             } catch (Exception ex) {
                 lblLoginMessage.setText(ex.getMessage());
             }
@@ -432,6 +438,29 @@ public class MainController {
         worker.start();
     }
 
+    // Chuyển sang MainMenuView sau khi đăng nhập thành công
+    private void chuyenSangMainMenu(NhanVienDTO nhanVien) throws Exception {
+        FXMLLoader loader = new FXMLLoader(App.class.getResource(App.MAIN_MENU_VIEW));
+        Parent root = loader.load();
+
+        MainMenuViewFXMLController menuController = loader.getController();
+        menuController.khoiTaoThongTinDangNhap(nhanVien);
+
+        Scene scene = new Scene(root, 1366, 768);
+        java.net.URL cssUrl = App.class.getResource("/css/bakery.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        }
+
+        Stage stage = currentStage();
+        stage.setTitle("H3K Bakery - Main Menu");
+        stage.setResizable(true);
+        stage.setMinWidth(1280);
+        stage.setMinHeight(720);
+        stage.setScene(scene);
+        stage.centerOnScreen();
+    }
+
     private void switchScene(String viewPath, String loginMessage) throws Exception {
         FXMLLoader loader = new FXMLLoader(App.class.getResource(viewPath));
         Parent root = loader.load();
@@ -441,8 +470,14 @@ public class MainController {
             ((MainController) controller).setLoginInfo(loginMessage);
         }
 
+        Scene scene = new Scene(root);
+        java.net.URL cssUrl = App.class.getResource("/css/bakery.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        }
+
         Stage stage = currentStage();
-        stage.setScene(new Scene(root));
+        stage.setScene(scene);
         stage.sizeToScene();
         stage.centerOnScreen();
     }
