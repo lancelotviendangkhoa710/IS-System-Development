@@ -14,7 +14,8 @@ import java.util.List;
 
 /**
  * DAO truy xuất bảng NGUYENLIEU.
- * Tương tác với DB qua PreparedStatement (SELECT) và Stored Procedure (CUD).
+ * Tương tác với DB qua PreparedStatement (SELECT) và Stored Procedure
+ * (CUD).
  */
 public class NguyenLieuDAO {
 
@@ -24,15 +25,15 @@ public class NguyenLieuDAO {
     public List<NguyenLieuDTO> layTatCaNguyenLieu() {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "SELECT MANL, TENNL, XUATXU, MADVT, GIAVONTRUNGBINH, " +
-                     "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
-                     "THOIDIEMXOA, MANX " +
-                     "FROM NGUYENLIEU " +
-                     "WHERE THOIDIEMXOA IS NULL " +
-                     "ORDER BY MANL";
+                "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
+                "THOIDIEMXOA, MANX " +
+                "FROM NGUYENLIEU " +
+                "WHERE THOIDIEMXOA IS NULL " +
+                "ORDER BY MANL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 list.add(mapNguyenLieu(rs));
@@ -45,20 +46,21 @@ public class NguyenLieuDAO {
     }
 
     /**
-     * Tìm kiếm nguyên liệu theo tên (LIKE, không phân biệt hoa thường).
+     * Tìm kiếm nguyên liệu theo tên (LIKE, không phân biệt hoa
+     * thường).
      */
     public List<NguyenLieuDTO> timKiemNguyenLieu(String keyword) {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "SELECT MANL, TENNL, XUATXU, MADVT, GIAVONTRUNGBINH, " +
-                     "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
-                     "THOIDIEMXOA, MANX " +
-                     "FROM NGUYENLIEU " +
-                     "WHERE THOIDIEMXOA IS NULL " +
-                     "AND LOWER(TENNL) LIKE ? " +
-                     "ORDER BY MANL";
+                "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
+                "THOIDIEMXOA, MANX " +
+                "FROM NGUYENLIEU " +
+                "WHERE THOIDIEMXOA IS NULL " +
+                "AND LOWER(TENNL) LIKE ? " +
+                "ORDER BY MANL";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, "%" + keyword.toLowerCase() + "%");
 
@@ -83,7 +85,7 @@ public class NguyenLieuDAO {
     public int themNguyenLieu(NguyenLieuDTO dto, int maNv) {
         String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
         try (Connection conn = DBConnect.getConnection();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setString(1, dto.getTenNL());
             cstmt.setString(2, dto.getXuatXu());
@@ -107,7 +109,7 @@ public class NguyenLieuDAO {
     public boolean capNhatNguyenLieu(NguyenLieuDTO dto) {
         String sql = "{CALL PROC_SUA_NGUYENLIEU(?, ?, ?, ?, ?)}";
         try (Connection conn = DBConnect.getConnection();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, dto.getMaNL());
             cstmt.setString(2, dto.getTenNL());
@@ -125,12 +127,13 @@ public class NguyenLieuDAO {
 
     /**
      * Xóa nguyên liệu qua PROC_XOA_NGUYENLIEU.
-     * Procedure tự phân loại: xóa mềm nếu đã có lịch sử, xóa cứng nếu chưa.
+     * Procedure tự phân loại: xóa mềm nếu đã có lịch sử, xóa
+     * cứng nếu chưa.
      */
     public boolean xoaNguyenLieu(int maNL, int maNv) {
         String sql = "{CALL PROC_XOA_NGUYENLIEU(?, ?)}";
         try (Connection conn = DBConnect.getConnection();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, maNL);
             cstmt.setInt(2, maNv);
@@ -143,14 +146,13 @@ public class NguyenLieuDAO {
         return false;
     }
 
-    /** Ánh xạ ResultSet sang NguyenLieuDTO. */
     private NguyenLieuDTO mapNguyenLieu(ResultSet rs) throws SQLException {
         NguyenLieuDTO dto = new NguyenLieuDTO();
         dto.setMaNL(rs.getInt("MANL"));
         dto.setTenNL(rs.getString("TENNL"));
         dto.setXuatXu(rs.getString("XUATXU"));
         dto.setMaDVT(rs.getInt("MADVT"));
-        dto.setGiaVonTrungBinh(rs.getDouble("GIAVONTRUNGBINH"));
+        dto.setGiaVonTrungBinh(rs.getBigDecimal("GIAVONTRUNGBINH"));
         dto.setMucTonAnToan(rs.getDouble("MUCTONANTOAN"));
         dto.setSoLuongTonTong(rs.getDouble("SOLUONGTONTONG"));
         dto.setDatChuanVSATTP(rs.getInt("DATCHUANVSATTP"));

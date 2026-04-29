@@ -25,17 +25,17 @@
                 <Label text="Management Suite" styleClass="sidebar-tagline"/>
             </VBox>
             <VBox spacing="6" style="-fx-padding: 6 12 8 12;">
-                <Button text="🧑‍💼  Staff" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="👥  Customers" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="🥐  Products &amp; Recipes" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="📦  Inventory" styleClass="nav-item, nav-item-active" maxWidth="Infinity"/>
-                <Button text="📈  Business Reports" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="???  Staff" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="?  Customers" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="?  Products &amp; Recipes" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="?  Inventory" styleClass="nav-item, nav-item-active" maxWidth="Infinity"/>
+                <Button text="?  Business Reports" styleClass="nav-item" maxWidth="Infinity"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
             <VBox spacing="6" style="-fx-padding: 10 12 16 12;">
-                <Button text="⚙  Settings" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="❓  Support" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="↩  Ve Menu" styleClass="btn-secondary" onAction="#onVeMenu"/>
+                <Button text="?  Settings" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="?  Support" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="?  Ve Menu" styleClass="btn-secondary" onAction="#onVeMenu"/>
             </VBox>
         </VBox>
     </left>
@@ -45,9 +45,9 @@
             <HBox styleClass="app-header" alignment="CENTER_LEFT" spacing="12">
                 <TextField promptText="Search inventory, products, orders..." styleClass="text-field" prefWidth="420"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="🔔" styleClass="icon-btn"/>
-                <Button text="🕘" styleClass="icon-btn"/>
-                <Button text="👤" styleClass="icon-btn"/>
+                <Button text="?" styleClass="icon-btn"/>
+                <Button text="?" styleClass="icon-btn"/>
+                <Button text="?" styleClass="icon-btn"/>
             </HBox>
 
             <VBox spacing="16" style="-fx-padding: 20;">
@@ -57,12 +57,12 @@
                         <Label text="Monitor stock levels, manage supplier purchase orders, and track logistics." styleClass="lbl-body"/>
                     </VBox>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="➕  Create Purchase Order" styleClass="btn-primary" onAction="#onActionTam"/>
+                    <Button text="?  Create Purchase Order" styleClass="btn-primary" onAction="#onActionTam"/>
                 </HBox>
 
                 <HBox spacing="16">
                     <VBox styleClass="card" spacing="10" prefWidth="380">
-                        <Label text="⚠ Critical Alerts" styleClass="lbl-title-card"/>
+                        <Label text="? Critical Alerts" styleClass="lbl-title-card"/>
                         <Button text="Unbleached Flour - Low Stock: 5kg left" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
                         <Button text="Fresh Yeast - Expired: 12 Oct 2023" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
                         <Button text="Tahitian Vanilla Beans - Reorder level reached" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
@@ -95,7 +95,7 @@
                         </TableView>
 
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Button text="➕ Add New Item Row" styleClass="btn-secondary" onAction="#onActionTam"/>
+                            <Button text="? Add New Item Row" styleClass="btn-secondary" onAction="#onActionTam"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Button text="Save as Draft" styleClass="btn-secondary" onAction="#onActionTam"/>
                             <Button text="Confirm Purchase Order" styleClass="btn-primary" onAction="#onActionTam"/>
@@ -107,20 +107,20 @@
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <Label text="Recent Supplier Shipments &amp; Logistics" styleClass="lbl-title-card"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="View Full Shipment Logs →" styleClass="btn-secondary" onAction="#onActionTam"/>
+                        <Button text="View Full Shipment Logs ?" styleClass="btn-secondary" onAction="#onActionTam"/>
                     </HBox>
                     <FlowPane hgap="12" vgap="12">
-                        <Button text="🚚 Artisan Grain - Arrived today 08:30" styleClass="nav-item" onAction="#onActionTam"/>
-                        <Button text="⏰ Normandy Dairy - Delayed approx 2h" styleClass="nav-item" onAction="#onActionTam"/>
-                        <Button text="✅ Vanilla Dreams - Delivered yesterday" styleClass="nav-item" onAction="#onActionTam"/>
-                        <Button text="📦 Pantry Plus - Pending receipt" styleClass="nav-item" onAction="#onActionTam"/>
+                        <Button text="? Artisan Grain - Arrived today 08:30" styleClass="nav-item" onAction="#onActionTam"/>
+                        <Button text="? Normandy Dairy - Delayed approx 2h" styleClass="nav-item" onAction="#onActionTam"/>
+                        <Button text="? Vanilla Dreams - Delivered yesterday" styleClass="nav-item" onAction="#onActionTam"/>
+                        <Button text="? Pantry Plus - Pending receipt" styleClass="nav-item" onAction="#onActionTam"/>
                     </FlowPane>
                 </VBox>
 
                 <HBox>
                     <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="🛒 Mo POS" styleClass="btn-primary" onAction="#onMoPOS"/>
+                    <Button text="? Mo POS" styleClass="btn-primary" onAction="#onMoPOS"/>
                 </HBox>
             </VBox>
         </VBox>

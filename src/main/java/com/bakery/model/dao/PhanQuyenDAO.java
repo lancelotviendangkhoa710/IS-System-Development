@@ -1,6 +1,7 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.ChucNangDTO;
+import com.bakery.model.enums.SystemModule;
 import com.bakery.utils.DBConnect;
 
 import java.sql.Connection;
@@ -19,7 +20,8 @@ public class PhanQuyenDAO {
                        CASE WHEN V.THOIDIEMXOA IS NULL THEN 1 ELSE 0 END AS VAITRO_HOATDONG,
                        C.MACHUCNANG,
                        C.TENCHUCNANG,
-                       C.MOTA
+                       C.MOTA,
+                       C.MODULE
                 FROM VAITRO V
                 LEFT JOIN VAITRO_CHUCNANG VC ON V.MAVAITRO = VC.MAVAITRO
                 LEFT JOIN CHUCNANG C ON VC.MACHUCNANG = C.MACHUCNANG
@@ -53,6 +55,12 @@ public class PhanQuyenDAO {
                     cn.setMaChucNang(maChucNang);
                     cn.setTenChucNang(rs.getString("TENCHUCNANG"));
                     cn.setMoTa(rs.getString("MOTA"));
+                    String moduleStr = rs.getString("MODULE");
+                    if (moduleStr != null) {
+                        try {
+                            cn.setModule(SystemModule.valueOf(moduleStr.toUpperCase()));
+                        } catch (IllegalArgumentException ignored) {}
+                    }
                     danhSach.add(cn);
                     permissionKeys.add(chuanHoaPermissionKey(cn.getTenChucNang()));
                 }

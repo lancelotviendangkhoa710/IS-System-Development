@@ -25,6 +25,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller cho giao diện quản lý Sản phẩm.
+ * Implement interface ISanPhamView để nhận lệnh từ SanPhamPresenter.
+ */
 public class SanPhamViewFXMLController implements ISanPhamView {
 
     @FXML private TableView<SanPhamDTO> tblSanPham;
@@ -136,7 +140,7 @@ public class SanPhamViewFXMLController implements ISanPhamView {
                 imgSanPham.setImage(null);
             }
         } catch (Exception e) {
-            System.err.println("Không thể load ảnh: " + hinhAnhName);
+            System.err.println("Không thể tải ảnh: " + hinhAnhName);
         }
     }
 
@@ -188,7 +192,7 @@ public class SanPhamViewFXMLController implements ISanPhamView {
             
             String tenSP = txtTenSP.getText().trim();
             if (tenSP.isEmpty()) {
-                hienThiLoi("Tên sản phẩm không được trống.");
+                hienThiLoi("Tên sản phẩm không được để trống.");
                 return null;
             }
 

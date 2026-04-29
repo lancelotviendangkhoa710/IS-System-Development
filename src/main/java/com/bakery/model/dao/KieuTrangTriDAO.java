@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.KieuTrangTriDTO;
 import com.bakery.utils.DBConnect;
@@ -34,7 +34,7 @@ public class KieuTrangTriDAO {
                 list.add(item);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[KieuTrangTriDAO] Lỗi: " + e.getMessage());
         }
         return list;
     }

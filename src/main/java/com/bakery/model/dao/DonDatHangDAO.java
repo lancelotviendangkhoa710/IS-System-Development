@@ -30,7 +30,7 @@ public class DonDatHangDAO {
                 if (donDatHang.getMaKH() != null) cstmt.setInt(2, donDatHang.getMaKH()); else cstmt.setNull(2, Types.NUMERIC);
                 cstmt.setInt(3, donDatHang.getMaNVLap());
                 cstmt.setInt(4, donDatHang.getMaTrangThai());
-                cstmt.setDouble(5, donDatHang.getTienDaCoc());
+                cstmt.setBigDecimal(5, donDatHang.getTienDaCoc());
                 if (donDatHang.getHinhThucNhan() != null) cstmt.setInt(6, donDatHang.getHinhThucNhan()); else cstmt.setNull(6, Types.NUMERIC);
                 if (donDatHang.getDiaChiGiao() != null && !donDatHang.getDiaChiGiao().trim().isEmpty()) cstmt.setString(7, donDatHang.getDiaChiGiao().trim()); else cstmt.setNull(7, Types.NVARCHAR);
 
@@ -128,8 +128,8 @@ public class DonDatHangDAO {
                         if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
                             dto.setNgayGioNhanBanh(rs.getTimestamp("NGAYGIONHANBANH").toLocalDateTime());
                         }
-                        dto.setTongTienHDBan(rs.getDouble("TONGTIENHDBAN"));
-                        dto.setTienDaCoc(rs.getDouble("TIENDACOC"));
+                        dto.setTongTienHDBan(rs.getBigDecimal("TONGTIENHDBAN"));
+                        dto.setTienDaCoc(rs.getBigDecimal("TIENDACOC"));
                         int hinhThucNhan = rs.getInt("HINHTHUCNHAN");
                         if (!rs.wasNull()) dto.setHinhThucNhan(hinhThucNhan);
                         return dto;
@@ -196,7 +196,7 @@ public class DonDatHangDAO {
                         if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
                             dto.setNgayGioNhanBanh(rs.getTimestamp("NGAYGIONHANBANH").toLocalDateTime());
                         }
-                        dto.setTongTienHDBan(rs.getDouble("TONGTIENHDBAN"));
+                        dto.setTongTienHDBan(rs.getBigDecimal("TONGTIENHDBAN"));
                         list.add(dto);
                     }
                 }
@@ -281,8 +281,8 @@ public class DonDatHangDAO {
                         item.setMaDon(rs.getInt("MADON"));
                         item.setMaSP(rs.getInt("MASP"));
                         item.setSoLuong(rs.getInt("SOLUONG"));
-                        item.setDonGia(rs.getDouble("DONGIA"));
-                        item.setDonGiaVon(rs.getDouble("DONGIAVON"));
+                        item.setDonGia(rs.getBigDecimal("DONGIA"));
+                        item.setDonGiaVon(rs.getBigDecimal("DONGIAVON"));
                         item.setPhanTramGiam(rs.getDouble("PHANTRAMGIAM"));
                         list.add(item);
                     }
@@ -305,8 +305,8 @@ public class DonDatHangDAO {
                         item.setMaDon(rs.getInt("MADON"));
                         item.setMaSP(rs.getInt("MASP"));
                         item.setSoLuong(rs.getInt("SOLUONG"));
-                        item.setDonGia(rs.getDouble("DONGIA"));
-                        item.setDonGiaVon(rs.getDouble("DONGIAVON"));
+                        item.setDonGia(rs.getBigDecimal("DONGIA"));
+                        item.setDonGiaVon(rs.getBigDecimal("DONGIAVON"));
                         item.setMaKC(rs.getInt("MAKC"));
                         item.setMaCot(rs.getInt("MACOT"));
                         item.setMaNhan(rs.getInt("MANHAN"));

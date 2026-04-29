@@ -47,7 +47,7 @@ public class DonHangPresenter {
             CTDonHangDTO dto = new CTDonHangDTO();
             dto.setMaSP(item.getMaSP());
             dto.setSoLuong(item.getSoLuong());
-            dto.setDonGia(item.getDonGia());
+            dto.setDonGia(java.math.BigDecimal.valueOf(item.getDonGia()));
             list.add(dto);
         }
         return list;
@@ -280,7 +280,7 @@ public class DonHangPresenter {
             DonDatHangDTO tomTat = orderService.loadOrderById(maDon);
             view.showOrderDetails(tomTat);
             view.hienThiKetQuaTraCuu(tomTat.getMaKH() == null ? "Khách lẻ" : "Mã KH: " + tomTat.getMaKH(),
-                    tomTat.getTenTrangThai(), tomTat.getTongTienHDBan());
+                    tomTat.getTenTrangThai(), tomTat.getTongTienHDBan() != null ? tomTat.getTongTienHDBan().doubleValue() : 0.0);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
         }
@@ -299,8 +299,8 @@ public class DonHangPresenter {
             HoaDonDTO hoaDonMoi = null;
             // Nếu chuyển sang trạng thái Hoàn thành, yêu cầu xác nhận thu tiền còn lại
             if ("HOAN_THANH".equals(chuanHoaTrangThai(ttMoi))) {
-                double tongTien = donHienTai.getTongTienHDBan();
-                double daCoc = donHienTai.getTienDaCoc();
+                double tongTien = donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue() : 0.0;
+                double daCoc = donHienTai.getTienDaCoc() != null ? donHienTai.getTienDaCoc().doubleValue() : 0.0;
                 double conLai = Math.max(0, tongTien - daCoc);
 
                 if (conLai > 0) {
@@ -335,12 +335,12 @@ public class DonHangPresenter {
                     }
 
                     view.inPhieuHoaDon(
-                            "HOÁ ĐƠN THANH TOÁN",
+                            "HÓA ĐƠN THANH TOÁN",
                             maDon,
                             hoaDonMoi.getMaHD(),
                             hoaDonMoi.getNgayXuatHd(),
-                            donHienTai.getTongTienHDBan(),
-                            donHienTai.getTongTienHDBan(), // Thu đủ tổng tiền sau khi nộp nốt
+                            donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue() : 0.0,
+                            donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue() : 0.0,
                             items,
                             tatCaSanPham, // Dùng dữ liệu đã load sẵn
                             0.0 // Giảm giá đã tính vào tổng tiền đơn hàng từ trước
@@ -410,7 +410,6 @@ public class DonHangPresenter {
         String normalized = Normalizer.normalize(rawStatus.trim(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .replace("đ", "d").replace("Đ", "D")
-                .replace("Ä‘", "d").replace("Ä ", "D")
                 .toUpperCase().replace(' ', '_');
         if (normalized.contains("KHACH") && normalized.contains("LAY"))
             return "CHO_KHACH_LAY";

@@ -5,76 +5,62 @@ import com.bakery.model.dto.DanhMucSPDTO;
 import java.util.List;
 
 /**
- * Contract MVP giữa DanhMucSPPresenter và View (FXML Controller).
- * Tuân thủ parallel_agents.md: Presenter KHÔNG import bất kỳ class UI JavaFX nào.
- * UI Agent implement interface này để nhận lệnh từ Presenter.
- *
- * Quy ước:
- *  - Method "hiển thị dữ liệu" → nhận DTO, View tự map lên ObservableList / Label.
- *  - Method "getXxx" → View đọc state từ TextField / ComboBox trả về kiểu nguyên thủy.
- *  - Không có tham chiếu đến Node/Scene/Stage ở đây.
+ * Interface IDanhMucSPView định nghĩa các phương thức giao tiếp giữa Presenter và View (FXML Controller)
+ * cho chức năng quản lý Danh mục sản phẩm.
+ * 
+ * Tuân thủ kiến trúc MVP: Presenter điều khiển View thông qua interface này, đảm bảo không phụ thuộc vào thư viện UI.
  */
 public interface IDanhMucSPView {
 
-    // ─── DANH SÁCH ─────────────────────────────────────────────────────
+    // ——— HIỂN THỊ DANH SÁCH ———
 
     /**
-     * Đẩy danh sách danh mục lên TableView.
-     * Controller cập nhật ObservableList và TableView sẽ tự refresh.
-     *
-     * @param dsDanhMuc danh sách danh mục đang hoạt động (chưa bị xóa mềm)
+     * Hiển thị danh sách các danh mục sản phẩm lên bảng (TableView).
+     * @param dsDanhMuc Danh sách các đối tượng DTO danh mục.
      */
     void hienThiDanhSach(List<DanhMucSPDTO> dsDanhMuc);
 
-    // ─── FORM CHI TIẾT ─────────────────────────────────────────────────
+    // ——— FORM CHI TIẾT ———
 
     /**
-     * Điền thông tin của một danh mục vào form khi người dùng chọn hàng.
-     *
-     * @param dm đối tượng danh mục được chọn; null = xóa chọn / reset
+     * Điền dữ liệu của một danh mục vào các trường nhập liệu khi người dùng chọn dòng trên bảng.
+     * @param dm Đối tượng danh mục được chọn; null để xóa trắng các trường.
      */
     void hienThiChiTiet(DanhMucSPDTO dm);
 
-    // ─── THÔNG BÁO ─────────────────────────────────────────────────────
+    // ——— THÔNG BÁO ———
 
     /**
-     * Hiển thị thông báo lỗi nghiệp vụ (trùng tên, đang có sản phẩm…).
-     *
-     * @param msg nội dung lỗi rõ ràng, thân thiện người dùng
+     * Hiển thị thông báo lỗi (ví dụ: Tên danh mục đã tồn tại, danh mục đang chứa sản phẩm, v.v.).
      */
     void hienThiLoi(String msg);
 
     /**
-     * Hiển thị thông báo thao tác thành công.
-     *
-     * @param msg ví dụ: "Thêm danh mục thành công."
+     * Hiển thị thông báo khi thực hiện thao tác thành công.
      */
     void hienThiThanhCong(String msg);
 
-    // ─── FORM NHẬP LIỆU ────────────────────────────────────────────────
+    // ——— QUẢN LÝ FORM ———
 
     /**
-     * Làm trống form (xóa TextField, bỏ chọn TableView, reset trạng thái nút).
-     * Gọi sau khi Thêm / Sửa / Xóa thành công.
+     * Làm mới (reset) các trường nhập liệu và trạng thái của các nút bấm trên giao diện.
      */
     void lamMoiForm();
 
-    // ─── GETTERS (Presenter đọc state từ View) ─────────────────────────
+    // ——— TRUY XUẤT TRẠNG THÁI (GETTERS) ———
 
     /**
-     * @return danh mục đang được người dùng chọn trên TableView;
-     *         null nếu chưa chọn hàng nào.
+     * @return Đối tượng danh mục đang được chọn trên bảng; null nếu chưa chọn.
      */
     DanhMucSPDTO getSelectedCategory();
 
     /**
-     * @return giá trị đã nhập trong TextField Tên Danh Mục (đã trim());
-     *         trả về chuỗi rỗng nếu chưa nhập, KHÔNG BAO GIỜ trả null.
+     * @return Tên danh mục người dùng đã nhập (đã xử lý cắt khoảng trắng thừa).
      */
     String getTenDanhMucInput();
 
     /**
-     * @return từ khóa tìm kiếm người dùng nhập trong ô Search.
+     * @return Từ khóa tìm kiếm người dùng nhập vào.
      */
     String getTuKhoaTimKiemInput();
 }

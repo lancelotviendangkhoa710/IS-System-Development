@@ -67,14 +67,14 @@ INSERT INTO PHUONGTHUCTT (TENPTTT) SELECT N'Chuyển khoản' FROM DUAL WHERE NO
 COMMIT;
 
 -- 7) CHỨC NĂNG HỆ THỐNG & PHÂN QUYỀN
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Hệ thống', N'Quản lý cấu hình hệ thống' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Hệ thống');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Nhân sự', N'Quản lý nhân viên và vai trò' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Nhân sự');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Khách hàng', N'Quản lý khách hàng và hạng thành viên' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Khách hàng');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Sản phẩm', N'Quản lý danh mục và sản phẩm' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Sản phẩm');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Kho', N'Quản lý nguyên liệu và nhập xuất kho' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Kho');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Bán hàng', N'Màn hình bán hàng POS' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Bán hàng');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Đơn hàng', N'Quản lý đơn đặt hàng và trạng thái' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Đơn hàng');
-INSERT INTO CHUCNANG (TENCHUCNANG, MOTA) SELECT N'Báo cáo', N'Xem báo cáo thống kê doanh thu' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Báo cáo');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Hệ thống', N'Quản lý cấu hình hệ thống', 'SYSTEM' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Hệ thống');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Nhân sự', N'Quản lý nhân viên và vai trò', 'HR' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Nhân sự');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Khách hàng', N'Quản lý khách hàng và hạng thành viên', 'CRM' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Khách hàng');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Sản phẩm', N'Quản lý danh mục và sản phẩm', 'INVENTORY' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Sản phẩm');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Kho', N'Quản lý nguyên liệu và nhập xuất kho', 'INVENTORY' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Kho');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Bán hàng', N'Màn hình bán hàng POS', 'POS' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Bán hàng');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Đơn hàng', N'Quản lý đơn đặt hàng và trạng thái', 'POS' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Đơn hàng');
+INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE) SELECT N'Báo cáo', N'Xem báo cáo thống kê doanh thu', 'REPORTS' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CHUCNANG WHERE TENCHUCNANG = N'Báo cáo');
 
 -- Phân quyền cho Quản lý (Full Access)
 INSERT INTO VAITRO_CHUCNANG (MAVAITRO, MACHUCNANG)
@@ -128,3 +128,97 @@ COMMIT;
 
 
 select * from SANPHAM;
+
+-- =========================================================================
+-- SEED DỮ LIỆU ĐỒ SỘ (TỰ ĐỘNG SINH)
+-- =========================================================================
+DECLARE
+  v_count NUMBER;
+  v_madm NUMBER;
+  v_mancc NUMBER;
+BEGIN
+  -- 1) 30 Khách hàng
+  FOR i IN 1..30 LOOP
+    SELECT COUNT(*) INTO v_count FROM KHACHHANG WHERE SDT = '0988000' || LPAD(i, 3, '0');
+    IF v_count = 0 THEN
+      INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI, MAHANG)
+      VALUES ('Khách Hàng Vip ' || i, '0988000' || LPAD(i, 3, '0'), 'Địa chỉ số ' || i || ' TPHCM', 1);
+    END IF;
+  END LOOP;
+  
+  -- 2) 10 Danh mục sản phẩm
+  FOR i IN 1..10 LOOP
+    SELECT COUNT(*) INTO v_count FROM DANHMUCSP WHERE TENDM = 'Danh mục mở rộng ' || i;
+    IF v_count = 0 THEN
+      INSERT INTO DANHMUCSP (TENDM) VALUES ('Danh mục mở rộng ' || i);
+    END IF;
+  END LOOP;
+  
+  -- Lấy 1 mã danh mục ngẫu nhiên để thêm sản phẩm
+  SELECT MIN(MADM) INTO v_madm FROM DANHMUCSP;
+  
+  -- 3) 30 Sản phẩm
+  FOR i IN 1..30 LOOP
+    SELECT COUNT(*) INTO v_count FROM SANPHAM WHERE TENSP = 'Sản phẩm giả lập cao cấp ' || i;
+    IF v_count = 0 THEN
+      INSERT INTO SANPHAM (MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, THOIGIANBAOQUAN, SOLUONGTON, THOIGIANCHUANBI)
+      VALUES (v_madm, 'Sản phẩm giả lập cao cấp ' || i, 50000 + (i * 5000), '/images/products/default.png', 0, 48, 100, 30);
+    END IF;
+  END LOOP;
+  
+  -- 4) 10 Nhân viên
+  FOR i IN 1..10 LOOP
+    SELECT COUNT(*) INTO v_count FROM NHANVIEN WHERE TENDANGNHAP = 'nhanvien_mock_' || i;
+    IF v_count = 0 THEN
+      INSERT INTO NHANVIEN (MAVAITRO, HOTEN, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC)
+      VALUES (2, 'Nhân Viên Thời Vụ ' || i, '0933000' || LPAD(i, 3, '0'), 'nhanvien_mock_' || i, '123', 1);
+    END IF;
+  END LOOP;
+  
+  -- 5) 10 Nhà cung cấp
+  FOR i IN 1..10 LOOP
+    SELECT COUNT(*) INTO v_count FROM NHACUNGCAP WHERE TENNCC = 'Đối tác cung ứng số ' || i;
+    IF v_count = 0 THEN
+      INSERT INTO NHACUNGCAP (TENNCC, SDT, DIACHI)
+      VALUES ('Đối tác cung ứng số ' || i, '0911000' || LPAD(i, 3, '0'), 'Khu công nghiệp ' || i);
+    END IF;
+  END LOOP;
+  
+  -- 6) Tùy chỉnh bánh: 10 Kích cỡ, 10 Cốt, 10 Nhân, 10 Trang trí
+  FOR i IN 1..10 LOOP
+    SELECT COUNT(*) INTO v_count FROM KICHCOBANH WHERE TENKC = i || '0 cm - Size Lớn';
+    IF v_count = 0 THEN INSERT INTO KICHCOBANH (TENKC, PHUPHI) VALUES (i || '0 cm - Size Lớn', i * 10000); END IF;
+    
+    SELECT COUNT(*) INTO v_count FROM COTBANH WHERE TENCOT = 'Cốt bánh đặc biệt ' || i;
+    IF v_count = 0 THEN INSERT INTO COTBANH (TENCOT, PHUPHI) VALUES ('Cốt bánh đặc biệt ' || i, i * 5000); END IF;
+    
+    SELECT COUNT(*) INTO v_count FROM NHANBANH WHERE TENNHAN = 'Nhân mix trái cây ' || i;
+    IF v_count = 0 THEN INSERT INTO NHANBANH (TENNHAN, PHUPHI) VALUES ('Nhân mix trái cây ' || i, i * 7000); END IF;
+    
+    SELECT COUNT(*) INTO v_count FROM KIEUTRANGTRI WHERE TENTRANGTRI = 'Style hiện đại ' || i;
+    IF v_count = 0 THEN INSERT INTO KIEUTRANGTRI (TENTRANGTRI, PHUPHI) VALUES ('Style hiện đại ' || i, i * 15000); END IF;
+  END LOOP;
+  
+  COMMIT;
+END;
+/
+
+DECLARE
+  v_count NUMBER;
+  v_madvt NUMBER;
+BEGIN
+  -- Lấy mã DVT ngẫu nhiên
+  SELECT MIN(MADVT) INTO v_madvt FROM DONVITINH;
+  
+  -- 7) 30 Nguyên liệu
+  FOR i IN 1..30 LOOP
+    SELECT COUNT(*) INTO v_count FROM NGUYENLIEU WHERE TENNL = 'Nguyên liệu giả lập ' || i;
+    IF v_count = 0 THEN
+      INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT, MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP)
+      VALUES ('Nguyên liệu giả lập ' || i, 'Việt Nam', v_madvt, 10, 50 + i, 1);
+    END IF;
+  END LOOP;
+  
+  COMMIT;
+END;
+/

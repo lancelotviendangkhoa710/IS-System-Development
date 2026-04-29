@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.KhachHangDTO;
 import com.bakery.utils.DBConnect;
@@ -33,24 +33,45 @@ public class KhachHangDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - timKhachHangBangSDT: " + e.getMessage());
+            System.err.println("L?i DAO - timKhachHangBangSDT: " + e.getMessage());
         }
         return null;
     }
 
-    public boolean themKhachHangMoi(KhachHangDTO kh) {
+    public int themKhachHangMoi(KhachHangDTO kh) {
         String sql = "INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnect.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql, new String[] { "MAKH" })) {
 
             pstmt.setString(1, kh.getHoTen());
             pstmt.setString(2, kh.getSdt());
             pstmt.setString(3, kh.getDiaChi());
 
+            if (pstmt.executeUpdate() > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("L?i DAO - themKhachHangMoi: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public boolean capNhatKhachHang(KhachHangDTO kh) {
+        String sql = "UPDATE KHACHHANG SET HOTEN = ?, SDT = ?, DIACHI = ? WHERE MAKH = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, kh.getHoTen());
+            pstmt.setString(2, kh.getSdt());
+            pstmt.setString(3, kh.getDiaChi());
+            pstmt.setInt(4, kh.getMaKH());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - themKhachHangMoi: " + e.getMessage());
+            System.err.println("L?i DAO - capNhatKhachHang: " + e.getMessage());
         }
         return false;
     }
@@ -66,7 +87,7 @@ public class KhachHangDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - capNhatDiemTichLuy: " + e.getMessage());
+            System.err.println("L?i DAO - capNhatDiemTichLuy: " + e.getMessage());
         }
         return false;
     }

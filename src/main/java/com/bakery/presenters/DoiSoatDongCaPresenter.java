@@ -40,7 +40,7 @@ public class DoiSoatDongCaPresenter {
                 String causeMsg = e.getMessage() != null ? e.getMessage() : "unknown";
                 if (e.getCause() != null) causeMsg += " | Cause: " + e.getCause().getMessage();
                 System.err.println("[DoiSoat] Lỗi tải thông tin ca: " + causeMsg);
-                e.printStackTrace();
+                System.err.println("[DoiSoatDongCaPresenter] Lỗi: " + e.getMessage());
                 String maCaHienThi = "CA_" + String.format("%06d", maCa);
                 view.hienThiLoiTaiCa(maCaHienThi, causeMsg);
             } finally {

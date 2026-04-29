@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto;
+package com.bakery.model.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

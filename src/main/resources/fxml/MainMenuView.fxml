@@ -39,6 +39,7 @@
                 <Button text="KDS" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="Audit Logs" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button fx:id="btnSupplier" text="Nhà cung cấp" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSupplier"/>
+                <Button fx:id="btnCashbook" text="Sổ quỹ thu chi" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoCashbook"/>
                 <Button fx:id="btnDanhMuc"     text="Danh mục SP"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoDanhMuc"/>
                 <Button fx:id="btnSanPham"     text="Sản phẩm"      styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSanPham"/>
                 <Button fx:id="btnNguyenLieu"  text="Nguyên liệu"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNguyenLieu"/>
@@ -82,6 +83,8 @@
                         </VBox>
                         <!-- Fake Avatar -->
                         <Circle radius="18" fill="#1C0A00" styleClass="dash-avatar"/>
+                        
+                        <Button text="🚪" styleClass="dash-icon-btn" onAction="#onDangXuat" style="-fx-font-size: 16px;"/>
                     </HBox>
                 </HBox>
             </top>
@@ -102,6 +105,7 @@
                                 <HBox spacing="16">
                                     <Button text="Tạo đơn hàng mới" styleClass="dash-btn-primary" onAction="#onMoPOS"/>
                                     <Button text="Thêm nhân viên" styleClass="dash-btn-secondary" onAction="#onThemNhanVien"/>
+                                    <Button fx:id="btnQuanLyCa" text="Quản lý Ca làm việc" styleClass="dash-btn-secondary" onAction="#onQuanLyCa"/>
                                 </HBox>
                             </VBox>
                         </HBox>

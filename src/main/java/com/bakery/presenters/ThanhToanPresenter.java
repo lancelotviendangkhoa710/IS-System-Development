@@ -253,7 +253,7 @@ public class ThanhToanPresenter {
             CTDonHangDTO dto = new CTDonHangDTO();
             dto.setMaSP(item.getMaSP());
             dto.setSoLuong(item.getSoLuong());
-            dto.setDonGia(item.getDonGia());
+            dto.setDonGia(java.math.BigDecimal.valueOf(item.getDonGia()));
             list.add(dto);
         }
         return list;

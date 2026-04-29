@@ -31,61 +31,42 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Controller chính xử lý đăng nhập, đăng ký và điều hướng ban đầu.
+ */
 public class MainController {
     private final AuthService authService = new AuthService();
-    private static final List<String> REGISTER_ROLE_ORDER = List.of("Thu ngan", "Quan ly", "Tho bep");
+    private static final List<String> REGISTER_ROLE_ORDER = List.of("Thu ngân", "Quản lý", "Thợ bếp");
 
-    @FXML
-    private TextField txtUsername;
-    @FXML
-    private PasswordField txtPassword;
-    @FXML
-    private Button btnLogin;
-    @FXML
-    private Label lblLoginMessage;
-    @FXML
-    private TextField txtRegisterHoTen;
-    @FXML
-    private TextField txtRegisterSoDienThoai;
-    @FXML
-    private TextField txtRegisterUsername;
-    @FXML
-    private PasswordField txtRegisterPassword;
-    @FXML
-    private ComboBox<RoleOption> cboRegisterRole;
-    @FXML
-    private TextField txtRegisterManagerCode;
-    @FXML
-    private Button btnRegister;
-    @FXML
-    private Label lblRegisterMessage;
+    @FXML private TextField txtUsername;
+    @FXML private PasswordField txtPassword;
+    @FXML private Button btnLogin;
+    @FXML private Label lblLoginMessage;
+    
+    @FXML private TextField txtRegisterHoTen;
+    @FXML private TextField txtRegisterSoDienThoai;
+    @FXML private TextField txtRegisterUsername;
+    @FXML private PasswordField txtRegisterPassword;
+    @FXML private ComboBox<RoleOption> cboRegisterRole;
+    @FXML private TextField txtRegisterManagerCode;
+    @FXML private Button btnRegister;
+    @FXML private Label lblRegisterMessage;
 
-    @FXML
-    private Label lblWelcome;
-    @FXML
-    private Label lblRole;
-    @FXML
-    private Label lblCurrentView;
-    @FXML
-    private Label lblDashboardMessage;
-    @FXML
-    private VBox menuContainer;
-    @FXML
-    private VBox overviewPane;
-    @FXML
-    private VBox changePasswordPane;
-    @FXML
-    private Label lblPermissionCount;
-    @FXML
-    private Label lblPermissionHint;
-    @FXML
-    private PasswordField txtCurrentPassword;
-    @FXML
-    private PasswordField txtNewPassword;
-    @FXML
-    private PasswordField txtConfirmPassword;
-    @FXML
-    private Button btnChangePassword;
+    @FXML private Label lblWelcome;
+    @FXML private Label lblRole;
+    @FXML private Label lblCurrentView;
+    @FXML private Label lblDashboardMessage;
+    @FXML private VBox menuContainer;
+    
+    @FXML private VBox overviewPane;
+    @FXML private VBox changePasswordPane;
+    @FXML private Label lblPermissionCount;
+    @FXML private Label lblPermissionHint;
+    
+    @FXML private PasswordField txtCurrentPassword;
+    @FXML private PasswordField txtNewPassword;
+    @FXML private PasswordField txtConfirmPassword;
+    @FXML private Button btnChangePassword;
 
     private String pendingLoginMessage;
 
@@ -109,7 +90,7 @@ public class MainController {
     @FXML
     private void handleLogin() {
         setLoginFormDisabled(true);
-        lblLoginMessage.setText("Dang xac thuc tai khoan...");
+        lblLoginMessage.setText("Đang xác thực tài khoản...");
 
         Task<NhanVienDTO> task = new Task<>() {
             @Override
@@ -157,8 +138,8 @@ public class MainController {
         overviewPane.setManaged(true);
         changePasswordPane.setVisible(false);
         changePasswordPane.setManaged(false);
-        lblCurrentView.setText("Tong quan quyen truy cap");
-        lblDashboardMessage.setText("Chon mot muc menu ben trai de xem quyen duoc cap.");
+        lblCurrentView.setText("Tổng quan quyền truy cập");
+        lblDashboardMessage.setText("Chọn một mục menu bên trái để xem quyền được cấp.");
     }
 
     @FXML
@@ -170,15 +151,15 @@ public class MainController {
         overviewPane.setManaged(false);
         changePasswordPane.setVisible(true);
         changePasswordPane.setManaged(true);
-        lblCurrentView.setText("Doi mat khau");
-        lblDashboardMessage.setText("Sau khi doi mat khau thanh cong, he thong se bat buoc dang xuat.");
+        lblCurrentView.setText("Đổi mật khẩu");
+        lblDashboardMessage.setText("Sau khi đổi mật khẩu thành công, hệ thống sẽ bắt buộc đăng xuất.");
         clearChangePasswordForm();
     }
 
     @FXML
     private void handleChangePassword() {
         setChangePasswordDisabled(true);
-        lblDashboardMessage.setText("Dang cap nhat mat khau...");
+        lblDashboardMessage.setText("Đang cập nhật mật khẩu...");
 
         Task<Void> task = new Task<>() {
             @Override
@@ -195,9 +176,9 @@ public class MainController {
         task.setOnSucceeded(event -> {
             setChangePasswordDisabled(false);
             try {
-                switchScene(App.LOGIN_VIEW, "Doi mat khau thanh cong. Vui long dang nhap lai.");
+                switchScene(App.LOGIN_VIEW, "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.");
             } catch (Exception ex) {
-                showAlert(Alert.AlertType.ERROR, "Loi dieu huong", ex.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Lỗi điều hướng", ex.getMessage());
             }
         });
 
@@ -213,9 +194,9 @@ public class MainController {
     private void handleLogout() {
         authService.logout();
         try {
-            switchScene(App.LOGIN_VIEW, "Da dang xuat thanh cong.");
+            switchScene(App.LOGIN_VIEW, "Đã đăng xuất thành công.");
         } catch (Exception ex) {
-            showAlert(Alert.AlertType.ERROR, "Loi dang xuat", ex.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Lỗi đăng xuất", ex.getMessage());
         }
     }
 
@@ -227,17 +208,17 @@ public class MainController {
         if (pendingLoginMessage != null && !pendingLoginMessage.isBlank()) {
             lblLoginMessage.setText(pendingLoginMessage);
         } else {
-            lblLoginMessage.setText("Nhap tai khoan de bat dau phien lam viec.");
+            lblLoginMessage.setText("Nhập tài khoản để bắt đầu phiên làm việc.");
         }
         if (lblRegisterMessage != null) {
-            lblRegisterMessage.setText("Dang ky nhan vien moi voi 3 vai tro: Thu ngan, Quan ly, Tho bep.");
+            lblRegisterMessage.setText("Đăng ký nhân viên mới với 3 vai trò: Thu ngân, Quản lý, Thợ bếp.");
         }
     }
 
     @FXML
     private void handleRegister() {
         setRegisterFormDisabled(true);
-        lblRegisterMessage.setText("Dang tao tai khoan nhan vien...");
+        lblRegisterMessage.setText("Đang tạo tài khoản nhân viên...");
 
         Task<Integer> task = new Task<>() {
             @Override
@@ -257,9 +238,9 @@ public class MainController {
         task.setOnSucceeded(event -> {
             setRegisterFormDisabled(false);
             int maNhanVien = task.getValue();
-            lblRegisterMessage.setText("Dang ky thanh cong. Ma nhan vien moi: " + maNhanVien);
+            lblRegisterMessage.setText("Đăng ký thành công. Mã nhân viên mới: " + maNhanVien);
             clearRegisterForm();
-            lblLoginMessage.setText("Tai khoan moi da duoc tao. Co the dang nhap ngay.");
+            lblLoginMessage.setText("Tài khoản mới đã được tạo. Có thể đăng nhập ngay.");
             txtUsername.requestFocus();
         });
 
@@ -276,9 +257,9 @@ public class MainController {
         if (session == null) {
             Platform.runLater(() -> {
                 try {
-                    switchScene(App.LOGIN_VIEW, "Phien dang nhap da het han. Vui long dang nhap lai.");
+                    switchScene(App.LOGIN_VIEW, "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
                 } catch (Exception ex) {
-                    showAlert(Alert.AlertType.ERROR, "Loi phien dang nhap", ex.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Lỗi phiên đăng nhập", ex.getMessage());
                 }
             });
             return;
@@ -287,7 +268,7 @@ public class MainController {
         lblWelcome.setText(session.getHoTen());
         lblRole.setText(session.getTenVaiTro());
         lblPermissionCount.setText(String.valueOf(session.getQuyen().size()));
-        lblPermissionHint.setText("Menu duoc render tu quyen trong CSDL cho role hien tai.");
+        lblPermissionHint.setText("Menu được render từ quyền trong CSDL cho role hiện tại.");
         renderPermissionMenu();
         handleShowOverview();
     }
@@ -304,7 +285,7 @@ public class MainController {
                     handleShowOverview();
                     lblCurrentView.setText(chucNang.getTenChucNang());
                     if (chucNang.getMoTa() == null || chucNang.getMoTa().isBlank()) {
-                        lblDashboardMessage.setText("Role hien tai duoc truy cap chuc nang \"" + chucNang.getTenChucNang() + "\".");
+                        lblDashboardMessage.setText("Role hiện tại được truy cập chức năng \"" + chucNang.getTenChucNang() + "\".");
                     } else {
                         lblDashboardMessage.setText(chucNang.getMoTa());
                     }
@@ -378,9 +359,9 @@ public class MainController {
             cboRegisterRole.getItems().setAll(roles);
             if (!roles.isEmpty()) {
                 cboRegisterRole.getSelectionModel().selectFirst();
-                lblRegisterMessage.setText("Da tai danh sach vai tro dang ky.");
+                lblRegisterMessage.setText("Đã tải danh sách vai trò đăng ký.");
             } else {
-                lblRegisterMessage.setText("Khong tim thay vai tro hop le cho dang ky.");
+                lblRegisterMessage.setText("Không tìm thấy vai trò hợp lệ cho đăng ký.");
             }
         });
 
@@ -416,8 +397,8 @@ public class MainController {
         }
         String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
-                .replace('đ', 'd')
-                .replace('Đ', 'D');
+                .replace("\u0111", "d")
+                .replace("\u0110", "D");
         return normalized.trim().replaceAll("\\s+", " ").toUpperCase(Locale.ROOT);
     }
 
@@ -427,7 +408,7 @@ public class MainController {
             current = current.getCause();
         }
         if (current == null || current.getMessage() == null || current.getMessage().isBlank()) {
-            return "Da xay ra loi khong xac dinh.";
+            return "Đã xảy ra lỗi không xác định.";
         }
         return current.getMessage();
     }
@@ -438,7 +419,6 @@ public class MainController {
         worker.start();
     }
 
-    // Chuyển sang MainMenuView sau khi đăng nhập thành công
     private void chuyenSangMainMenu(NhanVienDTO nhanVien) throws Exception {
         FXMLLoader loader = new FXMLLoader(App.class.getResource(App.MAIN_MENU_VIEW));
         Parent root = loader.load();

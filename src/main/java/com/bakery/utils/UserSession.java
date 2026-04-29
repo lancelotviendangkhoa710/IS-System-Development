@@ -1,9 +1,11 @@
 package com.bakery.utils;
 
-// UserSession giống như một cái "Thẻ ID đeo trên ngực"
-//  của nhân viên trong suốt thời gian họ sử dụng phần mềm.
 import com.bakery.model.dto.NhanVienDTO;
 
+/**
+ * UserSession quản lý thông tin nhân viên đang đăng nhập trong phiên làm việc hiện tại.
+ * Lưu ý: Đang được duy trì song song với SessionContext để tương thích ngược.
+ */
 public final class UserSession {
     private static NhanVienDTO currentUser;
 

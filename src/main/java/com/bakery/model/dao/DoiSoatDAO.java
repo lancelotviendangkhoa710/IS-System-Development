@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.utils.DBConnect;
 
@@ -48,7 +48,7 @@ public class DoiSoatDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            e.printStackTrace();
+            System.err.println("[DoiSoatDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi tính tiền mặt lý tưởng: " + e.getMessage(), e);
         }
         return BigDecimal.ZERO;
@@ -82,27 +82,9 @@ public class DoiSoatDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            e.printStackTrace();
+            System.err.println("[DoiSoatDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi đóng ca đối soát: " + e.getMessage(), e);
         }
     }
 
-    public static void main(String[] args) {
-        DoiSoatDAO dao = new DoiSoatDAO();
-
-        System.out.println("=== Test DoiSoatDAO ===\n");
-
-        // Test tinhTienMatLyTuong với maCa giả (maCa = 1, tiền khai báo = 500.000đ)
-        int maCaTest = 1;
-        BigDecimal tienKhaiDao = new BigDecimal("500000");
-
-        System.out.println("Gọi FUNC_TinhTienMatLyTuong với maCa=" + maCaTest
-                + ", tienKhaiBaoDauCa=" + tienKhaiDao);
-        try {
-            BigDecimal tienLyTuong = dao.tinhTienMatLyTuong(maCaTest, tienKhaiDao);
-            System.out.println("Tiền mặt lý tưởng (bí mật): " + tienLyTuong);
-        } catch (RuntimeException e) {
-            System.err.println("Lỗi: " + e.getMessage());
-        }
-    }
 }

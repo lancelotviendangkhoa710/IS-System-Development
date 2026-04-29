@@ -7,6 +7,9 @@ import com.bakery.views.interfaces.IMoCaView;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Presenter cho màn hình Mở ca làm việc.
+ */
 public class MoCaPresenter {
 
     private static final List<String> DANH_SACH_POS = List.of("POS-01", "POS-02", "POS-03");
@@ -28,15 +31,15 @@ public class MoCaPresenter {
         view.xoaLoi();
 
         if (mayPOS == null || mayPOS.isBlank()) {
-            view.hienThiLoi("⚠ Vui lòng chọn máy POS.");
+            view.hienThiLoi("⚠️ Vui lòng chọn máy POS.");
             return;
         }
 
         BigDecimal tienDauCa;
         try {
-            tienDauCa = tienText.isEmpty() ? BigDecimal.ZERO : new BigDecimal(tienText);
+            tienDauCa = (tienText == null || tienText.isEmpty()) ? BigDecimal.ZERO : new BigDecimal(tienText);
         } catch (NumberFormatException ex) {
-            view.hienThiLoi("⚠ Số tiền không hợp lệ.");
+            view.hienThiLoi("⚠️ Số tiền không hợp lệ.");
             return;
         }
 
@@ -48,11 +51,15 @@ public class MoCaPresenter {
             try {
                 int maCa = service.moCa(maNV, mayPOS, tienDauCa);
                 SessionContext.getInstance().moCa(maCa);
-                view.setLoading(false);
-                view.navigateToMain();
+                javafx.application.Platform.runLater(() -> {
+                    view.setLoading(false);
+                    view.navigateToMain();
+                });
             } catch (Exception e) {
-                view.setLoading(false);
-                view.hienThiLoi("⚠ " + (e.getMessage() != null ? e.getMessage() : "Lỗi hệ thống khi mở ca."));
+                javafx.application.Platform.runLater(() -> {
+                    view.setLoading(false);
+                    view.hienThiLoi("⚠️ " + (e.getMessage() != null ? e.getMessage() : "Lỗi hệ thống khi mở ca."));
+                });
             }
         });
         t.setDaemon(true);

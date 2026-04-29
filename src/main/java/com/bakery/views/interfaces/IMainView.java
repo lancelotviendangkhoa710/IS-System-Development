@@ -1,6 +1,6 @@
 package com.bakery.views.interfaces;
 
-import com.bakery.presenters.ModuleDef;
+import com.bakery.model.dto.ModuleDef;
 
 import java.util.List;
 

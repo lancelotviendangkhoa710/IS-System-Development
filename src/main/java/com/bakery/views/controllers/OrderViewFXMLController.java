@@ -66,6 +66,10 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
+/**
+ * Controller cho giao diện Bán hàng (Order View).
+ * Quản lý quy trình chọn sản phẩm, tùy chỉnh bánh theo yêu cầu, giỏ hàng và thanh toán.
+ */
 public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @FXML
@@ -319,12 +323,12 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     @Override
     public void hienThiThongTinKhach(String text, boolean isVip) {
-        // Customer section removed from UI
+        // Thông tin khách hàng đã được tách ra module riêng
     }
  
     @Override
     public void capNhatKhachHangHienTai(com.bakery.model.dto.KhachHangDTO kh) {
-        // Customer section removed
+        // Cập nhật khách hàng hiện tại
     }
 
     @Override
@@ -375,15 +379,35 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
         capNhatGiaBanhTuyChinh();
     }
+    @Override
+    public void hienThiLoiTraCuu(String msg) {
+        // Implement as needed for Order Tracking tab
+    }
 
     @Override
-    public void taiDanhSachTrangThai(List<String> list) {}
+    public void hienThiThongBaoTraCuu(String msg) {
+        // Implement as needed
+    }
 
     @Override
-    public void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi) {}
+    public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {
+        // Implement as needed
+    }
 
     @Override
-    public void showOrderDetails(DonDatHangDTO order) {}
+    public void taiDanhSachTrangThai(List<String> list) {
+        // Implement for filter dropdown
+    }
+
+    @Override
+    public void hienThiDanhSachDonTheoDoi(List<DonDatHangDTO> dsDonTheoDoi) {
+        // Implement card rendering for tracking
+    }
+
+    @Override
+    public void showOrderDetails(DonDatHangDTO order) {
+        // Implement detail dialog
+    }
 
     @Override
     public void hienThiLoi(String msg) {
@@ -396,15 +420,6 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         lblThongBaoTab1.getStyleClass().setAll("lbl-success");
         lblThongBaoTab1.setText(msg);
     }
-
-    @Override
-    public void hienThiLoiTraCuu(String msg) {}
-
-    @Override
-    public void hienThiThongBaoTraCuu(String msg) {}
-
-    @Override
-    public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {}
 
     @Override
     public void lamMoiForm() {
@@ -429,7 +444,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             HoaDonDTO hd = new HoaDonDTO();
             hd.setMaHD(maHoaDon != null ? maHoaDon : 0);
             hd.setNgayXuatHd(ngayLapHoaDon != null ? ngayLapHoaDon : LocalDateTime.now());
-            hd.setTongTienThanhToan(tongTien);
+            hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(tongTien));
 
             DonDatHangDTO don = new DonDatHangDTO();
             don.setMaDon(maDon != null ? maDon : 0);
@@ -445,7 +460,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             stage.show();
         } catch (Exception e) {
             hienThiLoi("Không thể in hóa đơn: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("[OrderViewFXMLController] Lỗi: " + e.getMessage());
         }
     }
 
@@ -460,7 +475,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
             String tenKhach = don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH();
 
             controller.setReceiptData(hd, don, dsItems, new ArrayList<>(mapSanPhamById.values()),
-                    tenKhach, hd.getTongTienThanhToan(), 0);
+                    tenKhach, hd.getTongTienThanhToan() != null ? hd.getTongTienThanhToan().doubleValue() : 0.0, 0);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -499,7 +514,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         colSoLuong.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getSoLuong()));
         colDonGia.setCellValueFactory(param -> new ReadOnlyStringWrapper(dinhDangTien(param.getValue().getDonGia())));
         colThanhTien.setCellValueFactory(param -> new ReadOnlyStringWrapper(
-                dinhDangTien(param.getValue().getDonGia() * param.getValue().getSoLuong())));
+                dinhDangTien((param.getValue().getDonGia() != null ? param.getValue().getDonGia().doubleValue() : 0.0) * param.getValue().getSoLuong())));
 
         colSoLuong.setCellFactory(col -> new TableCell<>() {
             private final Button btnTru = taoNutSoLuong("-");
@@ -641,7 +656,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
         tileSanPham.getChildren().clear();
 
         for (SanPhamDTO sanPham : danhSachSanPham) {
-            String tenDanhMuc = mapDanhMuc.getOrDefault(sanPham.getMaDM(), "Khac");
+            String tenDanhMuc = mapDanhMuc.getOrDefault(sanPham.getMaDM(), "Khác");
             String danhMucChuan = mapDanhMucLoc(tenDanhMuc);
 
             boolean khopDanhMuc = "ALL".equalsIgnoreCase(danhMucDangLoc)
@@ -782,6 +797,7 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
 
     private String mapDanhMucLoc(String tenDanhMuc) {
+        if (tenDanhMuc == null) return "ALL";
         String normalized = Normalizer.normalize(tenDanhMuc, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .toUpperCase(Locale.ROOT);
@@ -810,6 +826,11 @@ public class OrderViewFXMLController implements IOrderView, Initializable {
 
     private String dinhDangTien(double amount) {
         return FMT_TIEN.format(amount) + " đ";
+    }
+
+    private String dinhDangTien(java.math.BigDecimal amount) {
+        if (amount == null) return FMT_TIEN.format(0) + " đ";
+        return FMT_TIEN.format(amount.doubleValue()) + " đ";
     }
 
 

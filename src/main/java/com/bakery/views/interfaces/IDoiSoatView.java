@@ -3,39 +3,38 @@ package com.bakery.views.interfaces;
 import java.math.BigDecimal;
 
 /**
- * Contract giữa DoiSoatPresenter và các View liên quan đến ca làm việc.
- * Presenter chỉ giao tiếp với View qua interface này — không phụ thuộc
- * vào class concrete (DoiSoatDongCaPanel hoặc DoiSoatDongCaDialog).
+ * Interface IDoiSoatView là contract giữa DoiSoatPresenter và các View liên quan đến nghiệp vụ đóng/mở ca.
+ * Đảm bảo Presenter không phụ thuộc vào lớp cụ thể (Panel hay Dialog) hay Framework UI.
  */
 public interface IDoiSoatView {
 
     /**
-     * Hiển thị thông báo lỗi lên View.
-     * Dùng cho lỗi nghiệp vụ (validation) và lỗi hệ thống.
+     * Hiển thị thông báo lỗi lên giao diện.
+     * Dùng cho các lỗi nghiệp vụ (sai lệch tiền) hoặc lỗi hệ thống (mất kết nối CSDL).
      */
     void hienThiLoi(String message);
 
     /**
-     * Hiển thị thông báo thành công lên View.
-     * VD: "Mở ca thành công!" hoặc "Đóng ca thành công!"
+     * Hiển thị thông báo thành công.
+     * Ví dụ: "Mở ca thành công!" hoặc "Đóng ca thành công!".
      */
     void hienThiThanhCong(String message);
 
     /**
-     * Bật/tắt nút [Xác nhận Đóng Ca].
-     * Chỉ enable khi: không có chênh lệch, hoặc có chênh lệch nhưng đã nhập lý do.
+     * Bật hoặc tắt trạng thái tương tác của nút "Xác nhận Đóng Ca".
+     * Thường dùng để bắt buộc người dùng thực hiện đủ các bước kiểm đếm trước khi cho phép đóng.
      */
     void setNutDongCaEnabled(boolean enabled);
 
     /**
-     * Hiển thị kết quả chênh lệch sau khi thu ngân nhập tiền thực tế đếm được.
-     * Màu đỏ nếu chenhLech != 0, màu xanh nếu khớp (= 0).
+     * Hiển thị kết quả chênh lệch giữa số dư hệ thống và tiền mặt thực tế.
+     * Quy tắc hiển thị: Màu đỏ nếu có chênh lệch, màu xanh nếu khớp (bằng 0).
      */
     void hienThiCanhBaoChenhLech(BigDecimal chenhLech);
 
     /**
-     * Bật/tắt ô nhập lý do chênh lệch.
-     * @param batBuoc true → hiện ô nhập lý do và đánh dấu bắt buộc; false → ẩn đi
+     * Yêu cầu hoặc ẩn đi ô nhập lý do chênh lệch.
+     * @param batBuoc true -> hiển thị ô nhập lý do và yêu cầu bắt buộc; false -> ẩn đi.
      */
     void yeuCauNhapLyDo(boolean batBuoc);
 }

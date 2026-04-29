@@ -96,7 +96,7 @@ public class TheoDoDonPresenter {
             view.hienThiKetQuaTraCuu(
                     tomTat.getMaKH() == null ? "Khách lẻ" : "Mã KH: " + tomTat.getMaKH(),
                     tomTat.getTenTrangThai(),
-                    tomTat.getTongTienHDBan());
+                    tomTat.getTongTienHDBan() != null ? tomTat.getTongTienHDBan().doubleValue() : 0.0);
         } catch (NumberFormatException e) {
             view.hienThiLoiTraCuu("Mã đơn phải là số nguyên hợp lệ.");
         } catch (Exception e) {

@@ -1,16 +1,20 @@
-﻿package com.bakery.model.dto;
+package com.bakery.model.dto;
+
+import com.bakery.model.enums.SystemModule;
 
 public class ChucNangDTO {
     private int maChucNang;
     private String tenChucNang;
     private String moTa;
+    private SystemModule module;
 
     public ChucNangDTO() {}
 
-    public ChucNangDTO(int maChucNang, String tenChucNang, String moTa) {
+    public ChucNangDTO(int maChucNang, String tenChucNang, String moTa, SystemModule module) {
         this.maChucNang = maChucNang;
         this.tenChucNang = tenChucNang;
         this.moTa = moTa;
+        this.module = module;
     }
 
     public int getMaChucNang() { return maChucNang; }
@@ -21,4 +25,7 @@ public class ChucNangDTO {
 
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
+
+    public SystemModule getModule() { return module; }
+    public void setModule(SystemModule module) { this.module = module; }
 }

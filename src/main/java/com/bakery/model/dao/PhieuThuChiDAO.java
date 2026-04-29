@@ -1,9 +1,8 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.PhieuThuChiDTO;
 import com.bakery.utils.DBConnect;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class PhieuThuChiDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            e.printStackTrace();
+            System.err.println("[PhieuThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi tạo phiếu thu chi: " + e.getMessage(), e);
         }
     }
@@ -90,7 +89,7 @@ public class PhieuThuChiDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[PhieuThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi lấy giao dịch: " + e.getMessage(), e);
         }
         return ds;
@@ -106,32 +105,9 @@ public class PhieuThuChiDAO {
             ps.setInt(2, maPhieuTC);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[PhieuThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi huỷ phiếu: " + e.getMessage(), e);
         }
     }
 
-    public static void main(String[] args) {
-        PhieuThuChiDAO dao = new PhieuThuChiDAO();
-
-        System.out.println("=== Test PhieuThuChiDAO ===\n");
-
-        // Mô phỏng tạo phiếu thu (Thu bán hàng), 500.000đ, NV mã 1, Ca mã 1
-        // MAHD và MAPN để null (chưa liên kết chứng từ)
-        PhieuThuChiDTO ptc = new PhieuThuChiDTO();
-        ptc.setMaLoaiThuChi(1);
-        ptc.setSoTien(new BigDecimal("500000"));
-        ptc.setMaNV(1);
-        ptc.setMaHD(null);
-        ptc.setMaPN(null);
-        ptc.setMaCa(1);
-        ptc.setGhiChu("Test phiếu thu chi từ main()");
-
-        try {
-            dao.taoPhieuThuChi(ptc);
-            System.out.println("Tạo phiếu thu chi thành công.");
-        } catch (RuntimeException e) {
-            System.err.println("Lỗi: " + e.getMessage());
-        }
-    }
 }

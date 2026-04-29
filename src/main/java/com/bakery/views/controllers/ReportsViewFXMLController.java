@@ -125,6 +125,21 @@ public class ReportsViewFXMLController {
         }
         revenueBarChart.getData().clear();
         revenueBarChart.getData().add(barSeries);
+
+        String[] colors = {"#D85A30", "#3E442B", "#6D4C3D", "#A5A58D", "#B5838D", "#E5989B", "#FFB4A2", "#FFCDB2"};
+        int index = 0;
+        for (XYChart.Data<String, Number> data : barSeries.getData()) {
+            String color = colors[index % colors.length];
+            if (data.getNode() != null) {
+                data.getNode().setStyle("-fx-bar-fill: " + color + ";");
+            }
+            data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                if (newNode != null) {
+                    newNode.setStyle("-fx-bar-fill: " + color + ";");
+                }
+            });
+            index++;
+        }
     }
 
     private void loadTopSellers() {

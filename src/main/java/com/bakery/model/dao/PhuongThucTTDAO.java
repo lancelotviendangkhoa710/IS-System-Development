@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.PhuongThucTTDTO;
 import com.bakery.utils.DBConnect;
@@ -38,27 +38,10 @@ public class PhuongThucTTDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[PhuongThucTTDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi lấy danh sách phương thức thanh toán: " + e.getMessage(), e);
         }
         return ds;
     }
 
-    public static void main(String[] args) {
-        PhuongThucTTDAO dao = new PhuongThucTTDAO();
-
-        System.out.println("=== Test PhuongThucTTDAO ===\n");
-
-        try {
-            List<PhuongThucTTDTO> ds = dao.layDanhSach();
-            System.out.println("Tổng số phương thức thanh toán: " + ds.size());
-            for (PhuongThucTTDTO pttt : ds) {
-                System.out.printf("  [%d] %s%n",
-                        pttt.getMaPTTT(),
-                        pttt.getTenPTTT());
-            }
-        } catch (RuntimeException e) {
-            System.err.println("Lỗi: " + e.getMessage());
-        }
-    }
 }

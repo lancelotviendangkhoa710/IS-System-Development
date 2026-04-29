@@ -479,10 +479,10 @@ public class CashbookController implements ICashbookView {
     @Override
     public Optional<String> hienThiDialogXacNhanHuy(String tenPhieu) {
         return DialogHelper.showReasonConfirmDialog(
-                "Huỷ Phiếu",
-                "Bạn có chắc chắn muốn huỷ phiếu " + tenPhieu + "?\n"
+                "Hủy Phiếu",
+                "Bạn có chắc chắn muốn hủy phiếu " + tenPhieu + "?\n"
                 + "Hành động này không thể hoàn tác và sẽ loại phiếu ra khỏi sổ quỹ.",
-                "Lý do huỷ phiếu:");
+                "Lý do hủy phiếu:");
     }
 
     // ── ICashbookView — Thông báo ─────────────────────────────────────────────

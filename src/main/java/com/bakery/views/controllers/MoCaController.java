@@ -1,6 +1,6 @@
 package com.bakery.views.controllers;
 
-import com.bakery.App;
+
 import com.bakery.presenters.MoCaPresenter;
 import com.bakery.services.CaLamViecService;
 import com.bakery.views.interfaces.IMoCaView;
@@ -83,11 +83,15 @@ public class MoCaController implements IMoCaView {
 
     @Override
     public void navigateToMain() {
-        Platform.runLater(() -> App.hienThiManHinh("/fxml/MainView.fxml", 1280, 800));
+        Platform.runLater(() -> {
+            if (btnBatDau.getScene() != null && btnBatDau.getScene().getWindow() != null) {
+                ((javafx.stage.Stage) btnBatDau.getScene().getWindow()).close();
+            }
+        });
     }
 
     @Override
     public void navigateToLogin() {
-        Platform.runLater(() -> App.hienThiManHinh("/fxml/LoginView.fxml", 1280, 800));
+        // Not used inside modal
     }
 }

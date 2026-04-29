@@ -6,54 +6,83 @@ import com.bakery.model.dto.NguyenLieuDTO;
 import java.util.List;
 
 /**
- * Contract MVP giữa NguyenLieuPresenter và View (FXML Controller).
- * Presenter giao tiếp qua interface này — KHÔNG import bất kỳ class JavaFX nào.
+ * Interface INguyenLieuView định nghĩa các phương thức giao tiếp giữa Presenter và View
+ * cho màn hình quản lý Nguyên Liệu theo kiến trúc MVP.
+ * 
+ * Tuân thủ quy tắc: Presenter giao tiếp qua interface này và không phụ thuộc vào JavaFX.
  */
 public interface INguyenLieuView {
 
-    // ─── DANH SÁCH ─────────────────────────────────────────────────────
+    // ——— HIỂN THỊ DANH SÁCH ———
 
-    /** Đẩy danh sách nguyên liệu lên TableView. */
+    /** 
+     * Đẩy danh sách nguyên liệu lên TableView để hiển thị.
+     */
     void hienThiDanhSach(List<NguyenLieuDTO> ds);
 
-    /** Nạp danh sách đơn vị tính vào ComboBox. */
+    /** 
+     * Nạp danh sách đơn vị tính (DVT) vào ComboBox cho người dùng chọn.
+     */
     void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT);
 
-    // ─── FORM CHI TIẾT ─────────────────────────────────────────────────
+    // ——— FORM CHI TIẾT ———
 
-    /** Điền thông tin nguyên liệu vào form khi người dùng chọn hàng. */
+    /** 
+     * Điền thông tin nguyên liệu cụ thể vào form khi người dùng chọn một hàng trong bảng.
+     */
     void hienThiChiTiet(NguyenLieuDTO nl);
 
-    // ─── THÔNG BÁO ─────────────────────────────────────────────────────
+    // ——— THÔNG BÁO ———
 
-    /** Hiển thị thông báo lỗi nghiệp vụ. */
+    /** 
+     * Hiển thị thông báo lỗi nghiệp vụ (Validation, Database Error, v.v.).
+     */
     void hienThiLoi(String msg);
 
-    /** Hiển thị thông báo thao tác thành công. */
+    /** 
+     * Hiển thị thông báo khi thao tác thành công.
+     */
     void hienThiThanhCong(String msg);
 
-    // ─── FORM ──────────────────────────────────────────────────────────
+    // ——— QUẢN LÝ FORM ———
 
-    /** Làm trống form, bỏ chọn bảng, reset trạng thái nút. */
+    /** 
+     * Làm trống (reset) form nhập liệu, bỏ chọn hàng trên bảng và reset trạng thái nút.
+     */
     void lamMoiForm();
 
-    // ─── GETTERS ───────────────────────────────────────────────────────
+    // ——— TRUY XUẤT DỮ LIỆU NHẬP (GETTERS) ———
 
-    /** @return nguyên liệu đang chọn trên TableView; null nếu chưa chọn. */
+    /** 
+     * Lấy đối tượng nguyên liệu đang được chọn trên TableView.
+     * @return NguyenLieuDTO hoặc null nếu chưa chọn.
+     */
     NguyenLieuDTO getSelectedNguyenLieu();
 
-    /** @return tên nhập trong TextField, đã trim(), KHÔNG BAO GIỜ null. */
+    /** 
+     * Lấy tên nguyên liệu từ TextField (đã được cắt khoảng trắng thừa).
+     * @return Chuỗi văn bản, không bao giờ null.
+     */
     String getTenNLInput();
 
-    /** @return xuất xứ nhập trong TextField, đã trim(). */
+    /** 
+     * Lấy xuất xứ nguyên liệu từ TextField.
+     */
     String getXuatXuInput();
 
-    /** @return mức tồn an toàn nhập trong TextField; -1 nếu không hợp lệ. */
+    /** 
+     * Lấy mức tồn an toàn nhập từ giao diện.
+     * @return Giá trị số thực; trả về -1 nếu dữ liệu không hợp lệ.
+     */
     double getMucTonAnToanInput();
 
-    /** @return Đơn vị tính được chọn trong ComboBox; null nếu chưa chọn. */
+    /** 
+     * Lấy đơn vị tính đang được chọn trong ComboBox.
+     */
     DonViTinhDTO getDonViTinhSelected();
 
-    /** @return từ khóa tìm kiếm, đã trim(). */
+    /** 
+     * Lấy từ khóa tìm kiếm người dùng nhập.
+     */
     String getTuKhoaTimKiemInput();
 }

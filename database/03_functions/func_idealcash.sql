@@ -14,7 +14,7 @@ IS
     V_TIEN_THU    NUMBER := 0;
     V_TIEN_CHI    NUMBER := 0;
 BEGIN
-    -- 0. Tiền khai báo đầu ca từ DOISOAT
+    -- 0. Tiền khai báo đầu ca từ DOISOATA
     SELECT NVL(MAX(TIENKHAIBAODAUCA), 0)
     INTO   V_TIEN_DAUCA
     FROM   DOISOAT

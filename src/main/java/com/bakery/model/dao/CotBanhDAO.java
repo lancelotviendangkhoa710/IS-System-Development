@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.CotBanhDTO;
 import com.bakery.utils.DBConnect;
@@ -35,7 +35,7 @@ public class CotBanhDAO {
                 list.add(item);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[CotBanhDAO] Lỗi: " + e.getMessage());
         }
         return list;
     }

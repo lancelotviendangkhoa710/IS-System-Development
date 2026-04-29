@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.HoaDonDTO;
 import com.bakery.utils.DBConnect;
@@ -105,7 +105,7 @@ public class HoaDonDAO {
                         hd.setNgayXuatHd(rs.getTimestamp("NGAYXUATHD").toLocalDateTime());
                     }
                     hd.setThueVAT(rs.getDouble("THUEVAT"));
-                    hd.setTongTienThanhToan(rs.getDouble("TONGTIENTHANHTOAN"));
+                    hd.setTongTienThanhToan(rs.getBigDecimal("TONGTIENTHANHTOAN"));
                     hd.setMaPTTT(rs.getInt("MAPTTT"));
                     hd.setLoaiHD(rs.getString("LOAIHD"));
                     return hd;
@@ -126,7 +126,7 @@ public class HoaDonDAO {
             if (rows == 0)
                 throw new RuntimeException("Không tìm thấy hóa đơn MAHD=" + maHD);
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[HoaDonDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi huỷ hóa đơn: " + e.getMessage(), e);
         }
     }

@@ -24,7 +24,7 @@ public interface IDoiSoatDongCaView {
     // ── State 2 → 1: sửa lại ────────────────────────────────────────────────
     void chuyenVeNhapTien();
 
-    // ── State 2 → 3: khoá sổ ────────────────────────────────────────────────
+    // ── State 2 → 3: khóa sổ ────────────────────────────────────────────────
     void setNutKhoaSoDangXuLy(boolean dangXuLy);
 
     void hienThiKetQua(BigDecimal tienThucTe, BigDecimal tienHeThonh,

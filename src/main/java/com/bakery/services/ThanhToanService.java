@@ -54,7 +54,7 @@ public class ThanhToanService {
         hd.setMaDon(maDon);
         hd.setMaCa(1);
         hd.setThueVAT(0.0);
-        hd.setTongTienThanhToan(tongTien);
+        hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(tongTien));
         hd.setMaPTTT(1);
         hd.setLoaiHD("BAN_LE");
 
@@ -84,15 +84,16 @@ public class ThanhToanService {
         if (donHang == null)
             throw new IllegalArgumentException("Thông tin đơn hàng bị trống.");
 
-        double tongTien = donHang.getTongTienHDBan();
-        double tongTienConLai = Math.max(0, tongTien - donHang.getTienDaCoc());
+        double tongTien = donHang.getTongTienHDBan() != null ? donHang.getTongTienHDBan().doubleValue() : 0.0;
+        double tienCoc = donHang.getTienDaCoc() != null ? donHang.getTienDaCoc().doubleValue() : 0.0;
+        double tongTienConLai = Math.max(0, tongTien - tienCoc);
 
         HoaDonDTO hd = new HoaDonDTO();
         hd.setMaDon(donHang.getMaDon());
         hd.setMaCa(1);
         hd.setMaPTTT(1);
         hd.setThueVAT(0.0);
-        hd.setTongTienThanhToan(tongTienConLai);
+        hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(tongTienConLai));
         hd.setLoaiHD("DAT_HANG");
 
         try {

@@ -8,6 +8,9 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
+/**
+ * Lớp khởi chạy chính của ứng dụng H3K Bakery.
+ */
 public class App extends Application {
     public static final String LOGIN_VIEW = "/fxml/login.fxml";
     public static final String MAIN_MENU_VIEW = "/fxml/MainMenuView.fxml";
@@ -33,11 +36,16 @@ public class App extends Application {
         primaryStage.show();
     }
 
-    // Helper để load FXML view
+    /**
+     * Helper để load FXML view từ đường dẫn tương đối.
+     * @param viewPath Đường dẫn file FXML
+     * @return Parent node của view
+     * @throws Exception nếu không tìm thấy file hoặc lỗi load
+     */
     public static Parent loadView(String viewPath) throws Exception {
         URL fxmlLocation = App.class.getResource(viewPath);
         if (fxmlLocation == null) {
-            throw new IllegalStateException("Khong tim thay file FXML: " + viewPath);
+            throw new IllegalStateException("Không tìm thấy file FXML: " + viewPath);
         }
         return FXMLLoader.load(fxmlLocation);
     }

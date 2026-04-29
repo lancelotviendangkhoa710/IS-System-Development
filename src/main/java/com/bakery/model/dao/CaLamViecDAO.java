@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.CaLamViecDTO;
 import com.bakery.utils.DBConnect;
@@ -49,7 +49,7 @@ public class CaLamViecDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            e.printStackTrace();
+            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi mở ca: " + e.getMessage(), e);
         }
     }
@@ -63,7 +63,7 @@ public class CaLamViecDAO {
                 + "WHERE MACA = ?";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, maCa);
             ps.executeUpdate();
@@ -73,7 +73,7 @@ public class CaLamViecDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            e.printStackTrace();
+            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi đóng ca: " + e.getMessage(), e);
         }
     }
@@ -90,7 +90,7 @@ public class CaLamViecDAO {
                 + "AND ROWNUM = 1";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, maNV);
 
@@ -113,7 +113,7 @@ public class CaLamViecDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi lấy ca hiện tại: " + e.getMessage(), e);
         }
         return null;
@@ -130,7 +130,7 @@ public class CaLamViecDAO {
                 + "WHERE MAMAYPOS = ? AND TRANGTHAI = N'Đang mở'";
 
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maMayPOS);
 
@@ -141,49 +141,9 @@ public class CaLamViecDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi kiểm tra ca: " + e.getMessage(), e);
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        CaLamViecDAO dao = new CaLamViecDAO();
-
-        System.out.println("=== Test CaLamViecDAO ===\n");
-
-        // 1. Kiểm tra máy POS-01 có ca đang mở không (trước khi mở)
-        boolean dangMo = dao.kiemTraCaDangMo("POS-01");
-        System.out.println("POS-01 có ca đang mở không (trước): " + dangMo);
-
-        if (dangMo) {
-            System.out.println("Máy đã có ca mở — bỏ qua bước mở ca.");
-        } else {
-            // 2. Mở ca cho nhân viên mã 1, tiền khai báo đầu ca 1.000.000đ
-            System.out.println("\nĐang mở ca cho NV mã 1 tại POS-01...");
-            try {
-                int maCaMoi = dao.moCa("POS-01", new BigDecimal("1000000"), 1);
-                System.out.println("Mở ca thành công! Mã ca: " + maCaMoi);
-
-                // 3. Lấy ca hiện tại để xác nhận
-                CaLamViecDTO caHienTai = dao.layCaHienTai(1);
-                if (caHienTai != null) {
-                    System.out.println("\nThông tin ca hiện tại:");
-                    System.out.println("  Mã ca        : " + caHienTai.getMaCa());
-                    System.out.println("  Mã NV        : " + caHienTai.getMaNV());
-                    System.out.println("  Máy POS      : " + caHienTai.getMaMayPOS());
-                    System.out.println("  Giờ mở ca   : " + caHienTai.getThoiGianMoCa());
-                    System.out.println("  Trạng thái  : " + caHienTai.getTrangThai());
-                } else {
-                    System.out.println("Không tìm thấy ca đang mở.");
-                }
-
-                // 4. Kiểm tra lại máy POS-01 sau khi mở
-                System.out.println("\nPOS-01 có ca đang mở không (sau): " + dao.kiemTraCaDangMo("POS-01"));
-
-            } catch (RuntimeException e) {
-                System.err.println("Lỗi: " + e.getMessage());
-            }
-        }
     }
 }

@@ -81,7 +81,7 @@ public class CashbookPresenter {
                 loaiDangHoatDong = service.layDanhSachLoai();
                 view.setLoaiOptions(loaiDangHoatDong);
             } catch (Exception e) {
-                System.err.println("[Cashbook] Lỗi tải loại hoạt động: " + e.getMessage());
+                System.err.println("[Cashbook] Lỗi tải giao dịch đang hoạt động: " + e.getMessage());
             }
         });
         t.setDaemon(true);

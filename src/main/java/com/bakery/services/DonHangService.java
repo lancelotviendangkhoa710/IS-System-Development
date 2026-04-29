@@ -249,7 +249,7 @@ public class DonHangService {
         donDatHang.setMaKH(request.getMaKH());
         donDatHang.setMaNVLap(request.getMaNVLap());
         donDatHang.setMaTrangThai(maTrangThai);
-        donDatHang.setTienDaCoc(request.getTienDaCoc());
+        donDatHang.setTienDaCoc(java.math.BigDecimal.valueOf(request.getTienDaCoc()));
         donDatHang.setHinhThucNhan(request.getHinhThucNhan());
         donDatHang.setDiaChiGiao(request.getDiaChiGiao());
         return donDatHang;
@@ -263,7 +263,7 @@ public class DonHangService {
                 CTDonTuyChinhDTO ct = new CTDonTuyChinhDTO();
                 ct.setMaSP(customItem.getMaSP());
                 ct.setSoLuong(customItem.getSoLuong());
-                ct.setDonGia(customItem.getDonGia());
+                ct.setDonGia(java.math.BigDecimal.valueOf(customItem.getDonGia()));
                 ct.setLoiChucTrenBanh(customItem.getLoiChucTrenBanh());
                 ct.setGhiChuThoBanh(customItem.getGhiChuThoBanh());
                 ct.setMaKC(customItem.getMaKC());
@@ -276,7 +276,7 @@ public class DonHangService {
                 CTDonTuyChinhDTO ct = new CTDonTuyChinhDTO();
                 ct.setMaSP(item.getMaSP());
                 ct.setSoLuong(item.getSoLuong());
-                ct.setDonGia(item.getDonGia());
+                ct.setDonGia(java.math.BigDecimal.valueOf(item.getDonGia()));
                 ct.setLoiChucTrenBanh(item.getGhiChu());
                 ct.setGhiChuThoBanh(item.getPhuKien());
                 dsCtTuyChinh.add(ct);
@@ -284,7 +284,7 @@ public class DonHangService {
                 CTDonHangDTO ct = new CTDonHangDTO();
                 ct.setMaSP(item.getMaSP());
                 ct.setSoLuong(item.getSoLuong());
-                ct.setDonGia(item.getDonGia());
+                ct.setDonGia(java.math.BigDecimal.valueOf(item.getDonGia()));
                 dsCtDonHang.add(ct);
             }
         }
@@ -302,7 +302,6 @@ public class DonHangService {
         String normalized = Normalizer.normalize(rawStatus.trim(), Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
                 .replace("đ", "d").replace("Đ", "D")
-                .replace("ä'", "d").replace("Ä", "D")
                 .toUpperCase().replace(' ', '_');
         if (normalized.contains("KHACH") && normalized.contains("LAY"))
             return "CHO_KHACH_LAY";

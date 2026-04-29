@@ -1,6 +1,6 @@
 package com.bakery.views.controllers;
 
-import com.bakery.App;
+// import com.bakery.App;
 import com.bakery.presenters.DoiSoatDongCaPresenter;
 import com.bakery.services.DoiSoatService;
 import com.bakery.utils.CurrencyFormatter;
@@ -26,77 +26,99 @@ import java.net.URL;
 
 public class DoiSoatDongCaController implements IDoiSoatDongCaView {
 
-    // ── FXML — thông tin ca ───────────────────────────────────────────────────
-    @FXML private StackPane paneLoading;
-    @FXML private VBox      paneInfo;
-    @FXML private Label     lblMaCa;
-    @FXML private Label     lblMayPOS;
-    @FXML private Label     lblTienDauCa;
-    @FXML private Label     lblDoanhThu;
+    @FXML
+    private StackPane paneLoading;
+    @FXML
+    private VBox paneInfo;
+    @FXML
+    private Label lblMaCa;
+    @FXML
+    private Label lblMayPOS;
+    @FXML
+    private Label lblTienDauCa;
+    @FXML
+    private Label lblDoanhThu;
 
-    // ── FXML — trạng thái 1 ───────────────────────────────────────────────────
-    @FXML private HBox      sectionNhapTien;
-    @FXML private TextField tfNhap;
+    @FXML
+    private HBox sectionNhapTien;
+    @FXML
+    private TextField tfNhap;
 
-    // ── FXML — trạng thái 2 ───────────────────────────────────────────────────
-    @FXML private VBox      sectionSauKiemTra;
-    @FXML private TextField tfHienThi;
-    @FXML private VBox      boxCanhBao;
-    @FXML private VBox      boxThanhCong;
-    @FXML private VBox      vboxLyDo;
-    @FXML private TextArea  taLyDo;
+    @FXML
+    private VBox sectionSauKiemTra;
+    @FXML
+    private TextField tfHienThi;
+    @FXML
+    private VBox boxCanhBao;
+    @FXML
+    private VBox boxThanhCong;
+    @FXML
+    private VBox vboxLyDo;
+    @FXML
+    private TextArea taLyDo;
 
-    // ── FXML — trạng thái 3 ───────────────────────────────────────────────────
-    @FXML private VBox      sectionKetQua;
-    @FXML private TextField tfKetQua;
-    @FXML private VBox      vboxLyDoReadOnly;
-    @FXML private Label     lblLyDoReadOnly;
-    @FXML private Label     lblKQThucTe;
-    @FXML private Label     lblKQHeThonh;
-    @FXML private Label     lblKQChenhLech;
+    @FXML
+    private VBox sectionKetQua;
+    @FXML
+    private TextField tfKetQua;
+    @FXML
+    private VBox vboxLyDoReadOnly;
+    @FXML
+    private Label lblLyDoReadOnly;
+    @FXML
+    private Label lblKQThucTe;
+    @FXML
+    private Label lblKQHeThonh;
+    @FXML
+    private Label lblKQChenhLech;
 
-    // ── FXML — nút bấm ────────────────────────────────────────────────────────
-    @FXML private HBox      hboxBtnInput;
-    @FXML private HBox      hboxBtnKhoaSo;
-    @FXML private Button    btnKhoaSo;
-    @FXML private Button    btnHoanTat;
+    // ── FXML — nút bấm
+    @FXML
+    private HBox hboxBtnInput;
+    @FXML
+    private HBox hboxBtnKhoaSo;
+    @FXML
+    private Button btnKhoaSo;
+    @FXML
+    private Button btnHoanTat;
 
-    private final DoiSoatDongCaPresenter presenter =
-            new DoiSoatDongCaPresenter(this, new DoiSoatService());
-
-    // ── Mở dialog (entry point) ───────────────────────────────────────────────
+    private final DoiSoatDongCaPresenter presenter = new DoiSoatDongCaPresenter(this, new DoiSoatService());
 
     public static void hienThi() {
         try {
             URL fxml = DoiSoatDongCaController.class.getResource("/fxml/DoiSoatDongCaView.fxml");
-            if (fxml == null) return;
+            if (fxml == null)
+                return;
 
             Parent root = FXMLLoader.load(fxml);
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(App.getPrimaryStage());
-            dialog.setTitle("Đối Soát & Đóng Ca");
+            // dialog.initOwner(App.getPrimaryStage());
+            dialog.setTitle("Đối soát đóng ca");
             dialog.setResizable(false);
 
             Scene scene = new Scene(root);
             URL css = DoiSoatDongCaController.class.getResource("/css/amber.css");
-            if (css != null) scene.getStylesheets().add(css.toExternalForm());
+            if (css != null)
+                scene.getStylesheets().add(css.toExternalForm());
 
             dialog.setScene(scene);
-            dialog.show();
+            dialog.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("[DoiSoatDongCaController] Lỗi: " + e.getMessage());
         }
     }
 
-    // ── Khởi tạo ─────────────────────────────────────────────────────────────
+    // ── Khởi tạo
+    // ─────────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
         presenter.onInitialize();
     }
 
-    // ── Sự kiện (forward to Presenter) ───────────────────────────────────────
+    // ── Sự kiện (forward to Presenter)
+    // ───────────────────────────────────────
 
     @FXML
     private void onKiemTra() {
@@ -123,13 +145,14 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
         presenter.onHoanTatClicked();
     }
 
-    // ── IDoiSoatDongCaView ────────────────────────────────────────────────────
+    // ── IDoiSoatDongCaView
+    // ────────────────────────────────────────────────────
 
     @Override
     public void setLoading(boolean loading) {
         Platform.runLater(() -> {
             setVisible(paneLoading, loading);
-            setVisible(paneInfo,   !loading);
+            setVisible(paneInfo, !loading);
         });
     }
 
@@ -171,20 +194,19 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
     public void chuyenSangSauKiemTra(boolean khop, String tienHienThi) {
         Platform.runLater(() -> {
             tfHienThi.setText(tienHienThi);
-            setVisible(boxCanhBao,  !khop);
+            setVisible(boxCanhBao, !khop);
             setVisible(boxThanhCong, khop);
-            setVisible(vboxLyDo,    !khop);
+            setVisible(vboxLyDo, !khop);
 
             if (!khop) {
                 taLyDo.clear();
-                taLyDo.textProperty().addListener((obs, oldV, newV) ->
-                        presenter.onLyDoChanged(newV));
+                taLyDo.textProperty().addListener((obs, oldV, newV) -> presenter.onLyDoChanged(newV));
             }
 
-            setVisible(sectionNhapTien,   false);
+            setVisible(sectionNhapTien, false);
             setVisible(sectionSauKiemTra, true);
-            setVisible(hboxBtnInput,      false);
-            setVisible(hboxBtnKhoaSo,     true);
+            setVisible(hboxBtnInput, false);
+            setVisible(hboxBtnKhoaSo, true);
         });
     }
 
@@ -197,9 +219,9 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
     public void chuyenVeNhapTien() {
         Platform.runLater(() -> {
             setVisible(sectionSauKiemTra, false);
-            setVisible(sectionNhapTien,   true);
-            setVisible(hboxBtnKhoaSo,     false);
-            setVisible(hboxBtnInput,      true);
+            setVisible(sectionNhapTien, true);
+            setVisible(hboxBtnKhoaSo, false);
+            setVisible(hboxBtnInput, true);
             tfNhap.clear();
             tfNhap.requestFocus();
         });
@@ -212,7 +234,7 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
 
     @Override
     public void hienThiKetQua(BigDecimal tienThucTe, BigDecimal tienHeThonh,
-                               BigDecimal chenhLech, String lyDo) {
+            BigDecimal chenhLech, String lyDo) {
         Platform.runLater(() -> {
             tfKetQua.setText(tfHienThi.getText());
             lblKQThucTe.setText(CurrencyFormatter.format(tienThucTe));
@@ -230,9 +252,9 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
             }
 
             setVisible(sectionSauKiemTra, false);
-            setVisible(sectionKetQua,     true);
-            setVisible(hboxBtnKhoaSo,     false);
-            setVisible(btnHoanTat,        true);
+            setVisible(sectionKetQua, true);
+            setVisible(hboxBtnKhoaSo, false);
+            setVisible(btnHoanTat, true);
         });
     }
 
@@ -248,7 +270,7 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
 
     @Override
     public void navigateToLogin() {
-        Platform.runLater(() -> App.hienThiManHinh("/fxml/LoginView.fxml", 1280, 800));
+        Platform.runLater(() -> dongDialog());
     }
 
     @Override
@@ -256,7 +278,8 @@ public class DoiSoatDongCaController implements IDoiSoatDongCaView {
         Platform.runLater(() -> getStage().sizeToScene());
     }
 
-    // ── Tiện ích UI ───────────────────────────────────────────────────────────
+    // ── Tiện ích UI
+    // ───────────────────────────────────────────────────────────
 
     private static void setVisible(javafx.scene.Node node, boolean visible) {
         node.setVisible(visible);

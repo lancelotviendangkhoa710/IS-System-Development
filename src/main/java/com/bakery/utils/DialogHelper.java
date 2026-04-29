@@ -1,51 +1,55 @@
 package com.bakery.utils;
 
-import com.bakery.views.controllers.ReasonConfirmDialogController;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
-import java.io.IOException;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import java.util.Optional;
 
+/**
+ * Tiện ích hiển thị thông báo (Alert) và hộp thoại trong JavaFX.
+ */
 public class DialogHelper {
 
+    public static void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    public static void showInfo(String title, String content) {
+        showAlert(Alert.AlertType.INFORMATION, title, content);
+    }
+
+    public static void showError(String title, String content) {
+        showAlert(Alert.AlertType.ERROR, title, content);
+    }
+
+    public static void showWarning(String title, String content) {
+        showAlert(Alert.AlertType.WARNING, title, content);
+    }
+
+    public static boolean showConfirm(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
     /**
-     * Hiển thị dialog xác nhận có nhập lý do bắt buộc.
-     *
-     * @param title      Tiêu đề dialog (hiển thị màu đỏ).
-     * @param message    Nội dung câu hỏi xác nhận.
-     * @param promptText Nhãn cho ô nhập lý do.
-     * @return Optional chứa lý do nếu user xác nhận, empty nếu user huỷ.
+     * Hiển thị hộp thoại xác nhận kèm theo ô nhập lý do.
+     * Trả về Optional chứa lý do nếu nhấn OK, ngược lại trả về Optional.empty().
      */
-    public static Optional<String> showReasonConfirmDialog(
-            String title, String message, String promptText) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    DialogHelper.class.getResource("/fxml/ReasonConfirmDialog.fxml"));
-            Parent root = loader.load();
+    public static Optional<String> showReasonConfirmDialog(String title, String content, String reasonPrompt) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle(title);
+        dialog.setHeaderText(content);
+        dialog.setContentText(reasonPrompt);
 
-            ReasonConfirmDialogController controller = loader.getController();
-            controller.setDialogData(title, message, promptText);
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initStyle(StageStyle.TRANSPARENT);
-            stage.setResizable(false);
-
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            stage.setScene(scene);
-            stage.showAndWait();
-
-            return Optional.ofNullable(controller.getReason());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        // Tùy chỉnh nút bấm nếu cần, mặc định TextInputDialog có OK và Cancel
+        return dialog.showAndWait();
     }
 }

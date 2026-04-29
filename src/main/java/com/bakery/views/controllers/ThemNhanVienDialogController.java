@@ -67,7 +67,7 @@ public class ThemNhanVienDialogController {
             return;
         }
 
-        // Find mã vai trò from selected name
+        // Tìm mã vai trò từ tên được chọn
         int maVaiTro = -1;
         for (Map.Entry<Integer, String> entry : vaiTroMap.entrySet()) {
             if (entry.getValue().equals(vaiTroChon)) {

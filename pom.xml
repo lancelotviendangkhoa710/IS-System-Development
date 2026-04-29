@@ -107,6 +107,9 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.bakery.main.App</mainClass>
+                    <options>
+                        <option>-Dfile.encoding=UTF-8</option>
+                    </options>
                 </configuration>
             </plugin>
 

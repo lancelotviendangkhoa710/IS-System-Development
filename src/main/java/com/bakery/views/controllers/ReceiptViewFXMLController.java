@@ -30,38 +30,48 @@ import java.util.Locale;
 
 public class ReceiptViewFXMLController {
 
-    @FXML private VBox receiptContainer;
-    @FXML private Label lblMaDon;
-    @FXML private Label lblMaHoaDon;
-    @FXML private Label lblNgayLap;
-    @FXML private Label lblTenKhach;
-    @FXML private VBox vboxItems;
-    @FXML private Label lblTongTien;
-    @FXML private Label lblGiamGia;
-    @FXML private Label lblDaThu;
-    @FXML private Label lblTienKhachDua;
-    @FXML private Label lblTienThua;
-    @FXML private Button btnPrint;
-    @FXML private Button btnClose;
+    @FXML
+    private VBox receiptContainer;
+    @FXML
+    private Label lblMaDon;
+    @FXML
+    private Label lblMaHoaDon;
+    @FXML
+    private Label lblNgayLap;
+    @FXML
+    private Label lblTenKhach;
+    @FXML
+    private VBox vboxItems;
+    @FXML
+    private Label lblTongTien;
+    @FXML
+    private Label lblGiamGia;
+    @FXML
+    private Label lblDaThu;
+    @FXML
+    private Label lblTienKhachDua;
+    @FXML
+    private Label lblTienThua;
+    @FXML
+    private Button btnPrint;
+    @FXML
+    private Button btnClose;
 
     private static final NumberFormat FORMAT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
 
-    /**
-     * Điền dữ liệu từ các DTO có sẵn vào UI
-     */
-    public void setReceiptData(HoaDonDTO hoaDon, DonDatHangDTO donHang, 
-                               List<CTDonHangDTO> cart, 
-                               List<SanPhamDTO> originData,
-                               String tenKhach, double khachDua, double tienThua) {
-        
+    public void setReceiptData(HoaDonDTO hoaDon, DonDatHangDTO donHang,
+            List<CTDonHangDTO> cart,
+            List<SanPhamDTO> originData,
+            String tenKhach, double khachDua, double tienThua) {
+
         lblMaDon.setText(donHang != null ? "#ORD-" + donHang.getMaDon() : "N/A");
         lblMaHoaDon.setText("#INV-" + hoaDon.getMaHD());
-        lblNgayLap.setText(hoaDon.getNgayXuatHd() != null 
-                ? hoaDon.getNgayXuatHd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) 
+        lblNgayLap.setText(hoaDon.getNgayXuatHd() != null
+                ? hoaDon.getNgayXuatHd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                 : LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         lblTenKhach.setText(tenKhach != null ? tenKhach : "Khách vãng lai");
-        
-        double tongTien = hoaDon.getTongTienThanhToan();
+
+        double tongTien = hoaDon.getTongTienThanhToan() != null ? hoaDon.getTongTienThanhToan().doubleValue() : 0.0;
         lblTongTien.setText(FORMAT_TIEN.format(tongTien) + " đ");
         lblGiamGia.setText("0 đ");
         lblDaThu.setText(FORMAT_TIEN.format(tongTien) + " đ");
@@ -98,7 +108,8 @@ public class ReceiptViewFXMLController {
         lblSL.setPrefWidth(40);
         lblSL.setAlignment(Pos.CENTER);
 
-        Label lblGia = new Label(FORMAT_TIEN.format(item.getSoLuong() * item.getDonGia()) + " đ");
+        double donGia = item.getDonGia() != null ? item.getDonGia().doubleValue() : 0.0;
+        Label lblGia = new Label(FORMAT_TIEN.format(item.getSoLuong() * donGia) + " đ");
         lblGia.setPrefWidth(100);
         lblGia.setAlignment(Pos.CENTER_RIGHT);
 
@@ -109,20 +120,18 @@ public class ReceiptViewFXMLController {
     @FXML
     private void handlePrint() {
         try {
-            // 1. Tạo thư mục hoadon nếu chưa có
+
             File folder = new File("hoadon");
             if (!folder.exists()) {
                 folder.mkdir();
             }
 
-            // 2. Chụp ảnh snapshot của hóa đơn
             WritableImage snapshot = receiptContainer.snapshot(null, null);
             BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
 
-            // 3. Tạo file PDF bằng PDFBox
             String fileName = "hoadon/HoaDon_" + lblMaHoaDon.getText().replace("#", "") + ".pdf";
             try (PDDocument doc = new PDDocument()) {
-                // Kích thước trang PDF khớp với ảnh hóa đơn
+
                 float width = (float) snapshot.getWidth();
                 float height = (float) snapshot.getHeight();
                 PDPage page = new PDPage(new PDRectangle(width, height));
@@ -135,18 +144,17 @@ public class ReceiptViewFXMLController {
 
                 doc.save(fileName);
                 System.out.println("Đã lưu hóa đơn tại: " + new File(fileName).getAbsolutePath());
-                
-                // Thông báo cho người dùng (Tùy chọn)
+
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Thành công");
                 alert.setHeaderText(null);
                 alert.setContentText("Hóa đơn đã được lưu tại thư mục 'hoadon'!");
                 alert.showAndWait();
             }
-            
+
             handleClose();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[Receipt] Lỗi lưu PDF: " + e.getMessage());
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Lỗi");
             alert.setContentText("Không thể lưu PDF: " + e.getMessage());

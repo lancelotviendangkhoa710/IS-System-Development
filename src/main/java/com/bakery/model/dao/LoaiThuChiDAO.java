@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao;
+package com.bakery.model.dao;
 
 import com.bakery.model.dto.LoaiThuChiDTO;
 import com.bakery.utils.DBConnect;
@@ -39,7 +39,7 @@ public class LoaiThuChiDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[LoaiThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi lấy danh sách loại thu chi: " + e.getMessage(), e);
         }
         return ds;
@@ -65,7 +65,7 @@ public class LoaiThuChiDAO {
                 ds.add(ltc);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[LoaiThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi hệ thống khi lấy danh sách loại: " + e.getMessage(), e);
         }
         return ds;
@@ -78,7 +78,7 @@ public class LoaiThuChiDAO {
             ps.setInt(1, maLoaiThuChi);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[LoaiThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi mở khoá danh mục: " + e.getMessage(), e);
         }
     }
@@ -91,7 +91,7 @@ public class LoaiThuChiDAO {
             ps.setString(2, phanLoai);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[LoaiThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi thêm loại thu chi: " + e.getMessage(), e);
         }
     }
@@ -105,7 +105,7 @@ public class LoaiThuChiDAO {
             ps.setInt(3, maLoaiThuChi);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[LoaiThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi cập nhật loại thu chi: " + e.getMessage(), e);
         }
     }
@@ -117,27 +117,9 @@ public class LoaiThuChiDAO {
             ps.setInt(1, maLoaiThuChi);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("[LoaiThuChiDAO] Lỗi: " + e.getMessage());
             throw new RuntimeException("Lỗi xoá loại thu chi: " + e.getMessage(), e);
         }
     }
 
-    public static void main(String[] args) {
-        LoaiThuChiDAO dao = new LoaiThuChiDAO();
-
-        System.out.println("=== Test LoaiThuChiDAO ===\n");
-
-        try {
-            List<LoaiThuChiDTO> ds = dao.layDanhSach();
-            System.out.println("Tổng số loại thu chi: " + ds.size());
-            for (LoaiThuChiDTO ltc : ds) {
-                System.out.printf("  [%d] %-35s | Phân loại: %s%n",
-                        ltc.getMaLoaiThuChi(),
-                        ltc.getTenLoaiThuChi(),
-                        ltc.getPhanLoai());
-            }
-        } catch (RuntimeException e) {
-            System.err.println("Lỗi: " + e.getMessage());
-        }
-    }
 }

@@ -13,36 +13,42 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Dịch vụ xử lý các nghiệp vụ xác thực người dùng (Auth).
+ * Quản lý Đăng nhập, Đăng ký, Đổi mật khẩu và Session.
+ */
 public class AuthService {
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
     private final PhanQuyenDAO phanQuyenDAO = new PhanQuyenDAO();
     private final VaiTroDAO vaiTroDAO = new VaiTroDAO();
 
-    // Đăng nhập: xác thực thông tin, kiểm tra trạng thái, tạo session
+    /**
+     * Đăng nhập: xác thực thông tin, kiểm tra trạng thái, tạo session.
+     */
     public NhanVienDTO login(String username, String password) throws Exception {
         String usernameDaChuanHoa = validateUsername(username);
-        String matKhauHopLe = validatePassword(password, "Mat khau");
+        String matKhauHopLe = validatePassword(password, "Mật khẩu");
 
         NhanVienDTO nhanVien = nhanVienDAO.timNhanVienTheoTenDangNhap(usernameDaChuanHoa);
         if (nhanVien == null) {
-            throw new AuthException(AuthErrorCode.INVALID_CREDENTIALS, "Ten dang nhap hoac mat khau khong chinh xac.");
+            throw new AuthException(AuthErrorCode.INVALID_CREDENTIALS, "Tên đăng nhập hoặc mật khẩu không chính xác.");
         }
 
         if (nhanVien.getTrangThaiLamViec() != 1) {
-            throw new AuthException(AuthErrorCode.ACCOUNT_DISABLED, "Tai khoan da bi vo hieu hoa.");
+            throw new AuthException(AuthErrorCode.ACCOUNT_DISABLED, "Tài khoản đã bị vô hiệu hóa.");
         }
 
         if (!PasswordUtils.matches(matKhauHopLe, nhanVien.getMatKhau())) {
-            throw new AuthException(AuthErrorCode.INVALID_CREDENTIALS, "Ten dang nhap hoac mat khau khong chinh xac.");
+            throw new AuthException(AuthErrorCode.INVALID_CREDENTIALS, "Tên đăng nhập hoặc mật khẩu không chính xác.");
         }
 
         PhanQuyenDAO.RolePermissionInfo roleInfo = phanQuyenDAO.layThongTinPhanQuyenTheoVaiTro(nhanVien.getMaVaiTro());
         if (roleInfo == null || !roleInfo.isVaiTroHoatDong()) {
-            throw new AuthException(AuthErrorCode.ROLE_NOT_ALLOWED, "Vai tro cua tai khoan khong con hieu luc.");
+            throw new AuthException(AuthErrorCode.ROLE_NOT_ALLOWED, "Vai trò của tài khoản không còn hiệu lực.");
         }
 
         if (roleInfo.getDanhSachChucNang().isEmpty()) {
-            throw new AuthException(AuthErrorCode.ROLE_NOT_ALLOWED, "Vai tro hien tai khong duoc cap quyen truy cap.");
+            throw new AuthException(AuthErrorCode.ROLE_NOT_ALLOWED, "Vai trò hiện tại không được cấp quyền truy cập.");
         }
 
         Set<String> permissionKeys = new LinkedHashSet<>(roleInfo.getPermissionKeys());
@@ -58,12 +64,16 @@ public class AuthService {
         return nhanVien;
     }
 
-    // Phương thức đăng nhập cũ để tương thích ngược (dùng cho bypass login)
+    /**
+     * Phương thức đăng nhập cũ để tương thích ngược (dùng cho bypass login).
+     */
     public NhanVienDTO dangNhap(String tenDangNhap, String matKhau) throws Exception {
         return login(tenDangNhap, matKhau);
     }
 
-    // Đăng ký nhân viên mới
+    /**
+     * Đăng ký nhân viên mới.
+     */
     public int register(
             String hoTen,
             String soDienThoai,
@@ -73,27 +83,27 @@ public class AuthService {
             Integer maVaiTro
     ) throws Exception {
         if (hoTen == null || hoTen.isBlank()) {
-            throw new Exception("Ho ten khong duoc de trong.");
+            throw new Exception("Họ tên không được để trống.");
         }
 
         if (soDienThoai == null || soDienThoai.isBlank()) {
-            throw new Exception("So dien thoai khong duoc de trong.");
+            throw new Exception("Số điện thoại không được để trống.");
         }
 
         String sdt = soDienThoai.trim();
         if (sdt.length() < 9 || sdt.length() > 15) {
-            throw new Exception("So dien thoai phai tu 9 den 15 ky tu.");
+            throw new Exception("Số điện thoại phải từ 9 đến 15 ký tự.");
         }
 
         String usernameDaChuanHoa = validateUsername(tenDangNhap);
-        String matKhauHopLe = validatePassword(matKhau, "Mat khau");
+        String matKhauHopLe = validatePassword(matKhau, "Mật khẩu");
 
         if (maXacNhanQuanLy == null || maXacNhanQuanLy.isBlank()) {
-            throw new Exception("Ma xac nhan cua quan ly khong duoc de trong.");
+            throw new Exception("Mã xác nhận của quản lý không được để trống.");
         }
 
         if (maVaiTro == null || maVaiTro <= 0) {
-            throw new Exception("Ma vai tro phai lon hon 0.");
+            throw new Exception("Mã vai trò phải lớn hơn 0.");
         }
 
         NhanVienDTO nhanVien = new NhanVienDTO();
@@ -107,38 +117,40 @@ public class AuthService {
         return nhanVienDAO.themNhanVien(nhanVien);
     }
 
-    // Đổi mật khẩu cho phiên đăng nhập hiện tại
+    /**
+     * Đổi mật khẩu cho phiên đăng nhập hiện tại.
+     */
     public void changePassword(String matKhauHienTai, String matKhauMoi, String xacNhanMatKhauMoi) throws Exception {
         SessionContext.AuthSession session = requireActiveSession();
-        String currentPassword = validatePassword(matKhauHienTai, "Mat khau hien tai");
-        String newPassword = validatePassword(matKhauMoi, "Mat khau moi");
-        String confirmPassword = validatePassword(xacNhanMatKhauMoi, "Xac nhan mat khau moi");
+        String currentPassword = validatePassword(matKhauHienTai, "Mật khẩu hiện tại");
+        String newPassword = validatePassword(matKhauMoi, "Mật khẩu mới");
+        String confirmPassword = validatePassword(xacNhanMatKhauMoi, "Xác nhận mật khẩu mới");
 
         if (!newPassword.equals(confirmPassword)) {
-            throw new AuthException(AuthErrorCode.PASSWORD_CONFIRM_MISMATCH, "Mat khau moi va xac nhan mat khau moi khong khop.");
+            throw new AuthException(AuthErrorCode.PASSWORD_CONFIRM_MISMATCH, "Mật khẩu mới và xác nhận mật khẩu mới không khớp.");
         }
 
         NhanVienDTO nhanVien = nhanVienDAO.timNhanVienTheoMa(session.getMaNhanVien());
         if (nhanVien == null) {
-            throw new AuthException(AuthErrorCode.SYSTEM_ERROR, "Khong tim thay thong tin tai khoan hien tai.");
+            throw new AuthException(AuthErrorCode.SYSTEM_ERROR, "Không tìm thấy thông tin tài khoản hiện tại.");
         }
 
         if (nhanVien.getTrangThaiLamViec() != 1) {
             logout();
-            throw new AuthException(AuthErrorCode.ACCOUNT_DISABLED, "Tai khoan da bi vo hieu hoa.");
+            throw new AuthException(AuthErrorCode.ACCOUNT_DISABLED, "Tài khoản đã bị vô hiệu hóa.");
         }
 
         if (!PasswordUtils.matches(currentPassword, nhanVien.getMatKhau())) {
-            throw new AuthException(AuthErrorCode.INVALID_CURRENT_PASSWORD, "Mat khau hien tai khong chinh xac.");
+            throw new AuthException(AuthErrorCode.INVALID_CURRENT_PASSWORD, "Mật khẩu hiện tại không chính xác.");
         }
 
         if (PasswordUtils.matches(newPassword, nhanVien.getMatKhau())) {
-            throw new AuthException(AuthErrorCode.PASSWORD_INVALID, "Mat khau moi phai khac mat khau hien tai.");
+            throw new AuthException(AuthErrorCode.PASSWORD_INVALID, "Mật khẩu mới phải khác mật khẩu hiện tại.");
         }
 
         boolean updated = nhanVienDAO.doiMatKhau(session.getMaNhanVien(), PasswordUtils.hash(newPassword));
         if (!updated) {
-            throw new AuthException(AuthErrorCode.SYSTEM_ERROR, "Khong the cap nhat mat khau trong CSDL.");
+            throw new AuthException(AuthErrorCode.SYSTEM_ERROR, "Không thể cập nhật mật khẩu trong CSDL.");
         }
 
         logout();
@@ -164,39 +176,39 @@ public class AuthService {
     private SessionContext.AuthSession requireActiveSession() throws Exception {
         SessionContext.AuthSession session = SessionContext.getCurrentSession();
         if (session == null) {
-            throw new AuthException(AuthErrorCode.SYSTEM_ERROR, "Khong co phien dang nhap hop le.");
+            throw new AuthException(AuthErrorCode.SYSTEM_ERROR, "Không có phiên đăng nhập hợp lệ.");
         }
         return session;
     }
 
     private String validateUsername(String username) throws Exception {
         if (username == null) {
-            throw new AuthException(AuthErrorCode.VALIDATION_ERROR, "Ten dang nhap khong duoc de trong.");
+            throw new AuthException(AuthErrorCode.VALIDATION_ERROR, "Tên đăng nhập không được để trống.");
         }
 
         String normalized = username.trim();
         if (normalized.isEmpty()) {
-            throw new AuthException(AuthErrorCode.VALIDATION_ERROR, "Ten dang nhap khong duoc de trong.");
+            throw new AuthException(AuthErrorCode.VALIDATION_ERROR, "Tên đăng nhập không được để trống.");
         }
 
         if (normalized.length() < 3 || normalized.length() > 50) {
-            throw new AuthException(AuthErrorCode.VALIDATION_ERROR, "Ten dang nhap phai tu 3 den 50 ky tu.");
+            throw new AuthException(AuthErrorCode.VALIDATION_ERROR, "Tên đăng nhập phải từ 3 đến 50 ký tự.");
         }
         return normalized;
     }
 
     private String validatePassword(String password, String fieldName) throws Exception {
         if (password == null || password.isEmpty()) {
-            throw new AuthException(AuthErrorCode.PASSWORD_INVALID, fieldName + " khong duoc de trong.");
+            throw new AuthException(AuthErrorCode.PASSWORD_INVALID, fieldName + " không được để trống.");
         }
 
         if (password.length() < 6 || password.length() > 100) {
-            throw new AuthException(AuthErrorCode.PASSWORD_INVALID, fieldName + " phai tu 6 den 100 ky tu.");
+            throw new AuthException(AuthErrorCode.PASSWORD_INVALID, fieldName + " phải từ 6 đến 100 ký tự.");
         }
 
         for (int i = 0; i < password.length(); i++) {
             if (Character.isISOControl(password.charAt(i))) {
-                throw new AuthException(AuthErrorCode.PASSWORD_INVALID, fieldName + " khong duoc chua ky tu dieu khien.");
+                throw new AuthException(AuthErrorCode.PASSWORD_INVALID, fieldName + " không được chứa ký tự điều khiển.");
             }
         }
         return password;

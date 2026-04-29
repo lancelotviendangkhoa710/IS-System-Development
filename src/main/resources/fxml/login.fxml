@@ -16,12 +16,12 @@
             xmlns="http://javafx.com/javafx/24"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bakery.views.controllers.MainController">
-    <left>
+    <center>
         <VBox prefWidth="520.0" spacing="18.0">
             <padding>
                 <Insets top="56.0" right="48.0" bottom="56.0" left="48.0"/>
             </padding>
-            <Label text="Amitie Bakery" style="-fx-font-size: 30px; -fx-font-weight: bold;"/>
+            <Label text="H3K Bakery" style="-fx-font-size: 30px; -fx-font-weight: bold;"/>
             <Label text="Đăng nhập hệ thống" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
             <Label text="Kiểm tra tài khoản đang hoạt động, tải quyền từ vai trò và tạo session làm việc an toàn." wrapText="true"/>
             <Region prefHeight="24.0"/>
@@ -35,56 +35,6 @@
             </VBox>
             <Button fx:id="btnLogin" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" text="Đăng nhập"/>
             <Label fx:id="lblLoginMessage" wrapText="true"/>
-        </VBox>
-    </left>
-    <center>
-        <VBox spacing="14.0">
-            <padding>
-                <Insets top="36.0" right="48.0" bottom="36.0" left="48.0"/>
-            </padding>
-            <Label text="Luồng bàn giao" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <VBox spacing="10.0">
-                <Label text="1. Login kiểm tra username/password theo chuẩn và trạng thái account." wrapText="true"/>
-                <Label text="2. Role hợp lệ sẽ tải quyền từ DB và render menu tương ứng." wrapText="true"/>
-                <Label text="3. Logout xóa sạch session, đổi mật khẩu thành công bắt buộc đăng nhập lại." wrapText="true"/>
-                <Label text="4. Lỗi DB, sai mật khẩu, role thiếu quyền đều được map rõ cho UI." wrapText="true"/>
-            </VBox>
-            <HBox spacing="12.0">
-                <Label text="Username:"/>
-                <Label text="3-50 ký tự, có trim"/>
-            </HBox>
-            <HBox spacing="12.0">
-                <Label text="Password:"/>
-                <Label text="6-100 ký tự, chặn control char"/>
-            </HBox>
-            <Separator/>
-            <Label text="Đăng ký nhân viên" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
-            <VBox spacing="6.0">
-                <Label text="Họ tên"/>
-                <TextField fx:id="txtRegisterHoTen" promptText="Nhập họ tên nhân viên"/>
-            </VBox>
-            <VBox spacing="6.0">
-                <Label text="Số điện thoại"/>
-                <TextField fx:id="txtRegisterSoDienThoai" promptText="Nhập số điện thoại"/>
-            </VBox>
-            <VBox spacing="6.0">
-                <Label text="Tên đăng nhập"/>
-                <TextField fx:id="txtRegisterUsername" promptText="Nhập tên đăng nhập mới"/>
-            </VBox>
-            <VBox spacing="6.0">
-                <Label text="Mật khẩu"/>
-                <PasswordField fx:id="txtRegisterPassword" promptText="Nhập mật khẩu cho nhân viên"/>
-            </VBox>
-            <VBox spacing="6.0">
-                <Label text="Vai trò"/>
-                <ComboBox fx:id="cboRegisterRole" promptText="Chọn vai trò"/>
-            </VBox>
-            <VBox spacing="6.0">
-                <Label text="Mã xác nhận quản lý"/>
-                <TextField fx:id="txtRegisterManagerCode" promptText="Nhập mã xác nhận quản lý"/>
-            </VBox>
-            <Button fx:id="btnRegister" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleRegister" text="Đăng ký nhân viên"/>
-            <Label fx:id="lblRegisterMessage" wrapText="true"/>
         </VBox>
     </center>
 </BorderPane>

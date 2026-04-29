@@ -44,6 +44,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Controller cho màn hình Theo dõi đơn hàng (Order Tracking).
+ * Implement IOrderView để nhận thông báo từ DonHangPresenter.
+ */
 public class OrderTrackingViewFXMLController implements IOrderView, Initializable {
 
     @FXML
@@ -79,7 +83,7 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
         presenter = new DonHangPresenter(this, new BanHangService());
         presenter.setDialogFactory(dialogFactory);
 
-        // Wait for scene to be set to assign owner window to dialogFactory
+        // Chờ scene được set để gán owner window cho dialogFactory
         panelChuaDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 dialogFactory.setOwnerWindow(newScene.getWindow());
@@ -173,6 +177,11 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
 
     private String dinhDangTien(double amount) {
         return FMT_TIEN.format(amount) + " đ";
+    }
+
+    private String dinhDangTien(java.math.BigDecimal amount) {
+        if (amount == null) return FMT_TIEN.format(0) + " đ";
+        return FMT_TIEN.format(amount.doubleValue()) + " đ";
     }
 
     private Node taoCardTheoDoi(DonDatHangDTO don) {
