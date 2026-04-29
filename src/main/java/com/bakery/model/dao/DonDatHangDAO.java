@@ -61,8 +61,8 @@ public class DonDatHangDAO {
         }
     }
 
-    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat) throws SQLException {
-        String sql = "{CALL PROC_HUYDONVAHOANKHO(?, ?, ?)}";
+    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount) throws SQLException {
+        String sql = "{CALL PROC_HUYDON_HOANCOC(?, ?, ?, ?)}";
         try (Connection conn = DBConnect.getConnection()) {
             if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
 
@@ -70,6 +70,7 @@ public class DonDatHangDAO {
                 cstmt.setInt(1, maDon);
                 cstmt.setString(2, lyDoHuy);
                 cstmt.setInt(3, maNvCapNhat);
+                cstmt.setDouble(4, refundAmount);
                 cstmt.execute();
             }
         } catch (SQLException e) {

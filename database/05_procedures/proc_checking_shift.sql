@@ -2,13 +2,7 @@
 -- PROC_DONGCADOISOAT — Ghi kết quả đối soát cuối ca
 --
 -- Lưu ý thiết kế:
---   • Row DOISOAT đã được INSERT khi mở ca (với TIENKHAIBAODAUCA).
---     Procedure này chỉ UPDATE các cột còn lại — không INSERT lại.
---   • CALAMVIEC (THOIGIANDONGCA, TRANGTHAI) được Java cập nhật
---     riêng qua CaLamViecDAO.dongCa() — procedure KHÔNG làm lại.
---   • Chênh lệch được tính lại tại đây để đảm bảo tính toàn vẹn
---     (double-check), tham số P_CHENHLECH từ Java chỉ dùng tham khảo.
--- ============================================================
+
 CREATE OR REPLACE PROCEDURE PROC_DONGCADOISOAT(
     P_MACA          IN CALAMVIEC.MACA%TYPE,
     P_TIENTHUCTEDEM IN DOISOAT.TIENTHUCTEDEM%TYPE,

@@ -21,7 +21,7 @@
 
             <!-- Logo Block -->
             <VBox styleClass="bg-surface" alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 16 20 16 20;">
-                <Button text="← Quay lại Menu" styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
+                <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
                 <Label text="🥐 H3K Bakery" styleClass="sidebar-logo"/>
                 <Label text="BAKERY MANAGEMENT" styleClass="sidebar-tagline"/>
                 <Separator/>

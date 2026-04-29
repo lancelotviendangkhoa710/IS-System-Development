@@ -38,6 +38,18 @@ public class NhanVienService {
         return nhanVienDAO.themNhanVien(nv);
     }
 
+    public boolean suaNhanVien(NhanVienDTO nv) throws Exception {
+        return nhanVienDAO.suaNhanVien(nv);
+    }
+
+    public boolean xoaNhanVien(int maNV) throws Exception {
+        return nhanVienDAO.xoaNhanVien(maNV);
+    }
+
+    public List<NhanVienDTO> layTatCaNhanVien() throws Exception {
+        return nhanVienDAO.layTatCaNhanVien();
+    }
+
     /**
      * Lấy danh sách vai trò hiện có (dùng VaiTroDAO thay vì NhanVienDAO).
      */

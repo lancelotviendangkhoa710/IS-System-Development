@@ -20,22 +20,26 @@
 
     <left>
         <VBox styleClass="sidebar" spacing="8">
-            <VBox style="-fx-padding: 24 20 12 20;" spacing="4">
-                <Label text="Artisan Bakery" styleClass="sidebar-logo"/>
-                <Label text="Management Suite" styleClass="sidebar-tagline"/>
+            <VBox style="-fx-padding: 16 20 12 20;" spacing="12">
+                <Button text="← Quay lại Menu" styleClass="btn-secondary" onAction="#onVeMenu" 
+                        style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
+                <VBox spacing="4">
+                    <Label text="Artisan Bakery" styleClass="sidebar-logo" style="-fx-padding: 0;"/>
+                    <Label text="Management Suite" styleClass="sidebar-tagline" style="-fx-padding: 0;"/>
+                </VBox>
             </VBox>
-            <VBox spacing="6" style="-fx-padding: 6 12 8 12;">
-                <Button text="???  Staff" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="?  Customers" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="?  Products &amp; Recipes" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="?  Inventory" styleClass="nav-item, nav-item-active" maxWidth="Infinity"/>
-                <Button text="?  Business Reports" styleClass="nav-item" maxWidth="Infinity"/>
+            <Separator style="-fx-padding: 0 16;"/>
+            <VBox spacing="6" style="-fx-padding: 12 12 8 12;">
+                <Button text="👤  Staff" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="👥  Customers" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="🍰  Products &amp; Recipes" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="📦  Inventory" styleClass="nav-item, nav-item-active" maxWidth="Infinity"/>
+                <Button text="📊  Business Reports" styleClass="nav-item" maxWidth="Infinity"/>
             </VBox>
             <Region VBox.vgrow="ALWAYS"/>
             <VBox spacing="6" style="-fx-padding: 10 12 16 12;">
-                <Button text="?  Settings" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="?  Support" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="?  Ve Menu" styleClass="btn-secondary" onAction="#onVeMenu"/>
+                <Button text="⚙️  Settings" styleClass="nav-item" maxWidth="Infinity"/>
+                <Button text="❓  Support" styleClass="nav-item" maxWidth="Infinity"/>
             </VBox>
         </VBox>
     </left>

@@ -41,6 +41,8 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnStaff;
     @FXML
+    private Button btnStaffSidebar;
+    @FXML
     private Button btnReports;
     @FXML
     private Button btnReportsCard;
@@ -87,6 +89,7 @@ public class MainMenuViewFXMLController {
         capNhatTrangThaiNut(btnPos, modulesDuocCap.contains(SystemModule.POS));
         capNhatTrangThaiNut(btnInventory, modulesDuocCap.contains(SystemModule.INVENTORY));
         capNhatTrangThaiNut(btnStaff, modulesDuocCap.contains(SystemModule.STAFF));
+        capNhatTrangThaiNut(btnStaffSidebar, modulesDuocCap.contains(SystemModule.STAFF));
         capNhatTrangThaiNut(btnReports, modulesDuocCap.contains(SystemModule.REPORTS));
         if (btnReportsCard != null)
             capNhatTrangThaiNut(btnReportsCard, modulesDuocCap.contains(SystemModule.REPORTS));
@@ -140,6 +143,12 @@ public class MainMenuViewFXMLController {
     private void onMoInventory() {
         moScene(btnInventory, "/fxml/InventoryView.fxml", "H3K Bakery - Inventory", 1366, 768,
                 "Khong the mo Inventory: ");
+    }
+
+    @FXML
+    private void onMoStaff() {
+        moScene(btnStaff != null ? btnStaff : btnStaffSidebar, "/fxml/NhanVienManagementView.fxml", "H3K Bakery - Quản lý nhân sự", 1280, 720,
+                "Không thể mở Quản lý nhân sự: ");
     }
 
     @FXML

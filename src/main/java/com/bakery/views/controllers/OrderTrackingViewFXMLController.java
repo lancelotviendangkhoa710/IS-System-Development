@@ -230,7 +230,20 @@ public class OrderTrackingViewFXMLController implements IOrderView, Initializabl
         btnChiTiet.getStyleClass().add("btn-secondary");
         btnChiTiet.setOnAction(event -> showOrderDetails(don));
 
-        action.getChildren().addAll(cbTrangThai, btnCapNhat, btnChiTiet);
+        Button btnHuyDon = new Button("Hủy đơn");
+        btnHuyDon.getStyleClass().add("btn-danger");
+        // Chỉ cho phép hủy nếu chưa hoàn thành và chưa hủy
+        String tt = don.getTenTrangThai() == null ? "" : don.getTenTrangThai();
+        if (tt.contains("Hoàn thành") || tt.contains("Hủy")) {
+            btnHuyDon.setDisable(true);
+        }
+        btnHuyDon.setOnAction(event -> {
+            if (presenter != null) {
+                presenter.huyDonHang(String.valueOf(don.getMaDon()));
+            }
+        });
+
+        action.getChildren().addAll(cbTrangThai, btnCapNhat, btnChiTiet, btnHuyDon);
         card.getChildren().addAll(header, lblKhach, lblNgayNhan, lblTongTien, action);
         return card;
     }

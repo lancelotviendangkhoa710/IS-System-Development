@@ -59,6 +59,19 @@ public interface IOrderDialogFactory {
     }
 
     /**
+     * Record chứa thông tin kết quả từ dialog "Hủy Đơn Hàng".
+     */
+    record CancelOrderRequest(
+            boolean confirmed,      // true nếu người dùng bấm Xác nhận hủy
+            String reason,          // Lý do hủy đơn
+            double refundAmount     // Số tiền hoàn trả cho khách (nếu có)
+    ) {
+        public static CancelOrderRequest cancelled() {
+            return new CancelOrderRequest(false, "", 0);
+        }
+    }
+
+    /**
      * Hiển thị wizard 2 bước để "Tạo Đơn Hàng".
      * Phương thức này phải chặn (BLOCK) luồng thực thi cho đến khi người dùng xác nhận hoặc hủy.
      *
@@ -79,4 +92,13 @@ public interface IOrderDialogFactory {
      * @return true nếu thu ngân xác nhận đã thu đủ tiền, false nếu chưa.
      */
     boolean showPaymentConfirmation(int maDon, double tongTien, double daCoc, double conLai);
+
+    /**
+     * Hiển thị dialog để hủy đơn hàng và hoàn cọc.
+     *
+     * @param maDon         Mã đơn cần hủy.
+     * @param depositAmount Số tiền khách đã cọc (để gợi ý số tiền hoàn).
+     * @return Đối tượng CancelOrderRequest.
+     */
+    CancelOrderRequest showCancelOrderDialog(int maDon, double depositAmount);
 }

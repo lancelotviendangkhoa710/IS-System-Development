@@ -12,7 +12,7 @@
         <VBox>
             <!-- Header -->
             <HBox styleClass="app-header" alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 16 20 16 20;">
-                <Button text="← Quay lại Menu chính" styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
+                <Button text="← Quay lại    " styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
                 <Label text="Theo dõi đơn hàng" styleClass="header-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="lblThongBaoTab2" text="" styleClass="lbl-small-bold"/>

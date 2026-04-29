@@ -172,6 +172,75 @@ public class CreateOrderViewFXMLController implements IOrderDialogFactory {
         }
     }
 
+    @Override
+    public CancelOrderRequest showCancelOrderDialog(int maDon, double depositAmount) {
+        try {
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            if (ownerWindow != null) stage.initOwner(ownerWindow);
+            stage.setTitle("Hủy đơn hàng #" + maDon);
+
+            VBox root = new VBox(15);
+            root.setPadding(new javafx.geometry.Insets(25));
+            root.getStyleClass().add("bg-surface");
+            root.setPrefWidth(450);
+
+            Label lblTitle = new Label("Hủy đơn và hoàn cọc");
+            lblTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #92400E;");
+
+            Label lblInfo = new Label("Số tiền khách đã đặt cọc: " + dinhDangTien(depositAmount));
+            lblInfo.getStyleClass().add("lbl-body-lg");
+
+            VBox inputGroup1 = new VBox(5);
+            Label lblReason = new Label("Lý do hủy đơn:");
+            lblReason.getStyleClass().add("lbl-body-bold");
+            TextField txtReason = new TextField();
+            txtReason.setPromptText("Nhập lý do hủy (ví dụ: Khách đổi ý, Hết nguyên liệu...)");
+            inputGroup1.getChildren().addAll(lblReason, txtReason);
+
+            VBox inputGroup2 = new VBox(5);
+            Label lblRefund = new Label("Số tiền hoàn trả cho khách:");
+            lblRefund.getStyleClass().add("lbl-body-bold");
+            TextField txtRefund = new TextField(String.valueOf((long) depositAmount));
+            txtRefund.setPromptText("Nhập số tiền hoàn trả...");
+            inputGroup2.getChildren().addAll(lblRefund, txtRefund);
+
+            final CancelOrderRequest[] finalResult = {CancelOrderRequest.cancelled()};
+
+            Button btnSubmit = new Button("Xác nhận hủy đơn");
+            btnSubmit.getStyleClass().add("btn-danger");
+            btnSubmit.setMaxWidth(Double.MAX_VALUE);
+            btnSubmit.setPrefHeight(40);
+            btnSubmit.setOnAction(e -> {
+                if (txtReason.getText().trim().isEmpty()) {
+                    hienThiLoiValidate("Vui lòng nhập lý do hủy đơn.");
+                    return;
+                }
+                double refund = parseTien(txtRefund.getText());
+                finalResult[0] = new CancelOrderRequest(true, txtReason.getText().trim(), refund);
+                stage.close();
+            });
+
+            Button btnClose = new Button("Đóng / Bỏ qua");
+            btnClose.getStyleClass().add("btn-secondary");
+            btnClose.setMaxWidth(Double.MAX_VALUE);
+            btnClose.setPrefHeight(40);
+            btnClose.setOnAction(e -> stage.close());
+
+            root.getChildren().addAll(lblTitle, lblInfo, inputGroup1, inputGroup2, btnSubmit, btnClose);
+
+            Scene scene = new Scene(root);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
+            stage.setScene(scene);
+            stage.showAndWait();
+            return finalResult[0];
+        } catch (Exception e) {
+            return CancelOrderRequest.cancelled();
+        }
+    }
+
     private void khoiTaoDialog(Stage stage, double tongTien, CustomerLookup lookup) {
         this.dialogStage = stage;
         this.tongTienPhaiTra = tongTien;

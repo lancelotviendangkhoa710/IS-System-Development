@@ -2,39 +2,37 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="680.0" prefWidth="1280.0"
-            xmlns="http://javafx.com/javafx/24"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.MainController">
-    <center>
-        <VBox prefWidth="520.0" spacing="18.0">
-            <padding>
-                <Insets top="56.0" right="48.0" bottom="56.0" left="48.0"/>
-            </padding>
-            <Label text="H3K Bakery" style="-fx-font-size: 30px; -fx-font-weight: bold;"/>
-            <Label text="Đăng nhập hệ thống" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Label text="Kiểm tra tài khoản đang hoạt động, tải quyền từ vai trò và tạo session làm việc an toàn." wrapText="true"/>
-            <Region prefHeight="24.0"/>
-            <VBox spacing="8.0">
-                <Label text="Tên đăng nhập"/>
-                <TextField fx:id="txtUsername" promptText="Nhập tên đăng nhập"/>
-            </VBox>
-            <VBox spacing="8.0">
-                <Label text="Mật khẩu"/>
-                <PasswordField fx:id="txtPassword" promptText="Nhập mật khẩu"/>
-            </VBox>
-            <Button fx:id="btnLogin" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" text="Đăng nhập"/>
-            <Label fx:id="lblLoginMessage" wrapText="true"/>
+<StackPane xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.bakery.views.controllers.LoginViewFXMLController"
+           styleClass="bg-app"
+           stylesheets="@../css/bakery.css">
+    <VBox alignment="CENTER" spacing="14" maxWidth="1840" styleClass="card">
+        <padding>
+            <Insets top="58" right="58" bottom="58" left="58"/>
+        </padding>
+        <Label text="H3K Bakery" styleClass="lbl-title-screen"/>
+        <Label text="Đăng nhập hệ thống" styleClass="lbl-title-card"/>
+
+        <VBox spacing="6">
+            <Label text="Tên đăng nhập" styleClass="lbl-small-bold"/>
+            <TextField fx:id="txtTenDangNhap" promptText="Nhập tên đăng nhập..." styleClass="text-field"/>
         </VBox>
-    </center>
-</BorderPane>
+
+        <VBox spacing="6">
+            <Label text="Mật khẩu" styleClass="lbl-small-bold"/>
+            <PasswordField fx:id="txtMatKhau" promptText="Nhập mật khẩu..." styleClass="text-field" onAction="#onDangNhap"/>
+        </VBox>
+
+        <Label fx:id="lblThongBao" styleClass="lbl-danger" wrapText="true" maxWidth="Infinity"/>
+        <Region prefHeight="4"/>
+        <Button text="Đăng nhập" styleClass="btn-primary" maxWidth="Infinity" onAction="#onDangNhap"/>
+    </VBox>
+</StackPane>

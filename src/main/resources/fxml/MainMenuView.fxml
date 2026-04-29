@@ -33,7 +33,7 @@
             <VBox styleClass="dash-nav" spacing="8">
                 <Button text="Tổng quan" styleClass="dash-nav-item, dash-nav-active" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                 <Button text="Inventory" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                <Button text="Staff" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                <Button fx:id="btnStaffSidebar" text="Staff" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoStaff"/>
                 <Button fx:id="btnReports" text="Reports" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoReports"/>
                 <Button fx:id="btnTheoDoiDon" text="Theo dõi đơn" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoTheoDoiDon"/>
                 <Button text="KDS" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
@@ -150,7 +150,7 @@
                                 <Label text="Staff (Nhân sự)" styleClass="dash-card-title"/>
                                 <Label text="Manage employee shifts, payroll, and performance metrics for the team." styleClass="dash-card-desc" wrapText="true"/>
                                 <Region VBox.vgrow="ALWAYS"/>
-                                <Button fx:id="btnStaff" text="Quản lý đội ngũ →" styleClass="dash-card-action, dash-action-staff" onAction="#onModuleChuaSanSang"/>
+                                <Button fx:id="btnStaff" text="Quản lý đội ngũ →" styleClass="dash-card-action, dash-action-staff" onAction="#onMoStaff"/>
                             </VBox>
 
                             <!-- Card 4: Reports -->

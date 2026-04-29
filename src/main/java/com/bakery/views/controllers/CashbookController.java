@@ -114,6 +114,35 @@ public class CashbookController implements ICashbookView {
         presenter.onTaiDanhSachLoai();
     }
 
+    @FXML
+    private void onQuayLai() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(com.bakery.main.App.class.getResource(com.bakery.main.App.MAIN_MENU_VIEW));
+            javafx.scene.Parent root = loader.load();
+
+            MainMenuViewFXMLController controller = loader.getController();
+            com.bakery.model.dto.NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
+            if (user != null) {
+                controller.khoiTaoThongTinDangNhap(user);
+            }
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(root, 1366, 768);
+            java.net.URL cssUrl = com.bakery.main.App.class.getResource("/css/bakery.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
+            javafx.stage.Stage stage = (javafx.stage.Stage) lblThongBao.getScene().getWindow();
+            stage.setTitle("H3K Bakery - Hệ thống Quản trị");
+            stage.setScene(scene);
+            stage.setResizable(true);
+            stage.centerOnScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+            hienThiLoi("Lỗi quay lại menu: " + e.getMessage());
+        }
+    }
+
     private void activateTab(String tab) {
         paneTongQuan.setVisible(false); paneTongQuan.setManaged(false);
         paneLichSu.setVisible(false);   paneLichSu.setManaged(false);

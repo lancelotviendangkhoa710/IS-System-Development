@@ -357,6 +357,36 @@ public class DonHangPresenter {
         }
     }
 
+    public void huyDonHang(String maDonStr) {
+        try {
+            int maDon = Integer.parseInt(maDonStr.trim());
+            DonDatHangDTO don = orderService.loadOrderById(maDon);
+            
+            if (dialogFactory == null) {
+                view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+                return;
+            }
+
+            double daCoc = don.getTienDaCoc() != null ? don.getTienDaCoc().doubleValue() : 0.0;
+            IOrderDialogFactory.CancelOrderRequest req = dialogFactory.showCancelOrderDialog(maDon, daCoc);
+            
+            if (!req.confirmed()) return;
+
+            orderService.huyDonVaHoanCoc(maDon, req.reason(), MOCK_CURRENT_USER_ID, don.getTenTrangThai(), req.refundAmount());
+            
+            // Nếu có hoàn tiền, hiện thông báo thêm
+            if (req.refundAmount() > 0) {
+                view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon + " và hoàn tiền: " + req.refundAmount() + "đ");
+            } else {
+                view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon);
+            }
+            
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+        } catch (Exception e) {
+            view.hienThiLoiTraCuu("Lỗi hủy đơn: " + e.getMessage());
+        }
+    }
+
     public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) {
         this.lastSearchMaDon = maDonSearch;
         this.lastSearchNgay = ngayNhan;

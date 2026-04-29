@@ -16,30 +16,31 @@
         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
             <VBox spacing="24" style="-fx-padding: 32 40 40 40;">
                 
-                <!-- HEADER (Search & Profile) -->
+                <!-- HEADER SECTION -->
                 <HBox alignment="CENTER_LEFT" spacing="20">
-                    <Button text="← Quay lại Menu chính" styleClass="btn-primary" onAction="#onVeMenu" style="-fx-font-weight: bold; -fx-padding: 10 20; -fx-background-color: #D85A30; -fx-text-fill: white; -fx-background-radius: 8;"/>
-                    <TextField promptText="Tìm kiếm báo cáo, giao dịch..." styleClass="input-field" prefWidth="400" HBox.hgrow="ALWAYS"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="🔔" style="-fx-background-color: transparent; -fx-font-size: 18px;"/>
-                    <VBox alignment="CENTER_RIGHT">
-                        <Label fx:id="lblAdminName" text="Admin" styleClass="lbl-small-bold"/>
-                        <Label text="Quản lý" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                    <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onVeMenu" 
+                            style="-fx-font-weight: bold; -fx-padding: 8 16;"/>
+                    <VBox spacing="4">
+                        <Label text="Thống Kê Kinh Doanh" styleClass="lbl-title-screen"/>
+                        <Label text="Hiệu suất, doanh thu và tỷ trọng lợi nhuận" styleClass="lbl-body"/>
                     </VBox>
-                </HBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <!-- Filter Row -->
+                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #F9FAFB; -fx-padding: 6 12; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-radius: 10;">
+                        <ComboBox fx:id="cbLoaiBaoCao" prefWidth="90" promptText="Ngày"/>
+                        <DatePicker fx:id="dpNgayBaoCao" prefWidth="130"/>
+                        <Button text="⬇ Tải báo cáo" onAction="#onTaiBaoCaoNhanh" styleClass="btn-secondary" 
+                                style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
 
-                <!-- TITLE ROW -->
-                <HBox alignment="BOTTOM_LEFT">
-                    <VBox>
-                        <Label text="Thống Kê Kinh Doanh" styleClass="lbl-header"/>
-                        <Label text="Tổng quan hiệu suất và doanh thu của tiệm bánh." style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
-                    </VBox>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Loại báo cáo:" style="-fx-font-weight: bold;"/>
-                        <ComboBox fx:id="cbLoaiBaoCao" prefWidth="150" promptText="Chọn loại..."/>
-                        <DatePicker fx:id="dpNgayBaoCao" prefWidth="150"/>
-                        <Button text="⬇ Tải báo cáo nhanh" onAction="#onTaiBaoCaoNhanh" styleClass="btn-secondary" style="-fx-background-color: #059669; -fx-text-fill: white;"/>
+                    <!-- Profile Section -->
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <VBox alignment="CENTER_RIGHT">
+                            <Label fx:id="lblAdminName" text="Admin" styleClass="lbl-small-bold"/>
+                            <Label text="Quản trị viên" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                        </VBox>
+                        <Label text="👤" style="-fx-font-size: 20px; -fx-padding: 4; -fx-background-color: #F3F4F6; -fx-background-radius: 20;"/>
                     </HBox>
                 </HBox>
 

@@ -20,6 +20,12 @@ public class LoginViewFXMLController {
 
     private final AuthService authService = new AuthService();
 
+    public void setLoginInfo(String message) {
+        if (lblThongBao != null && message != null) {
+            lblThongBao.setText(message);
+        }
+    }
+
     @FXML
     private void onDangNhap() {
         String tenDangNhap = txtTenDangNhap.getText() == null ? "" : txtTenDangNhap.getText().trim();

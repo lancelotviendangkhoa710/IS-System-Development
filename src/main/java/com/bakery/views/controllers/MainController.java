@@ -446,8 +446,12 @@ public class MainController {
         Parent root = loader.load();
         
         Object controller = loader.getController();
-        if (loginMessage != null && controller instanceof MainController) {
-            ((MainController) controller).setLoginInfo(loginMessage);
+        if (loginMessage != null) {
+            if (controller instanceof MainController) {
+                ((MainController) controller).setLoginInfo(loginMessage);
+            } else if (controller instanceof LoginViewFXMLController) {
+                ((LoginViewFXMLController) controller).setLoginInfo(loginMessage);
+            }
         }
 
         Scene scene = new Scene(root);

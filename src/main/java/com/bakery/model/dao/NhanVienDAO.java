@@ -152,6 +152,32 @@ public class NhanVienDAO {
         }
     }
 
+    public java.util.List<NhanVienDTO> layTatCaNhanVien() throws Exception {
+        String sql = """
+                SELECT NV.MANV, NV.MAVAITRO, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TENDANGNHAP, NV.MATKHAU, NV.TRANGTHAILAMVIEC,
+                       VT.TENVAITRO
+                FROM NHANVIEN NV
+                JOIN VAITRO VT ON NV.MAVAITRO = VT.MAVAITRO
+                ORDER BY NV.MANV DESC
+                """;
+
+        java.util.List<NhanVienDTO> list = new java.util.ArrayList<>();
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                NhanVienDTO nv = mapNhanVien(rs);
+                nv.setTenVaiTro(rs.getString("TENVAITRO"));
+                list.add(nv);
+            }
+            return list;
+        } catch (SQLException e) {
+            System.err.println("Loi DAO - layTatCaNhanVien: " + e.getMessage());
+            throw new Exception("Khong the tai danh sach nhan vien.");
+        }
+    }
+
     private Connection moKetNoi() throws Exception {
         Connection connection = DBConnect.getConnection();
         if (connection == null) {
