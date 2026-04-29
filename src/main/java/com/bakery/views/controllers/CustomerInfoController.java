@@ -40,6 +40,11 @@ public class CustomerInfoController implements CustomerInfoView {
     @FXML private TextField searchField;
     @FXML private Button btnRefresh;
     @FXML private HBox paginationBox;
+    @FXML private Button btnToggleFilter;
+    @FXML private HBox filterPanel;
+    @FXML private DatePicker dpFromDate;
+    @FXML private DatePicker dpToDate;
+    @FXML private ComboBox<String> cbTierFilter;
 
     private CustomerInfoPresenter presenter;
     private ViewFactory viewFactory;
@@ -69,6 +74,22 @@ public class CustomerInfoController implements CustomerInfoView {
             activeTiers = tierService.getAllTiers();
             if (activeTiers != null) {
                 activeTiers.sort(Comparator.comparingInt(HangThanhVienDTO::getDiemToiThieu));
+                
+                // Update filter combobox
+                Platform.runLater(() -> {
+                    String currentSelection = cbTierFilter.getValue();
+                    List<String> tierNames = new ArrayList<>();
+                    tierNames.add("Tất cả");
+                    for (HangThanhVienDTO tier : activeTiers) {
+                        tierNames.add(tier.getTenHang());
+                    }
+                    cbTierFilter.setItems(FXCollections.observableArrayList(tierNames));
+                    if (currentSelection != null && tierNames.contains(currentSelection)) {
+                        cbTierFilter.setValue(currentSelection);
+                    } else {
+                        cbTierFilter.setValue("Tất cả");
+                    }
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,6 +106,29 @@ public class CustomerInfoController implements CustomerInfoView {
     @FXML private void onTierManagementClicked() { viewFactory.openMembershipTierDialog(null); }
     @FXML private void onPreviousPageClicked() { presenter.goToPage(getCurrentPage() - 1); }
     @FXML private void onNextPageClicked() { presenter.goToPage(getCurrentPage() + 1); }
+    
+    @FXML private void onToggleFilterClicked() {
+        boolean isVisible = filterPanel.isVisible();
+        filterPanel.setVisible(!isVisible);
+        filterPanel.setManaged(!isVisible);
+    }
+
+    @FXML private void onApplyFilterClicked() {
+        LocalDate fromDate = dpFromDate.getValue();
+        LocalDate toDate = dpToDate.getValue();
+        String tier = cbTierFilter.getValue();
+        if ("Tất cả".equals(tier)) {
+            tier = null;
+        }
+        presenter.filterCustomers(fromDate, toDate, tier);
+    }
+
+    @FXML private void onClearFilterClicked() {
+        dpFromDate.setValue(null);
+        dpToDate.setValue(null);
+        cbTierFilter.setValue("Tất cả");
+        presenter.filterCustomers(null, null, null);
+    }
 
     @Override public void displayCustomers(List<KhachHangDTO> customers) { customerTable.setItems(FXCollections.observableArrayList(customers)); customerTable.refresh(); }
     @Override public void updatePaginationInfo(String pageInfo) { lblPageInfo.setText(pageInfo); }

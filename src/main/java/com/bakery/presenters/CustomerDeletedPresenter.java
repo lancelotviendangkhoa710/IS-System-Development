@@ -11,25 +11,21 @@ import javafx.concurrent.Task;
 
 /**
  * Presenter cho màn hình Thùng rác khách hàng.
- * Điều phối logic phân trang, khôi phục dữ liệu.
+ * Điều phối logic tìm kiếm, khôi phục dữ liệu.
  */
 public class CustomerDeletedPresenter {
-
-    private static final int PAGE_SIZE = 8;
 
     private final CustomerService customerService;
     private final CustomerDeletedView view;
 
     private List<KhachHangDTO> allDeletedCustomers;
-    private int currentPage;
-    private int totalPages;
+    private String currentKeyword;
 
     public CustomerDeletedPresenter(CustomerDeletedView view) {
         this.view = view;
         this.customerService = new CustomerService();
         this.allDeletedCustomers = List.of();
-        this.currentPage = 1;
-        this.totalPages = 1;
+        this.currentKeyword = "";
     }
 
     /**
@@ -47,8 +43,8 @@ public class CustomerDeletedPresenter {
 
         task.setOnSucceeded(event -> {
             allDeletedCustomers = task.getValue();
-            currentPage = 1;
-            updateView();
+            currentKeyword = "";
+            updateViewWithCurrentData();
             view.setBusy(false);
         });
 
@@ -61,39 +57,13 @@ public class CustomerDeletedPresenter {
     }
 
     /**
-     * Chuyển đến trang trước đó.
-     */
-    public void goToPreviousPage() {
-        if (currentPage > 1) {
-            currentPage--;
-            updateView();
-        }
-    }
-
-    /**
-     * Chuyển đến trang kế tiếp.
-     */
-    public void goToNextPage() {
-        if (currentPage < totalPages) {
-            currentPage++;
-            updateView();
-        }
-    }
-
-    /**
-     * Chuyển đến trang được chỉ định.
+     * Tìm kiếm khách hàng đã xóa theo từ khóa.
      *
-     * @param page số trang
+     * @param keyword từ khóa tìm kiếm
      */
-    public void goToPage(int page) {
-        if (page < 1) {
-            currentPage = 1;
-        } else if (page > totalPages) {
-            currentPage = totalPages;
-        } else {
-            currentPage = page;
-        }
-        updateView();
+    public void searchDeletedCustomers(String keyword) {
+        this.currentKeyword = keyword == null ? "" : keyword.trim();
+        updateViewWithCurrentData();
     }
 
     /**
@@ -127,30 +97,26 @@ public class CustomerDeletedPresenter {
 
     // === PRIVATE HELPERS ===
 
-    private void updateView() {
+    private void updateViewWithCurrentData() {
         if (allDeletedCustomers.isEmpty()) {
-            totalPages = 1;
-            currentPage = 1;
             view.displayDeletedCustomers(List.of());
-            view.updatePaginationInfo("Hiển thị 0-0 của 0 khách hàng");
-            view.updatePaginationControls(currentPage, totalPages);
+            view.updatePaginationInfo("Hiển thị 0 khách hàng");
             return;
         }
 
-        totalPages = (int) Math.ceil((double) allDeletedCustomers.size() / PAGE_SIZE);
-        if (currentPage < 1) {
-            currentPage = 1;
+        if (currentKeyword.isEmpty()) {
+            view.displayDeletedCustomers(allDeletedCustomers);
+            view.updatePaginationInfo("Hiển thị " + allDeletedCustomers.size() + " khách hàng");
+        } else {
+            String lowerKeyword = currentKeyword.toLowerCase();
+            List<KhachHangDTO> filtered = allDeletedCustomers.stream().filter(kh -> 
+                (kh.getHoTen() != null && kh.getHoTen().toLowerCase().contains(lowerKeyword)) ||
+                (kh.getSdt() != null && kh.getSdt().contains(lowerKeyword)) ||
+                (String.valueOf(kh.getMaKH()).contains(lowerKeyword)) ||
+                (kh.getDiaChi() != null && kh.getDiaChi().toLowerCase().contains(lowerKeyword))
+            ).toList();
+            view.displayDeletedCustomers(filtered);
+            view.updatePaginationInfo("Tìm thấy " + filtered.size() + " khách hàng");
         }
-        if (currentPage > totalPages) {
-            currentPage = totalPages;
-        }
-
-        int fromIndex = (currentPage - 1) * PAGE_SIZE;
-        int toIndex = Math.min(fromIndex + PAGE_SIZE, allDeletedCustomers.size());
-        List<KhachHangDTO> pageData = allDeletedCustomers.subList(fromIndex, toIndex);
-
-        view.displayDeletedCustomers(pageData);
-        view.updatePaginationInfo(String.format("Hiển thị %d-%d của %d khách hàng", fromIndex + 1, toIndex, allDeletedCustomers.size()));
-        view.updatePaginationControls(currentPage, totalPages);
     }
 }

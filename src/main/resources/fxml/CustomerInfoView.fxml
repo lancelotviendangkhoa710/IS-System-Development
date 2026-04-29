@@ -39,7 +39,21 @@
             <Label style="-fx-font-size: 16px; -fx-text-fill: #78716c;" text="🔍" />
             <TextField fx:id="searchField" prefHeight="29.0" prefWidth="303.0" promptText="Tìm theo tên, SĐT, mã KH, địa chỉ" style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 14px;" HBox.hgrow="ALWAYS" />
         </HBox>
+        <Button fx:id="btnToggleFilter" onAction="#onToggleFilterClicked" styleClass="secondary-button" text="Lọc" />
         <Region HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <!-- ==================== FILTER PANEL ==================== -->
+    <HBox fx:id="filterPanel" alignment="CENTER_LEFT" spacing="16" managed="false" visible="false" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10 16; -fx-border-color: #e2e2e2; -fx-border-radius: 8;">
+        <Label text="Từ ngày:" style="-fx-font-weight: bold;"/>
+        <DatePicker fx:id="dpFromDate" prefWidth="130" />
+        <Label text="Đến ngày:" style="-fx-font-weight: bold;"/>
+        <DatePicker fx:id="dpToDate" prefWidth="130" />
+        <Label text="Hạng:" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="cbTierFilter" prefWidth="130" promptText="Tất cả" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button onAction="#onApplyFilterClicked" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 6;" text="Áp dụng lọc" />
+        <Button onAction="#onClearFilterClicked" style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-background-radius: 6; -fx-border-color: #d1d5db; -fx-border-radius: 6;" text="Xóa lọc" />
     </HBox>
 
     <!-- ==================== HEADER & BUTTONS ==================== -->

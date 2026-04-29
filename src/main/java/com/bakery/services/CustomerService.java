@@ -71,7 +71,6 @@ public class CustomerService {
         customerDAO.restoreCustomer(customerId);
     }
 
-    // Tao khach hang moi sau khi validate va kiem tra trung SDT.
     public int createCustomer(KhachHangDTO customer) throws SQLException {
         validateCustomerInput(customer);
 
@@ -83,6 +82,13 @@ public class CustomerService {
         KhachHangDTO deletedCustomer = customerDAO.findDeletedCustomerByPhone(customer.getSdt());
         if (deletedCustomer != null) {
             throw new SQLException("SDT da ton tai trong thung rac. Hay khoi phuc khach hang cu thay vi tao moi.");
+        }
+
+        // Tự động gán hạng thành viên khởi điểm dựa trên điểm tích luỹ (thường là 0)
+        CustomerTierService tierService = new CustomerTierService();
+        com.bakery.models.dto.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(customer.getDiemTichLuy());
+        if (appropriateTier != null) {
+            customer.setMaHang(appropriateTier.getMaHang());
         }
 
         try {

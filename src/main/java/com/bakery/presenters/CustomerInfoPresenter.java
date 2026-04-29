@@ -34,8 +34,12 @@ public class CustomerInfoPresenter {
     private final ViewFactory viewFactory;
 
     private List<KhachHangDTO> originalData;
+    private List<KhachHangDTO> searchResultData;
     private List<KhachHangDTO> filteredData;
     private String currentKeyword;
+    private LocalDate filterFromDate;
+    private LocalDate filterToDate;
+    private String filterTier;
     private int currentPage;
     private int totalPages;
 
@@ -44,6 +48,7 @@ public class CustomerInfoPresenter {
         this.viewFactory = viewFactory;
         this.customerService = new CustomerService();
         this.originalData = List.of();
+        this.searchResultData = List.of();
         this.filteredData = List.of();
         this.currentKeyword = "";
         this.currentPage = 1;
@@ -65,10 +70,11 @@ public class CustomerInfoPresenter {
 
         task.setOnSucceeded(event -> {
             originalData = task.getValue();
-            filteredData = new ArrayList<>(originalData);
-            currentKeyword = "";
+            if (currentKeyword == null || currentKeyword.isEmpty()) {
+                searchResultData = new ArrayList<>(originalData);
+            }
             currentPage = 1;
-            updateViewWithCurrentData();
+            applyLocalFilters();
             view.setBusy(false);
         });
 
@@ -90,8 +96,8 @@ public class CustomerInfoPresenter {
         currentPage = 1;
 
         if (currentKeyword.isEmpty()) {
-            filteredData = new ArrayList<>(originalData);
-            updateViewWithCurrentData();
+            searchResultData = new ArrayList<>(originalData);
+            applyLocalFilters();
         } else {
             view.setBusy(true);
 
@@ -103,8 +109,8 @@ public class CustomerInfoPresenter {
             };
 
             task.setOnSucceeded(event -> {
-                filteredData = task.getValue();
-                updateViewWithCurrentData();
+                searchResultData = task.getValue();
+                applyLocalFilters();
                 view.setBusy(false);
             });
 
@@ -247,6 +253,36 @@ public class CustomerInfoPresenter {
      */
     public void openDeletedCustomersDialog() {
         viewFactory.openDeletedCustomersDialog(() -> refreshCustomers());
+    }
+
+    public void filterCustomers(LocalDate fromDate, LocalDate toDate, String tier) {
+        this.filterFromDate = fromDate;
+        this.filterToDate = toDate;
+        this.filterTier = tier;
+        this.currentPage = 1;
+        applyLocalFilters();
+    }
+
+    private void applyLocalFilters() {
+        if (searchResultData == null) {
+            filteredData = new ArrayList<>();
+        } else {
+            filteredData = searchResultData.stream().filter(kh -> {
+                boolean match = true;
+                if (filterFromDate != null && kh.getNgayDangKy() != null) {
+                    if (kh.getNgayDangKy().isBefore(filterFromDate)) match = false;
+                }
+                if (filterToDate != null && kh.getNgayDangKy() != null) {
+                    if (kh.getNgayDangKy().isAfter(filterToDate)) match = false;
+                }
+                if (filterTier != null && !filterTier.isEmpty()) {
+                    String tierName = kh.getTenHang() == null ? "" : kh.getTenHang();
+                    if (!tierName.equalsIgnoreCase(filterTier)) match = false;
+                }
+                return match;
+            }).collect(java.util.stream.Collectors.toList());
+        }
+        updateViewWithCurrentData();
     }
 
     // === PRIVATE HELPERS ===

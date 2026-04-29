@@ -17,19 +17,11 @@ public interface CustomerDeletedView {
     void displayDeletedCustomers(List<KhachHangDTO> customers);
 
     /**
-     * Cập nhật thông tin phân trang (ví dụ "Hiển thị 1-8 của 15").
+     * Cập nhật thông tin phân trang hoặc tìm kiếm (ví dụ "Hiển thị 15 khách hàng").
      *
-     * @param pageInfo text thông tin phân trang
+     * @param pageInfo text thông tin
      */
     void updatePaginationInfo(String pageInfo);
-
-    /**
-     * Cập nhật các nút phân trang (previous, next, page buttons).
-     *
-     * @param currentPage trang hiện tại
-     * @param totalPages tổng số trang
-     */
-    void updatePaginationControls(int currentPage, int totalPages);
 
     /**
      * Hiển thị thông báo lỗi.

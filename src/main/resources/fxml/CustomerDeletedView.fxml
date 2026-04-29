@@ -14,6 +14,15 @@
         <Region HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- ==================== SEARCH BAR ==================== -->
+    <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 10 20;">
+        <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: #eeeeee; -fx-background-radius: 20; -fx-padding: 4 16;">
+            <Label style="-fx-font-size: 16px; -fx-text-fill: #78716c;" text="🔍" />
+            <TextField fx:id="searchField" prefHeight="29.0" prefWidth="303.0" promptText="Tìm theo tên, SĐT, mã KH, địa chỉ" style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 14px;" HBox.hgrow="ALWAYS" />
+        </HBox>
+        <Region HBox.hgrow="ALWAYS" />
+    </HBox>
+
     <!-- ==================== BODY (bảng dữ liệu) ==================== -->
     <TableView fx:id="deletedTable" VBox.vgrow="ALWAYS">
         <columns>
@@ -29,8 +38,5 @@
     <!-- ==================== FOOTER ==================== -->
     <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-padding: 12 20; -fx-border-width: 1 0 0 0;">
         <Label fx:id="lblPageInfo" style="-fx-font-size: 14px;" text="Hiển thị 0 khách hàng" />
-        <Region HBox.hgrow="ALWAYS" />
-        <Button disable="true" styleClass="pagination-button" text="◀" visible="false"/>
-        <HBox fx:id="paginationBox" spacing="4.0" />
     </HBox>
 </VBox>

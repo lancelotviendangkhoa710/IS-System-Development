@@ -25,7 +25,7 @@ public class CustomerDeletedController implements CustomerDeletedView {
     @FXML private TableColumn<KhachHangDTO, String> colNguoiXoa;
     @FXML private TableColumn<KhachHangDTO, Void> colThaoTac;
     @FXML private Label lblPageInfo;
-    @FXML private HBox paginationBox;
+    @FXML private TextField searchField;
 
     private Stage stage;
     private CustomerDeletedPresenter presenter;
@@ -36,11 +36,15 @@ public class CustomerDeletedController implements CustomerDeletedView {
         presenter = new CustomerDeletedPresenter(this);
         setupColumns();
         deletedTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+                presenter.searchDeletedCustomers(newVal);
+            });
+        }
+        
         presenter.refreshDeletedCustomers();
     }
-
-    @FXML private void onPreviousPageClicked() { presenter.goToPreviousPage(); }
-    @FXML private void onNextPageClicked() { presenter.goToNextPage(); }
 
     @Override public void displayDeletedCustomers(List<KhachHangDTO> customers) {
         deletedTable.setItems(FXCollections.observableArrayList(customers));
@@ -49,33 +53,10 @@ public class CustomerDeletedController implements CustomerDeletedView {
 
     @Override public void updatePaginationInfo(String pageInfo) { lblPageInfo.setText(pageInfo); }
 
-    @Override public void updatePaginationControls(int currentPage, int totalPages) {
-        paginationBox.getChildren().clear();
-        Button prev = new Button("◀");
-        prev.getStyleClass().add("pagination-button");
-        prev.setDisable(currentPage <= 1);
-        prev.setOnAction(e -> onPreviousPageClicked());
-        paginationBox.getChildren().add(prev);
-        
-        for (int i = Math.max(1, currentPage - 1); i <= Math.min(totalPages, currentPage + 1); i++) {
-            Button b = new Button(String.valueOf(i));
-            b.getStyleClass().add(i == currentPage ? "pagination-button-active" : "pagination-button");
-            int page = i;
-            b.setOnAction(e -> presenter.goToPage(page));
-            paginationBox.getChildren().add(b);
-        }
-        
-        Button next = new Button("▶");
-        next.getStyleClass().add("pagination-button");
-        next.setDisable(currentPage >= totalPages);
-        next.setOnAction(e -> onNextPageClicked());
-        paginationBox.getChildren().add(next);
-    }
-
     @Override public void showErrorAlert(String title, String message) { new Alert(Alert.AlertType.ERROR, message).showAndWait(); }
     @Override public void showSuccessAlert(String title, String message) { new Alert(Alert.AlertType.INFORMATION, message).showAndWait(); }
     @Override public boolean confirmRestore(String customerName) { return new Alert(Alert.AlertType.CONFIRMATION, "Khôi phục \"" + customerName + "\"?", ButtonType.OK, ButtonType.CANCEL).showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK; }
-    @Override public void setBusy(boolean busy) { deletedTable.setDisable(busy); paginationBox.setDisable(busy); }
+    @Override public void setBusy(boolean busy) { deletedTable.setDisable(busy); if(searchField != null) searchField.setDisable(busy); }
     @Override public void closeDialog() { if (stage != null) stage.close(); }
 
     private void setupColumns() {
