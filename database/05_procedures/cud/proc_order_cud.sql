@@ -56,6 +56,10 @@ BEGIN
     COMMIT;
 
 EXCEPTION
+    WHEN EX_HET_HANG THEN
+        ROLLBACK;
+        -- Giữ nguyên hoặc custom thêm message báo lỗi để UI hiển thị dễ hiểu hơn
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_HET_HANG, 'Giao dịch thất bại: Một sản phẩm trong đơn vừa bị khách hàng khác mua hết.');
     WHEN OTHERS THEN
         ROLLBACK;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng: ' || SQLERRM);
