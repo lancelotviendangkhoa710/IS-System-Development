@@ -38,7 +38,7 @@ public class DefaultViewFactory implements ViewFactory {
     @Override
     public void openMembershipTierDialog(Runnable onClosedCallback) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MembershipTierView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HangThanhVienView.fxml"));
             Parent root = loader.load();
 
             Stage stage = createModalStage("Quản lý Hạng Thành viên", root);

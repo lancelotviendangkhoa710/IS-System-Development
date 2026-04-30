@@ -1,8 +1,8 @@
 ﻿package com.bakery.presenters.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
-import com.bakery.services.khachhang.CustomerTierService;
-import com.bakery.views.interfaces.khachhang.MembershipTierView;
+import com.bakery.services.khachhang.HangThanhVienService;
+import com.bakery.views.interfaces.khachhang.HangThanhVienView;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -12,14 +12,14 @@ import javafx.concurrent.Task;
  * Presenter cho màn hình Quản lý Hạng Thành viên.
  * Xử lý tải danh sách hạng và cập nhật hạng.
  */
-public class CustomerTierPresenter {
+public class HangThanhVienPresenter {
 
-    private final CustomerTierService tierService;
-    private final MembershipTierView view;
+    private final HangThanhVienService tierService;
+    private final HangThanhVienView view;
 
-    public CustomerTierPresenter(MembershipTierView view) {
+    public HangThanhVienPresenter(HangThanhVienView view) {
         this.view = view;
-        this.tierService = new CustomerTierService();
+        this.tierService = new HangThanhVienService();
     }
 
     /**

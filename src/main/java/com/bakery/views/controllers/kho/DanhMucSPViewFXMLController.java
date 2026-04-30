@@ -3,8 +3,8 @@
 import com.bakery.model.dto.kho.DanhMucSPDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.kho.DanhMucSPPresenter;
-import com.bakery.presenters.khachhang.CustomerFormPresenter;
-import com.bakery.views.interfaces.khachhang.CustomerUpdateView;
+import com.bakery.presenters.khachhang.FormKhachHangPresenter;
+import com.bakery.views.interfaces.khachhang.CapNhatKhachHangView;
 import com.bakery.views.interfaces.kho.IDanhMucSPView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -138,9 +138,9 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
 
     /**
      * Controller cho màn hình Cập nhật Khách hàng.
-     * Implement CustomerUpdateView interface - Presenter giao tiếp qua interface này.
+     * Implement CapNhatKhachHangView interface - Presenter giao tiếp qua interface này.
      */
-    public static class CustomerUpdateViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements CustomerUpdateView {
+    public static class CustomerUpdateViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements CapNhatKhachHangView {
 
         @FXML private TextField txtMaKH;
         @FXML private TextField txtHoTen;
@@ -151,13 +151,13 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
 
         private boolean updated = false;
         private KhachHangDTO customer;
-        private CustomerFormPresenter presenter;
+        private FormKhachHangPresenter presenter;
 
         public boolean isUpdated() { return updated; }
         public void loadCustomer(KhachHangDTO cust) { customer = cust; loadCustomerData(cust); }
 
         @FXML public void initialize() {
-            presenter = new CustomerFormPresenter();
+            presenter = new FormKhachHangPresenter();
         }
 
         @FXML private void onSaveClicked() {

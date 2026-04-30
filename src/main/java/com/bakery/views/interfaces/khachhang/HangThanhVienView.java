@@ -4,10 +4,10 @@ import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import java.util.List;
 
 /**
- * View interface cho màn hình Quản lý Hạng Thành viên (MembershipTierController).
+ * View interface cho màn hình Quản lý Hạng Thành viên (HangThanhVienController).
  * Presenter sẽ gọi các method này để update UI.
  */
-public interface MembershipTierView {
+public interface HangThanhVienView {
 
     /**
      * Hiển thị danh sách hạng thành viên trên TableView.

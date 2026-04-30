@@ -3,10 +3,10 @@
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
-import com.bakery.services.khachhang.CustomerTierService;
+import com.bakery.services.khachhang.HangThanhVienService;
 import com.bakery.services.nhansu.XacThucService;
 import com.bakery.utils.UserSession;
-import com.bakery.views.interfaces.khachhang.CustomerInfoView;
+import com.bakery.views.interfaces.khachhang.ThongTinKhachHangView;
 import com.bakery.views.interfaces.ViewFactory;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -123,8 +123,8 @@ public class DangNhapViewFXMLController {
     /**
      * Controller cho màn hình Danh sách Khách hàng.
      */
-    public static class CustomerInfoViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements CustomerInfoView {
-        private static final Logger LOGGER = Logger.getLogger(CustomerInfoViewFXMLController.class.getName());
+    public static class ThongTinKhachHangViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements ThongTinKhachHangView {
+        private static final Logger LOGGER = Logger.getLogger(ThongTinKhachHangViewFXMLController.class.getName());
 
         @FXML private TableView<KhachHangDTO> customerTable;
         @FXML private TableColumn<KhachHangDTO, Integer> colId;
@@ -147,7 +147,7 @@ public class DangNhapViewFXMLController {
         @FXML private DatePicker dpToDate;
         @FXML private ComboBox<String> cbTierFilter;
 
-        private com.bakery.presenters.customer.CustomerInfoPresenter presenter;
+        private com.bakery.presenters.customer.ThongTinKhachHangPresenter presenter;
         private ViewFactory viewFactory;
         private List<HangThanhVienDTO> activeTiers = new ArrayList<>();
 
@@ -159,7 +159,7 @@ public class DangNhapViewFXMLController {
 
             Platform.runLater(() -> {
                 viewFactory = new DefaultViewFactory(customerTable.getScene() != null ? customerTable.getScene().getWindow() : null);
-                presenter = new com.bakery.presenters.customer.CustomerInfoPresenter(CustomerInfoViewFXMLController.this, viewFactory);
+                presenter = new com.bakery.presenters.customer.ThongTinKhachHangPresenter(ThongTinKhachHangViewFXMLController.this, viewFactory);
 
                 searchField.textProperty().addListener((obs, oldVal, newVal) -> presenter.searchCustomers(newVal == null ? "" : newVal));
 
@@ -170,7 +170,7 @@ public class DangNhapViewFXMLController {
 
         private void refreshTiers() {
             try {
-                CustomerTierService tierService = new CustomerTierService();
+                HangThanhVienService tierService = new HangThanhVienService();
                 activeTiers = tierService.getAllTiers();
                 if (activeTiers == null) {
                     return;

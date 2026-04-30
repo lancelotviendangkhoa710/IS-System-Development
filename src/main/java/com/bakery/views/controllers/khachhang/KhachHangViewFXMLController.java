@@ -3,7 +3,7 @@
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.khachhang.KhachHangPresenter;
-import com.bakery.services.khachhang.CustomerTierService;
+import com.bakery.services.khachhang.HangThanhVienService;
 import com.bakery.utils.SessionManager;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.controllers.DefaultViewFactory;
@@ -389,9 +389,9 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
 
     private void taiBoLocHang() {
         try {
-            CustomerTierService customerTierService = new CustomerTierService();
+            HangThanhVienService HangThanhVienService = new HangThanhVienService();
             danhSachHang.clear();
-            danhSachHang.addAll(customerTierService.getAllTiers());
+            danhSachHang.addAll(HangThanhVienService.getAllTiers());
             danhSachHang.sort(Comparator.comparingInt(HangThanhVienDTO::getDiemToiThieu));
 
             List<String> tenHang = new ArrayList<>();

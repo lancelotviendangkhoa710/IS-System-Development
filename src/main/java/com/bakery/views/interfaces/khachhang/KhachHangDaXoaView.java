@@ -4,10 +4,10 @@ import com.bakery.model.dto.khachhang.KhachHangDTO;
 import java.util.List;
 
 /**
- * View interface cho màn hình Thùng rác (CustomerDeletedViewFXMLController).
+ * View interface cho màn hình Thùng rác (KhachHangDaXoaViewFXMLController).
  * Presenter sẽ gọi các method này để update UI.
  */
-public interface CustomerDeletedView {
+public interface KhachHangDaXoaView {
 
     /**
      * Hiển thị danh sách khách hàng đã xóa trên TableView.

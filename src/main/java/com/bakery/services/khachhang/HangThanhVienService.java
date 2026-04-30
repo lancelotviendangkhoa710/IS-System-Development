@@ -7,12 +7,12 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CustomerTierService {
+public class HangThanhVienService {
 
 	private final HangThanhVienDAO tierDAO;
 	private final com.bakery.model.dao.KhachHangDAO customerDAO;
 
-	public CustomerTierService() {
+	public HangThanhVienService() {
 		this.tierDAO = new HangThanhVienDAO();
 		this.customerDAO = new com.bakery.model.dao.KhachHangDAO();
 	}

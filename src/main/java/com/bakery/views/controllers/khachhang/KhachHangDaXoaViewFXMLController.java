@@ -1,8 +1,8 @@
 ﻿package com.bakery.views.controllers.khachhang;
 
 import com.bakery.model.dto.KhachHangDTO;
-import com.bakery.presenters.CustomerDeletedPresenter;
-import com.bakery.views.interfaces.CustomerDeletedView;
+import com.bakery.presenters.KhachHangDaXoaPresenter;
+import com.bakery.views.interfaces.KhachHangDaXoaView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -20,9 +20,9 @@ import java.util.List;
 
 /**
  * Controller cho màn hình Thùng rác.
- * Implement CustomerDeletedView interface - Presenter giao tiếp qua interface này.
+ * Implement KhachHangDaXoaView interface - Presenter giao tiếp qua interface này.
  */
-public class CustomerDeletedViewFXMLController extends AbstractCustomerController implements CustomerDeletedView {
+public class KhachHangDaXoaViewFXMLController extends AbstractCustomerController implements KhachHangDaXoaView {
 
     @FXML private TableView<KhachHangDTO> deletedTable;
     @FXML private TableColumn<KhachHangDTO, Integer> colMaKH;
@@ -34,11 +34,11 @@ public class CustomerDeletedViewFXMLController extends AbstractCustomerControlle
     @FXML private Label lblPageInfo;
     @FXML private TextField searchField;
 
-    private CustomerDeletedPresenter presenter;
+    private KhachHangDaXoaPresenter presenter;
 
     @FXML
     public void initialize() {
-        presenter = new CustomerDeletedPresenter(this);
+        presenter = new KhachHangDaXoaPresenter(this);
         setupColumns();
         deletedTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 

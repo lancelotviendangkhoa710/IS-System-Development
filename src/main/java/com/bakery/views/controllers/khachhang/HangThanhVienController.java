@@ -1,8 +1,8 @@
 ﻿package com.bakery.views.controllers.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
-import com.bakery.presenters.khachhang.CustomerTierPresenter;
-import com.bakery.views.interfaces.khachhang.MembershipTierView;
+import com.bakery.presenters.khachhang.HangThanhVienPresenter;
+import com.bakery.views.interfaces.khachhang.HangThanhVienView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,9 +12,9 @@ import java.util.List;
 
 /**
  * Controller cho màn hình Quản lý Hạng thành viên.
- * Implement MembershipTierView interface - Presenter giao tiếp qua interface này.
+ * Implement HangThanhVienView interface - Presenter giao tiếp qua interface này.
  */
-public class MembershipTierController implements MembershipTierView {
+public class HangThanhVienController implements HangThanhVienView {
 
     @FXML private TableView<HangThanhVienDTO> tierTable;
     @FXML private TableColumn<HangThanhVienDTO, String> colTenHang;
@@ -23,12 +23,12 @@ public class MembershipTierController implements MembershipTierView {
     @FXML private TableColumn<HangThanhVienDTO, Void> colThaoTac;
 
     private Stage stage;
-    private CustomerTierPresenter presenter;
+    private HangThanhVienPresenter presenter;
 
     public void setStage(Stage stage) { this.stage = stage; }
 
     @FXML public void initialize() {
-        presenter = new CustomerTierPresenter(this);
+        presenter = new HangThanhVienPresenter(this);
         setupColumns();
         tierTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         presenter.loadTiers();

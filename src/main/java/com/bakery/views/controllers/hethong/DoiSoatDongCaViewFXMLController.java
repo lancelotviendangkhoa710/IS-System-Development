@@ -5,7 +5,7 @@ import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.hethong.DoiSoatDongCaPresenter;
 import com.bakery.services.hethong.DoiSoatService;
 import com.bakery.utils.CurrencyFormatter;
-import com.bakery.views.interfaces.khachhang.CustomerDeletedView;
+import com.bakery.views.interfaces.khachhang.KhachHangDaXoaView;
 import com.bakery.views.interfaces.hethong.IDoiSoatDongCaView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -309,9 +309,9 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
 
     /**
      * Controller cho màn hình Thùng rác.
-     * Implement CustomerDeletedView interface - Presenter giao tiếp qua interface này.
+     * Implement KhachHangDaXoaView interface - Presenter giao tiếp qua interface này.
      */
-    public static class CustomerDeletedViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements CustomerDeletedView {
+    public static class KhachHangDaXoaViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements KhachHangDaXoaView {
 
         @FXML private TableView<KhachHangDTO> deletedTable;
         @FXML private TableColumn<KhachHangDTO, Integer> colMaKH;
@@ -323,11 +323,11 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
         @FXML private Label lblPageInfo;
         @FXML private TextField searchField;
 
-        private com.bakery.presenters.customer.CustomerDeletedPresenter presenter;
+        private com.bakery.presenters.customer.KhachHangDaXoaPresenter presenter;
 
         @FXML
         public void initialize() {
-            presenter = new com.bakery.presenters.customer.CustomerDeletedPresenter(this);
+            presenter = new com.bakery.presenters.customer.KhachHangDaXoaPresenter(this);
             setupColumns();
             deletedTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 

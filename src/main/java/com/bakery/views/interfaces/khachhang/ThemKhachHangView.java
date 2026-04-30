@@ -1,12 +1,10 @@
 ﻿package com.bakery.views.interfaces.khachhang;
 
-import com.bakery.model.dto.khachhang.KhachHangDTO;
-
 /**
- * View interface cho màn hình Cập nhật Khách hàng (CustomerUpdateViewFXMLController).
+ * View interface cho màn hình Thêm Khách hàng (CustomerAddViewFXMLController).
  * Presenter sẽ gọi các method này để update UI.
  */
-public interface CustomerUpdateView {
+public interface ThemKhachHangView {
 
     /**
      * Lấy họ tên người dùng nhập vào.
@@ -28,13 +26,6 @@ public interface CustomerUpdateView {
      * @return địa chỉ
      */
     String getAddress();
-
-    /**
-     * Tải dữ liệu khách hàng lên form để hiển thị.
-     *
-     * @param customer thông tin khách hàng
-     */
-    void loadCustomerData(KhachHangDTO customer);
 
     /**
      * Xóa toàn bộ nội dung form.

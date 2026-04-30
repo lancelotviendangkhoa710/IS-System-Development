@@ -1,7 +1,7 @@
 ﻿package com.bakery.presenters.khachhang;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
-import com.bakery.services.khachhang.CustomerService;
+import com.bakery.services.khachhang.KhachHangService;
 import com.bakery.views.interfaces.khachhang.KhachHangView;
 import javafx.concurrent.Task;
 
@@ -25,7 +25,7 @@ public class KhachHangPresenter {
     private static final DateTimeFormatter DINH_DANG_NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final KhachHangView view;
-    private final CustomerService customerService;
+    private final KhachHangService KhachHangService;
 
     private List<KhachHangDTO> duLieuGoc;
     private List<KhachHangDTO> duLieuSauTimKiem;
@@ -42,7 +42,7 @@ public class KhachHangPresenter {
 
     public KhachHangPresenter(KhachHangView view) {
         this.view = view;
-        this.customerService = new CustomerService();
+        this.KhachHangService = new KhachHangService();
         this.duLieuGoc = List.of();
         this.duLieuSauTimKiem = List.of();
         this.duLieuSauLoc = List.of();
@@ -66,9 +66,9 @@ public class KhachHangPresenter {
             @Override
             protected List<KhachHangDTO> call() throws SQLException {
                 if (cheDoThungRac) {
-                    return new ArrayList<>(customerService.getDeletedCustomers());
+                    return new ArrayList<>(KhachHangService.getDeletedCustomers());
                 }
-                return new ArrayList<>(customerService.getActiveCustomers());
+                return new ArrayList<>(KhachHangService.getActiveCustomers());
             }
         };
 
@@ -112,7 +112,7 @@ public class KhachHangPresenter {
                             .filter(item -> khopTuKhoa(item, KhachHangPresenter.this.tuKhoa))
                             .toList();
                 }
-                return new ArrayList<>(customerService.searchCustomers(KhachHangPresenter.this.tuKhoa));
+                return new ArrayList<>(KhachHangService.searchCustomers(KhachHangPresenter.this.tuKhoa));
             }
         };
 
@@ -166,7 +166,7 @@ public class KhachHangPresenter {
         Task<KhachHangDTO> task = new Task<>() {
             @Override
             protected KhachHangDTO call() throws Exception {
-                KhachHangDTO existing = customerService.getCustomerById(maKhachHang);
+                KhachHangDTO existing = KhachHangService.getCustomerById(maKhachHang);
                 existing.setHoTen(hoTen);
                 existing.setSdt(sdt);
                 existing.setDiaChi(diaChi);
@@ -190,7 +190,7 @@ public class KhachHangPresenter {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws SQLException {
-                customerService.softDeleteCustomer(maKhachHang, maNhanVien);
+                KhachHangService.softDeleteCustomer(maKhachHang, maNhanVien);
                 return null;
             }
         };
@@ -215,7 +215,7 @@ public class KhachHangPresenter {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws SQLException {
-                customerService.restoreCustomer(maKhachHang);
+                KhachHangService.restoreCustomer(maKhachHang);
                 return null;
             }
         };
@@ -271,9 +271,9 @@ public class KhachHangPresenter {
             @Override
             protected Void call() throws Exception {
                 if (laThemMoi) {
-                    customerService.createCustomer(dto);
+                    KhachHangService.createCustomer(dto);
                 } else {
-                    customerService.updateCustomer(dto);
+                    KhachHangService.updateCustomer(dto);
                 }
                 return null;
             }
@@ -335,13 +335,13 @@ public class KhachHangPresenter {
 
     private void taiThongTinTongQuan() {
         try {
-            tongKhachHangHoatDong = customerService.countActiveCustomers();
+            tongKhachHangHoatDong = KhachHangService.countActiveCustomers();
         } catch (Exception ex) {
             tongKhachHangHoatDong = 0;
         }
         try {
             LocalDate now = LocalDate.now();
-            tongKhachMoiTrongThang = customerService.countNewCustomersInMonth(now.getYear(), now.getMonthValue());
+            tongKhachMoiTrongThang = KhachHangService.countNewCustomersInMonth(now.getYear(), now.getMonthValue());
         } catch (Exception ex) {
             tongKhachMoiTrongThang = 0;
         }

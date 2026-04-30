@@ -4,10 +4,10 @@ import com.bakery.model.dto.khachhang.KhachHangDTO;
 import java.util.List;
 
 /**
- * View interface cho màn hình Danh sách Khách hàng (CustomerInfoViewFXMLController).
+ * View interface cho màn hình Danh sách Khách hàng (ThongTinKhachHangViewFXMLController).
  * Presenter sẽ gọi các method này để update UI.
  */
-public interface CustomerInfoView {
+public interface ThongTinKhachHangView {
 
     /**
      * Hiển thị danh sách khách hàng trên TableView.
