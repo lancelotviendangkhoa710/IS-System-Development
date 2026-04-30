@@ -1,4 +1,5 @@
 ﻿package com.bakery.model.dao.baocao;
+import com.bakery.model.dao.BaseDAO;
 
 
 

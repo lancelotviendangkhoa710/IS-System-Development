@@ -2,7 +2,7 @@
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.services.khachhang.CustomerService;
-import com.bakery.views.interfaces.KhachHangView;
+import com.bakery.views.interfaces.khachhang.KhachHangView;
 import javafx.concurrent.Task;
 
 import java.io.File;

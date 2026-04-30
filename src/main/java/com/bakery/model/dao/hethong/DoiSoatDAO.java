@@ -1,4 +1,5 @@
 ﻿package com.bakery.model.dao.hethong;
+import com.bakery.model.dao.BaseDAO;
 
 import java.math.BigDecimal;
 import java.sql.*;

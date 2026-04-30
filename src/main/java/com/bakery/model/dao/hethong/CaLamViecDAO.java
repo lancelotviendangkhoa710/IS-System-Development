@@ -1,4 +1,5 @@
 ﻿package com.bakery.model.dao.hethong;
+import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.hethong.CaLamViecDTO;
 

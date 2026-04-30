@@ -2,12 +2,12 @@
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
-import com.bakery.presenters.customer.KhachHangPresenter;
+import com.bakery.presenters.khachhang.KhachHangPresenter;
 import com.bakery.services.khachhang.CustomerTierService;
 import com.bakery.utils.SessionManager;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.controllers.DefaultViewFactory;
-import com.bakery.views.interfaces.KhachHangView;
+import com.bakery.views.interfaces.khachhang.KhachHangView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
