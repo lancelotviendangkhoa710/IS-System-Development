@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="600.0" prefWidth="750.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, 0, 10);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.customer.CustomerDeletedViewFXMLController">
+<VBox maxHeight="600.0" prefWidth="750.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, 0, 10);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.khachhang.customer.CustomerDeletedViewFXMLController">
 
     <!-- ==================== HEADER (giống HTML) ==================== -->
     <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 16 20; -fx-border-width: 0 0 1 0;">

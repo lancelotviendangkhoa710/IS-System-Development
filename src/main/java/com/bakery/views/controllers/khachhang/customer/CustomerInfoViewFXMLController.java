@@ -1,4 +1,4 @@
-package com.bakery.views.controllers.customer;
+package com.bakery.views.controllers.khachhang.customer;
 
 import com.bakery.model.dto.HangThanhVienDTO;
 import com.bakery.model.dto.KhachHangDTO;
