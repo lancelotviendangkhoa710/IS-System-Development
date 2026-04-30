@@ -14,7 +14,7 @@ import javafx.scene.control.*;
 
 import java.util.List;
 
-public class NguyenLieuViewFXMLController implements INguyenLieuView {
+public class NguyenLieuViewFXMLController extends BaseController implements INguyenLieuView {
 
     @FXML private TableView<NguyenLieuDTO>            tblNguyenLieu;
     @FXML private TableColumn<NguyenLieuDTO, Integer> colMaNL;
@@ -31,7 +31,6 @@ public class NguyenLieuViewFXMLController implements INguyenLieuView {
     @FXML private Button btnThemMoi;
     @FXML private Button btnLuuThayDoi;
     @FXML private Button btnXoa;
-    @FXML private Label  lblThongBao;
 
     private final ObservableList<NguyenLieuDTO> masterData = FXCollections.observableArrayList();
     private NguyenLieuPresenter presenter;
@@ -79,16 +78,22 @@ public class NguyenLieuViewFXMLController implements INguyenLieuView {
 
     @Override
     public void hienThiLoi(String msg) {
-        lblThongBao.setText(msg);
-        lblThongBao.getStyleClass().removeAll("lbl-success");
-        lblThongBao.getStyleClass().add("lbl-danger");
+        hienThiLoiLabel(msg);
     }
 
     @Override
     public void hienThiThanhCong(String msg) {
-        lblThongBao.setText(msg);
-        lblThongBao.getStyleClass().removeAll("lbl-danger");
-        lblThongBao.getStyleClass().add("lbl-success");
+        hienThiThanhCongLabel(msg);
+    }
+
+    @Override
+    public void xoaLoi() {
+        if (lblThongBao != null) lblThongBao.setText("");
+    }
+
+    @Override
+    public void setLoading(boolean loading) {
+        tblNguyenLieu.setDisable(loading);
     }
 
     @Override
@@ -98,7 +103,7 @@ public class NguyenLieuViewFXMLController implements INguyenLieuView {
         tblNguyenLieu.getSelectionModel().clearSelection();
         btnLuuThayDoi.setDisable(true);
         btnXoa.setDisable(true);
-        lblThongBao.setText("");
+        xoaLoi();
     }
 
     @Override public NguyenLieuDTO  getSelectedNguyenLieu()  { return tblNguyenLieu.getSelectionModel().getSelectedItem(); }
@@ -122,20 +127,6 @@ public class NguyenLieuViewFXMLController implements INguyenLieuView {
 
     @FXML
     private void onQuayLai() {
-        try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load(), 1366, 768);
-            MainMenuViewFXMLController ctrl = loader.getController();
-            ctrl.khoiTaoThongTinDangNhap(com.bakery.utils.UserSession.getCurrentUser());
-            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            javafx.stage.Stage stage = (javafx.stage.Stage) btnThemMoi.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Dashboard");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-        } catch (Exception ex) {
-            hienThiLoi("Không thể quay lại Menu: " + ex.getMessage());
-        }
+        quayLaiMenuChinh(tblNguyenLieu);
     }
 }

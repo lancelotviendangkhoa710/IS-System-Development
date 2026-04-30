@@ -1,7 +1,6 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.HoaDonDTO;
-import com.bakery.utils.DBConnect;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -13,13 +12,13 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HoaDonDAO {
+public class HoaDonDAO extends BaseDAO {
 
-    public List<HoaDonDTO> layDanhSachHoaDon() {
+    public List<HoaDonDTO> layDanhSachHoaDon() throws Exception {
         List<HoaDonDTO> ds = new ArrayList<>();
         String sql = "SELECT * FROM HOADON";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()) {
 
@@ -47,15 +46,15 @@ public class HoaDonDAO {
                 ds.add(hd);
             }
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - layDanhSachHoaDon: " + e.getMessage());
+            handleException("layDanhSachHoaDon", e);
         }
         return ds;
     }
 
-    public int themHoaDonMoi(HoaDonDTO hd) {
+    public int themHoaDonMoi(HoaDonDTO hd) throws Exception {
         String sql = "INSERT INTO HOADON (MADON, MACA, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql, new String[] { "MAHD" })) {
 
             if (hd.getMaDon() != null)
@@ -77,17 +76,17 @@ public class HoaDonDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - themHoaDonMoi: " + e.getMessage());
+            handleException("themHoaDonMoi", e);
         }
         return -1;
     }
 
-    public HoaDonDTO layHoaDonTheoMa(int maHD) {
+    public HoaDonDTO layHoaDonTheoMa(int maHD) throws Exception {
         String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD " +
                 "FROM HOADON WHERE MAHD = ?";
 
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = moKetNoi();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, maHD);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -112,29 +111,28 @@ public class HoaDonDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - layHoaDonTheoMa: " + e.getMessage());
+            handleException("layHoaDonTheoMa", e);
         }
         return null;
     }
 
-    public void huyHoaDon(int maHD) {
+    public void huyHoaDon(int maHD) throws Exception {
         String sql = "UPDATE HOADON SET TRANGTHAI = 'cancelled' WHERE MAHD = ?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = moKetNoi();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, maHD);
             int rows = pstmt.executeUpdate();
             if (rows == 0)
-                throw new RuntimeException("Không tìm thấy hóa đơn MAHD=" + maHD);
+                throw new Exception("Không tìm thấy hóa đơn MAHD=" + maHD);
         } catch (SQLException e) {
-            System.err.println("[HoaDonDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi huỷ hóa đơn: " + e.getMessage(), e);
+            handleException("huyHoaDon", e);
         }
     }
 
-    public boolean capNhatHoaDon(HoaDonDTO hd) {
+    public boolean capNhatHoaDon(HoaDonDTO hd) throws Exception {
         String sql = "UPDATE HOADON SET MADON = ?, MACA = ?, THUEVAT = ?, TONGTIENTHANHTOAN = ?, MAPTTT = ?, LOAIHD = ? WHERE MAHD = ?";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             if (hd.getMaDon() != null)
@@ -151,19 +149,15 @@ public class HoaDonDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lß╗ùi DAO - capNhatHoaDon: " + e.getMessage());
+            handleException("capNhatHoaDon", e);
         }
         return false;
     }
 
-    public void thanhToanVaThangHang(int maHD, Integer maKH, double soTienThanhToan) throws SQLException {
+    public void thanhToanVaThangHang(int maHD, Integer maKH, double soTienThanhToan) throws Exception {
         String sql = "{CALL PROC_THANHTOANVATHANGHANG(?, ?, ?)}";
 
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) {
-                throw new SQLException("Khong the ket noi CSDL.");
-            }
-
+        try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
                 cstmt.setInt(1, maHD);
                 if (maKH != null) {
@@ -175,8 +169,7 @@ public class HoaDonDAO {
                 cstmt.execute();
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - thanhToanVaThangHang: " + e.getMessage());
-            throw e;
+            handleException("thanhToanVaThangHang", e);
         }
     }
 }

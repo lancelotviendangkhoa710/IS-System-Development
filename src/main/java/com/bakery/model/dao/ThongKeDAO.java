@@ -1,6 +1,6 @@
 package com.bakery.model.dao;
 
-import com.bakery.utils.DBConnect;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,51 +11,51 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ThongKeDAO {
+public class ThongKeDAO extends BaseDAO {
 
-    public double getDoanhThuHomNay() {
+    public double getDoanhThuHomNay() throws Exception {
         String sql = "SELECT NVL(SUM(TONGTIENTHANHTOAN), 0) FROM HOADON WHERE TRUNC(NGAYXUATHD) = TRUNC(SYSDATE)";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             if (rs.next()) {
                 return rs.getDouble(1);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getDoanhThuHomNay: " + e.getMessage());
+            handleException("getDoanhThuHomNay", e);
         }
         return 0;
     }
 
-    public double getDoanhThuHomQua() {
+    public double getDoanhThuHomQua() throws Exception {
         String sql = "SELECT NVL(SUM(TONGTIENTHANHTOAN), 0) FROM HOADON WHERE TRUNC(NGAYXUATHD) = TRUNC(SYSDATE - 1)";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             if (rs.next()) {
                 return rs.getDouble(1);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getDoanhThuHomQua: " + e.getMessage());
+            handleException("getDoanhThuHomQua", e);
         }
         return 0;
     }
 
-    public int getTongSoDonHomNay() {
+    public int getTongSoDonHomNay() throws Exception {
         String sql = "SELECT COUNT(*) FROM HOADON WHERE TRUNC(NGAYXUATHD) = TRUNC(SYSDATE)";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getTongSoDonHomNay: " + e.getMessage());
+            handleException("getTongSoDonHomNay", e);
         }
         return 0;
     }
 
-    public Map<String, Double> getDoanhThu7NgayQua() {
+    public Map<String, Double> getDoanhThu7NgayQua() throws Exception {
         Map<String, Double> result = new LinkedHashMap<>();
         // Query groups by date for the last 7 days.
         String sql = "SELECT TO_CHAR(NGAYXUATHD, 'DD/MM') AS NGAY, SUM(TONGTIENTHANHTOAN) " +
@@ -63,19 +63,19 @@ public class ThongKeDAO {
                      "WHERE NGAYXUATHD >= TRUNC(SYSDATE) - 7 " +
                      "GROUP BY TO_CHAR(NGAYXUATHD, 'DD/MM'), TRUNC(NGAYXUATHD) " +
                      "ORDER BY TRUNC(NGAYXUATHD) ASC";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 result.put(rs.getString(1), rs.getDouble(2));
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getDoanhThu7NgayQua: " + e.getMessage());
+            handleException("getDoanhThu7NgayQua", e);
         }
         return result;
     }
 
-    public Map<String, Integer> getTop5BanChay() {
+    public Map<String, Integer> getTop5BanChay() throws Exception {
         Map<String, Integer> result = new LinkedHashMap<>();
         // In Oracle 12c+ we can use FETCH FIRST 5 ROWS ONLY
         // Assuming we join CTDONHANG, SANPHAM, DONDATHANG, HOADON to get completed sales
@@ -86,14 +86,14 @@ public class ThongKeDAO {
                      "GROUP BY S.TENSP " +
                      "ORDER BY TONG DESC " +
                      "FETCH FIRST 5 ROWS ONLY";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 result.put(rs.getString(1), rs.getInt(2));
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getTop5BanChay: " + e.getMessage());
+            handleException("getTop5BanChay", e);
             // Fallback for earlier testing or if no data
             result.put("Sourdough Loaf", 842);
             result.put("Butter Croissant", 765);
@@ -104,7 +104,7 @@ public class ThongKeDAO {
         return result;
     }
 
-    public List<String[]> getGiaoDichMoiNhat() {
+    public List<String[]> getGiaoDichMoiNhat() throws Exception {
         List<String[]> result = new ArrayList<>();
         String sql = "SELECT H.MAHD, NVL(K.HOTEN, 'Khách lẻ'), H.TONGTIENTHANHTOAN, H.LOAIHD " +
                      "FROM HOADON H " +
@@ -112,7 +112,7 @@ public class ThongKeDAO {
                      "LEFT JOIN KHACHHANG K ON D.MAKH = K.MAKH " +
                      "ORDER BY H.NGAYXUATHD DESC " +
                      "FETCH FIRST 10 ROWS ONLY";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
@@ -124,11 +124,11 @@ public class ThongKeDAO {
                 result.add(new String[]{maHd, tenKh, mon, tongTien, trangThai});
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getGiaoDichMoiNhat: " + e.getMessage());
+            handleException("getGiaoDichMoiNhat", e);
         }
         return result;
     }
-    public double getDoanhThu(String loai, String giaTri) {
+    public double getDoanhThu(String loai, String giaTri) throws Exception {
         String condition = "";
         switch (loai.toUpperCase()) {
             case "DAY":
@@ -153,7 +153,7 @@ public class ThongKeDAO {
         String sql = "SELECT (SELECT NVL(SUM(TONGTIENTHANHTOAN), 0) FROM HOADON WHERE " + condition + ") + " +
                      "(SELECT NVL(SUM(TIENDACOC), 0) FROM DONDATHANG WHERE " + condition.replace("NGAYXUATHD", "NGAYLAP").replace("MACA", "1") + " AND TIENDACOC > 0) AS TOTAL FROM DUAL";
         
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, giaTri);
             pstmt.setString(2, giaTri);
@@ -161,12 +161,12 @@ public class ThongKeDAO {
                 if (rs.next()) return rs.getDouble(1);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getDoanhThu: " + e.getMessage());
+            handleException("getDoanhThu", e);
         }
         return 0;
     }
 
-    public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) {
+    public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) throws Exception {
         Map<String, Double> result = new LinkedHashMap<>();
         String sql = "";
 
@@ -190,7 +190,7 @@ public class ThongKeDAO {
             return getDoanhThu7NgayQua();
         }
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, giaTri);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -199,12 +199,12 @@ public class ThongKeDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getXuHuongDoanhThu: " + e.getMessage());
+            handleException("getXuHuongDoanhThu", e);
         }
         return result;
     }
 
-    public List<String[]> getChiTietGiaoDich(String loai, String giaTri) {
+    public List<String[]> getChiTietGiaoDich(String loai, String giaTri) throws Exception {
         List<String[]> result = new ArrayList<>();
         String condition = "";
         switch (loai.toUpperCase()) {
@@ -221,7 +221,7 @@ public class ThongKeDAO {
                      "LEFT JOIN KHACHHANG K ON D.MAKH = K.MAKH " +
                      "WHERE " + condition + " ORDER BY H.NGAYXUATHD DESC";
         
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, giaTri);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -230,12 +230,12 @@ public class ThongKeDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getChiTietGiaoDich: " + e.getMessage());
+            handleException("getChiTietGiaoDich", e);
         }
         return result;
     }
 
-    public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, String giaTri) {
+    public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, String giaTri) throws Exception {
         Map<String, Double> result = new LinkedHashMap<>();
         String condition = "";
         switch (loai.toUpperCase()) {
@@ -255,7 +255,7 @@ public class ThongKeDAO {
                      "WHERE " + condition + " " +
                      "GROUP BY DM.TENDM";
         
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             if (!condition.contains("SYSDATE")) {
                 pstmt.setString(1, giaTri);
@@ -266,7 +266,7 @@ public class ThongKeDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi ThongKeDAO.getDoanhThuTheoDanhMuc: " + e.getMessage());
+            handleException("getDoanhThuTheoDanhMuc", e);
         }
         return result;
     }

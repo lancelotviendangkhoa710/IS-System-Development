@@ -17,7 +17,7 @@ import java.util.List;
  * Kích cỡ, Cốt bánh, Nhân bánh, Kiểu trang trí.
  * (SRP – Single Responsibility Principle)
  */
-public class TuyChinhBanhService {
+public class TuyChinhBanhService extends BaseService {
 
     private final KichCoBanhDAO kichCoBanhDAO;
     private final CotBanhDAO cotBanhDAO;
@@ -40,22 +40,22 @@ public class TuyChinhBanhService {
     }
 
     /** Lấy danh sách kích cỡ bánh kèm phụ phí. */
-    public List<KichCoBanhDTO> layDanhSachKichCo() {
+    public List<KichCoBanhDTO> layDanhSachKichCo() throws Exception {
         return kichCoBanhDAO.layDanhSachPhuPhi();
     }
 
     /** Lấy danh sách loại cốt bánh kèm phụ phí. */
-    public List<CotBanhDTO> layDanhSachCotBanh() {
+    public List<CotBanhDTO> layDanhSachCotBanh() throws Exception {
         return cotBanhDAO.layDanhSachPhuPhi();
     }
 
     /** Lấy danh sách loại nhân bánh kèm phụ phí. */
-    public List<NhanBanhDTO> layDanhSachNhanBanh() {
+    public List<NhanBanhDTO> layDanhSachNhanBanh() throws Exception {
         return nhanBanhDAO.layDanhSachPhuPhi();
     }
 
     /** Lấy danh sách kiểu trang trí bánh kèm phụ phí. */
-    public List<KieuTrangTriDTO> layDanhSachKieuTrangTri() {
+    public List<KieuTrangTriDTO> layDanhSachKieuTrangTri() throws Exception {
         return kieuTrangTriDAO.layDanhSachPhuPhi();
     }
 }

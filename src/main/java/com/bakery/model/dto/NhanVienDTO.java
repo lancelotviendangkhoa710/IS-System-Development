@@ -1,7 +1,7 @@
 package com.bakery.model.dto;
 import java.time.LocalDate;
 
-public class NhanVienDTO {
+public class NhanVienDTO extends BaseDTO {
     private int maNV;
     private int maVaiTro;
     private String tenVaiTro;

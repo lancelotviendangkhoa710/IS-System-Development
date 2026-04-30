@@ -1,7 +1,6 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.NguyenLieuDTO;
-import com.bakery.utils.DBConnect;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -17,12 +16,12 @@ import java.util.List;
  * Tương tác với DB qua PreparedStatement (SELECT) và Stored Procedure
  * (CUD).
  */
-public class NguyenLieuDAO {
+public class NguyenLieuDAO extends BaseDAO {
 
     /**
      * Lấy tất cả nguyên liệu còn hoạt động (chưa bị xóa mềm).
      */
-    public List<NguyenLieuDTO> layTatCaNguyenLieu() {
+    public List<NguyenLieuDTO> layTatCaNguyenLieu() throws Exception {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "SELECT MANL, TENNL, XUATXU, MADVT, GIAVONTRUNGBINH, " +
                 "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
@@ -31,7 +30,7 @@ public class NguyenLieuDAO {
                 "WHERE THOIDIEMXOA IS NULL " +
                 "ORDER BY MANL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()) {
 
@@ -39,7 +38,7 @@ public class NguyenLieuDAO {
                 list.add(mapNguyenLieu(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - layTatCaNguyenLieu: " + e.getMessage());
+            handleException("layTatCaNguyenLieu", e);
         }
 
         return list;
@@ -49,7 +48,7 @@ public class NguyenLieuDAO {
      * Tìm kiếm nguyên liệu theo tên (LIKE, không phân biệt hoa
      * thường).
      */
-    public List<NguyenLieuDTO> timKiemNguyenLieu(String keyword) {
+    public List<NguyenLieuDTO> timKiemNguyenLieu(String keyword) throws Exception {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "SELECT MANL, TENNL, XUATXU, MADVT, GIAVONTRUNGBINH, " +
                 "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
@@ -59,7 +58,7 @@ public class NguyenLieuDAO {
                 "AND LOWER(TENNL) LIKE ? " +
                 "ORDER BY MANL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, "%" + keyword.toLowerCase() + "%");
@@ -70,7 +69,7 @@ public class NguyenLieuDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - timKiemNguyenLieu: " + e.getMessage());
+            handleException("timKiemNguyenLieu", e);
         }
 
         return list;
@@ -82,9 +81,9 @@ public class NguyenLieuDAO {
      *
      * @return mã nguyên liệu vừa tạo (>= 1), hoặc -1 nếu lỗi
      */
-    public int themNguyenLieu(NguyenLieuDTO dto, int maNv) {
+    public int themNguyenLieu(NguyenLieuDTO dto, int maNv) throws Exception {
         String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setString(1, dto.getTenNL());
@@ -97,7 +96,7 @@ public class NguyenLieuDAO {
             cstmt.execute();
             return cstmt.getInt(6);
         } catch (SQLException e) {
-            System.err.println("Loi DAO - themNguyenLieu: " + e.getMessage());
+            handleException("themNguyenLieu", e);
         }
         return -1;
     }
@@ -106,9 +105,9 @@ public class NguyenLieuDAO {
      * Cập nhật nguyên liệu qua PROC_SUA_NGUYENLIEU.
      * Tham số: P_MANL, P_TENNL, P_XUATXU, P_MADVT, P_MUCTONANTOAN
      */
-    public boolean capNhatNguyenLieu(NguyenLieuDTO dto) {
+    public boolean capNhatNguyenLieu(NguyenLieuDTO dto) throws Exception {
         String sql = "{CALL PROC_SUA_NGUYENLIEU(?, ?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, dto.getMaNL());
@@ -120,7 +119,7 @@ public class NguyenLieuDAO {
             cstmt.execute();
             return true;
         } catch (SQLException e) {
-            System.err.println("Loi DAO - capNhatNguyenLieu: " + e.getMessage());
+            handleException("capNhatNguyenLieu", e);
         }
         return false;
     }
@@ -130,9 +129,9 @@ public class NguyenLieuDAO {
      * Procedure tự phân loại: xóa mềm nếu đã có lịch sử, xóa
      * cứng nếu chưa.
      */
-    public boolean xoaNguyenLieu(int maNL, int maNv) {
+    public boolean xoaNguyenLieu(int maNL, int maNv) throws Exception {
         String sql = "{CALL PROC_XOA_NGUYENLIEU(?, ?)}";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, maNL);
@@ -141,7 +140,7 @@ public class NguyenLieuDAO {
             cstmt.execute();
             return true;
         } catch (SQLException e) {
-            System.err.println("Loi DAO - xoaNguyenLieu: " + e.getMessage());
+            handleException("xoaNguyenLieu", e);
         }
         return false;
     }

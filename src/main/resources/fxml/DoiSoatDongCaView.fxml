@@ -199,6 +199,8 @@
                 </VBox>
             </VBox>
 
+            <Label fx:id="lblThongBao" text="" styleClass="text-error" wrapText="true" maxWidth="480"/>
+
             <!-- ══ NÚT BẤM ═══════════════════════════════════════════════════ -->
 
             <!-- Trạng thái 1: Hủy bỏ -->

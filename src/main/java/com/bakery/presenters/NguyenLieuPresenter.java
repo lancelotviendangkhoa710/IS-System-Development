@@ -5,17 +5,15 @@ import com.bakery.model.dto.NguyenLieuDTO;
 import com.bakery.services.NguyenLieuService;
 import com.bakery.views.interfaces.INguyenLieuView;
 
-import java.util.Collections;
-import java.util.List;
+
 
 /**
  * Presenter điều phối màn hình Quản lý Nguyên liệu.
  * Tuân thủ MVP: không chứa logic nghiệp vụ, không biết JavaFX.
  * Chỉ đóng vai Orchestrator: View → Presenter → Service → Presenter → View.
  */
-public class NguyenLieuPresenter {
+public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
 
-    private final INguyenLieuView   view;
     private final NguyenLieuService nguyenLieuService;
 
     /**
@@ -26,7 +24,7 @@ public class NguyenLieuPresenter {
     private final int maNvHienTai;
 
     public NguyenLieuPresenter(INguyenLieuView view, int maNvHienTai) {
-        this.view              = view;
+        super(view);
         this.nguyenLieuService = new NguyenLieuService();
         this.maNvHienTai       = maNvHienTai;
     }
@@ -35,7 +33,7 @@ public class NguyenLieuPresenter {
     public NguyenLieuPresenter(INguyenLieuView view,
                                 NguyenLieuService nguyenLieuService,
                                 int maNvHienTai) {
-        this.view              = view;
+        super(view);
         this.nguyenLieuService = nguyenLieuService;
         this.maNvHienTai       = maNvHienTai;
     }
@@ -46,13 +44,13 @@ public class NguyenLieuPresenter {
 
     /** Gọi khi View initialize(): nạp ComboBox DVT rồi tải bảng. */
     public void khoiTao() {
-        try {
-            List<DonViTinhDTO> dsDVT = nguyenLieuService.layDanhSachDonViTinh();
-            view.napDanhSachDonViTinh(dsDVT);
-        } catch (Exception e) {
-            view.hienThiLoi("Không thể tải danh sách đơn vị tính: " + e.getMessage());
-        }
-        taiDanhSach();
+        runTask(
+            () -> nguyenLieuService.layDanhSachDonViTinh(),
+            dsDVT -> {
+                view.napDanhSachDonViTinh(dsDVT);
+                taiDanhSach();
+            }
+        );
     }
 
     // =========================================================
@@ -61,12 +59,10 @@ public class NguyenLieuPresenter {
 
     /** Tải lại toàn bộ bảng nguyên liệu. */
     public void taiDanhSach() {
-        try {
-            List<NguyenLieuDTO> ds = nguyenLieuService.layDanhSachNguyenLieu();
-            view.hienThiDanhSach(ds);
-        } catch (Exception e) {
-            view.hienThiLoi("Không thể tải danh sách nguyên liệu: " + e.getMessage());
-        }
+        runTask(
+            () -> nguyenLieuService.layDanhSachNguyenLieu(),
+            ds -> view.hienThiDanhSach(ds)
+        );
     }
 
     // =========================================================
@@ -76,19 +72,20 @@ public class NguyenLieuPresenter {
     public void themNguyenLieu() {
         DonViTinhDTO dvt = view.getDonViTinhSelected();
         int maDVT = dvt != null ? dvt.getMaDVT() : 0;
-        try {
-            int maMoi = nguyenLieuService.themNguyenLieu(
+        
+        runTask(
+            () -> nguyenLieuService.themNguyenLieu(
                     view.getTenNLInput(),
                     view.getXuatXuInput(),
                     view.getMucTonAnToanInput(),
                     maDVT,
-                    maNvHienTai);
-            view.hienThiThanhCong("Thêm nguyên liệu thành công (Mã: " + maMoi + ").");
-            view.lamMoiForm();
-            taiDanhSach();
-        } catch (Exception e) {
-            view.hienThiLoi(e.getMessage());
-        }
+                    maNvHienTai),
+            maMoi -> {
+                view.hienThiThanhCong("Thêm nguyên liệu thành công (Mã: " + maMoi + ").");
+                view.lamMoiForm();
+                taiDanhSach();
+            }
+        );
     }
 
     // =========================================================
@@ -103,19 +100,20 @@ public class NguyenLieuPresenter {
         }
         DonViTinhDTO dvt = view.getDonViTinhSelected();
         int maDVT = dvt != null ? dvt.getMaDVT() : 0;
-        try {
-            nguyenLieuService.suaNguyenLieu(
+        
+        runTask(
+            () -> nguyenLieuService.suaNguyenLieu(
                     selected.getMaNL(),
                     view.getTenNLInput(),
                     view.getXuatXuInput(),
                     view.getMucTonAnToanInput(),
-                    maDVT);
-            view.hienThiThanhCong("Cập nhật nguyên liệu thành công.");
-            view.lamMoiForm();
-            taiDanhSach();
-        } catch (Exception e) {
-            view.hienThiLoi(e.getMessage());
-        }
+                    maDVT),
+            () -> {
+                view.hienThiThanhCong("Cập nhật nguyên liệu thành công.");
+                view.lamMoiForm();
+                taiDanhSach();
+            }
+        );
     }
 
     // =========================================================
@@ -128,14 +126,15 @@ public class NguyenLieuPresenter {
             view.hienThiLoi("Vui lòng chọn nguyên liệu cần xóa.");
             return;
         }
-        try {
-            nguyenLieuService.xoaNguyenLieu(selected.getMaNL(), maNvHienTai);
-            view.hienThiThanhCong("Xóa nguyên liệu thành công.");
-            view.lamMoiForm();
-            taiDanhSach();
-        } catch (Exception e) {
-            view.hienThiLoi(e.getMessage());
-        }
+        
+        runTask(
+            () -> nguyenLieuService.xoaNguyenLieu(selected.getMaNL(), maNvHienTai),
+            () -> {
+                view.hienThiThanhCong("Xóa nguyên liệu thành công.");
+                view.lamMoiForm();
+                taiDanhSach();
+            }
+        );
     }
 
     // =========================================================
@@ -144,14 +143,13 @@ public class NguyenLieuPresenter {
 
     public void timKiem() {
         String keyword = view.getTuKhoaTimKiemInput();
-        try {
-            List<NguyenLieuDTO> ds = nguyenLieuService.timKiemNguyenLieu(keyword);
-            view.hienThiDanhSach(ds);
-            view.hienThiThanhCong("Tìm thấy " + ds.size() + " nguyên liệu.");
-        } catch (Exception e) {
-            view.hienThiLoi(e.getMessage());
-            view.hienThiDanhSach(Collections.emptyList());
-        }
+        runTask(
+            () -> nguyenLieuService.timKiemNguyenLieu(keyword),
+            ds -> {
+                view.hienThiDanhSach(ds);
+                view.hienThiThanhCong("Tìm thấy " + ds.size() + " nguyên liệu.");
+            }
+        );
     }
 
     // =========================================================

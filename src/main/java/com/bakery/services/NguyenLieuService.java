@@ -12,25 +12,25 @@ import java.util.List;
  * Tuân thủ SRP: chỉ chứa business-logic, không biết gì về UI hay Presenter.
  *
  * Ràng buộc nghiệp vụ:
- *  1. Thêm / Sửa → Chặn trùng tên nguyên liệu (case-insensitive).
- *  2. Thêm / Sửa → Tên và Đơn vị tính không được rỗng.
- *  3. Xóa → Procedure tự xử lý (xóa mềm nếu đã có lịch sử nhập kho).
+ * 1. Thêm / Sửa → Chặn trùng tên nguyên liệu (case-insensitive).
+ * 2. Thêm / Sửa → Tên và Đơn vị tính không được rỗng.
+ * 3. Xóa → Procedure tự xử lý (xóa mềm nếu đã có lịch sử nhập kho).
  */
-public class NguyenLieuService {
+public class NguyenLieuService extends BaseService {
 
     private final NguyenLieuDAO nguyenLieuDAO;
-    private final DonViTinhDAO  donViTinhDAO;
+    private final DonViTinhDAO donViTinhDAO;
 
     /** Constructor production. */
     public NguyenLieuService() {
         this.nguyenLieuDAO = new NguyenLieuDAO();
-        this.donViTinhDAO  = new DonViTinhDAO();
+        this.donViTinhDAO = new DonViTinhDAO();
     }
 
     /** Constructor injection — dùng cho unit test. */
     public NguyenLieuService(NguyenLieuDAO nguyenLieuDAO, DonViTinhDAO donViTinhDAO) {
         this.nguyenLieuDAO = nguyenLieuDAO;
-        this.donViTinhDAO  = donViTinhDAO;
+        this.donViTinhDAO = donViTinhDAO;
     }
 
     // =========================================================
@@ -38,12 +38,12 @@ public class NguyenLieuService {
     // =========================================================
 
     /** Lấy danh sách nguyên liệu đang hoạt động. */
-    public List<NguyenLieuDTO> layDanhSachNguyenLieu() {
+    public List<NguyenLieuDTO> layDanhSachNguyenLieu() throws Exception {
         return nguyenLieuDAO.layTatCaNguyenLieu();
     }
 
     /** Lấy danh sách đơn vị tính để nạp vào ComboBox. */
-    public List<DonViTinhDTO> layDanhSachDonViTinh() {
+    public List<DonViTinhDTO> layDanhSachDonViTinh() throws Exception {
         return donViTinhDAO.layTatCaDonViTinh();
     }
 
@@ -70,16 +70,16 @@ public class NguyenLieuService {
     /**
      * Thêm nguyên liệu mới.
      *
-     * @param tenNL       tên nguyên liệu (chưa trim)
-     * @param xuatXu      xuất xứ (có thể rỗng)
+     * @param tenNL        tên nguyên liệu (chưa trim)
+     * @param xuatXu       xuất xứ (có thể rỗng)
      * @param mucTonAnToan mức tồn an toàn (>= 0)
-     * @param maDVT       mã đơn vị tính (> 0)
-     * @param maNv        mã nhân viên thực hiện
+     * @param maDVT        mã đơn vị tính (> 0)
+     * @param maNv         mã nhân viên thực hiện
      * @return mã nguyên liệu vừa tạo
      * @throws Exception khi vi phạm ràng buộc nghiệp vụ
      */
     public int themNguyenLieu(String tenNL, String xuatXu,
-                               double mucTonAnToan, int maDVT, int maNv) throws Exception {
+            double mucTonAnToan, int maDVT, int maNv) throws Exception {
         String tenChuan = validateTen(tenNL);
         validateDVT(maDVT);
         kiemTraTrungTenKhiThem(tenChuan);
@@ -107,7 +107,7 @@ public class NguyenLieuService {
      * @throws Exception khi vi phạm ràng buộc nghiệp vụ
      */
     public void suaNguyenLieu(int maNL, String tenNL, String xuatXu,
-                               double mucTonAnToan, int maDVT) throws Exception {
+            double mucTonAnToan, int maDVT) throws Exception {
         String tenChuan = validateTen(tenNL);
         validateDVT(maDVT);
         kiemTraTrungTenKhiSua(maNL, tenChuan);

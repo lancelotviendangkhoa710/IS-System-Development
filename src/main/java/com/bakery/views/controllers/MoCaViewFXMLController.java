@@ -15,12 +15,11 @@ import javafx.scene.layout.StackPane;
 
 import java.util.List;
 
-public class MoCaViewFXMLController implements IMoCaView {
+public class MoCaViewFXMLController extends BaseController implements IMoCaView {
 
     @FXML private Label           lblHoTen;
     @FXML private ComboBox<String> cbMayPOS;
     @FXML private TextField       tfTienDauCa;
-    @FXML private Label           lblError;
     @FXML private StackPane       paneLoading;
     @FXML private Button          btnBatDau;
 
@@ -64,12 +63,12 @@ public class MoCaViewFXMLController implements IMoCaView {
 
     @Override
     public void hienThiLoi(String msg) {
-        Platform.runLater(() -> lblError.setText(msg));
+        hienThiLoiLabel(msg);
     }
 
     @Override
     public void xoaLoi() {
-        Platform.runLater(() -> lblError.setText(" "));
+        if (lblThongBao != null) lblThongBao.setText("");
     }
 
     @Override
@@ -84,8 +83,10 @@ public class MoCaViewFXMLController implements IMoCaView {
     @Override
     public void navigateToMain() {
         Platform.runLater(() -> {
-            if (btnBatDau.getScene() != null && btnBatDau.getScene().getWindow() != null) {
-                ((javafx.stage.Stage) btnBatDau.getScene().getWindow()).close();
+            try {
+                transitionTo(btnBatDau, "/fxml/MainMenuView.fxml", "H3K Bakery - Hệ thống Quản lý", 1366, 768);
+            } catch (Exception e) {
+                hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
             }
         });
     }

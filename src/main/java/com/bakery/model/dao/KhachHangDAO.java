@@ -1,18 +1,18 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.KhachHangDTO;
-import com.bakery.utils.DBConnect;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class KhachHangDAO {
+public class KhachHangDAO extends BaseDAO {
 
-    public KhachHangDTO timKhachHangBangSDT(String sdt) {
+    public KhachHangDTO timKhachHangBangSDT(String sdt) throws Exception {
         String sql = "SELECT * FROM KHACHHANG WHERE SDT = ? AND THOIDIEMXOA IS NULL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, sdt);
@@ -33,15 +33,15 @@ public class KhachHangDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("L?i DAO - timKhachHangBangSDT: " + e.getMessage());
+            handleException("timKhachHangBangSDT", e);
         }
         return null;
     }
 
-    public int themKhachHangMoi(KhachHangDTO kh) {
+    public int themKhachHangMoi(KhachHangDTO kh) throws Exception {
         String sql = "INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI) VALUES (?, ?, ?)";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql, new String[] { "MAKH" })) {
 
             pstmt.setString(1, kh.getHoTen());
@@ -56,14 +56,14 @@ public class KhachHangDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("L?i DAO - themKhachHangMoi: " + e.getMessage());
+            handleException("themKhachHangMoi", e);
         }
         return -1;
     }
 
-    public boolean capNhatKhachHang(KhachHangDTO kh) {
+    public boolean capNhatKhachHang(KhachHangDTO kh) throws Exception {
         String sql = "UPDATE KHACHHANG SET HOTEN = ?, SDT = ?, DIACHI = ? WHERE MAKH = ?";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, kh.getHoTen());
             pstmt.setString(2, kh.getSdt());
@@ -71,15 +71,15 @@ public class KhachHangDAO {
             pstmt.setInt(4, kh.getMaKH());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("L?i DAO - capNhatKhachHang: " + e.getMessage());
+            handleException("capNhatKhachHang", e);
         }
         return false;
     }
 
-    public boolean capNhatDiemTichLuy(int maKH, int diemMoi) {
+    public boolean capNhatDiemTichLuy(int maKH, int diemMoi) throws Exception {
         String sql = "UPDATE KHACHHANG SET DIEMTICHLUY = ? WHERE MaKH = ?";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, diemMoi);
@@ -87,7 +87,7 @@ public class KhachHangDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("L?i DAO - capNhatDiemTichLuy: " + e.getMessage());
+            handleException("capNhatDiemTichLuy", e);
         }
         return false;
     }

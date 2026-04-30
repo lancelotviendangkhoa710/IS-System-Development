@@ -19,6 +19,8 @@ public class DangNhapViewFXMLController {
     @FXML private Label lblThongBao;
 
     private final XacThucService xacThucService = new XacThucService();
+    private final com.bakery.services.CaLamViecService caLamViecService = new com.bakery.services.CaLamViecService();
+    private final com.bakery.services.PhanQuyenService phanQuyenService = new com.bakery.services.PhanQuyenService();
 
     public void setLoginInfo(String message) {
         if (lblThongBao != null && message != null) {
@@ -39,10 +41,24 @@ public class DangNhapViewFXMLController {
         try {
             NhanVienDTO nhanVien = xacThucService.dangNhap(tenDangNhap, matKhau);
             UserSession.setCurrentUser(nhanVien);
-            moManHinhMenu(nhanVien);
+
+            // Kiểm tra và khôi phục ca làm việc nếu có
+            com.bakery.model.dto.CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
+            if (caHienTai != null) {
+                com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
+                moManHinhMenu(nhanVien);
+                return;
+            }
+
+            // Nếu là Thu ngân (không phải Admin) và chưa có ca -> Bắt buộc mở ca
+            if (!phanQuyenService.laAdmin(nhanVien)) {
+                System.out.println("[Session] Thu ngân chưa có ca -> Chuyển sang màn hình Mở ca.");
+                moManHinhMoCa(nhanVien);
+            } else {
+                moManHinhMenu(nhanVien);
+            }
         } catch (Exception ex) {
             System.err.println("[DangNhap] Loi dang nhap: " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
-            ex.printStackTrace();
             String msg = ex.getMessage();
             lblThongBao.setText(msg != null && !msg.isBlank() ? msg : "Loi he thong: " + ex.getClass().getSimpleName());
         }
@@ -66,6 +82,26 @@ public class DangNhapViewFXMLController {
 
         Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
         stage.setScene(scene);
+        stage.centerOnScreen();
+    }
+
+    private void moManHinhMoCa(NhanVienDTO nhanVien) throws Exception {
+        URL fxmlUrl = getClass().getResource("/fxml/MoCaView.fxml");
+        if (fxmlUrl == null) {
+            throw new RuntimeException("Không tìm thấy /fxml/MoCaView.fxml");
+        }
+
+        FXMLLoader loader = new FXMLLoader(fxmlUrl);
+        Scene scene = new Scene(loader.load());
+
+        URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        }
+
+        Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setTitle("H3K Bakery - Mở ca làm việc");
         stage.centerOnScreen();
     }
 }

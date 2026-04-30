@@ -1,7 +1,7 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.SanPhamDTO;
-import com.bakery.utils.DBConnect;
+
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -12,9 +12,9 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SanPhamDAO {
+public class SanPhamDAO extends BaseDAO {
 
-    public List<SanPhamDTO> layTatCaSanPhamDeBan() {
+    public List<SanPhamDTO> layTatCaSanPhamDeBan() throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
         String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
                 "THOIGIANBAOQUAN, NVL(SOLUONGTON, 0) AS SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
@@ -22,7 +22,7 @@ public class SanPhamDAO {
                 "WHERE THOIDIEMXOA IS NULL " +
                 "ORDER BY MASP";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -32,12 +32,12 @@ public class SanPhamDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("[SanPhamDAO] Lỗi: " + e.getMessage());
+            handleException("layTatCaSanPhamDeBan", e);
         }
         return list;
     }
 
-    public List<SanPhamDTO> layTatCaSanPhamQuanLy() {
+    public List<SanPhamDTO> layTatCaSanPhamQuanLy() throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
         String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
                 "THOIGIANBAOQUAN, SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
@@ -45,7 +45,7 @@ public class SanPhamDAO {
                 "WHERE THOIDIEMXOA IS NULL " +
                 "ORDER BY MASP";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -55,18 +55,18 @@ public class SanPhamDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - layTatCaSanPhamQuanLy: " + e.getMessage());
+            handleException("layTatCaSanPhamQuanLy", e);
         }
         return list;
     }
 
-    public List<SanPhamDTO> layDanhSachSanPhamDeBan(int maDanhMuc) {
+    public List<SanPhamDTO> layDanhSachSanPhamDeBan(int maDanhMuc) throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
         String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
                 "THOIGIANBAOQUAN, NVL(SOLUONGTON, 0) AS SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
                 "FROM SANPHAM WHERE MADM = ? AND THOIDIEMXOA IS NULL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maDanhMuc);
@@ -79,7 +79,7 @@ public class SanPhamDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("[SanPhamDAO] Lỗi: " + e.getMessage());
+            handleException("layDanhSachSanPhamDeBan", e);
         }
         return list;
     }
@@ -113,9 +113,9 @@ public class SanPhamDAO {
      * Lấy số lượng tồn kho realtime từ DB.
      * Dùng cho kiểm tra Fail-Fast trước khi mở dialog thanh toán.
      */
-    public double laySoLuongTon(int maSP) {
+    public double laySoLuongTon(int maSP) throws Exception {
         String sql = "SELECT NVL(SOLUONGTON, 0) FROM SANPHAM WHERE MASP = ?";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, maSP);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -124,7 +124,7 @@ public class SanPhamDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("[SanPhamDAO] Lỗi: " + e.getMessage());
+            handleException("laySoLuongTon", e);
         }
         return 0;
     }
@@ -136,9 +136,9 @@ public class SanPhamDAO {
      * @param maDM mã danh mục cần kiểm tra
      * @return số sản phẩm còn tồn tại (>= 0)
      */
-    public int demSanPhamTheoDanhMuc(int maDM) {
+    public int demSanPhamTheoDanhMuc(int maDM) throws Exception {
         String sql = "SELECT COUNT(*) FROM SANPHAM WHERE MADM = ? AND THOIDIEMXOA IS NULL";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, maDM);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -147,14 +147,14 @@ public class SanPhamDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - demSanPhamTheoDanhMuc: " + e.getMessage());
+            handleException("demSanPhamTheoDanhMuc", e);
         }
         return 0;
     }
 
-    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) {
+    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) throws Exception {
         String sql = "{ ? = call FUNC_TINH_GIA_TUY_CHINH(?, ?, ?, ?, ?) }";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 java.sql.CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.registerOutParameter(1, java.sql.Types.NUMERIC);
@@ -180,14 +180,14 @@ public class SanPhamDAO {
             cstmt.execute();
             return cstmt.getDouble(1);
         } catch (SQLException e) {
-            System.err.println("[SanPhamDAO] Lỗi: " + e.getMessage());
+            handleException("tinhGiaBanhTuyChinh", e);
             return 0;
         }
     }
 
-    public int themSanPham(SanPhamDTO sp) {
+    public int themSanPham(SanPhamDTO sp) throws Exception {
         String sql = "{CALL PROC_THEM_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, sp.getMaDM());
@@ -202,14 +202,14 @@ public class SanPhamDAO {
             cstmt.execute();
             return cstmt.getInt(8);
         } catch (SQLException e) {
-            System.err.println("Loi DAO - themSanPham: " + e.getMessage());
+            handleException("themSanPham", e);
         }
         return -1;
     }
 
-    public boolean capNhatSanPham(SanPhamDTO sp) {
+    public boolean capNhatSanPham(SanPhamDTO sp) throws Exception {
         String sql = "{CALL PROC_SUA_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, sp.getMaSP());
@@ -224,14 +224,14 @@ public class SanPhamDAO {
             cstmt.execute();
             return true;
         } catch (SQLException e) {
-            System.err.println("Loi DAO - capNhatSanPham: " + e.getMessage());
+            handleException("capNhatSanPham", e);
         }
         return false;
     }
 
-    public boolean xoaSanPham(int maSP, int maNX) {
+    public boolean xoaSanPham(int maSP, int maNX) throws Exception {
         String sql = "{CALL PROC_XOA_SANPHAM(?, ?)}";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, maSP);
@@ -240,7 +240,7 @@ public class SanPhamDAO {
             cstmt.execute();
             return true;
         } catch (SQLException e) {
-            System.err.println("Loi DAO - xoaSanPham: " + e.getMessage());
+            handleException("xoaSanPham", e);
         }
         return false;
     }

@@ -1,7 +1,6 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.DonViTinhDTO;
-import com.bakery.utils.DBConnect;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,21 +13,21 @@ import java.util.List;
  * DAO truy xuất bảng DONVITINH.
  * Chỉ cần đọc danh sách để nạp vào ComboBox ở màn hình Nguyên liệu.
  */
-public class DonViTinhDAO {
+public class DonViTinhDAO extends BaseDAO {
 
     /**
      * Lấy tất cả đơn vị tính còn hoạt động (chưa bị xóa mềm).
      *
      * @return danh sách DonViTinhDTO, rỗng nếu không có dữ liệu
      */
-    public List<DonViTinhDTO> layTatCaDonViTinh() {
+    public List<DonViTinhDTO> layTatCaDonViTinh() throws Exception {
         List<DonViTinhDTO> list = new ArrayList<>();
         String sql = "SELECT MADVT, TENDVT, THOIDIEMXOA, MANX " +
                      "FROM DONVITINH " +
                      "WHERE THOIDIEMXOA IS NULL " +
                      "ORDER BY MADVT";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -49,7 +48,7 @@ public class DonViTinhDAO {
                 list.add(dto);
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - layTatCaDonViTinh: " + e.getMessage());
+            handleException("layTatCaDonViTinh", e);
         }
 
         return list;

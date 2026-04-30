@@ -70,7 +70,7 @@ import java.util.function.Function;
  * Quản lý quy trình chọn sản phẩm, tùy chỉnh bánh theo yêu cầu, giỏ hàng và
  * thanh toán.
  */
-public class DonHangViewFXMLController implements IDonHangView, Initializable {
+public class DonHangViewFXMLController extends BaseController implements IDonHangView, Initializable {
 
     @FXML
     private Button btnNavPOS;
@@ -148,8 +148,6 @@ public class DonHangViewFXMLController implements IDonHangView, Initializable {
     @FXML
     private Label lblCocToiThieu;
     @FXML
-    private Label lblThongBaoTab1;
-    @FXML
     private Button btnThanhToan;
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
@@ -194,25 +192,7 @@ public class DonHangViewFXMLController implements IDonHangView, Initializable {
 
     @FXML
     private void onBackToMenu() {
-        try {
-            URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Scene scene = new Scene(loader.load(), 1280, 720);
-
-            MainMenuViewFXMLController controller = loader.getController();
-            controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
-
-            URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null)
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-
-            Stage stage = (Stage) btnNavPOS.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Management Console");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-        } catch (Exception ex) {
-            System.err.println("Lỗi quay lại Menu: " + ex.getMessage());
-        }
+        quayLaiMenuChinh(btnNavPOS);
     }
 
     @FXML
@@ -238,7 +218,7 @@ public class DonHangViewFXMLController implements IDonHangView, Initializable {
             stage.centerOnScreen();
         } catch (Exception ex) {
             lblThongBaoHeader.setText("Không thể mở Theo dõi đơn: " + ex.getMessage());
-            ex.printStackTrace();
+            System.err.println("[DonHangView] Nav error: " + ex.getMessage());
         }
     }
 
@@ -408,20 +388,18 @@ public class DonHangViewFXMLController implements IDonHangView, Initializable {
 
     @Override
     public void hienThiLoi(String msg) {
-        lblThongBaoTab1.getStyleClass().setAll("lbl-danger");
-        lblThongBaoTab1.setText(msg);
+        hienThiLoiLabel(msg);
     }
 
     @Override
     public void hienThiThanhCong(String msg) {
-        lblThongBaoTab1.getStyleClass().setAll("lbl-success");
-        lblThongBaoTab1.setText(msg);
+        hienThiThanhCongLabel(msg);
     }
 
     @Override
     public void lamMoiForm() {
         khachHangHienTai = null;
-        lblThongBaoTab1.setText("");
+        if (lblThongBao != null) lblThongBao.setText("");
         txtCustomLoiChuc.clear();
         txtCustomGhiChu.clear();
         spCustomSoLuong.getValueFactory().setValue(1);
@@ -439,18 +417,24 @@ public class DonHangViewFXMLController implements IDonHangView, Initializable {
 
             String tenKhach = (khachHangHienTai != null) ? khachHangHienTai.getHoTen() : "Khách hàng";
 
-            double soTienGiam = (pGiam > 0 && pGiam < 1) ? (hd.getTongTienThanhToan().doubleValue() * pGiam / (1 - pGiam)) : 0;
-
-            controller.setReceiptData(tieuDe, hd, don, cart, data, tenKhach, khachDua, tienThua, soTienGiam, laDonCoc);
+            // Logic tính giảm giá đã được chuyển vào HoaDonViewFXMLController để đảm bảo chính xác
+            controller.setReceiptData(tieuDe, hd, don, cart, data, tenKhach, khachDua, tienThua, 0.0, laDonCoc);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle(tieuDe);
-            stage.setScene(new Scene(root));
+            
+            Scene scene = new Scene(root);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+            
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             hienThiLoi("Không thể in hóa đơn: " + e.getMessage());
-            System.err.println("[DonHangViewFXMLController] Lỗi: " + e.getMessage());
+            System.err.println("[DonHangView] In hóa đơn lỗi: " + e.getMessage());
         }
     }
 
@@ -470,13 +454,21 @@ public class DonHangViewFXMLController implements IDonHangView, Initializable {
                 tenKhach = khachHangHienTai.getHoTen();
             }
 
+            // Đồng bộ logic tính toán tiền trong View Controller
             controller.setReceiptData("HÓA ĐƠN HOÀN THÀNH", hd, don, dsItems, new ArrayList<>(mapSanPhamById.values()),
                     tenKhach, khachDua, tienThua, 0.0, laDonCoc);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("HÓA ĐƠN HOÀN THÀNH");
-            stage.setScene(new Scene(root));
+            
+            Scene scene = new Scene(root);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+            
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             hienThiLoi("Không thể in hóa đơn hoàn thành: " + e.getMessage());

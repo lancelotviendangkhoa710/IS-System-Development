@@ -11,7 +11,7 @@ import java.util.List;
  * 
  * Tuân thủ quy tắc: Presenter giao tiếp qua interface này và không phụ thuộc vào JavaFX.
  */
-public interface INguyenLieuView {
+public interface INguyenLieuView extends IBaseView {
 
     // ——— HIỂN THỊ DANH SÁCH ———
 
@@ -32,17 +32,6 @@ public interface INguyenLieuView {
      */
     void hienThiChiTiet(NguyenLieuDTO nl);
 
-    // ——— THÔNG BÁO ———
-
-    /** 
-     * Hiển thị thông báo lỗi nghiệp vụ (Validation, Database Error, v.v.).
-     */
-    void hienThiLoi(String msg);
-
-    /** 
-     * Hiển thị thông báo khi thao tác thành công.
-     */
-    void hienThiThanhCong(String msg);
 
     // ——— QUẢN LÝ FORM ———
 

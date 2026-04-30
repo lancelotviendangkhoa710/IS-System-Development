@@ -1,7 +1,6 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.CotBanhDTO;
-import com.bakery.utils.DBConnect;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -11,13 +10,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CotBanhDAO {
+public class CotBanhDAO extends BaseDAO {
 
-    public List<CotBanhDTO> layDanhSachPhuPhi() {
+    public List<CotBanhDTO> layDanhSachPhuPhi() throws Exception {
         List<CotBanhDTO> list = new ArrayList<>();
         String sql = "SELECT MACOT, TENCOT, PHUPHI, THOIDIEMXOA, MANX FROM COTBANH WHERE THOIDIEMXOA IS NULL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()) {
 
@@ -35,7 +34,7 @@ public class CotBanhDAO {
                 list.add(item);
             }
         } catch (SQLException e) {
-            System.err.println("[CotBanhDAO] Lỗi: " + e.getMessage());
+            handleException("layDanhSachPhuPhi", e);
         }
         return list;
     }

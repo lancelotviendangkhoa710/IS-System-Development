@@ -14,7 +14,7 @@ import java.util.List;
  *  1. Thêm / Sửa → Chặn trùng tên danh mục (không phân biệt hoa thường).
  *  2. Xóa → Chặn khi danh mục đang chứa ≥ 1 sản phẩm chưa bị xóa mềm.
  */
-public class DanhMucSPService {
+public class DanhMucSPService extends BaseService {
 
     private final DanhMucSPDAO danhMucSPDAO;
     private final SanPhamDAO   sanPhamDAO;
@@ -40,7 +40,7 @@ public class DanhMucSPService {
      *
      * @return danh sách DanhMucSPDTO, rỗng nếu không có dữ liệu
      */
-    public List<DanhMucSPDTO> layDanhSachDanhMuc() {
+    public List<DanhMucSPDTO> layDanhSachDanhMuc() throws Exception {
         return danhMucSPDAO.layTatCaDanhMucConHoatDong();
     }
 
@@ -60,7 +60,8 @@ public class DanhMucSPService {
      * @throws Exception khi vi phạm ràng buộc nghiệp vụ
      */
     public int themDanhMuc(String tenDM) throws Exception {
-        String tenChuan = validateTen(tenDM);
+        validateString(tenDM, "Tên danh mục");
+        String tenChuan = tenDM.trim();
         kiemTraTrungTenKhiThem(tenChuan);
 
         DanhMucSPDTO dto = new DanhMucSPDTO();
@@ -108,7 +109,8 @@ public class DanhMucSPService {
      * @throws Exception khi vi phạm ràng buộc nghiệp vụ
      */
     public void suaDanhMuc(int maDM, String tenDM) throws Exception {
-        String tenChuan = validateTen(tenDM);
+        validateString(tenDM, "Tên danh mục");
+        String tenChuan = tenDM.trim();
         kiemTraTrungTenKhiSua(maDM, tenChuan);
 
         DanhMucSPDTO dto = new DanhMucSPDTO();
@@ -152,18 +154,7 @@ public class DanhMucSPService {
     // PRIVATE HELPERS
     // =========================================================
 
-    /**
-     * Trim và kiểm tra tên không rỗng.
-     *
-     * @return tên đã trim
-     * @throws Exception khi tên null hoặc blank
-     */
-    private String validateTen(String ten) throws Exception {
-        if (ten == null || ten.trim().isEmpty()) {
-            throw new Exception("Tên danh mục không được để trống.");
-        }
-        return ten.trim();
-    }
+
 
     /**
      * Kiểm tra trùng tên khi THÊM MỚI (so sánh với toàn bộ danh sách hiện có).

@@ -1,24 +1,23 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.PhieuThuChiDTO;
-import com.bakery.utils.DBConnect;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhieuThuChiDAO {
+public class PhieuThuChiDAO extends BaseDAO {
 
     /**
      * Tạo phiếu thu chi mới.
      * MAHD và MAPN đều có thể null → dùng setNull(n, Types.INTEGER).
      */
-    public void taoPhieuThuChi(PhieuThuChiDTO ptc) {
+    public void taoPhieuThuChi(PhieuThuChiDTO ptc) throws Exception {
         String sql = "INSERT INTO PHIEUTHUCHI "
                 + "(MALOAITHUCHI, SOTIEN, MANV, MAHD, MAPN, MACA, GHICHU, TRANGTHAI) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, ptc.getMaLoaiThuChi());
@@ -42,16 +41,11 @@ public class PhieuThuChiDAO {
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            if (e.getErrorCode() >= -20599 && e.getErrorCode() <= -20001) {
-                String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
-                throw new RuntimeException(msg, e);
-            }
-            System.err.println("[PhieuThuChiDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi hệ thống khi tạo phiếu thu chi: " + e.getMessage(), e);
+            handleException("taoPhieuThuChi", e);
         }
     }
 
-    public List<PhieuThuChiDTO> layTheoMaCa(int maCa) {
+    public List<PhieuThuChiDTO> layTheoMaCa(int maCa) throws Exception {
         List<PhieuThuChiDTO> ds = new ArrayList<>();
         String sql = "SELECT p.MAPHIEUTC, p.NGAYTAO, p.MALOAITHUCHI, p.SOTIEN, "
                 + "p.MANV, p.MAHD, p.MAPN, p.MACA, p.GHICHU, p.TRANGTHAI, "
@@ -62,7 +56,7 @@ public class PhieuThuChiDAO {
                 + "WHERE p.MACA = ? "
                 + "ORDER BY p.NGAYTAO DESC";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, maCa);
             try (ResultSet rs = ps.executeQuery()) {
@@ -89,24 +83,22 @@ public class PhieuThuChiDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("[PhieuThuChiDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi hệ thống khi lấy giao dịch: " + e.getMessage(), e);
+            handleException("layTheoMaCa", e);
         }
         return ds;
     }
 
-    public void huyPhieu(int maPhieuTC, String lyDo) {
+    public void huyPhieu(int maPhieuTC, String lyDo) throws Exception {
         String sql = "UPDATE PHIEUTHUCHI SET TRANGTHAI = 'cancelled', "
                 + "GHICHU = NVL(GHICHU, '') || ' [Lý do huỷ: ' || ? || ']' "
                 + "WHERE MAPHIEUTC = ?";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, lyDo);
             ps.setInt(2, maPhieuTC);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("[PhieuThuChiDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi huỷ phiếu: " + e.getMessage(), e);
+            handleException("huyPhieu", e);
         }
     }
 

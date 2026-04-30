@@ -2,7 +2,7 @@ package com.bakery.model.dto;
 
 import java.time.LocalDateTime;
 
-public class SanPhamDTO {
+public class SanPhamDTO extends BaseDTO {
     private int maSP;
     private int maDM;
     private String tenSP;

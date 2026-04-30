@@ -138,6 +138,8 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
 
             return controller.result == null ? IDonHangDialogFactory.YeuCauDonHang.cancelled() : controller.result;
         } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Lỗi mở dialog tạo đơn hàng: " + e.getMessage());
             return IDonHangDialogFactory.YeuCauDonHang.cancelled();
         }
     }
@@ -334,9 +336,13 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
             return;
         }
         
-        KhachHangService service = new KhachHangService();
-        KhachHangDTO fullKh = service.timKhachHangTheoSoDienThoai(soDienThoai);
-        moDialogKhachHang(fullKh);
+        try {
+            KhachHangService service = new KhachHangService();
+            KhachHangDTO fullKh = service.timKhachHangTheoSoDienThoai(soDienThoai);
+            moDialogKhachHang(fullKh);
+        } catch (Exception e) {
+            hienThiLoiValidate("Không thể tải thông tin khách hàng: " + e.getMessage());
+        }
     }
 
     private void moDialogKhachHang(KhachHangDTO kh) {

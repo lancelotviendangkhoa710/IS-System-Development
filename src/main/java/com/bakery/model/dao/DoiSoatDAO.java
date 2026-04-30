@@ -1,11 +1,9 @@
 package com.bakery.model.dao;
 
-import com.bakery.utils.DBConnect;
-
 import java.math.BigDecimal;
 import java.sql.*;
 
-public class DoiSoatDAO {
+public class DoiSoatDAO extends BaseDAO {
 
     /**
      * Gọi FUNC_TinhTienMatLyTuong để tính tiền mặt lý tưởng trong két cuối ca.
@@ -16,24 +14,24 @@ public class DoiSoatDAO {
     /**
      * Lấy tiền khai báo đầu ca từ bảng DOISOAT.
      */
-    public BigDecimal layTienKhaiBaoDauCa(int maCa) {
+    public BigDecimal layTienKhaiBaoDauCa(int maCa) throws Exception {
         String sql = "SELECT NVL(TIENKHAIBAODAUCA, 0) FROM DOISOAT WHERE MACA = ?";
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, maCa);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getBigDecimal(1);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi khi lấy tiền khai báo đầu ca: " + e.getMessage(), e);
+            handleException("layTienKhaiBaoDauCa", e);
         }
         return BigDecimal.ZERO;
     }
 
-    public BigDecimal tinhTienMatLyTuong(int maCa, BigDecimal tienKhaiBaoDauCa) {
+    public BigDecimal tinhTienMatLyTuong(int maCa, BigDecimal tienKhaiBaoDauCa) throws Exception {
         String sql = "SELECT FUNC_TINHTIENMATLYTUONG(?, ?) FROM DUAL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, maCa);
@@ -44,12 +42,7 @@ public class DoiSoatDAO {
             }
 
         } catch (SQLException e) {
-            if (e.getErrorCode() >= -20599 && e.getErrorCode() <= -20001) {
-                String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
-                throw new RuntimeException(msg, e);
-            }
-            System.err.println("[DoiSoatDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi hệ thống khi tính tiền mặt lý tưởng: " + e.getMessage(), e);
+            handleException("tinhTienMatLyTuong", e);
         }
         return BigDecimal.ZERO;
     }
@@ -59,10 +52,10 @@ public class DoiSoatDAO {
      * lyDoChenhLech truyền null nếu tiền khớp (chênh lệch = 0).
      */
     public void dongCaDoiSoat(int maCa, BigDecimal tienThucTeDem,
-                               BigDecimal chenhLech, String lyDoChenhLech) {
+                                BigDecimal chenhLech, String lyDoChenhLech) throws Exception {
         String sql = "{CALL PROC_DONGCADOISOAT(?, ?, ?, ?)}";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cs = conn.prepareCall(sql)) {
 
             cs.setInt(1, maCa);
@@ -78,12 +71,7 @@ public class DoiSoatDAO {
             cs.execute();
 
         } catch (SQLException e) {
-            if (e.getErrorCode() >= -20599 && e.getErrorCode() <= -20001) {
-                String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
-                throw new RuntimeException(msg, e);
-            }
-            System.err.println("[DoiSoatDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi hệ thống khi đóng ca đối soát: " + e.getMessage(), e);
+            handleException("dongCaDoiSoat", e);
         }
     }
 

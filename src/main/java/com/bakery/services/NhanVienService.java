@@ -13,7 +13,7 @@ import java.util.Map;
  * Service quản lý nghiệp vụ Nhân viên.
  * Đảm bảo tuân thủ MVP/Service pattern.
  */
-public class NhanVienService {
+public class NhanVienService extends BaseService {
 
     private final NhanVienDAO nhanVienDAO;
     private final VaiTroDAO vaiTroDAO;

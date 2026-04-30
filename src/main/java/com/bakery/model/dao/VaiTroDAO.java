@@ -1,7 +1,7 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.VaiTroDTO;
-import com.bakery.utils.DBConnect;
+
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VaiTroDAO {
+public class VaiTroDAO extends BaseDAO {
     private static final List<String> DEFAULT_ROLE_NAMES = List.of("Thu ngan", "Quan ly", "Tho bep");
 
     public List<VaiTroDTO> layDanhSachVaiTroDangHoatDong() throws Exception {
@@ -41,7 +41,7 @@ public class VaiTroDAO {
 
             return danhSachVaiTro;
         } catch (SQLException e) {
-            System.err.println("Loi DAO - layDanhSachVaiTroDangHoatDong: " + e.getMessage());
+            handleException("layDanhSachVaiTroDangHoatDong", e);
             throw new Exception("Loi he thong khi tai danh sach vai tro!");
         }
     }
@@ -72,16 +72,8 @@ public class VaiTroDAO {
                 cstmt.execute();
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - damBaoVaiTroMacDinh: " + e.getMessage());
+            handleException("damBaoVaiTroMacDinh", e);
             throw new Exception("Khong the khoi tao cac vai tro mac dinh.");
         }
-    }
-
-    private Connection moKetNoi() throws Exception {
-        Connection connection = DBConnect.getConnection();
-        if (connection == null) {
-            throw new Exception("Khong the ket noi CSDL.");
-        }
-        return connection;
     }
 }

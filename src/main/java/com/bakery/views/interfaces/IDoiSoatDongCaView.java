@@ -2,10 +2,7 @@ package com.bakery.views.interfaces;
 
 import java.math.BigDecimal;
 
-public interface IDoiSoatDongCaView {
-
-    // ── Loading ───────────────────────────────────────────────────────────────
-    void setLoading(boolean loading);
+public interface IDoiSoatDongCaView extends IBaseView {
 
     // ── State 0: tải thông tin ca ─────────────────────────────────────────────
     void hienThiThongTinCa(String maCa, String mayPOS, String tienDauCa, String doanhThu);

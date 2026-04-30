@@ -13,12 +13,10 @@ import java.math.BigDecimal;
  * tính chênh lệch và đóng ca.
  * KHÔNG chứa SQL — chỉ điều phối DAO và bảo vệ bất biến nghiệp vụ.
  */
-public class DoiSoatService {
+public class DoiSoatService extends BaseService {
 
     private final CaLamViecDAO caLamViecDAO = new CaLamViecDAO();
     private final DoiSoatDAO doiSoatDAO = new DoiSoatDAO();
-
-    // Tiền mặt lý tưởng theo hệ thống — BÍ MẬT, không expose ra ngoài.
     // Phải gọi tinhTienMatLyTuong() trước khi gọi tinhChenhLech().
     private BigDecimal tienMatLyTuong;
 
@@ -26,7 +24,7 @@ public class DoiSoatService {
      * Tải toàn bộ thông tin cần thiết cho dialog Đối soát Đóng ca.
      * Đồng thời cache tienMatLyTuong để tinhChenhLech() dùng sau.
      */
-    public DoiSoatInfoDTO layThongTinDoiSoat(int maCa, int maNV) {
+    public DoiSoatInfoDTO layThongTinDoiSoat(int maCa, int maNV) throws Exception {
         CaLamViecDTO ca = caLamViecDAO.layCaHienTai(maNV);
         String maMayPOS = (ca != null && ca.getMaMayPOS() != null) ? ca.getMaMayPOS() : "—";
 
@@ -68,14 +66,14 @@ public class DoiSoatService {
      *
      * @throws RuntimeException nếu chênh lệch != 0 mà lyDo để trống
      */
-    public void dongCaDoiSoat(int maCa, BigDecimal tienThucTeDem, String lyDo) {
+    public void dongCaDoiSoat(int maCa, BigDecimal tienThucTeDem, String lyDo) throws Exception {
         BigDecimal chenhLech = tinhChenhLech(tienThucTeDem);
 
         boolean coChenh = chenhLech.compareTo(BigDecimal.ZERO) != 0;
         boolean thieulLyDo = lyDo == null || lyDo.isBlank();
 
         if (coChenh && thieulLyDo) {
-            throw new RuntimeException(
+            throw new Exception(
                     "Có chênh lệch " + chenhLech + "đ — vui lòng nhập lý do trước khi đóng ca.");
         }
 

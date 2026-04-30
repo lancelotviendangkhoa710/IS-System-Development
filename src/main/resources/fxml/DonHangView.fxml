@@ -268,7 +268,7 @@
                         </VBox>
 
                         <!-- Thông báo & Nút thanh toán -->
-                        <Label fx:id="lblThongBaoTab1" text="" wrapText="true"
+                        <Label fx:id="lblThongBao" text="" wrapText="true"
                                styleClass="lbl-small-bold" maxWidth="Infinity"/>
                         <Button fx:id="btnThanhToan"
                                 text="💳 Tạo đơn &amp; Thanh toán"

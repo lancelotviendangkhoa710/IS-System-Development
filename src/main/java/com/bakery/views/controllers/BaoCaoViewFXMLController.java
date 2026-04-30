@@ -5,8 +5,6 @@ import com.bakery.utils.UserSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
@@ -21,9 +19,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,7 +26,7 @@ import java.util.Map;
 import java.io.PrintWriter;
 import java.io.File;
 
-public class BaoCaoViewFXMLController {
+public class BaoCaoViewFXMLController extends BaseController {
 
     @FXML private Label lblAdminName;
     @FXML private LineChart<String, Number> revenueChart;
@@ -71,7 +66,7 @@ public class BaoCaoViewFXMLController {
         cbLoaiBaoCao.valueProperty().addListener((obs, oldVal, newVal) -> refreshData());
         dpNgayBaoCao.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && newVal.isAfter(LocalDate.now())) {
-                showAlert("Ngày không hợp lệ", "Bạn không thể xem báo cáo cho tương lai.");
+                hienThiCanhBao("Ngày không hợp lệ", "Bạn không thể xem báo cáo cho tương lai.");
                 dpNgayBaoCao.setValue(LocalDate.now());
             } else {
                 refreshData();
@@ -80,36 +75,41 @@ public class BaoCaoViewFXMLController {
     }
 
     private void refreshData() {
-        String loaiStr = cbLoaiBaoCao.getValue();
-        LocalDate ngay = dpNgayBaoCao.getValue();
-        if (ngay == null) ngay = LocalDate.now();
+        try {
+            String loaiStr = cbLoaiBaoCao.getValue();
+            LocalDate ngay = dpNgayBaoCao.getValue();
+            if (ngay == null)
+                ngay = LocalDate.now();
 
-        String loai = "DAY";
-        String giaTri = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            String loai = "DAY";
+            String giaTri = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-        if ("Tháng".equals(loaiStr)) {
-            loai = "MONTH";
-            giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy"));
-        } else if ("Quý".equals(loaiStr)) {
-            loai = "QUARTER";
-            int quarter = (ngay.getMonthValue() - 1) / 3 + 1;
-            giaTri = quarter + "/" + ngay.getYear();
-        } else if ("Năm".equals(loaiStr)) {
-            loai = "YEAR";
-            giaTri = String.valueOf(ngay.getYear());
+            if ("Tháng".equals(loaiStr)) {
+                loai = "MONTH";
+                giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy"));
+            } else if ("Quý".equals(loaiStr)) {
+                loai = "QUARTER";
+                int quarter = (ngay.getMonthValue() - 1) / 3 + 1;
+                giaTri = quarter + "/" + ngay.getYear();
+            } else if ("Năm".equals(loaiStr)) {
+                loai = "YEAR";
+                giaTri = String.valueOf(ngay.getYear());
+            }
+
+            double doanhThu = thongKeService.getDoanhThu(loai, giaTri);
+            lblDoanhThu.setText(String.format("%,.0fđ", doanhThu));
+            lblLoiNhuan.setText(String.format("%,.0fđ", doanhThu * 0.3));
+
+            updateChart(loai, giaTri);
+            updateCategoryCharts(loai, giaTri);
+            updateTable(loai, giaTri);
+            loadTopSellers();
+        } catch (Exception e) {
+            hienThiCanhBao("Lỗi tải dữ liệu", "Không thể tải dữ liệu báo cáo: " + e.getMessage());
         }
-
-        double doanhThu = thongKeService.getDoanhThu(loai, giaTri);
-        lblDoanhThu.setText(String.format("%,.0fđ", doanhThu));
-        lblLoiNhuan.setText(String.format("%,.0fđ", doanhThu * 0.3));
-
-        updateChart(loai, giaTri);
-        updateCategoryCharts(loai, giaTri);
-        updateTable(loai, giaTri);
-        loadTopSellers();
     }
 
-    private void updateCategoryCharts(String loai, String giaTri) {
+    private void updateCategoryCharts(String loai, String giaTri) throws Exception {
         Map<String, Double> categoryData = thongKeService.getDoanhThuTheoDanhMuc(loai, giaTri);
         
         // Update Pie Chart
@@ -142,7 +142,7 @@ public class BaoCaoViewFXMLController {
         }
     }
 
-    private void loadTopSellers() {
+    private void loadTopSellers() throws Exception {
         Map<String, Integer> top5 = thongKeService.getTop5BanChay();
         int maxQty = top5.values().stream().max(Integer::compareTo).orElse(1);
         if (maxQty == 0) maxQty = 1;
@@ -172,7 +172,7 @@ public class BaoCaoViewFXMLController {
         vboxBestSellers.getChildren().add(1, listBestSellers);
     }
 
-    private void updateChart(String loai, String giaTri) {
+    private void updateChart(String loai, String giaTri) throws Exception {
         Map<String, Double> chartData = thongKeService.getXuHuongDoanhThu(loai, giaTri);
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Doanh Thu (" + giaTri + ")");
@@ -183,7 +183,7 @@ public class BaoCaoViewFXMLController {
         revenueChart.getData().add(series);
     }
 
-    private void updateTable(String loai, String giaTri) {
+    private void updateTable(String loai, String giaTri) throws Exception {
         // Setup columns if first time
         if (tableGiaoDich.getColumns().get(0).getCellValueFactory() == null) {
             setupTableColumns();
@@ -223,60 +223,25 @@ public class BaoCaoViewFXMLController {
             for (String[] row : tableGiaoDich.getItems()) {
                 writer.println(String.join(" | ", row));
             }
-            showAlert("Thành công", "Đã lưu báo cáo nhanh vào file: " + filename);
+            hienThiThongTin("Thành công", "Đã lưu báo cáo nhanh vào file: " + filename);
         } catch (Exception e) {
-            showAlert("Lỗi", "Không thể lưu báo cáo: " + e.getMessage());
+            hienThiThongBaoLoi("Lỗi", "Không thể lưu báo cáo: " + e.getMessage());
         }
     }
 
-    private void showAlert(String title, String content) {
-        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
 
     @FXML
     private void onVeMenu() {
-        moScene("/fxml/MainMenuView.fxml", "H3K Bakery - Menu chuc nang", 1366, 768);
+        quayLaiMenuChinh(lblAdminName);
     }
 
     @FXML
     private void onMoPOS() {
-        moScene("/fxml/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
+        transitionTo(lblAdminName, "/fxml/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
     }
 
     @FXML
     private void onMoInventory() {
-        moScene("/fxml/KhoView.fxml", "H3K Bakery - Inventory", 1366, 768);
-    }
-
-    private void moScene(String fxmlPath, String title, int width, int height) {
-        try {
-            URL fxmlUrl = getClass().getResource(fxmlPath);
-            if (fxmlUrl == null) {
-                throw new RuntimeException("Khong tim thay " + fxmlPath);
-            }
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Scene scene = new Scene(loader.load(), width, height);
-            
-            if ("/fxml/MainMenuView.fxml".equals(fxmlPath)) {
-                MainMenuViewFXMLController controller = loader.getController();
-                controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
-            }
-            
-            URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            }
-            Stage stage = (Stage) lblAdminName.getScene().getWindow();
-            stage.setTitle(title);
-            stage.setScene(scene);
-            stage.centerOnScreen();
-        } catch (Exception ex) {
-            System.err.println("Lỗi mở scene: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+        transitionTo(lblAdminName, "/fxml/KhoView.fxml", "H3K Bakery - Inventory", 1366, 768);
     }
 }

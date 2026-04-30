@@ -121,7 +121,7 @@
                         <!-- BEST SELLERS MENU -->
                         <VBox spacing="16" style="-fx-padding: 0 0 40 0;">
                             <HBox alignment="CENTER_LEFT" spacing="12">
-                                <Label text="🌟 Bánh Bán Chạy Nhất (Top 5)" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                                <Label text="🌟 Bánh Bán Chạy Nhất" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
                             </HBox>
                             <FlowPane fx:id="flowBestSellersMenu" hgap="16" vgap="16" maxWidth="Infinity">
                                 <!-- Dynamic items loaded via Controller -->

@@ -1,25 +1,24 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.PhuongThucTTDTO;
-import com.bakery.utils.DBConnect;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhuongThucTTDAO {
+public class PhuongThucTTDAO extends BaseDAO {
 
     /**
      * Lấy danh sách phương thức thanh toán còn hoạt động (chưa bị xóa mềm).
      * Không bao giờ trả null — trả list rỗng nếu không có dữ liệu.
      */
-    public List<PhuongThucTTDTO> layDanhSach() {
+    public List<PhuongThucTTDTO> layDanhSach() throws Exception {
         List<PhuongThucTTDTO> ds = new ArrayList<>();
         String sql = "SELECT MAPTTT, TENPTTT, THOIDIEMXOA, MANX "
                 + "FROM PHUONGTHUCTT "
                 + "WHERE THOIDIEMXOA IS NULL";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -38,8 +37,7 @@ public class PhuongThucTTDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("[PhuongThucTTDAO] Lỗi: " + e.getMessage());
-            throw new RuntimeException("Lỗi hệ thống khi lấy danh sách phương thức thanh toán: " + e.getMessage(), e);
+            handleException("layDanhSach", e);
         }
         return ds;
     }

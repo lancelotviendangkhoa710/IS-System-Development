@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 
-public class DoiSoatDongCaViewFXMLController implements IDoiSoatDongCaView {
+public class DoiSoatDongCaViewFXMLController extends BaseController implements IDoiSoatDongCaView {
 
     @FXML
     private StackPane paneLoading;
@@ -171,7 +171,7 @@ public class DoiSoatDongCaViewFXMLController implements IDoiSoatDongCaView {
         Platform.runLater(() -> {
             lblMaCa.setText(maCa);
             lblMayPOS.setText("LỖI");
-            lblTienDauCa.setStyle("-fx-text-fill: -color-danger; -fx-font-size: 11px; -fx-font-family: 'Segoe UI';");
+            lblTienDauCa.getStyleClass().add("lbl-danger");
             lblTienDauCa.setText(causeMsg.length() > 80 ? causeMsg.substring(0, 80) + "..." : causeMsg);
             lblDoanhThu.setText("");
         });
@@ -179,7 +179,10 @@ public class DoiSoatDongCaViewFXMLController implements IDoiSoatDongCaView {
 
     @Override
     public void hienThiLoiNhapTrong() {
-        Platform.runLater(() -> tfNhap.setStyle("-fx-prompt-text-fill: -color-danger;"));
+        Platform.runLater(() -> {
+            tfNhap.setPromptText("Số tiền không được để trống!");
+            hienThiLoiLabel("Vui lòng nhập số tiền mặt thực tế trong két.");
+        });
     }
 
     @Override
@@ -187,6 +190,7 @@ public class DoiSoatDongCaViewFXMLController implements IDoiSoatDongCaView {
         Platform.runLater(() -> {
             tfNhap.clear();
             tfNhap.setPromptText("Số không hợp lệ — thử lại");
+            hienThiLoiLabel("Định dạng số tiền không đúng. Vui lòng kiểm tra lại.");
         });
     }
 
@@ -242,9 +246,8 @@ public class DoiSoatDongCaViewFXMLController implements IDoiSoatDongCaView {
             lblKQChenhLech.setText(CurrencyFormatter.format(chenhLech));
 
             boolean coChenhLech = chenhLech.compareTo(BigDecimal.ZERO) != 0;
-            lblKQChenhLech.setStyle(coChenhLech
-                    ? "-fx-text-fill: -color-danger; -fx-font-weight: bold; -fx-font-size: 15px; -fx-font-family: 'Segoe UI';"
-                    : "-fx-text-fill: -color-success; -fx-font-weight: bold; -fx-font-size: 15px; -fx-font-family: 'Segoe UI';");
+            lblKQChenhLech.getStyleClass().removeAll("lbl-danger", "lbl-success");
+            lblKQChenhLech.getStyleClass().add(coChenhLech ? "lbl-danger" : "lbl-success");
 
             if (coChenhLech && lyDo != null) {
                 lblLyDoReadOnly.setText(lyDo);
@@ -260,7 +263,19 @@ public class DoiSoatDongCaViewFXMLController implements IDoiSoatDongCaView {
 
     @Override
     public void hienThiLoiKhoaSo(String msg) {
-        Platform.runLater(() -> System.err.println("Khóa sổ lỗi: " + msg));
+        hienThiLoi("LỖI KHÓA SỔ: " + msg);
+    }
+
+    @Override
+    public void hienThiLoi(String msg) {
+        Platform.runLater(() -> hienThiLoiLabel(msg));
+    }
+
+    @Override
+    public void xoaLoi() {
+        Platform.runLater(() -> {
+            if (lblThongBao != null) lblThongBao.setText("");
+        });
     }
 
     @Override

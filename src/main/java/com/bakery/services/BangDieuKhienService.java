@@ -4,18 +4,18 @@ import com.bakery.model.dao.BangDieuKhienDAO;
 import com.bakery.model.dto.BangDieuKhienKPIDTO;
 import com.bakery.model.dto.TopSanPhamDTO;
 
-import java.sql.SQLException;
+
 import java.util.List;
 
-public class BangDieuKhienService {
-
+public class BangDieuKhienService extends BaseService {
+    
     private final BangDieuKhienDAO bangDieuKhienDAO = new BangDieuKhienDAO();
 
-    public BangDieuKhienKPIDTO layKPI() throws SQLException {
+    public BangDieuKhienKPIDTO layKPI() throws Exception {
         return bangDieuKhienDAO.layKPI();
     }
 
-    public List<TopSanPhamDTO> layTop5SanPhamThang() throws SQLException {
+    public List<TopSanPhamDTO> layTop5SanPhamThang() throws Exception {
         return bangDieuKhienDAO.layTop5SanPhamThang();
     }
 }

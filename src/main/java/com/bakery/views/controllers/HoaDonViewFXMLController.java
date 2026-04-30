@@ -11,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.control.Alert;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -28,7 +27,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class HoaDonViewFXMLController {
+public class HoaDonViewFXMLController extends BaseController {
 
     @FXML
     private VBox receiptContainer;
@@ -82,8 +81,8 @@ public class HoaDonViewFXMLController {
         lblNgayLap.setText(hoaDon.getNgayXuatHd() != null
                 ? hoaDon.getNgayXuatHd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                 : LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        lblTenKhach.setText(tenKhach != null ? tenKhach : "Khách vãng lai");
-        
+        lblTenKhach.setText(tenKhach != null ? tenKhach : "N/A");
+
         if (laDonCoc) {
             lblPayLabel.setText("TIỀN CỌC:");
             lblGiamGiaLabel.setText("KHẤU TRỪ:");
@@ -92,11 +91,30 @@ public class HoaDonViewFXMLController {
             lblGiamGiaLabel.setText("GIẢM GIÁ:");
         }
 
-        double tongTien = hoaDon.getTongTienThanhToan() != null ? hoaDon.getTongTienThanhToan().doubleValue() : 0.0;
+        double tongTienHD = hoaDon.getTongTienThanhToan() != null ? hoaDon.getTongTienThanhToan().doubleValue() : 0.0;
 
-        lblTongTien.setText(FORMAT_TIEN.format(tongTien + soTienGiamGia) + " đ");
-        lblGiamGia.setText("-" + FORMAT_TIEN.format(soTienGiamGia) + " đ");
-        lblDaThu.setText(FORMAT_TIEN.format(tongTien) + " đ");
+        // Tính toán lại tổng tiền hàng thực tế từ giỏ hàng để đảm bảo khớp hiển thị
+        double tongHangThucTe = 0;
+        if (cart != null) {
+            for (CTDonHangDTO item : cart) {
+                double dg = item.getDonGia() != null ? item.getDonGia().doubleValue() : 0.0;
+                tongHangThucTe += item.getSoLuong() * dg;
+            }
+        }
+
+        // Nếu là đơn cọc, soTienGiamGia truyền vào có thể bị sai lệch do tính trên số
+        // tiền cọc
+        // Ta nên tính lại dựa trên tổng hàng thực tế và tổng tiền thanh toán của ĐƠN
+        // HÀNG (nếu có)
+        double tongPhaiTraCuaDon = (donHang != null && donHang.getTongTienHDBan() != null)
+                ? donHang.getTongTienHDBan().doubleValue()
+                : (laDonCoc ? tongHangThucTe : tongTienHD);
+
+        double giamGiaChuan = Math.max(0, tongHangThucTe - tongPhaiTraCuaDon);
+
+        lblTongTien.setText(FORMAT_TIEN.format(tongHangThucTe) + " đ");
+        lblGiamGia.setText("-" + FORMAT_TIEN.format(giamGiaChuan) + " đ");
+        lblDaThu.setText(FORMAT_TIEN.format(tongTienHD) + " đ");
         lblTienKhachDua.setText(FORMAT_TIEN.format(khachDua) + " đ");
         lblTienThua.setText(FORMAT_TIEN.format(tienThua) + " đ");
 
@@ -121,19 +139,23 @@ public class HoaDonViewFXMLController {
 
         HBox row = new HBox();
         row.setSpacing(5);
+        row.setAlignment(Pos.CENTER_LEFT);
 
         Label lblTen = new Label(tenSP);
         lblTen.setPrefWidth(180);
         lblTen.setWrapText(true);
+        lblTen.getStyleClass().add("receipt-item-name");
 
         Label lblSL = new Label("x" + item.getSoLuong());
         lblSL.setPrefWidth(40);
         lblSL.setAlignment(Pos.CENTER);
+        lblSL.getStyleClass().add("lbl-body");
 
         double donGia = item.getDonGia() != null ? item.getDonGia().doubleValue() : 0.0;
         Label lblGia = new Label(FORMAT_TIEN.format(item.getSoLuong() * donGia) + " đ");
         lblGia.setPrefWidth(100);
         lblGia.setAlignment(Pos.CENTER_RIGHT);
+        lblGia.getStyleClass().add("receipt-item-price");
 
         row.getChildren().addAll(lblTen, lblSL, lblGia);
         return row;
@@ -167,20 +189,13 @@ public class HoaDonViewFXMLController {
                 doc.save(fileName);
                 System.out.println("Đã lưu hóa đơn tại: " + new File(fileName).getAbsolutePath());
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Thành công");
-                alert.setHeaderText(null);
-                alert.setContentText("Hóa đơn đã được lưu tại thư mục 'hoadon'!");
-                alert.showAndWait();
+                hienThiThongTin("Thành công", "Hóa đơn đã được lưu tại thư mục 'hoadon'!");
             }
 
             handleClose();
         } catch (Exception e) {
             System.err.println("[Receipt] Lỗi lưu PDF: " + e.getMessage());
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi");
-            alert.setContentText("Không thể lưu PDF: " + e.getMessage());
-            alert.showAndWait();
+            hienThiThongBaoLoi("Lỗi", "Không thể lưu PDF: " + e.getMessage());
         }
     }
 

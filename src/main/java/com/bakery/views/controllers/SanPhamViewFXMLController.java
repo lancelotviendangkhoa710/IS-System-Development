@@ -29,7 +29,7 @@ import java.util.Map;
  * Controller cho giao diện quản lý Sản phẩm.
  * Implement interface ISanPhamView để nhận lệnh từ SanPhamPresenter.
  */
-public class SanPhamViewFXMLController implements ISanPhamView {
+public class SanPhamViewFXMLController extends BaseController implements ISanPhamView {
 
     @FXML private TableView<SanPhamDTO> tblSanPham;
     @FXML private TableColumn<SanPhamDTO, Integer> colMaSP;
@@ -49,7 +49,6 @@ public class SanPhamViewFXMLController implements ISanPhamView {
     @FXML private Button btnThemMoi;
     @FXML private Button btnLuuThayDoi;
     @FXML private Button btnXoa;
-    @FXML private Label lblThongBao;
 
     private final ObservableList<SanPhamDTO> masterData = FXCollections.observableArrayList();
     private SanPhamPresenter presenter;
@@ -146,16 +145,12 @@ public class SanPhamViewFXMLController implements ISanPhamView {
 
     @Override
     public void hienThiLoi(String msg) {
-        lblThongBao.setText(msg);
-        lblThongBao.getStyleClass().removeAll("lbl-success");
-        lblThongBao.getStyleClass().add("lbl-danger");
+        hienThiLoiLabel(msg);
     }
 
     @Override
     public void hienThiThanhCong(String msg) {
-        lblThongBao.setText(msg);
-        lblThongBao.getStyleClass().removeAll("lbl-danger");
-        lblThongBao.getStyleClass().add("lbl-success");
+        hienThiThanhCongLabel(msg);
     }
 
     @Override
@@ -257,23 +252,6 @@ public class SanPhamViewFXMLController implements ISanPhamView {
 
     @FXML
     private void onQuayLai() {
-        try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load(), 1366, 768);
-            
-            MainMenuViewFXMLController controller = loader.getController();
-            controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser()); 
-            
-            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            
-            javafx.stage.Stage stage = (javafx.stage.Stage) btnThemMoi.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Dashboard");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-        } catch (Exception ex) {
-            hienThiLoi("Không thể quay lại Menu: " + ex.getMessage());
-        }
+        quayLaiMenuChinh(tblSanPham);
     }
 }

@@ -88,7 +88,7 @@
 
         <!-- ── LỖI ── -->
         <Region prefHeight="8"/>
-        <Label fx:id="lblError" text=" " styleClass="text-error" wrapText="true" maxWidth="400"/>
+        <Label fx:id="lblThongBao" text=" " styleClass="text-error" wrapText="true" maxWidth="400"/>
 
         <!-- ── LOADING ── -->
         <StackPane fx:id="paneLoading" visible="false" managed="false" prefHeight="32">

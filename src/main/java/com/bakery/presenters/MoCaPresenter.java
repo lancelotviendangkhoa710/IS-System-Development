@@ -10,15 +10,14 @@ import java.util.List;
 /**
  * Presenter cho màn hình Mở ca làm việc.
  */
-public class MoCaPresenter {
+public class MoCaPresenter extends BasePresenter<IMoCaView> {
 
     private static final List<String> DANH_SACH_POS = List.of("POS-01", "POS-02", "POS-03");
 
-    private final IMoCaView view;
     private final CaLamViecService service;
 
     public MoCaPresenter(IMoCaView view, CaLamViecService service) {
-        this.view    = view;
+        super(view);
         this.service = service;
     }
 
@@ -45,21 +44,13 @@ public class MoCaPresenter {
 
         int maNV = SessionContext.getInstance().getMaNV();
 
-        view.setLoading(true);
-
-        Thread t = new Thread(() -> {
-            try {
-                int maCa = service.moCa(maNV, mayPOS, tienDauCa);
+        runTask(
+            () -> service.moCa(maNV, mayPOS, tienDauCa),
+            maCa -> {
                 SessionContext.getInstance().moCa(maCa);
-                view.setLoading(false);
                 view.navigateToMain();
-            } catch (Exception e) {
-                view.setLoading(false);
-                view.hienThiLoi("⚠️ " + (e.getMessage() != null ? e.getMessage() : "Lỗi hệ thống khi mở ca."));
             }
-        });
-        t.setDaemon(true);
-        t.start();
+        );
     }
 
     public void onDangXuatClicked() {

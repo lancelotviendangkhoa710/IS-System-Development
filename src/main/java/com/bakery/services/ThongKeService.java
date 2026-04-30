@@ -15,23 +15,23 @@ public class ThongKeService {
         this.thongKeDAO = new ThongKeDAO();
     }
 
-    public double getDoanhThu(String loaiThoiGian, String giaTri) {
+    public double getDoanhThu(String loaiThoiGian, String giaTri) throws Exception {
         return thongKeDAO.getDoanhThu(loaiThoiGian, giaTri);
     }
 
-    public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, String giaTri) {
+    public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, String giaTri) throws Exception {
         return thongKeDAO.getDoanhThuTheoDanhMuc(loai, giaTri);
     }
 
-    public Map<String, Integer> getTop5BanChay() {
+    public Map<String, Integer> getTop5BanChay() throws Exception {
         return thongKeDAO.getTop5BanChay();
     }
 
-    public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) {
+    public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) throws Exception {
         return thongKeDAO.getXuHuongDoanhThu(loai, giaTri);
     }
 
-    public List<String[]> getChiTietGiaoDich(String loai, String giaTri) {
+    public List<String[]> getChiTietGiaoDich(String loai, String giaTri) throws Exception {
         return thongKeDAO.getChiTietGiaoDich(loai, giaTri);
     }
 }

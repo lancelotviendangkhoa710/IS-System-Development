@@ -1,12 +1,11 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.CaLamViecDTO;
-import com.bakery.utils.DBConnect;
 
 import java.math.BigDecimal;
 import java.sql.*;
 
-public class CaLamViecDAO {
+public class CaLamViecDAO extends BaseDAO {
 
     /**
      * Mở ca làm việc mới, tạo bản ghi đối soát ban đầu với tiền khai báo đầu ca.
@@ -14,7 +13,7 @@ public class CaLamViecDAO {
      *
      * @return maCa vừa tạo, hoặc ném RuntimeException nếu thất bại
      */
-    public int moCa(String maMayPOS, BigDecimal tienKhaiBaoDauCa, int maNV) {
+    public int moCa(String maMayPOS, BigDecimal tienKhaiBaoDauCa, int maNV) throws Exception {
         String sqlCa = "BEGIN "
                 + "INSERT INTO CALAMVIEC (MANV, MAMAYPOS, THOIGIANMOCA, TRANGTHAI) "
                 + "VALUES (?, ?, CURRENT_TIMESTAMP, N'Đang mở') "
@@ -22,7 +21,7 @@ public class CaLamViecDAO {
                 + "END;";
         String sqlDoiSoat = "INSERT INTO DOISOAT (MACA, TIENKHAIBAODAUCA) VALUES (?, ?)";
 
-        try (Connection conn = DBConnect.getConnection()) {
+        try (Connection conn = moKetNoi()) {
             conn.setAutoCommit(false);
             try (CallableStatement cs = conn.prepareCall(sqlCa)) {
                 cs.setInt(1, maNV);
@@ -49,7 +48,7 @@ public class CaLamViecDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
+            handleException("moCa", e);
             throw new RuntimeException("Lỗi hệ thống khi mở ca: " + e.getMessage(), e);
         }
     }
@@ -57,12 +56,12 @@ public class CaLamViecDAO {
     /**
      * Đóng ca làm việc: ghi thời gian đóng và chuyển trạng thái sang 'Đã đóng'.
      */
-    public void dongCa(int maCa) {
+    public void dongCa(int maCa) throws Exception {
         String sql = "UPDATE CALAMVIEC "
                 + "SET THOIGIANDONGCA = SYSDATE, TRANGTHAI = N'Đã đóng' "
                 + "WHERE MACA = ?";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, maCa);
@@ -73,7 +72,7 @@ public class CaLamViecDAO {
                 String msg = e.getMessage().replaceAll("ORA-\\d+: ", "").trim();
                 throw new RuntimeException(msg, e);
             }
-            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
+            handleException("dongCa", e);
             throw new RuntimeException("Lỗi hệ thống khi đóng ca: " + e.getMessage(), e);
         }
     }
@@ -83,13 +82,13 @@ public class CaLamViecDAO {
      *
      * @return CaLamViecDTO nếu có ca đang mở, null nếu chưa mở ca
      */
-    public CaLamViecDTO layCaHienTai(int maNV) {
+    public CaLamViecDTO layCaHienTai(int maNV) throws Exception {
         String sql = "SELECT MACA, MANV, MAMAYPOS, THOIGIANMOCA, THOIGIANDONGCA, TRANGTHAI "
                 + "FROM CALAMVIEC "
                 + "WHERE MANV = ? AND TRANGTHAI = N'Đang mở' "
                 + "AND ROWNUM = 1";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, maNV);
@@ -113,7 +112,7 @@ public class CaLamViecDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
+            handleException("layCaHienTai", e);
             throw new RuntimeException("Lỗi hệ thống khi lấy ca hiện tại: " + e.getMessage(), e);
         }
         return null;
@@ -124,12 +123,12 @@ public class CaLamViecDAO {
      *
      * @return true nếu máy đang có ca mở, false nếu không
      */
-    public boolean kiemTraCaDangMo(String maMayPOS) {
+    public boolean kiemTraCaDangMo(String maMayPOS) throws Exception {
         String sql = "SELECT COUNT(*) AS SO_CA "
                 + "FROM CALAMVIEC "
                 + "WHERE MAMAYPOS = ? AND TRANGTHAI = N'Đang mở'";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maMayPOS);
@@ -141,7 +140,7 @@ public class CaLamViecDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("[CaLamViecDAO] Lỗi: " + e.getMessage());
+            handleException("kiemTraCaDangMo", e);
             throw new RuntimeException("Lỗi hệ thống khi kiểm tra ca: " + e.getMessage(), e);
         }
         return false;

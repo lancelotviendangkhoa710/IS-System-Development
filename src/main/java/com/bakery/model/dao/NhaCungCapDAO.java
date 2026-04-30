@@ -1,7 +1,7 @@
 package com.bakery.model.dao;
 
 import com.bakery.model.dto.NhaCungCapDTO;
-import com.bakery.utils.DBConnect;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,14 +11,14 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NhaCungCapDAO {
+public class NhaCungCapDAO extends BaseDAO {
 
-    public List<NhaCungCapDTO> layDanhSachNhaCungCap() {
+    public List<NhaCungCapDTO> layDanhSachNhaCungCap() throws Exception {
         List<NhaCungCapDTO> ds = new ArrayList<>();
         String sql = "SELECT MANCC, TENNCC, SDT, DIACHI, THOIDIEMXOA, MANX " +
                      "FROM NHACUNGCAP WHERE THOIDIEMXOA IS NULL ORDER BY MANCC DESC";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -41,15 +41,15 @@ public class NhaCungCapDAO {
                 ds.add(ncc);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi DAO - layDanhSachNhaCungCap: " + e.getMessage());
+            handleException("layDanhSachNhaCungCap", e);
         }
         return ds;
     }
 
-    public int themNhaCungCap(NhaCungCapDTO ncc) throws SQLException {
+    public int themNhaCungCap(NhaCungCapDTO ncc) throws Exception {
         String sql = "{CALL PROC_THEM_NHACUNGCAP(?, ?, ?, ?)}";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setString(1, ncc.getTenNCC());
@@ -59,13 +59,16 @@ public class NhaCungCapDAO {
 
             cstmt.execute();
             return cstmt.getInt(4);
+        } catch (SQLException e) {
+            handleException("themNhaCungCap", e);
+            throw e;
         }
     }
 
-    public void suaNhaCungCap(NhaCungCapDTO ncc) throws SQLException {
+    public void suaNhaCungCap(NhaCungCapDTO ncc) throws Exception {
         String sql = "{CALL PROC_SUA_NHACUNGCAP(?, ?, ?, ?)}";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, ncc.getMaNCC());
@@ -74,19 +77,25 @@ public class NhaCungCapDAO {
             cstmt.setString(4, ncc.getDiaChi());
 
             cstmt.execute();
+        } catch (SQLException e) {
+            handleException("suaNhaCungCap", e);
+            throw e;
         }
     }
 
-    public void xoaNhaCungCap(int maNCC, int maNVCapNhat) throws SQLException {
+    public void xoaNhaCungCap(int maNCC, int maNVCapNhat) throws Exception {
         String sql = "{CALL PROC_XOA_NHACUNGCAP(?, ?)}";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, maNCC);
             cstmt.setInt(2, maNVCapNhat);
 
             cstmt.execute();
+        } catch (SQLException e) {
+            handleException("xoaNhaCungCap", e);
+            throw e;
         }
     }
 }

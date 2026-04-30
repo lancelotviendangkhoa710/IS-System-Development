@@ -14,7 +14,7 @@ import java.util.Map;
  * phục vụ màn hình POS bán hàng.
  * (SRP – Single Responsibility Principle)
  */
-public class SanPhamService {
+public class SanPhamService extends BaseService {
 
     private final SanPhamDAO sanPhamDAO;
     private final DanhMucSPDAO danhMucSPDAO;
@@ -30,7 +30,7 @@ public class SanPhamService {
     }
 
     /** Lấy tất cả sản phẩm đang được bán trên POS. */
-    public List<SanPhamDTO> layDanhSachSanPhamPOS() {
+    public List<SanPhamDTO> layDanhSachSanPhamPOS() throws Exception {
         return sanPhamDAO.layTatCaSanPhamDeBan();
     }
 
@@ -38,7 +38,7 @@ public class SanPhamService {
      * Lấy map (MaDM → TenDM) của tất cả danh mục đang hoạt động.
      * Dùng để nhóm sản phẩm trên giao diện POS.
      */
-    public Map<Integer, String> layMapDanhMucSanPham() {
+    public Map<Integer, String> layMapDanhMucSanPham() throws Exception {
         Map<Integer, String> mapDanhMuc = new LinkedHashMap<>();
         List<DanhMucSPDTO> dsDanhMuc = danhMucSPDAO.layTatCaDanhMucConHoatDong();
         for (DanhMucSPDTO dm : dsDanhMuc) {
@@ -52,7 +52,7 @@ public class SanPhamService {
      * Bỏ qua bánh tùy chỉnh (custom) vì là sản xuất theo yêu cầu.
      * @return Danh sách thông báo thiếu hàng (rỗng = đủ tồn)
      */
-    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang) {
+    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang) throws Exception {
         List<String> dsThieu = new java.util.ArrayList<>();
         for (com.bakery.model.dto.YeuCauChiTietDonHangDTO item : gioHang) {
             if (item.isCustom()) {
@@ -80,12 +80,12 @@ public class SanPhamService {
      * (kích cỡ, cốt, nhân, trang trí). Logic tính do DB đảm nhiệm.
      */
     public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot,
-            Integer maNhan, Integer maTrangTri) {
+            Integer maNhan, Integer maTrangTri) throws Exception {
         return sanPhamDAO.tinhGiaBanhTuyChinh(maSP, maKC, maCot, maNhan, maTrangTri);
     }
 
     /** Lấy danh sách sản phẩm (không lọc số lượng) cho màn hình Quản lý */
-    public List<SanPhamDTO> layDanhSachSanPhamQuanLy() {
+    public List<SanPhamDTO> layDanhSachSanPhamQuanLy() throws Exception {
         return sanPhamDAO.layTatCaSanPhamQuanLy();
     }
 
@@ -117,9 +117,7 @@ public class SanPhamService {
     }
 
     private void validateSanPham(SanPhamDTO sp) throws Exception {
-        if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty()) {
-            throw new Exception("Tên sản phẩm không được để trống.");
-        }
+        validateString(sp.getTenSP(), "Tên sản phẩm");
         if (sp.getMaDM() <= 0) {
             throw new Exception("Vui lòng chọn danh mục hợp lệ.");
         }

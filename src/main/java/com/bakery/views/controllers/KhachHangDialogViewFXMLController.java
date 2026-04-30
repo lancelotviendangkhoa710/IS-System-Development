@@ -56,36 +56,41 @@ public class KhachHangDialogViewFXMLController {
             return;
         }
 
-        if (laChinhSua) {
-            // Update mode
-            khachHangHienTai.setHoTen(hoTen);
-            khachHangHienTai.setSdt(sdt);
-            khachHangHienTai.setDiaChi(diaChi.isEmpty() ? null : diaChi);
+        try {
+            if (laChinhSua) {
+                // Update mode
+                khachHangHienTai.setHoTen(hoTen);
+                khachHangHienTai.setSdt(sdt);
+                khachHangHienTai.setDiaChi(diaChi.isEmpty() ? null : diaChi);
 
-            boolean ok = khachHangService.capNhatKhachHang(khachHangHienTai);
-            if (ok) {
-                ketQua = khachHangHienTai;
-                hienThongBao("Thành công", "Đã cập nhật thông tin khách hàng.");
-                dongDialog();
+                boolean ok = khachHangService.capNhatKhachHang(khachHangHienTai);
+                if (ok) {
+                    ketQua = khachHangHienTai;
+                    hienThongBao("Thành công", "Đã cập nhật thông tin khách hàng.");
+                    dongDialog();
+                } else {
+                    lblError.setText("Không thể cập nhật. Vui lòng kiểm tra lại.");
+                }
             } else {
-                lblError.setText("Không thể cập nhật. Vui lòng kiểm tra lại.");
-            }
-        } else {
-            // Insert mode
-            KhachHangDTO khMoi = new KhachHangDTO();
-            khMoi.setHoTen(hoTen);
-            khMoi.setSdt(sdt);
-            khMoi.setDiaChi(diaChi.isEmpty() ? null : diaChi);
+                // Insert mode
+                KhachHangDTO khMoi = new KhachHangDTO();
+                khMoi.setHoTen(hoTen);
+                khMoi.setSdt(sdt);
+                khMoi.setDiaChi(diaChi.isEmpty() ? null : diaChi);
 
-            int maKH = khachHangService.themKhachHangMoi(khMoi);
-            if (maKH > 0) {
-                khMoi.setMaKH(maKH);
-                ketQua = khMoi;
-                hienThongBao("Thành công", "Đã thêm khách hàng mới! Mã KH: " + maKH);
-                dongDialog();
-            } else {
-                lblError.setText("Không thể thêm khách hàng. SĐT có thể đã tồn tại.");
+                int maKH = khachHangService.themKhachHangMoi(khMoi);
+                if (maKH > 0) {
+                    khMoi.setMaKH(maKH);
+                    ketQua = khMoi;
+                    hienThongBao("Thành công", "Đã thêm khách hàng mới! Mã KH: " + maKH);
+                    dongDialog();
+                } else {
+                    lblError.setText("Không thể thêm khách hàng. SĐT có thể đã tồn tại.");
+                }
             }
+        } catch (Exception e) {
+            lblError.setText("Lỗi: " + e.getMessage());
+            System.err.println("[KhachHangDialog] Lỗi lưu khách hàng: " + e.getMessage());
         }
     }
 

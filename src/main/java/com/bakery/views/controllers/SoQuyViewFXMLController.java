@@ -138,7 +138,7 @@ public class SoQuyViewFXMLController implements ISoQuyView {
             stage.setResizable(true);
             stage.centerOnScreen();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("[SoQuy] Lỗi quay lại menu: " + e.getMessage());
             hienThiLoi("Lỗi quay lại menu: " + e.getMessage());
         }
     }

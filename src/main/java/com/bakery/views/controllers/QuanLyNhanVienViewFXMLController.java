@@ -1,25 +1,19 @@
 package com.bakery.views.controllers;
 
-import com.bakery.main.App;
 import com.bakery.model.dto.NhanVienDTO;
 import com.bakery.services.NhanVienService;
-import com.bakery.utils.UserSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
-
-import java.net.URL;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
-public class QuanLyNhanVienViewFXMLController {
+public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     @FXML
     private TableView<NhanVienDTO> tblNhanVien;
@@ -53,7 +47,7 @@ public class QuanLyNhanVienViewFXMLController {
     @FXML
     private ComboBox<String> cmbLocTrangThai;
     @FXML
-    private Label lblThongBao;
+    private Button btnVoHieuHoa;
 
     private final NhanVienService nhanVienService = new NhanVienService();
     private ObservableList<NhanVienDTO> masterData = FXCollections.observableArrayList();
@@ -105,7 +99,12 @@ public class QuanLyNhanVienViewFXMLController {
 
     private void loadData() {
         try {
-            masterData.setAll(nhanVienService.layTatCaNhanVien());
+            List<NhanVienDTO> list = nhanVienService.layTatCaNhanVien();
+            // Group by vai trò, sau đó sort theo mã nhân viên
+            list.sort(Comparator.comparing(NhanVienDTO::getTenVaiTro, Comparator.nullsLast(String::compareTo))
+                    .thenComparing(NhanVienDTO::getMaNV));
+
+            masterData.setAll(list);
             tblNhanVien.setItems(masterData);
             lblThongBao.setText("Đã tải " + masterData.size() + " nhân viên.");
         } catch (Exception e) {
@@ -206,7 +205,16 @@ public class QuanLyNhanVienViewFXMLController {
             loadData();
             onThemMoi();
         } catch (Exception e) {
-            lblThongBao.setText("Lỗi khi lưu: " + e.getMessage());
+            String msg = e.getMessage();
+            // Xử lý thông báo lỗi từ Oracle để thân thiện hơn (bỏ ORA-xxxxx)
+            if (msg.contains("ORA-")) {
+                msg = msg.substring(msg.indexOf(":") + 1).trim();
+                if (msg.contains("ORA-")) { // Nếu vẫn còn (do lồng nhau)
+                    msg = msg.substring(msg.indexOf(":") + 1).trim();
+                }
+            }
+
+            hienThiThongBaoLoi("Lỗi nghiệp vụ", msg);
         }
     }
 
@@ -244,49 +252,36 @@ public class QuanLyNhanVienViewFXMLController {
 
     @FXML
     private void onQuayLai() {
-        try {
-            // Load lại MainMenuView đúng cách
-            FXMLLoader loader = new FXMLLoader(App.class.getResource(App.MAIN_MENU_VIEW));
-            Parent root = loader.load();
-
-            // Lấy controller và khởi tạo dữ liệu TRƯỚC KHI set scene
-            MainMenuViewFXMLController controller = loader.getController();
-            NhanVienDTO user = UserSession.getCurrentUser();
-            if (user != null) {
-                controller.khoiTaoThongTinDangNhap(user);
-            }
-
-            Scene scene = new Scene(root, 1366, 768);
-
-            // Áp dụng CSS đồng nhất với MainViewFXMLController
-            URL cssUrl = App.class.getResource("/css/bakery.css");
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            }
-
-            Stage stage = (Stage) tblNhanVien.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Hệ thống Quản trị");
-            stage.setScene(scene);
-            stage.setResizable(true);
-            stage.setMinWidth(1280);
-            stage.setMinHeight(720);
-            stage.centerOnScreen();
-        } catch (Exception e) {
-            e.printStackTrace();
-            lblThongBao.setText("Lỗi quay lại menu: " + e.getMessage());
-        }
+        quayLaiMenuChinh(tblNhanVien);
     }
 
     private boolean validateInput() {
-        if (txtHoTen.getText().isBlank() || txtSdt.getText().isBlank() ||
-                txtTenDangNhap.getText().isBlank() || cmbVaiTro.getValue() == null) {
-            lblThongBao.setText("Vui lòng điền đầy đủ các trường bắt buộc.");
+        String hoTen = txtHoTen.getText().trim();
+        String sdt = txtSdt.getText().trim();
+        String tenDN = txtTenDangNhap.getText().trim();
+
+        if (hoTen.isEmpty() || sdt.isEmpty() || tenDN.isEmpty() || cmbVaiTro.getValue() == null) {
+            hienThiThongBaoLoi("Lỗi nhập liệu", "Vui lòng điền đầy đủ các trường bắt buộc (*).");
             return false;
         }
+
+        // Kiểm tra định dạng số điện thoại
+        if (!sdt.matches("\\d{10,11}")) {
+            hienThiThongBaoLoi("Lỗi kiểu dữ liệu", "Số điện thoại phải là chữ số và có độ dài từ 10-11 ký tự.");
+            return false;
+        }
+
+        // Kiểm tra tên đăng nhập (không chứa khoảng trắng)
+        if (tenDN.contains(" ")) {
+            hienThiThongBaoLoi("Lỗi kiểu dữ liệu", "Tên đăng nhập không được chứa khoảng trắng.");
+            return false;
+        }
+
         if (selectedNhanVien == null && txtMatKhau.getText().isEmpty()) {
-            lblThongBao.setText("Nhân viên mới bắt buộc phải có mật khẩu.");
+            hienThiThongBaoLoi("Lỗi nhập liệu", "Nhân viên mới bắt buộc phải có mật khẩu.");
             return false;
         }
         return true;
     }
+
 }

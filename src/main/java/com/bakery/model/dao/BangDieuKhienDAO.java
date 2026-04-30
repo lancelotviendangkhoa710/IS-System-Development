@@ -2,7 +2,7 @@ package com.bakery.model.dao;
 
 import com.bakery.model.dto.BangDieuKhienKPIDTO;
 import com.bakery.model.dto.TopSanPhamDTO;
-import com.bakery.utils.DBConnect;
+
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -12,15 +12,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BangDieuKhienDAO {
+public class BangDieuKhienDAO extends BaseDAO {
 
-    public BangDieuKhienKPIDTO layKPI() throws SQLException {
+    public BangDieuKhienKPIDTO layKPI() throws Exception {
         BigDecimal doanhThu = BigDecimal.ZERO;
         int soHoaDon = 0;
         int donDangXuLy = 0;
         int canhBaoTonKho = 0;
 
-        try (Connection conn = DBConnect.getConnection()) {
+        try (Connection conn = moKetNoi()) {
 
             // 1. Doanh thu hôm nay — tổng tất cả hóa đơn xuất trong ngày
             String sqlDoanhThu = "SELECT NVL(SUM(TONGTIENTHANHTOAN), 0) " +
@@ -61,12 +61,14 @@ public class BangDieuKhienDAO {
                 if (rs.next())
                     canhBaoTonKho = rs.getInt(1);
             }
+        } catch (SQLException e) {
+            handleException("layKPI", e);
         }
 
         return new BangDieuKhienKPIDTO(doanhThu, soHoaDon, donDangXuLy, canhBaoTonKho);
     }
 
-    public List<TopSanPhamDTO> layTop5SanPhamThang() throws SQLException {
+    public List<TopSanPhamDTO> layTop5SanPhamThang() throws Exception {
         List<TopSanPhamDTO> list = new ArrayList<>();
 
         String sql = "SELECT sp.TENSP, SUM(ct.SOLUONG) AS TONGBAN " +
@@ -79,7 +81,7 @@ public class BangDieuKhienDAO {
                 "ORDER  BY TONGBAN DESC " +
                 "FETCH  FIRST 5 ROWS ONLY";
 
-        try (Connection conn = DBConnect.getConnection();
+        try (Connection conn = moKetNoi();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {

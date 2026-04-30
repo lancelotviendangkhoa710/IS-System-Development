@@ -4,7 +4,7 @@ import com.bakery.model.dto.CTDonHangDTO;
 import com.bakery.model.dto.CTDonTuyChinhDTO;
 import com.bakery.model.dto.DonDatHangDTO;
 import com.bakery.model.dto.TrangThaiDonDTO;
-import com.bakery.utils.DBConnect;
+
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -18,13 +18,11 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DonHangDAO {
+public class DonHangDAO extends BaseDAO {
 
-    public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws SQLException {
+    public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
         String sql = "{CALL PROC_TAODONHANG(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
-
+        try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
                 cstmt.setTimestamp(1, Timestamp.valueOf(donDatHang.getNgayGioNhanBanh()));
                 if (donDatHang.getMaKH() != null) cstmt.setInt(2, donDatHang.getMaKH()); else cstmt.setNull(2, Types.NUMERIC);
@@ -40,15 +38,14 @@ public class DonHangDAO {
                 return cstmt.getInt(9);
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("taoDonHang", e);
         }
+        return -1;
     }
 
-    public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan) throws SQLException {
+    public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan) throws Exception {
         String sql = "{CALL PROC_CHUYENTRANGTHAIDON(?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
-
+        try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
                 cstmt.setInt(1, maDon);
                 cstmt.setInt(2, maTrangThaiMoi);
@@ -57,15 +54,13 @@ public class DonHangDAO {
                 cstmt.execute();
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("chuyenTrangThaiDon", e);
         }
     }
 
-    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount) throws SQLException {
+    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount) throws Exception {
         String sql = "{CALL PROC_HUYDON_HOANCOC(?, ?, ?, ?)}";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
-
+        try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
                 cstmt.setInt(1, maDon);
                 cstmt.setString(2, lyDoHuy);
@@ -74,14 +69,13 @@ public class DonHangDAO {
                 cstmt.execute();
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("huyDonVaHoanKho", e);
         }
     }
 
-    public boolean tonTaiDonHang(int maDon) throws SQLException {
+    public boolean tonTaiDonHang(int maDon) throws Exception {
         String sql = "SELECT COUNT(*) AS TOTAL FROM DONDATHANG WHERE MADON = ?";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -89,17 +83,16 @@ public class DonHangDAO {
                 }
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("tonTaiDonHang", e);
         }
         return false;
     }
 
-    public String layTenTrangThaiDon(int maDon) throws SQLException {
+    public String layTenTrangThaiDon(int maDon) throws Exception {
         String sql = "SELECT TT.TENTRANGTHAI FROM DONDATHANG DDH " +
                 "JOIN TRANGTHAIDON TT ON DDH.MATRANGTHAI = TT.MATRANGTHAI " +
                 "WHERE DDH.MADON = ?";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -107,15 +100,14 @@ public class DonHangDAO {
                 }
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("layTenTrangThaiDon", e);
         }
         return null;
     }
 
-    public DonDatHangDTO layTomTatDonHang(int maDon) throws SQLException {
+    public DonDatHangDTO layTomTatDonHang(int maDon) throws Exception {
         String sql = "SELECT * FROM VW_DanhSachDonHang WHERE MADON = ?";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -138,12 +130,12 @@ public class DonHangDAO {
                 }
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("layTomTatDonHang", e);
         }
         return null;
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws SQLException {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         List<DonDatHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT MADON, MAKH, MATRANGTHAI, TENTRANGTHAI, NGAYGIONHANBANH, TONGTIENHDBAN " +
@@ -170,8 +162,7 @@ public class DonHangDAO {
         }
         sql.append(" ORDER BY NGAYGIONHANBANH ASC, MADON ASC");
 
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
                 int paramIndex = 1;
                 if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
@@ -203,16 +194,15 @@ public class DonHangDAO {
                 }
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("layDanhSachDonTheoDoi", e);
         }
         return list;
     }
 
-    public List<TrangThaiDonDTO> layDanhSachTrangThaiDon() throws SQLException {
+    public List<TrangThaiDonDTO> layDanhSachTrangThaiDon() throws Exception {
         List<TrangThaiDonDTO> list = new ArrayList<>();
         String sql = "SELECT MATRANGTHAI, TENTRANGTHAI FROM TRANGTHAIDON ORDER BY MATRANGTHAI";
-        try (Connection conn = DBConnect.getConnection()) {
-            if (conn == null) throw new SQLException("Khong the ket noi CSDL.");
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
@@ -224,7 +214,7 @@ public class DonHangDAO {
                 }
             }
         } catch (SQLException e) {
-            throw e;
+            handleException("layDanhSachTrangThaiDon", e);
         }
         return list;
     }
@@ -269,10 +259,10 @@ public class DonHangDAO {
         return json.toString();
     }
 
-    public List<CTDonHangDTO> layChiTietDonHang(int maDon) throws SQLException {
+    public List<CTDonHangDTO> layChiTietDonHang(int maDon) throws Exception {
         List<CTDonHangDTO> list = new ArrayList<>();
         String sql = "SELECT * FROM CTDONHANG WHERE MADON = ?";
-        try (Connection conn = DBConnect.getConnection()) {
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -289,14 +279,16 @@ public class DonHangDAO {
                     }
                 }
             }
+        } catch (SQLException e) {
+            handleException("layChiTietDonHang", e);
         }
         return list;
     }
 
-    public List<CTDonTuyChinhDTO> layChiTietTuyChinh(int maDon) throws SQLException {
+    public List<CTDonTuyChinhDTO> layChiTietTuyChinh(int maDon) throws Exception {
         List<CTDonTuyChinhDTO> list = new ArrayList<>();
         String sql = "SELECT * FROM CTDON_TUYCHINH WHERE MADON = ?";
-        try (Connection conn = DBConnect.getConnection()) {
+        try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -318,6 +310,8 @@ public class DonHangDAO {
                     }
                 }
             }
+        } catch (SQLException e) {
+            handleException("layChiTietTuyChinh", e);
         }
         return list;
     }

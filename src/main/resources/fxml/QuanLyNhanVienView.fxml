@@ -17,7 +17,7 @@
 <VBox xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.bakery.views.controllers.QuanLyNhanVienViewFXMLController"
-      spacing="20" styleClass="bg-app" stylesheets="@../css/bakery.css">
+      spacing="20" styleClass="bg-app">
     
     <padding>
         <Insets top="30" right="40" bottom="30" left="40"/>

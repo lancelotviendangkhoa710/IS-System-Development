@@ -15,7 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.stage.Modality;
@@ -135,24 +134,28 @@ public class MainMenuViewFXMLController {
             return;
         flowBestSellersMenu.getChildren().clear();
 
-        Map<String, Integer> top5 = thongKeService.getTop5BanChay();
-        for (Map.Entry<String, Integer> entry : top5.entrySet()) {
-            VBox card = new VBox(8);
-            card.getStyleClass().add("best-seller-card");
-            card.setPrefWidth(220); // Fixed width for better grid look in FlowPane
-            card.setMinWidth(200);
+        try {
+            Map<String, Integer> top5 = thongKeService.getTop5BanChay();
+            for (Map.Entry<String, Integer> entry : top5.entrySet()) {
+                VBox card = new VBox(8);
+                card.getStyleClass().add("best-seller-card");
+                card.setPrefWidth(220); // Fixed width for better grid look in FlowPane
+                card.setMinWidth(200);
 
-            Label lblIcon = new Label("🍰"); // Biểu tượng bánh
-            lblIcon.getStyleClass().add("best-seller-icon");
+                Label lblIcon = new Label("🍰"); // Biểu tượng bánh
+                lblIcon.getStyleClass().add("best-seller-icon");
 
-            Label lblName = new Label(entry.getKey());
-            lblName.getStyleClass().add("best-seller-name");
+                Label lblName = new Label(entry.getKey());
+                lblName.getStyleClass().add("best-seller-name");
 
-            Label lblQty = new Label(entry.getValue() + " đã bán");
-            lblQty.getStyleClass().add("best-seller-qty");
+                Label lblQty = new Label(entry.getValue() + " đã bán");
+                lblQty.getStyleClass().add("best-seller-qty");
 
-            card.getChildren().addAll(lblIcon, lblName, lblQty);
-            flowBestSellersMenu.getChildren().add(card);
+                card.getChildren().addAll(lblIcon, lblName, lblQty);
+                flowBestSellersMenu.getChildren().add(card);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi tải best sellers: " + e.getMessage());
         }
     }
 
@@ -234,7 +237,7 @@ public class MainMenuViewFXMLController {
             dialog.showAndWait();
         } catch (Exception ex) {
             lblThongBao.setText("Lỗi mở quản lý ca: " + ex.getMessage());
-            ex.printStackTrace();
+            System.err.println("[MainMenu] Quản lý ca error: " + ex.getMessage());
         }
     }
 
@@ -257,7 +260,7 @@ public class MainMenuViewFXMLController {
             stage.centerOnScreen();
         } catch (Exception ex) {
             lblThongBao.setText("Không thể mở Theo dõi đơn: " + ex.getMessage());
-            ex.printStackTrace();
+            System.err.println("[MainMenu] Theo dõi đơn error: " + ex.getMessage());
         }
     }
 
@@ -375,7 +378,7 @@ public class MainMenuViewFXMLController {
             stage.centerOnScreen();
         } catch (Exception ex) {
             lblThongBao.setText("Lỗi đăng xuất: " + ex.getMessage());
-            ex.printStackTrace();
+            System.err.println("[MainMenu] Đăng xuất error: " + ex.getMessage());
         }
     }
 

@@ -19,11 +19,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
-/**
- * DonHangService hiện đóng vai trò là một Facade (Cổng giao tiếp chính)
- * cho màn hình POS, giúp Presenter không phải khởi tạo quá nhiều service lẻ.
- * Mọi logic nghiệp vụ thực tế đã được chuyển sang các Service chuyên biệt (SRP).
- */
 public class DonHangService {
     private final QuanLyDonHangService donHangService;
     private final ThanhToanService thanhToanService;
@@ -42,7 +37,7 @@ public class DonHangService {
     }
 
     // =========================================================
-    // 1. QUẢN LÝ ĐƠN HÀNG (Delegates to DonHangService)
+    // 1. QUẢN LÝ ĐƠN HÀNG
     // =========================================================
 
     public int submitNewOrder(YeuCauTaoDonHangDTO request) throws Exception {
@@ -74,7 +69,7 @@ public class DonHangService {
     }
 
     // =========================================================
-    // 2. THANH TOÁN (Delegates to ThanhToanService)
+    // 2. THANH TOÁN
     // =========================================================
 
     public HoaDonDTO thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
@@ -89,7 +84,6 @@ public class DonHangService {
         return thanhToanService.taoHoaDonDTO(maDon, soTien, loaiHD);
     }
 
-
     /** Cập nhật trạng thái đơn và tự động chốt hóa đơn nếu hoàn thành. */
     public HoaDonDTO chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, int hinhThucNhan,
             String tenTrangThaiHienTai, String tenTrangThaiMoi) throws Exception {
@@ -102,7 +96,8 @@ public class DonHangService {
         return null;
     }
 
-    public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai, double refundAmount)
+    public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai,
+            double refundAmount)
             throws Exception {
         donHangService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvCapNhat, tenTrangThaiHienTai, refundAmount);
     }
@@ -111,20 +106,21 @@ public class DonHangService {
     // 3. TRA CỨU SẢN PHẨM & KHÁCH HÀNG (Delegates to SanPham/KhachHang Service)
     // =========================================================
 
-    public List<SanPhamDTO> layDanhSachSanPhamPOS() {
+    public List<SanPhamDTO> layDanhSachSanPhamPOS() throws Exception {
         return sanPhamService.layDanhSachSanPhamPOS();
     }
 
     /** Kiểm tra tồn kho trước khi hiện dialog thanh toán (Fail-Fast). */
-    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang) {
+    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang)
+            throws Exception {
         return sanPhamService.kiemTraTonKhoGioHang(gioHang);
     }
 
-    public Map<Integer, String> layMapDanhMucSanPham() {
+    public Map<Integer, String> layMapDanhMucSanPham() throws Exception {
         return sanPhamService.layMapDanhMucSanPham();
     }
 
-    public KhachHangDTO timKhachHangTheoSoDienThoai(String sdt) {
+    public KhachHangDTO timKhachHangTheoSoDienThoai(String sdt) throws Exception {
         return khachHangService.timKhachHangTheoSoDienThoai(sdt);
     }
 
@@ -132,7 +128,8 @@ public class DonHangService {
     // 4. TÙY CHỈNH BÁNH (Delegates to TuyChinhBanhService / SanPhamService)
     // =========================================================
 
-    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) {
+    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri)
+            throws Exception {
         return sanPhamService.tinhGiaBanhTuyChinh(maSP, maKC, maCot, maNhan, maTrangTri);
     }
 

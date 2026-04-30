@@ -112,8 +112,7 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
             stage.setScene(scene);
             stage.centerOnScreen();
         } catch (Exception ex) {
-            System.err.println("Lỗi quay lại Menu: " + ex.getMessage());
-            ex.printStackTrace();
+            System.err.println("[TheoDoiDon] Lỗi quay lại Menu: " + ex.getMessage());
         }
     }
 

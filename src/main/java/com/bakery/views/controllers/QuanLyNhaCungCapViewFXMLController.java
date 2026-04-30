@@ -290,8 +290,8 @@ public class QuanLyNhaCungCapViewFXMLController {
             stage.setScene(scene);
             stage.centerOnScreen();
         } catch (Exception ex) {
+            System.err.println("[NCCView] Lỗi chuyển màn hình: " + ex.getMessage());
             showAlert(AlertType.ERROR, "Lỗi chuyển màn hình", ex.getMessage());
-            ex.printStackTrace();
         }
     }
 }

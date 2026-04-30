@@ -8,9 +8,8 @@ import com.bakery.views.interfaces.IDoiSoatDongCaView;
 
 import java.math.BigDecimal;
 
-public class DoiSoatDongCaPresenter {
+public class DoiSoatDongCaPresenter extends BasePresenter<IDoiSoatDongCaView> {
 
-    private final IDoiSoatDongCaView view;
     private final DoiSoatService service;
 
     private DoiSoatInfoDTO info;
@@ -18,7 +17,7 @@ public class DoiSoatDongCaPresenter {
     private BigDecimal chenhLech;
 
     public DoiSoatDongCaPresenter(IDoiSoatDongCaView view, DoiSoatService service) {
-        this.view    = view;
+        super(view);
         this.service = service;
     }
 
@@ -26,9 +25,10 @@ public class DoiSoatDongCaPresenter {
         int maCa = SessionContext.getInstance().getMaCa();
         int maNV = SessionContext.getInstance().getMaNV();
 
-        Thread t = new Thread(() -> {
-            try {
-                info = service.layThongTinDoiSoat(maCa, maNV);
+        runTask(
+            () -> service.layThongTinDoiSoat(maCa, maNV),
+            infoResult -> {
+                this.info = infoResult;
                 String maCaHienThi = "CA_" + String.format("%06d", info.maCa());
                 view.hienThiThongTinCa(
                         maCaHienThi,
@@ -36,20 +36,9 @@ public class DoiSoatDongCaPresenter {
                         CurrencyFormatter.format(info.tienKhaiBaoDauCa()),
                         CurrencyFormatter.format(info.doanhThuPhatSinh())
                 );
-            } catch (Exception e) {
-                String causeMsg = e.getMessage() != null ? e.getMessage() : "unknown";
-                if (e.getCause() != null) causeMsg += " | Cause: " + e.getCause().getMessage();
-                System.err.println("[DoiSoat] Lỗi tải thông tin ca: " + causeMsg);
-                System.err.println("[DoiSoatDongCaPresenter] Lỗi: " + e.getMessage());
-                String maCaHienThi = "CA_" + String.format("%06d", maCa);
-                view.hienThiLoiTaiCa(maCaHienThi, causeMsg);
-            } finally {
-                view.setLoading(false);
                 view.resizeDialog();
             }
-        });
-        t.setDaemon(true);
-        t.start();
+        );
     }
 
     public void onKiemTraClicked(String input) {
@@ -92,22 +81,16 @@ public class DoiSoatDongCaPresenter {
         String lyDo = (chenhLech.compareTo(BigDecimal.ZERO) != 0) ? lyDoInput : null;
         int maCa = SessionContext.getInstance().getMaCa();
 
-        view.setNutKhoaSoDangXuLy(true);
-
-        Thread t = new Thread(() -> {
-            try {
+        runTask(
+            () -> {
                 service.dongCaDoiSoat(maCa, tienThucTeDem, lyDo);
-                BigDecimal tienHeThonh = info.tienKhaiBaoDauCa().add(info.doanhThuPhatSinh());
-                view.hienThiKetQua(tienThucTeDem, tienHeThonh, chenhLech, lyDo);
+                return info.tienKhaiBaoDauCa().add(info.doanhThuPhatSinh());
+            },
+            tienHeThong -> {
+                view.hienThiKetQua(tienThucTeDem, tienHeThong, chenhLech, lyDo);
                 view.resizeDialog();
-            } catch (Exception e) {
-                view.setNutKhoaSoDangXuLy(false);
-                System.err.println("Khóa sổ lỗi: " + e.getMessage());
-                view.hienThiLoiKhoaSo(e.getMessage());
             }
-        });
-        t.setDaemon(true);
-        t.start();
+        );
     }
 
     public void onHuyBoClicked() {

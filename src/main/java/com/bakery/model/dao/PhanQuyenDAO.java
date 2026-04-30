@@ -2,7 +2,6 @@ package com.bakery.model.dao;
 
 import com.bakery.model.dto.ChucNangDTO;
 import com.bakery.model.enums.SystemModule;
-import com.bakery.utils.DBConnect;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PhanQuyenDAO {
+public class PhanQuyenDAO extends BaseDAO {
     public RolePermissionInfo layThongTinPhanQuyenTheoVaiTro(int maVaiTro) throws Exception {
         String sql = """
                 SELECT V.TENVAITRO,
@@ -69,11 +68,10 @@ public class PhanQuyenDAO {
                 return new RolePermissionInfo(tenVaiTro, vaiTroHoatDong, danhSach, permissionKeys);
             }
         } catch (SQLException e) {
-            System.err.println("Loi DAO - layThongTinPhanQuyenTheoVaiTro: " + e.getMessage());
+            handleException("layThongTinPhanQuyenTheoVaiTro", e);
             throw new Exception("Khong the tai phan quyen tu CSDL.");
         }
     }
-
     public List<ChucNangDTO> layDanhSachChucNangTheoVaiTro(int maVaiTro) {
         try {
             RolePermissionInfo info = layThongTinPhanQuyenTheoVaiTro(maVaiTro);
@@ -88,14 +86,6 @@ public class PhanQuyenDAO {
             return "";
         }
         return tenChucNang.trim().replaceAll("\\s+", "_").toUpperCase();
-    }
-
-    private Connection moKetNoi() throws Exception {
-        Connection connection = DBConnect.getConnection();
-        if (connection == null) {
-            throw new Exception("Khong the ket noi CSDL.");
-        }
-        return connection;
     }
 
     public static final class RolePermissionInfo {
