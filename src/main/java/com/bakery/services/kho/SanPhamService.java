@@ -1,4 +1,6 @@
 ﻿package com.bakery.services.kho;
+import com.bakery.model.dto.banhang.YeuCauChiTietDonHangDTO;
+import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.kho.DanhMucSPDAO;
 import com.bakery.model.dao.kho.SanPhamDAO;
@@ -52,9 +54,9 @@ public class SanPhamService extends BaseService {
      * Bỏ qua bánh tùy chỉnh (custom) vì là sản xuất theo yêu cầu.
      * @return Danh sách thông báo thiếu hàng (rỗng = đủ tồn)
      */
-    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang) throws Exception {
+    public List<String> kiemTraTonKhoGioHang(List<YeuCauChiTietDonHangDTO> gioHang) throws Exception {
         List<String> dsThieu = new java.util.ArrayList<>();
-        for (com.bakery.model.dto.YeuCauChiTietDonHangDTO item : gioHang) {
+        for (YeuCauChiTietDonHangDTO item : gioHang) {
             if (item.isCustom()) {
                 continue; // Bánh tùy chỉnh – sản xuất theo đơn, không kiểm tồn
             }
@@ -62,7 +64,7 @@ public class SanPhamService extends BaseService {
             if (tonKho < item.getSoLuong()) {
                 // Tìm tên SP để thông báo cho nhân viên
                 String tenSP = "SP #" + item.getMaSP();
-                for (com.bakery.model.dto.SanPhamDTO sp : layDanhSachSanPhamPOS()) {
+                for (SanPhamDTO sp : layDanhSachSanPhamPOS()) {
                     if (sp.getMaSP() == item.getMaSP()) {
                         tenSP = sp.getTenSP();
                         break;

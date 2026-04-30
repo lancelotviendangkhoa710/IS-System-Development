@@ -1,4 +1,5 @@
 ﻿package com.bakery.views.interfaces.banhang;
+import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
@@ -65,7 +66,7 @@ public interface IDonHangView {
      * 
      * @param kh Đối tượng KhachHangDTO.
      */
-    void capNhatKhachHangHienTai(com.bakery.model.dto.KhachHangDTO kh);
+    void capNhatKhachHangHienTai(KhachHangDTO kh);
 
     // ——— HIỂN THỊ SẢN PHẨM & TÙY CHỈNH ———
 
@@ -145,7 +146,7 @@ public interface IDonHangView {
     /**
      * Mở cửa sổ xem trước (Preview) và in hóa đơn/phiếu thu.
      */
-    void inPhieuHoaDon(String tieuDe, com.bakery.model.dto.HoaDonDTO hd, com.bakery.model.dto.DonDatHangDTO don,
+    void inPhieuHoaDon(String tieuDe, com.bakery.model.dto.HoaDonDTO hd, DonDatHangDTO don,
                        List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam,
                        double khachDua, double tienThua, boolean laDonCoc);
 

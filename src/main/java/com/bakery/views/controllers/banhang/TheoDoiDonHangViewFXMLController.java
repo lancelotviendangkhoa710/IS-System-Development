@@ -1,4 +1,5 @@
 ﻿package com.bakery.views.controllers.banhang;
+import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.kho.CotBanhDTO;
@@ -339,7 +340,7 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     }
 
     @Override
-    public void capNhatKhachHangHienTai(com.bakery.model.dto.KhachHangDTO kh) {
+    public void capNhatKhachHangHienTai(KhachHangDTO kh) {
     }
 
     @Override

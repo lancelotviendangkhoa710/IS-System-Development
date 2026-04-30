@@ -1,4 +1,5 @@
 ﻿package com.bakery.views.controllers.banhang;
+import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.kho.CotBanhDTO;
@@ -169,7 +170,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     private String danhMucDangLoc = "ALL";
     private double tongThanhToanHienTai = 0.0;
 
-    private com.bakery.model.dto.KhachHangDTO khachHangHienTai = null;
+    private KhachHangDTO khachHangHienTai = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -303,7 +304,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     }
 
     @Override
-    public void capNhatKhachHangHienTai(com.bakery.model.dto.KhachHangDTO kh) {
+    public void capNhatKhachHangHienTai(KhachHangDTO kh) {
         this.khachHangHienTai = kh;
     }
 

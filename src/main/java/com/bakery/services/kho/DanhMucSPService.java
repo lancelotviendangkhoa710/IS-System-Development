@@ -1,4 +1,5 @@
 ﻿package com.bakery.services.kho;
+import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.kho.DanhMucSPDAO;
 import com.bakery.model.dao.kho.SanPhamDAO;

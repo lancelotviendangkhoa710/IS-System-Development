@@ -1,4 +1,5 @@
 ﻿package com.bakery.services.nhansu;
+import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.nhansu.NhanVienDAO;
 import com.bakery.model.dao.nhansu.VaiTroDAO;

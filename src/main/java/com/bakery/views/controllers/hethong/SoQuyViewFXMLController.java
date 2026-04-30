@@ -1,4 +1,5 @@
 ﻿package com.bakery.views.controllers.hethong;
+import com.bakery.model.dto.nhansu.NhanVienDTO;
 
 import com.bakery.model.dto.hethong.LoaiThuChiDTO;
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;
@@ -121,7 +122,7 @@ public class SoQuyViewFXMLController implements ISoQuyView {
             javafx.scene.Parent root = loader.load();
 
             MainMenuViewFXMLController controller = loader.getController();
-            com.bakery.model.dto.NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
+            NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
             if (user != null) {
                 controller.khoiTaoThongTinDangNhap(user);
             }

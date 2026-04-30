@@ -1,4 +1,5 @@
 ﻿package com.bakery.services.banhang;
+import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.kho.CotBanhDAO;
 import com.bakery.model.dao.kho.KichCoBanhDAO;

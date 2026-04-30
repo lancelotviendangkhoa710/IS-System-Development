@@ -1,4 +1,5 @@
 ﻿package com.bakery.services.khachhang;
+import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.khachhang.KhachHangDAO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;

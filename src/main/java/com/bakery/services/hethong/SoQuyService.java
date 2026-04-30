@@ -1,4 +1,5 @@
 ﻿package com.bakery.services.hethong;
+import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.hethong.LoaiThuChiDAO;
 import com.bakery.model.dao.hethong.PhieuThuChiDAO;

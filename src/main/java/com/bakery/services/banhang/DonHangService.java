@@ -1,4 +1,7 @@
 ﻿package com.bakery.services.banhang;
+import com.bakery.model.dto.banhang.YeuCauChiTietDonHangDTO;
+import com.bakery.services.khachhang.KhachHangService;
+import com.bakery.services.kho.SanPhamService;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.CTDonTuyChinhDTO;
@@ -111,7 +114,7 @@ public class DonHangService {
     }
 
     /** Kiểm tra tồn kho trước khi hiện dialog thanh toán (Fail-Fast). */
-    public List<String> kiemTraTonKhoGioHang(List<com.bakery.model.dto.YeuCauChiTietDonHangDTO> gioHang)
+    public List<String> kiemTraTonKhoGioHang(List<YeuCauChiTietDonHangDTO> gioHang)
             throws Exception {
         return sanPhamService.kiemTraTonKhoGioHang(gioHang);
     }
