@@ -1,6 +1,6 @@
-package com.bakery.views.controllers;
+﻿package com.bakery.views.controllers;
 
-import com.bakery.models.dto.KhachHangDTO;
+import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.views.interfaces.ViewFactory;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,10 +12,6 @@ import javafx.stage.Window;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * Implementation của ViewFactory - quản lý việc khởi tạo và mở các dialog.
- * Presenter sẽ gọi methods của interface này để mở dialog thay vì tự làm.
- */
 public class DefaultViewFactory implements ViewFactory {
 
     private final Window ownerWindow;
@@ -24,89 +20,19 @@ public class DefaultViewFactory implements ViewFactory {
         this.ownerWindow = ownerWindow;
     }
 
-    private Scene createSceneWithGlobalCss(Parent root) {
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/App.css")).toExternalForm());
-        return scene;
-    }
-
     @Override
     public void openAddCustomerDialog(Runnable onAddedCallback) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerAddView.fxml"));
-            Parent root = loader.load();
-            CustomerAddController controller = loader.getController();
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initOwner(ownerWindow);
-            stage.setTitle("Thêm khách hàng mới");
-            stage.setScene(createSceneWithGlobalCss(root));
-
-            // Presenter và Factory được set trong Controller
-            stage.setOnHiding(event -> {
-                if (controller.isSaved() && onAddedCallback != null) {
-                    onAddedCallback.run();
-                }
-            });
-
-            stage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Lỗi mở dialog Thêm khách hàng: " + e.getMessage());
-        }
+        openKhachHangTongHop(onAddedCallback);
     }
 
     @Override
     public void openUpdateCustomerDialog(KhachHangDTO customer, Runnable onUpdatedCallback) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerUpdateView.fxml"));
-            Parent root = loader.load();
-            CustomerUpdateController controller = loader.getController();
-
-            // Truyền dữ liệu khách hàng vào Controller
-            controller.loadCustomer(customer);
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initOwner(ownerWindow);
-            stage.setTitle("Cập nhật khách hàng");
-            stage.setScene(createSceneWithGlobalCss(root));
-
-            stage.setOnHiding(event -> {
-                if (controller.isUpdated() && onUpdatedCallback != null) {
-                    onUpdatedCallback.run();
-                }
-            });
-
-            stage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Lỗi mở dialog Cập nhật khách hàng: " + e.getMessage());
-        }
+        openKhachHangTongHop(onUpdatedCallback);
     }
 
     @Override
     public void openDeletedCustomersDialog(Runnable onClosedCallback) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerDeletedView.fxml"));
-            Parent root = loader.load();
-            CustomerDeletedController controller = loader.getController();
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initOwner(ownerWindow);
-            stage.setTitle("Thùng rác - Khách hàng đã xóa");
-            stage.setScene(createSceneWithGlobalCss(root));
-
-            stage.setOnHiding(event -> {
-                if (onClosedCallback != null) {
-                    onClosedCallback.run();
-                }
-            });
-
-            stage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Lỗi mở dialog Thùng rác: " + e.getMessage());
-        }
+        openKhachHangTongHop(onClosedCallback);
     }
 
     @Override
@@ -114,23 +40,47 @@ public class DefaultViewFactory implements ViewFactory {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MembershipTierView.fxml"));
             Parent root = loader.load();
-            MembershipTierController controller = loader.getController();
 
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initOwner(ownerWindow);
-            stage.setTitle("Quản lý Hạng Thành viên");
-            stage.setScene(createSceneWithGlobalCss(root));
-
+            Stage stage = createModalStage("Quản lý Hạng Thành viên", root);
             stage.setOnHiding(event -> {
                 if (onClosedCallback != null) {
                     onClosedCallback.run();
                 }
             });
-
             stage.showAndWait();
         } catch (IOException e) {
-            System.err.println("Lỗi mở dialog Quản lý Hạng Thành viên: " + e.getMessage());
+            System.err.println("Loi mo dialog Quan ly hang thanh vien: " + e.getMessage());
+        }
+    }
+
+    private Stage createModalStage(String title, Parent root) {
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(ownerWindow);
+        stage.setTitle(title);
+        stage.setScene(createSceneWithGlobalCss(root));
+        return stage;
+    }
+
+    private Scene createSceneWithGlobalCss(Parent root) {
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/App.css")).toExternalForm());
+        return scene;
+    }
+
+    private void openKhachHangTongHop(Runnable onClosedCallback) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KhachHangView.fxml"));
+            Parent root = loader.load();
+            Stage stage = createModalStage("Quản lý Khách hàng", root);
+            stage.setOnHiding(event -> {
+                if (onClosedCallback != null) {
+                    onClosedCallback.run();
+                }
+            });
+            stage.showAndWait();
+        } catch (IOException e) {
+            System.err.println("Loi mo man hinh quan ly khach hang: " + e.getMessage());
         }
     }
 }

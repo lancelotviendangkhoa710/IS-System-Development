@@ -1,6 +1,6 @@
-package com.bakery.utils;
+﻿package com.bakery.utils;
 
-import com.bakery.model.dto.NhanVienDTO;
+import com.bakery.model.dto.nhansu.NhanVienDTO;
 
 /**
  * UserSession quản lý thông tin nhân viên đang đăng nhập trong phiên làm việc hiện tại.

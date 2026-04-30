@@ -1,0 +1,340 @@
+﻿package com.bakery.views.controllers.nhansu;
+
+import com.bakery.model.dto.khachhang.HangThanhVienDTO;
+import com.bakery.model.dto.khachhang.KhachHangDTO;
+import com.bakery.model.dto.nhansu.NhanVienDTO;
+import com.bakery.services.khachhang.CustomerTierService;
+import com.bakery.services.nhansu.XacThucService;
+import com.bakery.utils.UserSession;
+import com.bakery.views.interfaces.khachhang.CustomerInfoView;
+import com.bakery.views.interfaces.ViewFactory;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.io.File;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class DangNhapViewFXMLController {
+    @FXML private TextField txtTenDangNhap;
+    @FXML private PasswordField txtMatKhau;
+    @FXML private Label lblThongBao;
+
+    private final XacThucService xacThucService = new XacThucService();
+    private final com.bakery.services.CaLamViecService caLamViecService = new com.bakery.services.CaLamViecService();
+    private final com.bakery.services.PhanQuyenService phanQuyenService = new com.bakery.services.PhanQuyenService();
+
+    public void setLoginInfo(String message) {
+        if (lblThongBao != null && message != null) {
+            lblThongBao.setText(message);
+        }
+    }
+
+    @FXML
+    private void onDangNhap() {
+        String tenDangNhap = txtTenDangNhap.getText() == null ? "" : txtTenDangNhap.getText().trim();
+        String matKhau = txtMatKhau.getText() == null ? "" : txtMatKhau.getText().trim();
+
+        if (tenDangNhap.isBlank() || matKhau.isBlank()) {
+            lblThongBao.setText("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
+            return;
+        }
+
+        try {
+            NhanVienDTO nhanVien = xacThucService.dangNhap(tenDangNhap, matKhau);
+            UserSession.setCurrentUser(nhanVien);
+
+            // Kiểm tra và khôi phục ca làm việc nếu có
+            com.bakery.model.dto.CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
+            if (caHienTai != null) {
+                com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
+                moManHinhMenu(nhanVien);
+                return;
+            }
+
+            // Nếu là Thu ngân (không phải Admin) và chưa có ca -> Bắt buộc mở ca
+            if (!phanQuyenService.laAdmin(nhanVien)) {
+                System.out.println("[Session] Thu ngân chưa có ca -> Chuyển sang màn hình Mở ca.");
+                moManHinhMoCa(nhanVien);
+            } else {
+                moManHinhMenu(nhanVien);
+            }
+        } catch (Exception ex) {
+            System.err.println("[DangNhap] Loi dang nhap: " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
+            String msg = ex.getMessage();
+            lblThongBao.setText(msg != null && !msg.isBlank() ? msg : "Loi he thong: " + ex.getClass().getSimpleName());
+        }
+    }
+
+    private void moManHinhMenu(NhanVienDTO nhanVien) throws Exception {
+        URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
+        if (fxmlUrl == null) {
+            throw new RuntimeException("Không tìm thấy /fxml/MainMenuView.fxml");
+        }
+
+        FXMLLoader loader = new FXMLLoader(fxmlUrl);
+        Scene scene = new Scene(loader.load(), 1366, 768);
+        MainMenuViewFXMLController controller = loader.getController();
+        controller.khoiTaoThongTinDangNhap(nhanVien);
+
+        URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        }
+
+        Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
+        stage.setScene(scene);
+        stage.centerOnScreen();
+    }
+
+    private void moManHinhMoCa(NhanVienDTO nhanVien) throws Exception {
+        URL fxmlUrl = getClass().getResource("/fxml/MoCaView.fxml");
+        if (fxmlUrl == null) {
+            throw new RuntimeException("Không tìm thấy /fxml/MoCaView.fxml");
+        }
+
+        FXMLLoader loader = new FXMLLoader(fxmlUrl);
+        Scene scene = new Scene(loader.load());
+
+        URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
+        }
+
+        Stage stage = (Stage) txtTenDangNhap.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setTitle("H3K Bakery - Mở ca làm việc");
+        stage.centerOnScreen();
+    }
+
+    /**
+     * Controller cho màn hình Danh sách Khách hàng.
+     */
+    public static class CustomerInfoViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements CustomerInfoView {
+        private static final Logger LOGGER = Logger.getLogger(CustomerInfoViewFXMLController.class.getName());
+
+        @FXML private TableView<KhachHangDTO> customerTable;
+        @FXML private TableColumn<KhachHangDTO, Integer> colId;
+        @FXML private TableColumn<KhachHangDTO, String> colName;
+        @FXML private TableColumn<KhachHangDTO, String> colPhone;
+        @FXML private TableColumn<KhachHangDTO, String> colAddress;
+        @FXML private TableColumn<KhachHangDTO, LocalDate> colRegDate;
+        @FXML private TableColumn<KhachHangDTO, Integer> colPoints;
+        @FXML private TableColumn<KhachHangDTO, String> colTier;
+        @FXML private TableColumn<KhachHangDTO, Void> colActions;
+        @FXML private Label lblTotalCustomers;
+        @FXML private Label lblNewCustomers;
+        @FXML private Label lblPageInfo;
+        @FXML private TextField searchField;
+        @FXML private Button btnRefresh;
+        @FXML private HBox paginationBox;
+        @FXML private Button btnToggleFilter;
+        @FXML private HBox filterPanel;
+        @FXML private DatePicker dpFromDate;
+        @FXML private DatePicker dpToDate;
+        @FXML private ComboBox<String> cbTierFilter;
+
+        private com.bakery.presenters.customer.CustomerInfoPresenter presenter;
+        private ViewFactory viewFactory;
+        private List<HangThanhVienDTO> activeTiers = new ArrayList<>();
+
+        @FXML
+        public void initialize() {
+            setupTableColumns();
+            customerTable.setFixedCellSize(36.0);
+            customerTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+            Platform.runLater(() -> {
+                viewFactory = new DefaultViewFactory(customerTable.getScene() != null ? customerTable.getScene().getWindow() : null);
+                presenter = new com.bakery.presenters.customer.CustomerInfoPresenter(CustomerInfoViewFXMLController.this, viewFactory);
+
+                searchField.textProperty().addListener((obs, oldVal, newVal) -> presenter.searchCustomers(newVal == null ? "" : newVal));
+
+                presenter.refreshCustomers();
+                refreshTiers();
+            });
+        }
+
+        private void refreshTiers() {
+            try {
+                CustomerTierService tierService = new CustomerTierService();
+                activeTiers = tierService.getAllTiers();
+                if (activeTiers == null) {
+                    return;
+                }
+                activeTiers.sort(Comparator.comparingInt(HangThanhVienDTO::getDiemToiThieu));
+                Platform.runLater(() -> {
+                    String currentSelection = cbTierFilter.getValue();
+                    List<String> tierNames = new ArrayList<>();
+                    tierNames.add("Tất cả");
+                    for (HangThanhVienDTO tier : activeTiers) {
+                        tierNames.add(tier.getTenHang());
+                    }
+                    cbTierFilter.setItems(FXCollections.observableArrayList(tierNames));
+                    if (currentSelection != null && tierNames.contains(currentSelection)) {
+                        cbTierFilter.setValue(currentSelection);
+                    } else {
+                        cbTierFilter.setValue("Tất cả");
+                    }
+                });
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Khong the tai danh sach hang thanh vien", e);
+                showErrorAlert("Loi", "Khong the tai danh sach hang thanh vien.");
+            }
+        }
+
+        @FXML private void onRefreshClicked() { presenter.refreshCustomers(); refreshTiers(); }
+        @FXML private void onAddCustomerClicked() { presenter.openAddCustomerDialog(); }
+        @FXML private void onDeletedViewClicked() { presenter.openDeletedCustomersDialog(); }
+        @FXML private void onExportExcelClicked() { File f = chooseExcelFileToSave(); if (f != null) presenter.exportCustomersToExcel(f); }
+        @FXML private void onTierManagementClicked() { viewFactory.openMembershipTierDialog(null); }
+        @FXML private void onPreviousPageClicked() { presenter.goToPage(getCurrentPage() - 1); }
+        @FXML private void onNextPageClicked() { presenter.goToPage(getCurrentPage() + 1); }
+
+        @FXML
+        private void onToggleFilterClicked() {
+            boolean isVisible = filterPanel.isVisible();
+            filterPanel.setVisible(!isVisible);
+            filterPanel.setManaged(!isVisible);
+        }
+
+        @FXML
+        private void onApplyFilterClicked() {
+            LocalDate fromDate = dpFromDate.getValue();
+            LocalDate toDate = dpToDate.getValue();
+            String tier = cbTierFilter.getValue();
+            if ("Tất cả".equals(tier)) {
+                tier = null;
+            }
+            presenter.filterCustomers(fromDate, toDate, tier);
+        }
+
+        @FXML
+        private void onClearFilterClicked() {
+            dpFromDate.setValue(null);
+            dpToDate.setValue(null);
+            cbTierFilter.setValue("Tất cả");
+            presenter.filterCustomers(null, null, null);
+        }
+
+        @Override public void displayCustomers(List<KhachHangDTO> customers) { customerTable.setItems(FXCollections.observableArrayList(customers)); customerTable.refresh(); }
+        @Override public void updatePaginationInfo(String pageInfo) { lblPageInfo.setText(pageInfo); }
+        @Override public void updateTotalCustomersCount(int count) { lblTotalCustomers.setText(String.valueOf(count)); }
+        @Override public void updateNewCustomersThisMonth(int count) { lblNewCustomers.setText(String.valueOf(count)); }
+        @Override public String getSearchKeyword() { return searchField.getText(); }
+        @Override public void clearSearchField() { searchField.clear(); }
+        @Override public void setBusy(boolean busy) { customerTable.setDisable(busy); searchField.setDisable(busy); btnRefresh.setDisable(busy); paginationBox.setDisable(busy); }
+        @Override public void showErrorAlert(String title, String message) { hienThiLoi(title, message); }
+        @Override public void showSuccessAlert(String title, String message) { hienThiThanhCong(title, message); }
+        @Override public void showInfoAlert(String title, String message) { new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK).showAndWait(); }
+        @Override public void openAddCustomerDialog(Runnable onAddedCallback) { viewFactory.openAddCustomerDialog(onAddedCallback); }
+        @Override public void openUpdateCustomerDialog(KhachHangDTO customer, Runnable onUpdatedCallback) { viewFactory.openUpdateCustomerDialog(customer, onUpdatedCallback); }
+        @Override public void openDeletedCustomersDialog(Runnable onClosedCallback) { viewFactory.openDeletedCustomersDialog(onClosedCallback); }
+        @Override public boolean confirmDelete(String customerName) { return new Alert(Alert.AlertType.CONFIRMATION, "Xoá khách hàng \"" + customerName + "\"?", ButtonType.OK, ButtonType.CANCEL).showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK; }
+        @Override public File chooseExcelFileToSave() { FileChooser fc = new FileChooser(); fc.setTitle("Lưu Excel"); fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx")); fc.setInitialFileName("khach_hang_" + LocalDate.now() + ".xlsx"); return fc.showSaveDialog(customerTable.getScene().getWindow()); }
+        @Override public void updatePaginationControls(int currentPage, int totalPages) { paginationBox.getChildren().clear(); Button prev = new Button("◀"); prev.getStyleClass().add("pagination-button"); prev.setDisable(currentPage <= 1); prev.setOnAction(e -> onPreviousPageClicked()); paginationBox.getChildren().add(prev); for (int i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { Button b = new Button(String.valueOf(i)); b.getStyleClass().add(i == currentPage ? "pagination-button-active" : "pagination-button"); int p = i; b.setOnAction(e -> presenter.goToPage(p)); paginationBox.getChildren().add(b); } Button next = new Button("▶"); next.getStyleClass().add("pagination-button"); next.setDisable(currentPage >= totalPages); next.setOnAction(e -> onNextPageClicked()); paginationBox.getChildren().add(next); }
+
+        private void setupTableColumns() {
+            colId.setCellValueFactory(cd -> new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getMaKH()).asObject());
+            colName.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getHoTen()));
+            colPhone.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getSdt()));
+            colAddress.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getDiaChi()));
+            colRegDate.setCellValueFactory(cd -> new javafx.beans.property.SimpleObjectProperty<>(cd.getValue().getNgayDangKy()));
+
+            colPoints.setCellFactory(col -> new TableCell<KhachHangDTO, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); return; }
+
+                    int nextTierPoints = -1;
+                    if (activeTiers != null) {
+                        for (HangThanhVienDTO tier : activeTiers) {
+                            if (tier.getDiemToiThieu() > item) {
+                                nextTierPoints = tier.getDiemToiThieu();
+                                break;
+                            }
+                        }
+                    }
+
+                    double progress = 1.0;
+                    if (nextTierPoints > 0) {
+                        progress = (double) item / nextTierPoints;
+                    }
+
+                    ProgressBar bar = new ProgressBar(Math.min(progress, 1.0));
+                    Label lbl = new Label(String.valueOf(item));
+                    HBox hb = new HBox(5, lbl, bar);
+                    bar.setPrefWidth(80);
+                    hb.setAlignment(javafx.geometry.Pos.CENTER);
+                    setGraphic(hb);
+                }
+            });
+
+            colTier.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getTenHang() == null ? "-" : cd.getValue().getTenHang()));
+            colTier.setCellFactory(col -> new TableCell<KhachHangDTO, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) { setGraphic(null); return; }
+                    Label badge = new Label(item);
+                    badge.setStyle(getTierStyle(item.toLowerCase()));
+                    setGraphic(badge);
+                }
+            });
+
+            colActions.setCellFactory(col -> new TableCell<KhachHangDTO, Void>() {
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) { setGraphic(null); return; }
+                    KhachHangDTO kh = getTableRow().getItem();
+                    if (kh == null) { setGraphic(null); return; }
+                    Button edit = new Button("Sửa");
+                    Button del = new Button("Xóa");
+                    edit.setOnAction(e -> presenter.openUpdateCustomerDialog(kh));
+                    del.setOnAction(e -> {
+                        if (confirmDelete(kh.getHoTen())) {
+                            presenter.deleteCustomerAndReload(kh.getMaKH(), com.bakery.utils.SessionManager.getCurrentEmployeeId());
+                        }
+                    });
+                    HBox hb = new HBox(5, edit, del);
+                    hb.setAlignment(javafx.geometry.Pos.CENTER);
+                    setGraphic(hb);
+                }
+            });
+        }
+
+        private String getTierStyle(String tier) {
+            return switch (tier) {
+                case "vàng" -> "-fx-background-color: #d4a373; -fx-text-fill: white;";
+                case "bạc" -> "-fx-background-color: #c0c0c0; -fx-text-fill: black;";
+                case "kim cương" -> "-fx-background-color: #7f8c8d; -fx-text-fill: white;";
+                default -> "-fx-background-color: #e0e0e0; -fx-text-fill: black;";
+            } + " -fx-background-radius: 10; -fx-padding: 2 8; -fx-font-size: 12px; -fx-font-weight: bold;";
+        }
+
+        private int getCurrentPage() {
+            for (int i = 1; i < paginationBox.getChildren().size() - 1; i++) {
+                Button btn = (Button) paginationBox.getChildren().get(i);
+                if (btn.getStyleClass().contains("pagination-button-active")) {
+                    return Integer.parseInt(btn.getText());
+                }
+            }
+            return 1;
+        }
+    }
+}

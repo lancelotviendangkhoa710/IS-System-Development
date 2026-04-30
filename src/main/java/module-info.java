@@ -8,11 +8,14 @@ module BakeryManagementSystem {
     requires java.desktop;
     requires javafx.swing;
     requires org.apache.pdfbox;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
     requires jbcrypt;
 
     // Mở gói cho JavaFX reflection (FXML binding, Platform.runLater, Scene graph)
     opens com.bakery.main to javafx.graphics;
     opens com.bakery.views.controllers to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.customer to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.model.dto to javafx.base, javafx.fxml;
     opens com.bakery.presenters to javafx.fxml, javafx.graphics;
     opens com.bakery.utils to jbcrypt;
@@ -23,7 +26,9 @@ module BakeryManagementSystem {
     exports com.bakery.model.dao;
     exports com.bakery.views.interfaces;
     exports com.bakery.views.controllers;
+    exports com.bakery.views.controllers.customer;
     exports com.bakery.presenters;
+    exports com.bakery.presenters.customer;
     exports com.bakery.services;
     exports com.bakery.utils;
 }

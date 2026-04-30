@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefWidth="480.0" spacing="20.0" style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 6);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.CustomerUpdateController">
+<VBox prefWidth="480.0" spacing="20.0" style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 6);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.customer.CustomerUpdateViewFXMLController">
 
     <!-- Header -->
     <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1c1917;" text="Sửa thông tin khách hàng" />

@@ -1,6 +1,6 @@
-package com.bakery.views.interfaces;
+﻿package com.bakery.views.interfaces;
 
-import com.bakery.models.dto.KhachHangDTO;
+import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 /**
  * Factory interface để khởi tạo và mở các dialog màn hình con (Add, Update, Deleted...).
