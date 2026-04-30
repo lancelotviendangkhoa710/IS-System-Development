@@ -1053,10 +1053,10 @@
 
 /* Main Content Area */
 .dash-main-content {
-    -fx-padding: 40px;
-    padding: 40px;
-    -fx-max-width: 1200px;
-    max-width: 1200px;
+    -fx-padding: 24px;
+    padding: 24px;
+    -fx-max-width: 1600px;
+    max-width: 1600px;
 }
 
 /* Banner */
@@ -1112,14 +1112,16 @@
 .best-seller-card {
     -fx-background-color: #ffffff;
     background-color: #ffffff;
-    -fx-padding: 16 24;
-    padding: 16 24;
+    -fx-padding: 16;
+    padding: 16;
     -fx-background-radius: 12;
     -fx-border-color: #E5E7EB;
     border-color: #E5E7EB;
     -fx-border-radius: 12;
     border-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+    -fx-min-width: 220;
+    -fx-min-height: 140;
 }
 
 .best-seller-icon {
@@ -1191,10 +1193,12 @@
     -fx-border-radius: 16px;
     border-radius: 16px;
     -fx-background-radius: 16px;
-    -fx-padding: 32px;
-    padding: 32px;
+    -fx-padding: 24px;
+    padding: 24px;
     -fx-cursor: hand;
     cursor: hand;
+    -fx-min-height: 280;
+    -fx-max-height: 280;
 }
 
 .dash-card:hover {

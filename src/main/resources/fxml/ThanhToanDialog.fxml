@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    PaymentDialog.fxml — Dialog xác nhận thanh toán khi hoàn tất đơn
+    Hiện khi chuyển trạng thái đơn sang "Hoàn thành"
+    Controller: com.bakery.views.controllers.PaymentDialogController
+-->
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.ThanhToanDialogViewFXMLController"
+            minWidth="480" minHeight="320"
+            style="-fx-background-color: #FDFBF7;">
+
+    <!-- Header -->
+    <top>
+        <HBox styleClass="dialog-header" alignment="CENTER_LEFT">
+            <Label text="💰 Xác nhận Thanh toán" styleClass="dialog-header-title"/>
+        </HBox>
+    </top>
+
+    <!-- Body -->
+    <center>
+        <VBox styleClass="dialog-body" spacing="16">
+            <GridPane hgap="16" vgap="14">
+                <Label text="Mã đơn hàng:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                       styleClass="lbl-small-bold"/>
+                <Label fx:id="lblMaDon" text="#000" styleClass="lbl-body-bold"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Label text="Tổng tiền đơn:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                       styleClass="lbl-small-bold"/>
+                <Label fx:id="lblTongTien" text="0 đ" styleClass="lbl-body-bold"
+                       GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <Label text="Đã cọc trước:" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                       styleClass="lbl-small-bold"/>
+                <Label fx:id="lblDaCoc" text="0 đ" styleClass="lbl-success"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                <Separator GridPane.columnIndex="0" GridPane.rowIndex="3"
+                           GridPane.columnSpan="2"/>
+
+                <Label text="⚠ CẦN THU THÊM:" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                       style="-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #DC2626;"/>
+                <Label fx:id="lblConLai" text="0 đ"
+                       style="-fx-font-weight: bold; -fx-font-size: 22px; -fx-text-fill: #92400E;"
+                       GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            </GridPane>
+
+            <Label text="Bạn đã thu đủ số tiền còn lại chưa?"
+                   styleClass="lbl-body" wrapText="true"/>
+        </VBox>
+    </center>
+
+    <!-- Footer -->
+    <bottom>
+        <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+            <Button text="Chưa — Hủy" styleClass="btn-secondary"
+                    onAction="#onHuy"/>
+            <Button text="✓ Đã thu đủ — Xác nhận"
+                    styleClass="btn-success"
+                    onAction="#onXacNhan"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -3,7 +3,7 @@ package com.bakery.views.controllers;
 import com.bakery.model.dto.NhanVienDTO;
 import com.bakery.model.enums.SystemModule;
 import com.bakery.services.ThongKeService;
-import com.bakery.services.AuthorizationService;
+import com.bakery.services.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +13,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tooltip;
+import javafx.geometry.Pos;
+import javafx.geometry.Insets;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -22,7 +27,8 @@ import java.util.Set;
 
 /**
  * Controller cho giao diện chính (Main Menu) của ứng dụng.
- * Quản lý việc hiển thị thông tin người dùng, kiểm tra phân quyền và điều hướng đến các phân hệ khác.
+ * Quản lý việc hiển thị thông tin người dùng, kiểm tra phân quyền và điều hướng
+ * đến các phân hệ khác.
  */
 public class MainMenuViewFXMLController {
     @FXML
@@ -35,17 +41,29 @@ public class MainMenuViewFXMLController {
     private Label lblBannerName;
 
     @FXML
-    private Button btnPos;
+    private VBox vboxSidebar;
+    @FXML
+    private HBox hboxLogo;
+    @FXML
+    private Label lblLogoText;
+    @FXML
+    private ScrollPane scrollNav;
+    @FXML
+    private Button btnTongQuan;
     @FXML
     private Button btnInventory;
     @FXML
-    private Button btnStaff;
+    private Button btnBanHang;
     @FXML
-    private Button btnStaffSidebar;
+    private Button btnKho;
     @FXML
-    private Button btnReports;
+    private Button btnNhanSu;
     @FXML
-    private Button btnReportsCard;
+    private Button btnNhanSuSidebar;
+    @FXML
+    private Button btnBaoCao;
+    @FXML
+    private Button btnBaoCaoCard;
     @FXML
     private Button btnTheoDoiDon;
     @FXML
@@ -53,9 +71,9 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnAuditLogs;
     @FXML
-    private Button btnSupplier;
+    private Button btnNhaCungCap;
     @FXML
-    private Button btnCashbook;
+    private Button btnSoQuy;
     @FXML
     private Button btnDanhMuc;
     @FXML
@@ -63,9 +81,12 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnNguyenLieu;
     @FXML
-    private HBox hboxBestSellersMenu;
+    private FlowPane flowBestSellersMenu;
 
-    private final AuthorizationService authorizationService = new AuthorizationService();
+    private boolean isSidebarCollapsed = false;
+    private final java.util.Map<Button, String> buttonTextMap = new java.util.HashMap<>();
+
+    private final PhanQuyenService authorizationService = new PhanQuyenService();
     private final ThongKeService thongKeService = new ThongKeService();
     private NhanVienDTO currentUser;
 
@@ -86,39 +107,40 @@ public class MainMenuViewFXMLController {
             lblBannerName.setText(lblTenNguoiDung.getText());
         }
         lblVaiTro.setText(xayDungNhanQuyen(this.currentUser, laAdmin));
-        capNhatTrangThaiNut(btnPos, modulesDuocCap.contains(SystemModule.POS));
-        capNhatTrangThaiNut(btnInventory, modulesDuocCap.contains(SystemModule.INVENTORY));
-        capNhatTrangThaiNut(btnStaff, modulesDuocCap.contains(SystemModule.STAFF));
-        capNhatTrangThaiNut(btnStaffSidebar, modulesDuocCap.contains(SystemModule.STAFF));
-        capNhatTrangThaiNut(btnReports, modulesDuocCap.contains(SystemModule.REPORTS));
-        if (btnReportsCard != null)
-            capNhatTrangThaiNut(btnReportsCard, modulesDuocCap.contains(SystemModule.REPORTS));
+        capNhatTrangThaiNut(btnBanHang, modulesDuocCap.contains(SystemModule.BAN_HANG));
+        capNhatTrangThaiNut(btnKho, modulesDuocCap.contains(SystemModule.KHO));
+        capNhatTrangThaiNut(btnNhanSu, modulesDuocCap.contains(SystemModule.NHAN_SU));
+        capNhatTrangThaiNut(btnNhanSuSidebar, modulesDuocCap.contains(SystemModule.NHAN_SU));
+        capNhatTrangThaiNut(btnBaoCao, modulesDuocCap.contains(SystemModule.BAO_CAO));
+        if (btnBaoCaoCard != null)
+            capNhatTrangThaiNut(btnBaoCaoCard, modulesDuocCap.contains(SystemModule.BAO_CAO));
         if (btnTheoDoiDon != null)
-            capNhatTrangThaiNut(btnTheoDoiDon, modulesDuocCap.contains(SystemModule.POS));
-        capNhatTrangThaiNut(btnKds, modulesDuocCap.contains(SystemModule.KDS));
-        capNhatTrangThaiNut(btnAuditLogs, modulesDuocCap.contains(SystemModule.AUDIT_LOGS));
-        if (btnSupplier != null)
-            capNhatTrangThaiNut(btnSupplier, modulesDuocCap.contains(SystemModule.INVENTORY));
+            capNhatTrangThaiNut(btnTheoDoiDon, modulesDuocCap.contains(SystemModule.BAN_HANG));
+        capNhatTrangThaiNut(btnKds, modulesDuocCap.contains(SystemModule.NHA_BEP));
+        capNhatTrangThaiNut(btnAuditLogs, modulesDuocCap.contains(SystemModule.NHAT_KY));
+        if (btnNhaCungCap != null)
+            capNhatTrangThaiNut(btnNhaCungCap, modulesDuocCap.contains(SystemModule.KHO));
         if (btnDanhMuc != null)
-            capNhatTrangThaiNut(btnDanhMuc, modulesDuocCap.contains(SystemModule.INVENTORY));
+            capNhatTrangThaiNut(btnDanhMuc, modulesDuocCap.contains(SystemModule.KHO));
         if (btnSanPham != null)
-            capNhatTrangThaiNut(btnSanPham, modulesDuocCap.contains(SystemModule.INVENTORY));
+            capNhatTrangThaiNut(btnSanPham, modulesDuocCap.contains(SystemModule.KHO));
         if (btnNguyenLieu != null)
-            capNhatTrangThaiNut(btnNguyenLieu, modulesDuocCap.contains(SystemModule.INVENTORY));
+            capNhatTrangThaiNut(btnNguyenLieu, modulesDuocCap.contains(SystemModule.KHO));
 
         loadBestSellers();
     }
 
     private void loadBestSellers() {
-        if (hboxBestSellersMenu == null)
+        if (flowBestSellersMenu == null)
             return;
-        hboxBestSellersMenu.getChildren().clear();
+        flowBestSellersMenu.getChildren().clear();
 
         Map<String, Integer> top5 = thongKeService.getTop5BanChay();
         for (Map.Entry<String, Integer> entry : top5.entrySet()) {
             VBox card = new VBox(8);
             card.getStyleClass().add("best-seller-card");
-            card.setPrefWidth(200);
+            card.setPrefWidth(220); // Fixed width for better grid look in FlowPane
+            card.setMinWidth(200);
 
             Label lblIcon = new Label("🍰"); // Biểu tượng bánh
             lblIcon.getStyleClass().add("best-seller-icon");
@@ -130,36 +152,37 @@ public class MainMenuViewFXMLController {
             lblQty.getStyleClass().add("best-seller-qty");
 
             card.getChildren().addAll(lblIcon, lblName, lblQty);
-            hboxBestSellersMenu.getChildren().add(card);
+            flowBestSellersMenu.getChildren().add(card);
         }
     }
 
     @FXML
-    private void onMoPOS() {
-        moScene(btnPos, "/fxml/OrderView.fxml", "H3K Bakery - POS", 1280, 720, "Khong the mo POS: ");
+    private void onMoBanHang() {
+        moScene(btnBanHang, "/fxml/DonHangView.fxml", "H3K Bakery - Bán hàng", 1280, 720, "Không thể mở POS: ");
     }
 
     @FXML
-    private void onMoInventory() {
-        moScene(btnInventory, "/fxml/InventoryView.fxml", "H3K Bakery - Inventory", 1366, 768,
-                "Khong the mo Inventory: ");
+    private void onMoKho() {
+        moScene(btnKho, "/fxml/KhoView.fxml", "H3K Bakery - Kho hàng", 1280, 720,
+                "Không thể mở Kho hàng: ");
     }
 
     @FXML
-    private void onMoStaff() {
-        moScene(btnStaff != null ? btnStaff : btnStaffSidebar, "/fxml/NhanVienManagementView.fxml", "H3K Bakery - Quản lý nhân sự", 1280, 720,
+    private void onMoNhanSu() {
+        moScene(btnNhanSu != null ? btnNhanSu : btnNhanSuSidebar, "/fxml/QuanLyNhanVienView.fxml",
+                "H3K Bakery - Quản lý nhân sự", 1280, 720,
                 "Không thể mở Quản lý nhân sự: ");
     }
 
     @FXML
-    private void onMoReports() {
-        moScene(btnReports, "/fxml/ReportsView.fxml", "H3K Bakery - Thống kê Kinh doanh", 1366, 768,
+    private void onMoBaoCao() {
+        moScene(btnBaoCao, "/fxml/BaoCaoView.fxml", "H3K Bakery - Thống kê Kinh doanh", 1280, 720,
                 "Không thể mở Thống kê: ");
     }
 
     @FXML
-    private void onMoSupplier() {
-        moScene(btnSupplier, "/fxml/SupplierManagementView.fxml", "H3K Bakery - Quản lý Nhà Cung Cấp", 1280, 720,
+    private void onMoNhaCungCap() {
+        moScene(btnNhaCungCap, "/fxml/QuanLyNhaCungCapView.fxml", "H3K Bakery - Quản lý Nhà Cung Cấp", 1280, 720,
                 "Không thể mở Nhà Cung Cấp: ");
     }
 
@@ -182,8 +205,8 @@ public class MainMenuViewFXMLController {
     }
 
     @FXML
-    private void onMoCashbook() {
-        moScene(btnCashbook, "/fxml/CashbookView.fxml", "H3K Bakery - Sổ quỹ thu chi", 1280, 720,
+    private void onMoSoQuy() {
+        moScene(btnSoQuy, "/fxml/SoQuyView.fxml", "H3K Bakery - Sổ quỹ thu chi", 1280, 720,
                 "Không thể mở Sổ quỹ: ");
     }
 
@@ -193,14 +216,15 @@ public class MainMenuViewFXMLController {
             boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
             String fxmlPath = caoDangMo ? "/fxml/DoiSoatDongCaView.fxml" : "/fxml/MoCaView.fxml";
             String title = caoDangMo ? "H3K Bakery - Đóng ca" : "H3K Bakery - Mở ca";
-            
+
             URL fxmlUrl = getClass().getResource(fxmlPath);
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load());
-            
+
             URL cssUrl = getClass().getResource("/css/amber.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            
+            if (cssUrl != null)
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+
             Stage dialog = new Stage();
             dialog.setTitle(title);
             dialog.setScene(scene);
@@ -217,7 +241,7 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoTheoDoiDon() {
         try {
-            URL fxmlUrl = getClass().getResource("/fxml/OrderTrackingView.fxml");
+            URL fxmlUrl = getClass().getResource("/fxml/TheoDoiDonHangView.fxml");
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
@@ -226,7 +250,7 @@ public class MainMenuViewFXMLController {
             if (cssUrl != null)
                 scene.getStylesheets().add(cssUrl.toExternalForm());
 
-            Button source = btnTheoDoiDon != null ? btnTheoDoiDon : btnPos;
+            Button source = btnTheoDoiDon != null ? btnTheoDoiDon : btnBanHang;
             Stage stage = (Stage) source.getScene().getWindow();
             stage.setTitle("H3K Bakery - Theo Dõi Đơn");
             stage.setScene(scene);
@@ -261,8 +285,57 @@ public class MainMenuViewFXMLController {
     }
 
     @FXML
+    private void onToggleSidebar() {
+        if (buttonTextMap.isEmpty()) {
+            // Store original text
+            Button[] navButtons = {
+                    btnTongQuan, btnBanHang, btnInventory, btnNhanSuSidebar, btnBaoCao,
+                    btnTheoDoiDon, btnKds, btnAuditLogs, btnNhaCungCap, btnSoQuy,
+                    btnDanhMuc, btnSanPham, btnNguyenLieu
+            };
+            for (Button btn : navButtons) {
+                if (btn != null)
+                    buttonTextMap.put(btn, btn.getText());
+            }
+        }
+
+        isSidebarCollapsed = !isSidebarCollapsed;
+        double newWidth = isSidebarCollapsed ? 60 : 240;
+
+        vboxSidebar.setPrefWidth(newWidth);
+        lblLogoText.setVisible(!isSidebarCollapsed);
+        lblLogoText.setManaged(!isSidebarCollapsed);
+        scrollNav.setVisible(!isSidebarCollapsed);
+        scrollNav.setManaged(!isSidebarCollapsed);
+
+        if (isSidebarCollapsed) {
+            hboxLogo.setPadding(new Insets(20, 0, 20, 0));
+            hboxLogo.setAlignment(Pos.CENTER);
+        } else {
+            hboxLogo.setPadding(new Insets(32));
+            hboxLogo.setAlignment(Pos.CENTER_LEFT);
+            for (java.util.Map.Entry<Button, String> entry : buttonTextMap.entrySet()) {
+                Button btn = entry.getKey();
+                btn.setText(entry.getValue());
+                btn.setTooltip(null);
+                btn.setAlignment(Pos.BASELINE_LEFT);
+            }
+        }
+    }
+
+    @FXML
+    private void onToggleFullScreen() {
+        try {
+            Stage stage = (Stage) vboxSidebar.getScene().getWindow();
+            if (stage != null) {
+                stage.setFullScreen(!stage.isFullScreen());
+            }
+        } catch (Exception e) {}
+    }
+
+    @FXML
     private void onModuleChuaSanSang() {
-        lblThongBao.setText("Chuc nang dang phat trien.");
+        lblThongBao.setText("Chức năng đang phát triển.");
     }
 
     @FXML
@@ -273,18 +346,20 @@ public class MainMenuViewFXMLController {
             com.bakery.utils.SessionContext.clear();
 
             // Load login view
-            URL fxmlUrl = getClass().getResource("/fxml/login.fxml");
+            URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
             if (fxmlUrl == null) {
-                throw new RuntimeException("Không tìm thấy /fxml/login.fxml");
+                throw new RuntimeException("Không tìm thấy /fxml/DangNhapView.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // Optional: Pass a logout message to MainController if it's the controller for login.fxml
+            // Optional: Pass a logout message to MainViewFXMLController
             Object controller = loader.getController();
-            if (controller instanceof MainController) {
-                ((MainController) controller).setLoginInfo("Bạn đã đăng xuất thành công.");
+            if (controller instanceof MainViewFXMLController) {
+                ((MainViewFXMLController) controller).setLoginInfo("Bạn đã đăng xuất thành công.");
+            } else if (controller instanceof DangNhapViewFXMLController) {
+                ((DangNhapViewFXMLController) controller).setLoginInfo("Bạn đã đăng xuất thành công.");
             }
 
             Scene scene = new Scene(root);
@@ -312,8 +387,8 @@ public class MainMenuViewFXMLController {
             }
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load(), width, height);
-            if ("/fxml/OrderView.fxml".equals(fxmlPath)) {
-                OrderViewFXMLController controller = loader.getController();
+            if ("/fxml/DonHangView.fxml".equals(fxmlPath)) {
+                DonHangViewFXMLController controller = loader.getController();
                 controller.apDungThongTinDangNhap(UserSession.getCurrentUser());
             }
             URL cssUrl = getClass().getResource("/css/bakery.css");

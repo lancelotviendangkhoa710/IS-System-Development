@@ -8,7 +8,7 @@ import java.util.Set;
 public final class SessionContext {
     private static AuthSession currentSession;
     
-    // Singleton pattern from Dev-C for backward compatibility with shift logic
+
     private static final SessionContext INSTANCE = new SessionContext();
 
     private int maCa;

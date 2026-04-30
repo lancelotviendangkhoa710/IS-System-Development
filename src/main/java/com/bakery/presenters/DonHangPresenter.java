@@ -10,10 +10,9 @@ import com.bakery.model.dto.TrangThaiDonDTO;
 import com.bakery.model.dto.YeuCauChiTietDonHangDTO;
 import com.bakery.model.dto.YeuCauChiTietDonTuyChinhDTO;
 import com.bakery.model.dto.YeuCauTaoDonHangDTO;
-import com.bakery.services.BanHangService;
-import com.bakery.views.interfaces.IOrderDialogFactory;
-import com.bakery.views.interfaces.IOrderView;
-import java.text.Normalizer;
+import com.bakery.services.DonHangService;
+import com.bakery.views.interfaces.IDonHangDialogFactory;
+import com.bakery.views.interfaces.IDonHangView;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 public class DonHangPresenter {
-    private final IOrderView view;
-    private final BanHangService orderService;
+    private final IDonHangView view;
+    private final DonHangService orderService;
     // Phương án A: Presenter gọi dialog qua interface factory
-    private IOrderDialogFactory dialogFactory;
+    private IDonHangDialogFactory dialogFactory;
 
     private List<SanPhamDTO> tatCaSanPham = new ArrayList<>();
     private final List<YeuCauChiTietDonHangDTO> gioHangItems = new ArrayList<>();
@@ -53,13 +52,19 @@ public class DonHangPresenter {
         return list;
     }
 
-    public DonHangPresenter(IOrderView view, BanHangService orderService) {
+    public DonHangPresenter(IDonHangView view, DonHangService orderService) {
         this.view = view;
         this.orderService = orderService;
     }
 
+    public DonHangPresenter(IDonHangView view, DonHangService orderService, IDonHangDialogFactory dialogFactory) {
+        this.view = view;
+        this.orderService = orderService;
+        this.dialogFactory = dialogFactory;
+    }
+
     /** Inject dialog factory sau khi khởi tạo (Phương án A — tránh circular dep) */
-    public void setDialogFactory(IOrderDialogFactory dialogFactory) {
+    public void setDialogFactory(IDonHangDialogFactory dialogFactory) {
         this.dialogFactory = dialogFactory;
     }
 
@@ -166,11 +171,14 @@ public class DonHangPresenter {
     }
 
     public void capNhatGioHangVaTien() {
-        double tongTienHang = gioHangItems.stream().mapToDouble(i -> i.getDonGia() * i.getSoLuong()).sum();
+        YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
+        request.setItems(new ArrayList<>(gioHangItems));
+
+        double tongTienHang = orderService.tinhTienHoaDon(request);
         double tienGiamGia = tongTienHang * phanTramGiamGia;
         double tongTienPhaiTra = tongTienHang - tienGiamGia;
         double minCoc = tongTienPhaiTra * 0.5;
-        // Truyền 0 cho các giá trị không còn nhập trên màn hình chính
+
         view.lamMoiBaoCaoTien(tongTienHang, tienGiamGia, tongTienPhaiTra, minCoc, 0, 0, false);
         view.lamMoiBangGioHang(convertToCTDonHangList(gioHangItems), tatCaSanPham);
         view.batTatNutThanhToan(!gioHangItems.isEmpty());
@@ -201,27 +209,31 @@ public class DonHangPresenter {
             return;
         }
 
-        double tongTienPhaiTra = gioHangItems.stream()
-                .mapToDouble(i -> i.getDonGia() * i.getSoLuong()).sum() * (1 - phanTramGiamGia);
+        YeuCauTaoDonHangDTO calcReq = new YeuCauTaoDonHangDTO();
+        calcReq.setItems(new ArrayList<>(gioHangItems));
+        double tongTienPhaiTra = orderService.tinhTienHoaDon(calcReq) * (1 - phanTramGiamGia);
 
         // Phương án A: Presenter gọi factory qua interface, không biết JavaFX
-        IOrderDialogFactory.CustomerLookup lookup = sdt -> {
+        IDonHangDialogFactory.TraCuuKhachHang lookup = sdt -> {
             try {
                 KhachHangDTO kh = orderService.timKhachHangTheoSoDienThoai(sdt);
-                if (kh != null) return new String[]{ String.valueOf(kh.getMaKH()), kh.getHoTen() };
-            } catch (Exception ignored) {}
+                if (kh != null)
+                    return new String[] { String.valueOf(kh.getMaKH()), kh.getHoTen() };
+            } catch (Exception ignored) {
+            }
             return null;
         };
 
-        IOrderDialogFactory.OrderRequest req = dialogFactory.showCreateOrderDialog(tongTienPhaiTra, lookup);
-        if (!req.confirmed()) return;
+        IDonHangDialogFactory.YeuCauDonHang req = dialogFactory.showCreateOrderDialog(tongTienPhaiTra, lookup);
+        if (!req.confirmed())
+            return;
 
         // Áp dụng thông tin khách hàng từ dialog
         phanTramGiamGia = (req.maKH() != null) ? 0.10 : 0.0;
         view.hienThiThongTinKhach(req.tenKhach(), req.maKH() != null);
 
         try {
-            if (req.orderType() == IOrderDialogFactory.OrderType.IMMEDIATE) {
+            if (req.orderType() == IDonHangDialogFactory.LoaiDonHang.IMMEDIATE) {
                 xuLyThanhToanNgay(req, tongTienPhaiTra);
             } else {
                 xuLyDatTruoc(req, tongTienPhaiTra);
@@ -234,27 +246,28 @@ public class DonHangPresenter {
     }
 
     /** Luồng 1: Thanh toán ngay (trực tiếp tại quầy) */
-    private void xuLyThanhToanNgay(IOrderDialogFactory.OrderRequest req, double tongTien) throws Exception {
+    private void xuLyThanhToanNgay(IDonHangDialogFactory.YeuCauDonHang req, double tongTien) throws Exception {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
         request.setMaKH(req.maKH());
         request.setMaNVLap(MOCK_CURRENT_USER_ID);
         request.setTienDaCoc(tongTien);
         request.setHinhThucNhan(1); // Trực tiếp
-        // Đặt thời gian nhận = ngay bây giờ + đệm 30s để tránh lỗi validation "quá khứ" phía DB
+        // Đặt thời gian nhận = ngay bây giờ + đệm 30s để tránh lỗi validation "quá khứ"
+        // phía DB
         request.setNgayGioNhanBanh(LocalDateTime.now().plusSeconds(30));
         request.setDiaChiGiao(null);
         request.setItems(new ArrayList<>(gioHangItems));
 
         HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua());
         view.hienThiThanhCong("Đã thanh toán! Mã HĐ: #" + hd.getMaHD());
-        view.inPhieuHoaDon("HÓA ĐƠN BÁN LẾ",
-                hd.getMaDon(), hd.getMaHD(), hd.getNgayXuatHd(),
-                tongTien, tongTien,
-                convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia);
+        view.inPhieuHoaDon("HÓA ĐƠN BÁN LẺ",
+                hd, null,
+                convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia,
+                req.soTienKhachDua(), Math.max(0, req.soTienKhachDua() - tongTien), false);
     }
 
     /** Luồng 2: Đặt trước (pre-order) */
-    private void xuLyDatTruoc(IOrderDialogFactory.OrderRequest req, double tongTien) throws Exception {
+    private void xuLyDatTruoc(IDonHangDialogFactory.YeuCauDonHang req, double tongTien) throws Exception {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
         request.setMaKH(req.maKH());
         request.setMaNVLap(MOCK_CURRENT_USER_ID);
@@ -266,13 +279,19 @@ public class DonHangPresenter {
 
         int maDon = orderService.submitNewOrder(request);
         view.hienThiThanhCong("Đặt đơn thành công! Mã đơn: #" + maDon);
+        DonDatHangDTO don = new DonDatHangDTO();
+        don.setMaDon(maDon);
+        don.setTienDaCoc(java.math.BigDecimal.valueOf(req.tienCoc()));
+        don.setNgayGioNhanBanh(req.ngayGioNhan());
+
+        HoaDonDTO hd = orderService.taoHoaDonDTO(maDon, tongTien, "DAT_HANG");
+        hd.setNgayXuatHd(LocalDateTime.now());
+
         view.inPhieuHoaDon("PHIẾU HẸN LẤY BÁNH",
-                maDon, null, req.ngayGioNhan(),
-                tongTien, req.tienCoc(),
-                convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia);
+                hd, don,
+                convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia,
+                req.soTienKhachDua(), Math.max(0, req.soTienKhachDua() - req.tienCoc()), true);
     }
-
-
 
     public void traCuuDonHang(String maDonStr) {
         try {
@@ -280,7 +299,8 @@ public class DonHangPresenter {
             DonDatHangDTO tomTat = orderService.loadOrderById(maDon);
             view.showOrderDetails(tomTat);
             view.hienThiKetQuaTraCuu(tomTat.getMaKH() == null ? "Khách lẻ" : "Mã KH: " + tomTat.getMaKH(),
-                    tomTat.getTenTrangThai(), tomTat.getTongTienHDBan() != null ? tomTat.getTongTienHDBan().doubleValue() : 0.0);
+                    tomTat.getTenTrangThai(),
+                    tomTat.getTongTienHDBan() != null ? tomTat.getTongTienHDBan().doubleValue() : 0.0);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
         }
@@ -298,8 +318,9 @@ public class DonHangPresenter {
 
             HoaDonDTO hoaDonMoi = null;
             // Nếu chuyển sang trạng thái Hoàn thành, yêu cầu xác nhận thu tiền còn lại
-            if ("HOAN_THANH".equals(chuanHoaTrangThai(ttMoi))) {
-                double tongTien = donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue() : 0.0;
+            if ("HOAN_THANH".equals(com.bakery.utils.StringUtil.chuanHoa(ttMoi))) {
+                double tongTien = donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue()
+                        : 0.0;
                 double daCoc = donHienTai.getTienDaCoc() != null ? donHienTai.getTienDaCoc().doubleValue() : 0.0;
                 double conLai = Math.max(0, tongTien - daCoc);
 
@@ -334,17 +355,15 @@ public class DonHangPresenter {
                         items.add(clone);
                     }
 
+                    double tongTienHD = hoaDonMoi.getTongTienThanhToan() != null ? hoaDonMoi.getTongTienThanhToan().doubleValue() : 0.0;
                     view.inPhieuHoaDon(
                             "HÓA ĐƠN THANH TOÁN",
-                            maDon,
-                            hoaDonMoi.getMaHD(),
-                            hoaDonMoi.getNgayXuatHd(),
-                            donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue() : 0.0,
-                            donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue() : 0.0,
+                            hoaDonMoi,
+                            donHienTai,
                             items,
-                            tatCaSanPham, // Dùng dữ liệu đã load sẵn
-                            0.0 // Giảm giá đã tính vào tổng tiền đơn hàng từ trước
-                    );
+                            tatCaSanPham,
+                            0.0,
+                            tongTienHD, 0.0, false);
                 } catch (Exception ex) {
                     view.showError("Không thể tải chi tiết đơn hàng để in hóa đơn.");
                 }
@@ -361,40 +380,44 @@ public class DonHangPresenter {
         try {
             int maDon = Integer.parseInt(maDonStr.trim());
             DonDatHangDTO don = orderService.loadOrderById(maDon);
-            
+
             if (dialogFactory == null) {
                 view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
                 return;
             }
 
             double daCoc = don.getTienDaCoc() != null ? don.getTienDaCoc().doubleValue() : 0.0;
-            IOrderDialogFactory.CancelOrderRequest req = dialogFactory.showCancelOrderDialog(maDon, daCoc);
-            
-            if (!req.confirmed()) return;
+            IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, daCoc);
 
-            orderService.huyDonVaHoanCoc(maDon, req.reason(), MOCK_CURRENT_USER_ID, don.getTenTrangThai(), req.refundAmount());
-            
+            if (!req.confirmed())
+                return;
+
+            orderService.huyDonVaHoanCoc(maDon, req.reason(), MOCK_CURRENT_USER_ID, don.getTenTrangThai(),
+                    req.refundAmount());
+
             // Nếu có hoàn tiền, hiện thông báo thêm
             if (req.refundAmount() > 0) {
                 view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon + " và hoàn tiền: " + req.refundAmount() + "đ");
             } else {
                 view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon);
             }
-            
+
             timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoiTraCuu("Lỗi hủy đơn: " + e.getMessage());
         }
     }
 
-    public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) {
+    public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen,
+            String trangThaiFilter) {
         this.lastSearchMaDon = maDonSearch;
         this.lastSearchNgay = ngayNhan;
         this.lastSearchTu = gioTu;
         this.lastSearchDen = gioDen;
         this.lastSearchTrangThai = trangThaiFilter == null ? "ALL" : trangThaiFilter;
         try {
-            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, this.lastSearchTrangThai);
+            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen,
+                    this.lastSearchTrangThai);
             view.hienThiDanhSachDonTheoDoi(dsDon);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
@@ -404,8 +427,6 @@ public class DonHangPresenter {
     public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) {
         timKiemDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
-
-
 
     private void lamMoiTrangThai() {
         gioHangItems.clear();
@@ -434,15 +455,4 @@ public class DonHangPresenter {
         return true;
     }
 
-    private String chuanHoaTrangThai(String rawStatus) {
-        if (rawStatus == null)
-            return "";
-        String normalized = Normalizer.normalize(rawStatus.trim(), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .replace("đ", "d").replace("Đ", "D")
-                .toUpperCase().replace(' ', '_');
-        if (normalized.contains("KHACH") && normalized.contains("LAY"))
-            return "CHO_KHACH_LAY";
-        return normalized;
-    }
 }

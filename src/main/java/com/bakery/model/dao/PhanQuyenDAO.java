@@ -57,9 +57,7 @@ public class PhanQuyenDAO {
                     cn.setMoTa(rs.getString("MOTA"));
                     String moduleStr = rs.getString("MODULE");
                     if (moduleStr != null) {
-                        try {
-                            cn.setModule(SystemModule.valueOf(moduleStr.toUpperCase()));
-                        } catch (IllegalArgumentException ignored) {}
+                        cn.setModule(SystemModule.fromValue(moduleStr));
                     }
                     danhSach.add(cn);
                     permissionKeys.add(chuanHoaPermissionKey(cn.getTenChucNang()));

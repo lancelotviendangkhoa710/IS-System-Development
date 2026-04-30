@@ -6,7 +6,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.views.controllers.ThemNhanVienDialogController"
+      fx:controller="com.bakery.views.controllers.ThemNhanVienDialogViewFXMLController"
       styleClass="dialog-container" prefWidth="550">
 
     <Label text="Thêm Nhân Viên Mới" styleClass="dialog-header-title"/>

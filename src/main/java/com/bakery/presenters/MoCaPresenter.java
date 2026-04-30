@@ -51,15 +51,11 @@ public class MoCaPresenter {
             try {
                 int maCa = service.moCa(maNV, mayPOS, tienDauCa);
                 SessionContext.getInstance().moCa(maCa);
-                javafx.application.Platform.runLater(() -> {
-                    view.setLoading(false);
-                    view.navigateToMain();
-                });
+                view.setLoading(false);
+                view.navigateToMain();
             } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    view.setLoading(false);
-                    view.hienThiLoi("⚠️ " + (e.getMessage() != null ? e.getMessage() : "Lỗi hệ thống khi mở ca."));
-                });
+                view.setLoading(false);
+                view.hienThiLoi("⚠️ " + (e.getMessage() != null ? e.getMessage() : "Lỗi hệ thống khi mở ca."));
             }
         });
         t.setDaemon(true);

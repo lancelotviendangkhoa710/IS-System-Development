@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    CashbookView.fxml — Sổ Quỹ
+    Custom tab system (không dùng TabPane) để đồng bộ màu amber.
+    Controller: com.bakery.views.controllers.CashbookController
+-->
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.SoQuyViewFXMLController"
+      spacing="0" style="-fx-background-color: -bg-app;">
+
+    <!-- ══ NOTIFICATION BAR ════════════════════════════════════════════════ -->
+    <Label fx:id="lblThongBao" maxWidth="Infinity" wrapText="true"
+           visible="false" managed="false"/>
+
+    <!-- ══ HEADER SECTION ══════════════════════════════════════════════════ -->
+    <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 24 24 10 24;">
+        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"
+                style="-fx-font-weight: bold; -fx-padding: 8 16;"/>
+        <VBox spacing="4">
+            <Label text="Sổ Quỹ Thu Chi" styleClass="lbl-title-screen"/>
+            <Label text="Quản lý giao dịch tiền mặt, chuyển khoản và cấu hình danh mục thu chi" styleClass="lbl-body"/>
+        </VBox>
+    </HBox>
+
+    <!-- ══ CUSTOM TAB BAR ══════════════════════════════════════════════════ -->
+    <VBox style="-fx-padding: 12 20 0 20;">
+    <HBox fx:id="hboxTabBar" alignment="CENTER_LEFT" spacing="0"
+          style="-fx-background-color: -bg-surface;
+                 -fx-background-radius: 12px;
+                 -fx-border-color: -border-default;
+                 -fx-border-radius: 12px;
+                 -fx-border-width: 1;
+                 -fx-padding: 0 12;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);">
+
+        <Button fx:id="btnTabTongQuan"    text="Tổng Quan"           onAction="#onTabTongQuan"/>
+        <Button fx:id="btnTabLichSu"      text="Lịch Sử Giao Dịch"   onAction="#onTabLichSu"/>
+        <Button fx:id="btnTabCauHinh"     text="Cấu hình Danh mục"   onAction="#onTabCauHinh"
+                visible="false" managed="false"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <!-- Nút context: hiện trong tab Lịch sử -->
+        <Button fx:id="btnThemGiaoDich"
+                text="+ Lập phiếu mới"
+                styleClass="btn-primary"
+                onAction="#onYeuCauThemGiaoDich"
+                visible="false" managed="false"
+                style="-fx-padding: 8 16; -fx-font-size: 13px;"/>
+
+        <!-- Nút context: hiện trong tab Cấu hình -->
+        <Button fx:id="btnThemDanhMucMoi"
+                text="+ Thêm danh mục mới"
+                styleClass="btn-primary"
+                onAction="#onMoDialogThemLoai"
+                visible="false" managed="false"
+                style="-fx-padding: 8 16; -fx-font-size: 13px;"/>
+    </HBox>
+    </VBox>
+
+    <!-- ══ CONTENT AREA ════════════════════════════════════════════════════ -->
+    <StackPane VBox.vgrow="ALWAYS">
+
+        <!-- ── TAB 1: TỔNG QUAN ──────────────────────────────────────────── -->
+        <ScrollPane fx:id="paneTongQuan"
+                    fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="16" style="-fx-padding: 20 24;">
+
+                <!-- 3 KPI Cards -->
+                <HBox spacing="16">
+
+                    <!-- Tổng Thu -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="8">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                                <Label text="Tổng Thu (Hệ thống)" styleClass="text-small"/>
+                                <Label fx:id="lblTongThu" text="—"
+                                       style="-fx-font-size: 24px; -fx-font-weight: bold;
+                                              -fx-text-fill: #16A34A; -fx-font-family: 'Segoe UI';"/>
+                            </VBox>
+                            <StackPane style="-fx-background-color: #DCFCE7;
+                                             -fx-background-radius: 999px;
+                                             -fx-min-width: 48px; -fx-max-width: 48px;
+                                             -fx-min-height: 48px; -fx-max-height: 48px;">
+                                <Label text="&#x2197;"
+                                       style="-fx-text-fill: #16A34A; -fx-font-size: 22px;
+                                              -fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                            </StackPane>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Tổng Chi -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="8">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                                <Label text="Tổng Chi (Hệ thống)" styleClass="text-small"/>
+                                <Label fx:id="lblTongChi" text="—"
+                                       style="-fx-font-size: 24px; -fx-font-weight: bold;
+                                              -fx-text-fill: #DC2626; -fx-font-family: 'Segoe UI';"/>
+                            </VBox>
+                            <StackPane style="-fx-background-color: #FEE2E2;
+                                             -fx-background-radius: 999px;
+                                             -fx-min-width: 48px; -fx-max-width: 48px;
+                                             -fx-min-height: 48px; -fx-max-height: 48px;">
+                                <Label text="&#x2198;"
+                                       style="-fx-text-fill: #DC2626; -fx-font-size: 22px;
+                                              -fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                            </StackPane>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Tồn Quỹ -->
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="8">
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                                <Label text="Tồn Quỹ Hiện Tại" styleClass="text-small"/>
+                                <Label fx:id="lblSoDu" text="—"
+                                       style="-fx-font-size: 24px; -fx-font-weight: bold;
+                                              -fx-font-family: 'Segoe UI';"/>
+                            </VBox>
+                            <StackPane style="-fx-background-color: -amber-subtle;
+                                             -fx-background-radius: 999px;
+                                             -fx-min-width: 48px; -fx-max-width: 48px;
+                                             -fx-min-height: 48px; -fx-max-height: 48px;">
+                                <Label text="&#x25A3;"
+                                       style="-fx-text-fill: -amber-primary; -fx-font-size: 22px;
+                                              -fx-font-family: 'Segoe UI';"/>
+                            </StackPane>
+                        </HBox>
+                    </VBox>
+
+                </HBox>
+
+                <!-- Tỷ trọng Thu / Chi -->
+                <VBox styleClass="card" spacing="16">
+                    <Label text="&#x1F4CA; Tỷ trọng Thu / Chi (Hệ thống)"
+                           styleClass="text-title-card"/>
+
+                    <!-- Thu -->
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Tỷ trọng Thu"
+                                   style="-fx-text-fill: #16A34A; -fx-font-weight: bold;
+                                          -fx-font-size: 13px; -fx-font-family: 'Segoe UI';"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblTyLeThu" text="0%"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px;
+                                          -fx-font-family: 'Segoe UI';"/>
+                        </HBox>
+                        <ProgressBar fx:id="barThu" maxWidth="Infinity" progress="0"
+                                     prefHeight="10"
+                                     style="-fx-accent: #16A34A; -fx-background-radius: 999px;
+                                            -fx-pref-height: 10px;"/>
+                    </VBox>
+
+                    <!-- Chi -->
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Tỷ trọng Chi"
+                                   style="-fx-text-fill: #DC2626; -fx-font-weight: bold;
+                                          -fx-font-size: 13px; -fx-font-family: 'Segoe UI';"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblTyLeChi" text="0%"
+                                   style="-fx-font-weight: bold; -fx-font-size: 13px;
+                                          -fx-font-family: 'Segoe UI';"/>
+                        </HBox>
+                        <ProgressBar fx:id="barChi" maxWidth="Infinity" progress="0"
+                                     prefHeight="10"
+                                     style="-fx-accent: #DC2626; -fx-background-radius: 999px;
+                                            -fx-pref-height: 10px;"/>
+                    </VBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+
+        <!-- ── TAB 2: LỊCH SỬ ────────────────────────────────────────────── -->
+        <VBox fx:id="paneLichSu" spacing="0" visible="false" managed="false"
+              style="-fx-padding: 16 20;">
+
+            <!-- Card wrapper with rounded corners -->
+            <VBox VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: -bg-surface;
+                         -fx-background-radius: 12px;
+                         -fx-border-color: -border-default;
+                         -fx-border-radius: 12px;
+                         -fx-border-width: 1;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);">
+
+                <!-- Search toolbar -->
+                <HBox style="-fx-padding: 14 16;
+                             -fx-border-color: transparent transparent -border-default transparent;
+                             -fx-border-width: 0 0 1 0;
+                             -fx-background-radius: 12px 12px 0 0;"
+                      spacing="12" alignment="CENTER_LEFT">
+                    <HBox styleClass="prefix-field-box" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+                        <Label text="&#x1F50D;"
+                               style="-fx-text-fill: -text-secondary; -fx-font-size: 13px; -fx-padding: 0 6 0 2;"/>
+                        <TextField fx:id="tfTimKiem" styleClass="prefix-input"
+                                   promptText="Tìm mã phiếu, mô tả..." HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <ComboBox fx:id="cbBoLoc" prefWidth="180"/>
+                </HBox>
+
+                <!-- Loading -->
+                <StackPane fx:id="paneLoadingLichSu"
+                           visible="false" managed="false" prefHeight="60">
+                    <ProgressIndicator prefWidth="30" prefHeight="30"/>
+                </StackPane>
+
+                <!-- Table -->
+                <TableView fx:id="tableGiaoDich" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: transparent;
+                                  -fx-background-radius: 0;
+                                  -fx-border-width: 0;"/>
+
+                <!-- Footer pagination -->
+                <HBox style="-fx-padding: 10 16;
+                             -fx-border-color: -border-default transparent transparent transparent;
+                             -fx-border-width: 1 0 0 0;
+                             -fx-background-radius: 0 0 12px 12px;"
+                      alignment="CENTER_LEFT" spacing="6">
+                    <Label fx:id="lblFooterGiaoDich"
+                           text="Hiển thị 0 - 0 trong tổng số 0 dữ liệu"
+                           styleClass="text-small"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnTruoc" text="&#x276E;"
+                            styleClass="btn-secondary" onAction="#onTrangTruoc"
+                            disable="true"
+                            style="-fx-pref-width: 32px; -fx-pref-height: 32px; -fx-padding: 4;"/>
+                    <Button fx:id="btnTrangNum" text="1"
+                            styleClass="btn-pill-active"
+                            style="-fx-pref-width: 32px; -fx-pref-height: 32px;"/>
+                    <Button fx:id="btnSau" text="&#x276F;"
+                            styleClass="btn-secondary" onAction="#onTrangSau"
+                            disable="true"
+                            style="-fx-pref-width: 32px; -fx-pref-height: 32px; -fx-padding: 4;"/>
+                </HBox>
+
+            </VBox>
+        </VBox>
+
+        <!-- ── TAB 3: CẤU HÌNH ───────────────────────────────────────────── -->
+        <VBox fx:id="paneCauHinh" spacing="0" visible="false" managed="false"
+              style="-fx-padding: 16 20;">
+
+            <!-- Card wrapper with rounded corners -->
+            <VBox VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: -bg-surface;
+                         -fx-background-radius: 12px;
+                         -fx-border-color: -border-default;
+                         -fx-border-radius: 12px;
+                         -fx-border-width: 1;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);">
+
+                <!-- Loading -->
+                <StackPane fx:id="paneLoadingCauHinh"
+                           visible="false" managed="false" prefHeight="60">
+                    <ProgressIndicator prefWidth="30" prefHeight="30"/>
+                </StackPane>
+
+                <!-- Table -->
+                <TableView fx:id="tableLoai" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: transparent;
+                                  -fx-background-radius: 0;
+                                  -fx-border-width: 0;"/>
+
+                <!-- Footer pagination -->
+                <HBox style="-fx-padding: 10 16;
+                             -fx-border-color: -border-default transparent transparent transparent;
+                             -fx-border-width: 1 0 0 0;
+                             -fx-background-radius: 0 0 12px 12px;"
+                      alignment="CENTER_LEFT" spacing="6">
+                    <Label fx:id="lblFooterLoai"
+                           text="Hiển thị 0 - 0 trong tổng số 0 dữ liệu"
+                           styleClass="text-small"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnTruocLoai" text="&#x276E;"
+                            styleClass="btn-secondary" onAction="#onTrangLoaiTruoc"
+                            disable="true"
+                            style="-fx-pref-width: 32px; -fx-pref-height: 32px; -fx-padding: 4;"/>
+                    <Button fx:id="btnTrangLoaiNum" text="1"
+                            styleClass="btn-pill-active"
+                            style="-fx-pref-width: 32px; -fx-pref-height: 32px;"/>
+                    <Button fx:id="btnSauLoai" text="&#x276F;"
+                            styleClass="btn-secondary" onAction="#onTrangLoaiSau"
+                            disable="true"
+                            style="-fx-pref-width: 32px; -fx-pref-height: 32px; -fx-padding: 4;"/>
+                </HBox>
+
+            </VBox>
+        </VBox>
+
+    </StackPane>
+</VBox>

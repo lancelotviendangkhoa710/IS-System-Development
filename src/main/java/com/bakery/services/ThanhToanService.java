@@ -15,16 +15,23 @@ import java.sql.SQLException;
 public class ThanhToanService {
 
     private final HoaDonDAO hoaDonDAO;
-    private final DonHangService donHangService;
+    private final QuanLyDonHangService quanLyDonHangService;
 
     public ThanhToanService() {
         this.hoaDonDAO = new HoaDonDAO();
-        this.donHangService = new DonHangService();
+        this.quanLyDonHangService = new QuanLyDonHangService();
     }
 
-    public ThanhToanService(HoaDonDAO hoaDonDAO, DonHangService donHangService) {
+    public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService) {
         this.hoaDonDAO = hoaDonDAO;
-        this.donHangService = donHangService;
+        this.quanLyDonHangService = quanLyDonHangService;
+    }
+
+    public double tinhTienHoaDon(YeuCauTaoDonHangDTO request) {
+        if (request == null || request.getItems() == null) return 0.0;
+        return request.getItems().stream()
+                .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
+                .sum();
     }
 
     /**
@@ -33,9 +40,7 @@ public class ThanhToanService {
      */
     public HoaDonDTO thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
         // 1. Tính tổng tiền từ giỏ hàng
-        double tongTien = request.getItems().stream()
-                .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
-                .sum();
+        double tongTien = tinhTienHoaDon(request);
 
         // 2. Validate số tiền khách đưa
         if (soTienKhachDua < tongTien)
@@ -47,16 +52,10 @@ public class ThanhToanService {
         request.setTienDaCoc(tongTien);
 
         // 4. Tạo đơn hàng
-        int maDon = donHangService.taoDonHang(request);
+        int maDon = quanLyDonHangService.taoDonHang(request);
 
         // 5. Tạo hóa đơn bán lẻ
-        HoaDonDTO hd = new HoaDonDTO();
-        hd.setMaDon(maDon);
-        hd.setMaCa(1);
-        hd.setThueVAT(0.0);
-        hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(tongTien));
-        hd.setMaPTTT(1);
-        hd.setLoaiHD("BAN_LE");
+        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTien, "BAN_LE");
 
         int maHD = hoaDonDAO.themHoaDonMoi(hd);
         if (maHD <= 0)
@@ -88,13 +87,8 @@ public class ThanhToanService {
         double tienCoc = donHang.getTienDaCoc() != null ? donHang.getTienDaCoc().doubleValue() : 0.0;
         double tongTienConLai = Math.max(0, tongTien - tienCoc);
 
-        HoaDonDTO hd = new HoaDonDTO();
+        HoaDonDTO hd = taoHoaDonDTO(donHang.getMaDon(), tongTienConLai, "DAT_HANG");
         hd.setMaDon(donHang.getMaDon());
-        hd.setMaCa(1);
-        hd.setMaPTTT(1);
-        hd.setThueVAT(0.0);
-        hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(tongTienConLai));
-        hd.setLoaiHD("DAT_HANG");
 
         try {
             int maHD = hoaDonDAO.themHoaDonMoi(hd);
@@ -112,19 +106,26 @@ public class ThanhToanService {
     // PRIVATE – HỖ TRỢ NỘI BỘ
     // =========================================================
 
+    /**
+     * Tạo một đối tượng HoaDonDTO cơ bản.
+     * Dùng cho việc chuẩn bị dữ liệu trước khi lưu hoặc hiển thị.
+     */
+    public HoaDonDTO taoHoaDonDTO(int maDon, double soTien, String loaiHD) {
+        HoaDonDTO hd = new HoaDonDTO();
+        hd.setMaDon(maDon);
+        hd.setMaCa(1); // Mặc định hoặc lấy từ Session
+        hd.setThueVAT(0.0);
+        hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(soTien));
+        hd.setMaPTTT(1); // Mặc định Tiền mặt
+        hd.setLoaiHD(loaiHD);
+        return hd;
+    }
+
     private int layMaTrangThaiHoanThanh() throws Exception {
-        return donHangService.layDanhSachTrangThaiDon().stream()
-                .filter(tt -> "HOAN_THANH".equals(chuanHoaTrangThai(tt.getTenTrangThai())))
+        return quanLyDonHangService.layDanhSachTrangThaiDon().stream()
+                .filter(tt -> "HOAN_THANH".equals(com.bakery.utils.StringUtil.chuanHoa(tt.getTenTrangThai())))
                 .mapToInt(tt -> tt.getMaTrangThai())
                 .findFirst()
                 .orElseThrow(() -> new Exception("Không tìm thấy trạng thái HOÀN_THÀNH."));
-    }
-
-    private String chuanHoaTrangThai(String raw) {
-        if (raw == null) return "";
-        return java.text.Normalizer.normalize(raw.trim(), java.text.Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .replace("đ", "d").replace("Đ", "D")
-                .toUpperCase().replace(' ', '_');
     }
 }

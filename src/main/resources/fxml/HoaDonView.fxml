@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="400.0" spacing="0" style="-fx-background-color: #F3F4F6;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.HoaDonViewFXMLController">
+    <children>
+        <!-- Receipt Content Area (Scrollable) -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox fx:id="receiptContainer" alignment="TOP_CENTER" spacing="10" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <!-- Header -->
+                        <Label fx:id="lblBakeryName" text="H3K BAKERY" textFill="#78350F">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                        <Label text="Thưởng thức hương vị ngọt ngào" textFill="#D97706">
+                            <font>
+                                <Font name="System Italic" size="12.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="lblTieuDe" text="HÓA ĐƠN THANH TOÁN" textFill="#1F2937">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets top="15.0" />
+                            </VBox.margin>
+                        </Label>
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="5.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Info Grid -->
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Mã đơn:" textFill="#6B7280" />
+                                        <Label fx:id="lblMaDon" text="-" textFill="#1F2937" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Mã HĐ:" textFill="#6B7280" />
+                                        <Label fx:id="lblMaHoaDon" text="-" textFill="#1F2937" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Ngày lập:" textFill="#6B7280" />
+                                        <Label fx:id="lblNgayLap" text="-" textFill="#1F2937" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Khách hàng:" textFill="#6B7280" />
+                                        <Label fx:id="lblTenKhach" text="-" textFill="#1F2937" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Items Table Header -->
+                        <HBox style="-fx-font-weight: bold;">
+                            <children>
+                                <Label prefWidth="180.0" text="Sản phẩm" />
+                                <Label alignment="CENTER" prefWidth="40.0" text="SL" />
+                                <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Thành tiền" />
+                            </children>
+                        </HBox>
+                        
+                        <!-- Items Container -->
+                        <VBox fx:id="vboxItems" spacing="8.0" />
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Summary -->
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Tổng cộng:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblTongTien" text="0 đ" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label fx:id="lblGiamGiaLabel" maxWidth="Infinity" text="Giảm giá:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblGiamGia" text="0 đ" textFill="#DC2626" />
+                                    </children>
+                                </HBox>
+                                <HBox style="-fx-font-weight: bold; -fx-font-size: 16px;">
+                                    <children>
+                                        <Label fx:id="lblPayLabel" maxWidth="Infinity" text="THANH TOÁN:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblDaThu" text="0 đ" textFill="#059669" />
+                                    </children>
+                                    <padding>
+                                        <Insets top="5.0" />
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="5.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Payment details -->
+                        <VBox spacing="5.0" style="-fx-font-style: italic;">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Tiền khách đưa:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblTienKhachDua" text="-" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Tiền thừa:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblTienThua" text="-" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Label text="CẢM ƠN QUÝ KHÁCH &amp; HẸN GẶP LẠI!" textFill="#6B7280">
+                            <VBox.margin>
+                                <Insets top="20.0" />
+                            </VBox.margin>
+                            <font>
+                                <Font size="10.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+        
+        <!-- Actions -->
+        <HBox alignment="CENTER" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-width: 1 0 0 0;">
+            <padding>
+                <Insets bottom="15.0" top="15.0" />
+            </padding>
+            <children>
+                <Button fx:id="btnPrint" mnemonicParsing="false" onAction="#handlePrint" prefWidth="120.0" style="-fx-background-color: #78350F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" text="In hóa đơn" />
+                <Button fx:id="btnClose" mnemonicParsing="false" onAction="#handleClose" prefWidth="120.0" style="-fx-background-color: #F3F4F6; -fx-text-fill: #4B5563; -fx-font-weight: bold; -fx-background-radius: 8;" text="Đóng" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

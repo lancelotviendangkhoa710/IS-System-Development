@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="768.0" prefWidth="1366.0" styleClass="bg-app"
+            stylesheets="@../css/bakery.css"
+            xmlns="http://javafx.com/javafx/24"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.ThuNganViewFXMLController">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox prefWidth="256.0" styleClass="sidebar" spacing="12.0">
+            <padding>
+                <Insets top="24.0" right="16.0" bottom="24.0" left="16.0"/>
+            </padding>
+            <Label text="LA BOULANGERIE" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #92400E;"/>
+            <Separator/>
+            
+            <VBox spacing="4.0">
+                <Label text="Thu ngân" style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+                <Label fx:id="lblCashierName" text="Nguyễn Văn A" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <Label fx:id="lblShiftStatus" text="Ca làm việc: Đang mở (CA012)" style="-fx-text-fill: #059669; -fx-font-size: 12px;"/>
+            </VBox>
+            <Separator/>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="8.0" VBox.vgrow="ALWAYS">
+                <Button fx:id="btnMenuOverview" maxWidth="Infinity" mnemonicParsing="false" styleClass="menu-btn, active" text="Tổng quan" onAction="#handleNavOverview"/>
+                <Button fx:id="btnMenuPOS" maxWidth="Infinity" mnemonicParsing="false" styleClass="menu-btn" text="Bán hàng POS" onAction="#handleNavPOS"/>
+                <Button fx:id="btnMenuCustomOrders" maxWidth="Infinity" mnemonicParsing="false" styleClass="menu-btn" text="Đơn đặt bánh" onAction="#handleNavCustomOrders"/>
+                <Button fx:id="btnMenuCustomers" maxWidth="Infinity" mnemonicParsing="false" styleClass="menu-btn" text="Khách hàng" onAction="#handleNavCustomers"/>
+                <Button fx:id="btnMenuHistory" maxWidth="Infinity" mnemonicParsing="false" styleClass="menu-btn" text="Lịch sử hóa đơn" onAction="#handleNavHistory"/>
+            </VBox>
+
+            <!-- Bottom Actions -->
+            <VBox spacing="8.0">
+                <Button maxWidth="Infinity" mnemonicParsing="false" styleClass="btn-secondary" text="Đối soát Cuối Ca" onAction="#handleShiftReconciliation"/>
+                <Button maxWidth="Infinity" mnemonicParsing="false" styleClass="btn-secondary" text="Đổi mật khẩu" onAction="#handleChangePassword"/>
+                <Button maxWidth="Infinity" mnemonicParsing="false" styleClass="btn-danger" text="Đăng xuất" onAction="#handleLogout"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="64.0" styleClass="header">
+            <padding>
+                <Insets right="24.0" left="24.0"/>
+            </padding>
+            <Label fx:id="lblHeaderTitle" styleClass="header-title" text="Tổng quan Giao dịch"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblClock" text="25/04/2026 08:30:00" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4B5563;"/>
+        </HBox>
+    </top>
+
+    <!-- MAIN CONTENT AREA -->
+    <center>
+        <StackPane fx:id="contentArea">
+            <padding>
+                <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+            </padding>
+
+            <!-- 1. OVERVIEW PANE -->
+            <VBox fx:id="paneOverview" spacing="24.0">
+                <Label text="Thống kê Ca Hành Chính hiện tại" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                
+                <GridPane hgap="24.0" vgap="24.0">
+                    <columnConstraints>
+                        <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" percentWidth="33.3"/>
+                        <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" percentWidth="33.3"/>
+                        <javafx.scene.layout.ColumnConstraints hgrow="SOMETIMES" percentWidth="33.3"/>
+                    </columnConstraints>
+                    
+                    <VBox styleClass="stat-card" GridPane.columnIndex="0">
+                        <Label styleClass="stat-card-title" text="Tổng tiền thu ca"/>
+                        <Label fx:id="lblTotalRevenue" styleClass="stat-card-value" text="0 đ"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" GridPane.columnIndex="1">
+                        <Label styleClass="stat-card-title" text="Số HD bán lẻ"/>
+                        <Label fx:id="lblTotalInvoices" styleClass="stat-card-value" text="0"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" GridPane.columnIndex="2">
+                        <Label styleClass="stat-card-title" text="Số đơn Customized"/>
+                        <Label fx:id="lblTotalCustomOrders" styleClass="stat-card-value" text="0"/>
+                    </VBox>
+                </GridPane>
+
+                <HBox spacing="16.0" alignment="CENTER_LEFT">
+                    <Button mnemonicParsing="false" styleClass="btn-primary" style="-fx-padding: 12px 24px; -fx-font-size: 16px;" text="🛒 Mở quầy POS" onAction="#handleNavPOS"/>
+                    <Button mnemonicParsing="false" styleClass="btn-secondary" style="-fx-padding: 12px 24px; -fx-font-size: 16px;" text="🎂 Tạo đơn đặc biệt" onAction="#handleNavCustomOrders"/>
+                </HBox>
+            </VBox> <!-- End Overview Pane -->
+
+            <!-- Placeholder for other panes -> Add more panes as needed based on use cases (Not entirely filled yet, MVP state) -->
+            <VBox fx:id="panePlaceholder" spacing="24.0" visible="false">
+                <Label fx:id="lblPlaceholderMessage" text="Module đang tải..." style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            </VBox>
+
+        </StackPane>
+    </center>
+</BorderPane>

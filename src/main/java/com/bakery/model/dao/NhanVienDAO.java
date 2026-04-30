@@ -88,7 +88,7 @@ public class NhanVienDAO {
     }
 
     public int themNhanVien(NhanVienDTO nv) throws Exception {
-        String sql = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
 
@@ -102,10 +102,11 @@ public class NhanVienDAO {
             cstmt.setString(4, nv.getSdt());
             cstmt.setString(5, nv.getTenDangNhap());
             cstmt.setString(6, nv.getMatKhau());
-            cstmt.registerOutParameter(7, Types.NUMERIC);
+            cstmt.setInt(7, nv.getTrangThaiLamViec());
+            cstmt.registerOutParameter(8, Types.NUMERIC);
 
             cstmt.execute();
-            return cstmt.getInt(7);
+            return cstmt.getInt(8);
         } catch (SQLException e) {
             System.err.println("Loi DAO - themNhanVien: " + e.getMessage());
             throw new Exception("Loi khi them nhan vien: " + e.getMessage());

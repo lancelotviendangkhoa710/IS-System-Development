@@ -8,14 +8,11 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
-/**
- * Lớp khởi chạy chính của ứng dụng H3K Bakery.
- */
 public class App extends Application {
-    public static final String LOGIN_VIEW = "/fxml/login.fxml";
+    public static final String LOGIN_VIEW = "/fxml/DangNhapView.fxml";
     public static final String MAIN_MENU_VIEW = "/fxml/MainMenuView.fxml";
-    public static final String DASHBOARD_VIEW = "/fxml/Dashboard.fxml";
-    public static final String CASHIER_DASHBOARD_VIEW = "/fxml/CashierDashboard.fxml";
+    public static final String DASHBOARD_VIEW = "/fxml/BangDieuKhienView.fxml";
+    public static final String THU_NGAN_DASHBOARD_VIEW = "/fxml/ThuNganDashboardView.fxml";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -38,6 +35,7 @@ public class App extends Application {
 
     /**
      * Helper để load FXML view từ đường dẫn tương đối.
+     * 
      * @param viewPath Đường dẫn file FXML
      * @return Parent node của view
      * @throws Exception nếu không tìm thấy file hoặc lỗi load

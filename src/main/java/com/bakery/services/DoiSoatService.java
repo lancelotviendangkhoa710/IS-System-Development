@@ -40,29 +40,6 @@ public class DoiSoatService {
     }
 
     /**
-     * Mở ca làm việc mới tại máy POS chỉ định.
-     *
-     * @return maCa vừa được tạo
-     * @throws RuntimeException nếu máy đang có ca mở, hoặc dữ liệu không hợp lệ
-     */
-    public int moCa(String maMayPOS, BigDecimal tienKhaiBao, int maNV) {
-        if (maMayPOS == null || maMayPOS.isBlank()) {
-            throw new RuntimeException("Mã máy POS không được để trống.");
-        }
-        if (tienKhaiBao == null || tienKhaiBao.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Tiền khai báo đầu ca phải lớn hơn hoặc bằng 0.");
-        }
-
-        if (caLamViecDAO.kiemTraCaDangMo(maMayPOS)) {
-            throw new RuntimeException("Máy " + maMayPOS + " đang có ca làm việc chưa đóng.");
-        }
-
-        int maCa = caLamViecDAO.moCa(maMayPOS, tienKhaiBao, maNV);
-        SessionContext.getInstance().moCa(maCa);
-        return maCa;
-    }
-
-    /**
      * Tính tiền mặt lý tưởng từ DB và lưu nội bộ — cơ chế đối soát mù.
      * Thu ngân PHẢI tự đếm tiền và nhập vào trước khi hệ thống tiết lộ con số này.
      * Gọi hàm này trước khi gọi tinhChenhLech().
@@ -75,7 +52,8 @@ public class DoiSoatService {
      * Tính chênh lệch giữa tiền thu ngân đếm thực tế và tiền hệ thống tính.
      * Phải gọi tinhTienMatLyTuong() trước — nếu chưa gọi sẽ ném RuntimeException.
      *
-     * @return chênh lệch = tienThucTeDem − tienMatLyTuong (âm = thiếu, dương = thừa)
+     * @return chênh lệch = tienThucTeDem − tienMatLyTuong (âm = thiếu, dương =
+     *         thừa)
      */
     public BigDecimal tinhChenhLech(BigDecimal tienThucTeDem) {
         if (this.tienMatLyTuong == null) {

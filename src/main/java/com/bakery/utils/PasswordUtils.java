@@ -15,11 +15,13 @@ public final class PasswordUtils {
             return false;
         }
 
-        if (isBcryptHash(storedPassword)) {
-            return BCrypt.checkpw(plainPassword, storedPassword);
+        String dbPassword = storedPassword.trim();
+
+        if (isBcryptHash(dbPassword)) {
+            return BCrypt.checkpw(plainPassword, dbPassword);
         }
 
-        return plainPassword.equals(storedPassword);
+        return plainPassword.equals(dbPassword);
     }
 
     public static boolean isBcryptHash(String value) {

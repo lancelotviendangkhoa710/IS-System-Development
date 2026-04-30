@@ -1,6 +1,6 @@
 package com.bakery.services;
 
-import com.bakery.model.dao.DonDatHangDAO;
+import com.bakery.model.dao.DonHangDAO;
 import com.bakery.model.dto.DonDatHangDTO;
 
 import java.sql.SQLException;
@@ -15,14 +15,14 @@ import java.util.List;
  */
 public class TheoDoiDonService {
 
-    private final DonDatHangDAO donDatHangDAO;
+    private final DonHangDAO donHangDAO;
 
     public TheoDoiDonService() {
-        this.donDatHangDAO = new DonDatHangDAO();
+        this.donHangDAO = new DonHangDAO();
     }
 
-    public TheoDoiDonService(DonDatHangDAO donDatHangDAO) {
-        this.donDatHangDAO = donDatHangDAO;
+    public TheoDoiDonService(DonHangDAO donHangDAO) {
+        this.donHangDAO = donHangDAO;
     }
 
     /**
@@ -32,7 +32,7 @@ public class TheoDoiDonService {
     public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan,
             LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         try {
-            return donDatHangDAO.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
+            return donHangDAO.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
         } catch (SQLException e) {
             throw new Exception("Không thể tải danh sách theo dõi đơn: " + e.getMessage(), e);
         }
