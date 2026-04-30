@@ -1,4 +1,6 @@
-package com.bakery.model.dao;
+import re
+
+head_dao = """package com.bakery.model.dao;
 
 import com.bakery.model.dto.KhachHangDTO;
 
@@ -96,6 +98,9 @@ public class KhachHangDAO extends BaseDAO {
         return false;
     }
 
+"""
+
+devhuy_methods = """
     private static final String CUSTOMER_SELECT_SQL = "SELECT KH.*, HTV.TENHANG AS TENHANG, NV.HOTEN AS TENNX FROM KHACHHANG KH LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG LEFT JOIN NHANVIEN NV ON KH.MANX = NV.MANV";
 
     public KhachHangDTO findActiveCustomerByPhone(String phone) throws Exception {
@@ -294,7 +299,7 @@ public class KhachHangDAO extends BaseDAO {
     public void syncAllCustomerTiers() throws Exception {
         String sql = "UPDATE KHACHHANG KH SET MAHANG = (SELECT MAHANG FROM HANGTHANHVIEN HTV WHERE HTV.DIEMTOITHIEU <= KH.DIEMTICHLUY AND HTV.THOIDIEMXOA IS NULL ORDER BY HTV.DIEMTOITHIEU DESC FETCH FIRST 1 ROW ONLY)";
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt =prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             handleException("syncAllCustomerTiers", e);
@@ -367,3 +372,8 @@ public class KhachHangDAO extends BaseDAO {
         return customer;
     }
 }
+"""
+
+with open("d:/Clone/src/main/java/com/bakery/model/dao/KhachHangDAO.java", "w", encoding="utf-8") as f:
+    f.write(head_dao + devhuy_methods)
+

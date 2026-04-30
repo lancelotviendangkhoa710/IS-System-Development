@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefWidth="480.0" spacing="20.0" style="-fx-background-color: white; -fx-padding: 24; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 6);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.CustomerAddController">
+
+    <!-- Header -->
+    <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1c1917;" text="Thêm khách hàng mới" />
+
+    <!-- Họ tên -->
+    <VBox spacing="6.0">
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Họ tên *" />
+        <TextField fx:id="txtHoTen" promptText="Nhập họ và tên" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;" />
+    </VBox>
+
+    <!-- Số điện thoại -->
+    <VBox spacing="6.0">
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Số điện thoại *" />
+        <TextField fx:id="txtSDT" promptText="Nhập số điện thoại (10 chữ số)" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;" />
+    </VBox>
+
+    <!-- Địa chỉ -->
+    <VBox spacing="6.0">
+        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #50453b; -fx-text-transform: uppercase;" text="Địa chỉ" />
+        <TextArea fx:id="txtDiaChi" prefRowCount="3" promptText="Nhập địa chỉ" style="-fx-background-color: white; -fx-border-color: #d4c4b7; -fx-border-radius: 8; -fx-padding: 8; -fx-font-size: 14px;" wrapText="true" />
+    </VBox>
+
+    <!-- Nút hành động -->
+    <HBox alignment="CENTER_RIGHT" spacing="12.0">
+        <Button onAction="#onCancelClicked" styleClass="secondary-button" text="Hủy" />
+        <Button onAction="#onSaveClicked" styleClass="primary-button" text="Lưu thông tin" />
+    </HBox>
+</VBox>
