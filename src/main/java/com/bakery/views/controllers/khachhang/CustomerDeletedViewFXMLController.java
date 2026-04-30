@@ -1,4 +1,4 @@
-package com.bakery.views.controllers.khachhang.customer;
+﻿package com.bakery.views.controllers.khachhang;
 
 import com.bakery.model.dto.KhachHangDTO;
 import com.bakery.presenters.CustomerDeletedPresenter;
