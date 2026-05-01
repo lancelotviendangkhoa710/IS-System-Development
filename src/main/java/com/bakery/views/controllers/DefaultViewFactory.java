@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers;
+package com.bakery.views.controllers;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.views.interfaces.ViewFactory;
@@ -64,7 +64,7 @@ public class DefaultViewFactory implements ViewFactory {
 
     private Scene createSceneWithGlobalCss(Parent root) {
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/App.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/bakery.css")).toExternalForm());
         return scene;
     }
 

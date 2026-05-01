@@ -1,4 +1,4 @@
-﻿package com.bakery.services.baocao;
+package com.bakery.services.baocao;
 
 import com.bakery.model.dao.baocao.ThongKeDAO;
 import java.util.List;

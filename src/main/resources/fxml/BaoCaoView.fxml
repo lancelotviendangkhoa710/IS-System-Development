@@ -8,194 +8,162 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.BaoCaoViewFXMLController"
+            fx:controller="com.bakery.views.controllers.baocao.BaoCaoViewFXMLController"
             styleClass="bg-app">
+
+    <!-- TOP HEADER (Global for both tabs) -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20 40 10 40;">
+            <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onVeMenu" 
+                    style="-fx-font-weight: bold; -fx-padding: 8 16;"/>
+            <VBox spacing="4">
+                <Label text="Báo cáo &amp; Sổ quỹ" styleClass="lbl-title-screen"/>
+                <Label text="Thống kê hiệu suất kinh doanh và quản lý dòng tiền" styleClass="lbl-body"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <!-- Profile Section -->
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <VBox alignment="CENTER_RIGHT">
+                    <Label fx:id="lblAdminName" text="Admin" styleClass="lbl-small-bold"/>
+                    <Label text="Quản trị viên" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                </VBox>
+                <Label text="👤" style="-fx-font-size: 20px; -fx-padding: 4; -fx-background-color: #F3F4F6; -fx-background-radius: 20;"/>
+            </HBox>
+        </HBox>
+    </top>
 
     <!-- MAIN CONTENT -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
-            <VBox spacing="24" style="-fx-padding: 32 40 40 40;">
-                
-                <!-- HEADER SECTION -->
-                <HBox alignment="CENTER_LEFT" spacing="20">
-                    <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onVeMenu" 
-                            style="-fx-font-weight: bold; -fx-padding: 8 16;"/>
-                    <VBox spacing="4">
-                        <Label text="Thống Kê Kinh Doanh" styleClass="lbl-title-screen"/>
-                        <Label text="Hiệu suất, doanh thu và tỷ trọng lợi nhuận" styleClass="lbl-body"/>
-                    </VBox>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    
-                    <!-- Filter Row -->
-                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #F9FAFB; -fx-padding: 6 12; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-radius: 10;">
-                        <ComboBox fx:id="cbLoaiBaoCao" prefWidth="90" promptText="Ngày"/>
-                        <DatePicker fx:id="dpNgayBaoCao" prefWidth="130"/>
-                        <Button text="⬇ Tải báo cáo" onAction="#onTaiBaoCaoNhanh" styleClass="btn-secondary" 
-                                style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    </HBox>
+        <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="modern-tab-pane">
+            <tabs>
+                <Tab text="📈 Thống kê kinh doanh">
+                    <content>
+                        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                            <VBox spacing="24" style="-fx-padding: 20 40 40 40;">
+                                <!-- Filter Row (Moving it inside tab) -->
+                                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #F9FAFB; -fx-padding: 6 12; -fx-background-radius: 10; -fx-border-color: #E5E7EB; -fx-border-radius: 10;">
+                                    <ComboBox fx:id="cbLoaiBaoCao" prefWidth="90" promptText="Ngày"/>
+                                    <DatePicker fx:id="dpNgayBaoCao" prefWidth="130"/>
+                                    <Button text="⬇ Tải báo cáo" onAction="#onTaiBaoCaoNhanh" styleClass="btn-secondary" 
+                                            style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                                </HBox>
 
-                    <!-- Profile Section -->
-                    <HBox alignment="CENTER_RIGHT" spacing="10">
-                        <VBox alignment="CENTER_RIGHT">
-                            <Label fx:id="lblAdminName" text="Admin" styleClass="lbl-small-bold"/>
-                            <Label text="Quản trị viên" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
-                        </VBox>
-                        <Label text="👤" style="-fx-font-size: 20px; -fx-padding: 4; -fx-background-color: #F3F4F6; -fx-background-radius: 20;"/>
-                    </HBox>
-                </HBox>
+                                <!-- KPI CARDS -->
+                                <GridPane hgap="20" vgap="20">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="25"/>
+                                        <ColumnConstraints percentWidth="25"/>
+                                        <ColumnConstraints percentWidth="25"/>
+                                        <ColumnConstraints percentWidth="25"/>
+                                    </columnConstraints>
+                                    <!-- Revenue -->
+                                    <VBox GridPane.columnIndex="0" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
+                                        <HBox alignment="CENTER_LEFT">
+                                            <Label text="💰" style="-fx-font-size: 24px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="+12.5% ↗" style="-fx-text-fill: #059669; -fx-background-color: #D1FAE5; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                        </HBox>
+                                        <Label text="DOANH THU HÔM NAY" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="lblDoanhThu" text="0đ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                                        <Label fx:id="lblChenhLechDoanhThu" text="Chưa có dữ liệu hôm qua" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+                                    </VBox>
+                                    <!-- Profit -->
+                                    <VBox GridPane.columnIndex="1" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
+                                        <HBox alignment="CENTER_LEFT">
+                                            <Label text="🏦" style="-fx-font-size: 24px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="+4.2% ↗" style="-fx-text-fill: #059669; -fx-background-color: #D1FAE5; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                        </HBox>
+                                        <Label text="LỢI NHUẬN RÒNG" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="lblLoiNhuan" text="0đ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                                        <Label text="Ước tính lợi nhuận gộp (30%)" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+                                    </VBox>
+                                    <!-- Orders -->
+                                    <VBox GridPane.columnIndex="2" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
+                                        <HBox alignment="CENTER_LEFT">
+                                            <Label text="🛍️" style="-fx-font-size: 24px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="Ổn định" style="-fx-text-fill: #4B5563; -fx-background-color: #F3F4F6; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                        </HBox>
+                                        <Label text="TỔNG SỐ ĐƠN" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="lblTongDon" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                                        <Label text="Đơn đã hoàn thành" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+                                    </VBox>
+                                    <!-- Loyalty -->
+                                    <VBox GridPane.columnIndex="3" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
+                                        <HBox alignment="CENTER_LEFT">
+                                            <Label text="⭐" style="-fx-font-size: 24px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="-2.1% ↘" style="-fx-text-fill: #DC2626; -fx-background-color: #FEE2E2; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+                                        </HBox>
+                                        <Label text="TỶ LỆ QUAY LẠI" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label text="68%" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                                        <Label text="Khách hàng thành viên" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+                                    </VBox>
+                                </GridPane>
 
-                <!-- KPI CARDS -->
-                <GridPane hgap="20" vgap="20">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="25"/>
-                        <ColumnConstraints percentWidth="25"/>
-                        <ColumnConstraints percentWidth="25"/>
-                        <ColumnConstraints percentWidth="25"/>
-                    </columnConstraints>
+                                <!-- CHARTS ROW -->
+                                <HBox spacing="20">
+                                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS" style="-fx-padding: 24;">
+                                        <Label text="Biểu đồ Doanh Thu" styleClass="lbl-medium-bold"/>
+                                        <Label text="Diễn biến doanh thu trong tuần" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
+                                        <LineChart fx:id="revenueChart" prefHeight="300" legendVisible="true" createSymbols="true">
+                                            <xAxis><CategoryAxis side="BOTTOM" label="Thời gian"/></xAxis>
+                                            <yAxis><NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/></yAxis>
+                                        </LineChart>
+                                    </VBox>
+                                </HBox>
 
-                    <!-- Revenue -->
-                    <VBox GridPane.columnIndex="0" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="💰" style="-fx-font-size: 24px;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="+12.5% ↗" style="-fx-text-fill: #059669; -fx-background-color: #D1FAE5; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
-                        </HBox>
-                        <Label text="DOANH THU HÔM NAY" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-                        <Label fx:id="lblDoanhThu" text="0đ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
-                        <Label fx:id="lblChenhLechDoanhThu" text="Chưa có dữ liệu hôm qua" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
-                    </VBox>
+                                <!-- NEW CHARTS ROW -->
+                                <HBox spacing="20">
+                                    <VBox styleClass="dash-card" prefWidth="400" style="-fx-padding: 24;">
+                                        <Label text="Cơ cấu doanh thu" styleClass="lbl-medium-bold"/>
+                                        <Label text="Theo danh mục sản phẩm" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
+                                        <PieChart fx:id="revenuePieChart" prefHeight="250" legendSide="BOTTOM" animated="false"/>
+                                    </VBox>
+                                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS" style="-fx-padding: 24;">
+                                        <Label text="So sánh doanh thu" styleClass="lbl-medium-bold"/>
+                                        <Label text="Giữa các danh mục" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
+                                        <BarChart fx:id="revenueBarChart" prefHeight="250" legendVisible="false" animated="false">
+                                            <xAxis><CategoryAxis side="BOTTOM" label="Danh mục"/></xAxis>
+                                            <yAxis><NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/></yAxis>
+                                        </BarChart>
+                                    </VBox>
+                                </HBox>
 
-                    <!-- Profit -->
-                    <VBox GridPane.columnIndex="1" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="🏦" style="-fx-font-size: 24px;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="+4.2% ↗" style="-fx-text-fill: #059669; -fx-background-color: #D1FAE5; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
-                        </HBox>
-                        <Label text="LỢI NHUẬN RÒNG" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-                        <Label fx:id="lblLoiNhuan" text="0đ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
-                        <Label text="Ước tính lợi nhuận gộp (30%)" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
-                    </VBox>
-
-                    <!-- Orders -->
-                    <VBox GridPane.columnIndex="2" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="🛍️" style="-fx-font-size: 24px;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="Ổn định" style="-fx-text-fill: #4B5563; -fx-background-color: #F3F4F6; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
-                        </HBox>
-                        <Label text="TỔNG SỐ ĐƠN" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-                        <Label fx:id="lblTongDon" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
-                        <Label text="Đơn đã hoàn thành" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
-                    </VBox>
-
-                    <!-- Loyalty -->
-                    <VBox GridPane.columnIndex="3" styleClass="dash-card" spacing="8" style="-fx-padding: 20;">
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="⭐" style="-fx-font-size: 24px;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="-2.1% ↘" style="-fx-text-fill: #DC2626; -fx-background-color: #FEE2E2; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
-                        </HBox>
-                        <Label text="TỶ LỆ QUAY LẠI" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-                        <Label text="68%" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
-                        <Label text="Khách hàng thành viên" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
-                    </VBox>
-                </GridPane>
-
-                <!-- CHARTS ROW -->
-                <HBox spacing="20">
-                    <!-- Line Chart -->
-                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS" style="-fx-padding: 24;">
-                        <Label text="Biểu đồ Doanh Thu" styleClass="lbl-medium-bold"/>
-                        <Label text="Diễn biến doanh thu trong tuần" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
-                        <LineChart fx:id="revenueChart" prefHeight="300" legendVisible="true" createSymbols="true">
-                            <xAxis>
-                                <CategoryAxis side="BOTTOM" label="Thời gian"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/>
-                            </yAxis>
-                        </LineChart>
-                    </VBox>
-                </HBox>
-
-                <!-- NEW CHARTS ROW -->
-                <HBox spacing="20">
-                    <!-- Pie Chart -->
-                    <VBox styleClass="dash-card" prefWidth="400" style="-fx-padding: 24;">
-                        <Label text="Cơ cấu doanh thu" styleClass="lbl-medium-bold"/>
-                        <Label text="Theo danh mục sản phẩm" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
-                        <PieChart fx:id="revenuePieChart" prefHeight="250" legendSide="BOTTOM" animated="false"/>
-                    </VBox>
-
-                    <!-- Bar Chart -->
-                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS" style="-fx-padding: 24;">
-                        <Label text="So sánh doanh thu" styleClass="lbl-medium-bold"/>
-                        <Label text="Giữa các danh mục" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-padding: 0 0 10 0;"/>
-                        <BarChart fx:id="revenueBarChart" prefHeight="250" legendVisible="false" animated="false">
-                            <xAxis>
-                                <CategoryAxis side="BOTTOM" label="Danh mục"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/>
-                            </yAxis>
-                        </BarChart>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="20">
-                    <!-- Best Sellers -->
-                    <VBox fx:id="vboxBestSellers" styleClass="dash-card" prefWidth="350" spacing="16" style="-fx-padding: 24;">
-                        <Label text="Bánh bán chạy nhất" styleClass="lbl-medium-bold"/>
-                        <!-- Items injected dynamically -->
-                        <Region VBox.vgrow="ALWAYS"/>
-                        <Button text="Xem chi tiết kho" style="-fx-background-color: transparent; -fx-text-fill: #1960a6; -fx-font-weight: bold;" maxWidth="Infinity"/>
-                    </VBox>
-                </HBox>
-
-                <!-- LOWER SECTION -->
-                <HBox spacing="20">
-                    <!-- Recent Orders Table -->
-                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 24; -fx-border-color: #E5E7EB; -fx-border-width: 0 0 1 0;">
-                            <Label text="Giao dịch mới nhất" styleClass="lbl-medium-bold"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="Cập nhật Live" style="-fx-text-fill: #059669; -fx-background-color: #D1FAE5; -fx-padding: 4 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 10px; -fx-border-color: #A7F3D0; -fx-border-radius: 12;"/>
-                        </HBox>
-                        <TableView fx:id="tableGiaoDich" prefHeight="250" style="-fx-background-color: transparent;">
-                            <columns>
-                                <TableColumn text="Mã Đơn" prefWidth="100"/>
-                                <TableColumn text="Khách hàng" prefWidth="150"/>
-                                <TableColumn text="Món" prefWidth="250"/>
-                                <TableColumn text="Tổng tiền" prefWidth="120"/>
-                                <TableColumn text="Trạng thái" prefWidth="120"/>
-                            </columns>
-                        </TableView>
-                    </VBox>
-
-                    <!-- Strategic Insights -->
-                    <VBox prefWidth="350" style="-fx-background-color: #D85A30; -fx-background-radius: 16; -fx-padding: 24;" spacing="16">
-                        <HBox alignment="CENTER_LEFT" spacing="8">
-                            <Label text="💡" style="-fx-font-size: 20px;"/>
-                            <Label text="Gợi ý từ bếp trưởng" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
-                        </HBox>
-
-                        <VBox style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 12; -fx-padding: 16;" spacing="8">
-                            <Label text="CẢNH BÁO TỒN KHO" style="-fx-text-fill: #FFEDD5; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;"/>
-                            <Label text="Bột lúa mạch đen hiện dưới 15%. Cần nhập thêm để chuẩn bị cho cuối tuần." wrapText="true" style="-fx-text-fill: white; -fx-font-size: 13px;"/>
-                        </VBox>
-
-                        <VBox style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 12; -fx-padding: 16;" spacing="8">
-                            <Label text="CƠ HỘI KHUYẾN MÃI" style="-fx-text-fill: #FFEDD5; -fx-font-size: 10px; -fx-font-weight: bold; -fx-letter-spacing: 1px;"/>
-                            <Label text="Croissant bán chạy nhất lúc 8:30 AM. Gợi ý làm combo 'Cà phê &amp; Bánh Sớm'." wrapText="true" style="-fx-text-fill: white; -fx-font-size: 13px;"/>
-                        </VBox>
-
-                        <Region VBox.vgrow="ALWAYS"/>
-                        <Button text="Quản lý nguyên liệu" style="-fx-background-color: white; -fx-text-fill: #D85A30; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12;" maxWidth="Infinity"/>
-                    </VBox>
-                </HBox>
-
-            </VBox>
-        </ScrollPane>
+                                <HBox spacing="20">
+                                    <VBox fx:id="vboxBestSellers" styleClass="dash-card" prefWidth="350" spacing="16" style="-fx-padding: 24;">
+                                        <Label text="Bánh bán chạy nhất" styleClass="lbl-medium-bold"/>
+                                        <Region VBox.vgrow="ALWAYS"/>
+                                        <Button text="Xem chi tiết kho" style="-fx-background-color: transparent; -fx-text-fill: #1960a6; -fx-font-weight: bold;" maxWidth="Infinity"/>
+                                    </VBox>
+                                    <VBox styleClass="dash-card" HBox.hgrow="ALWAYS">
+                                        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 24; -fx-border-color: #E5E7EB; -fx-border-width: 0 0 1 0;">
+                                            <Label text="Giao dịch mới nhất" styleClass="lbl-medium-bold"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="Cập nhật Live" style="-fx-text-fill: #059669; -fx-background-color: #D1FAE5; -fx-padding: 4 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 10px; -fx-border-color: #A7F3D0; -fx-border-radius: 12;"/>
+                                        </HBox>
+                                        <TableView fx:id="tableGiaoDich" prefHeight="250" style="-fx-background-color: transparent;">
+                                            <columns>
+                                                <TableColumn text="Mã Đơn" prefWidth="100"/>
+                                                <TableColumn text="Khách hàng" prefWidth="150"/>
+                                                <TableColumn text="Món" prefWidth="250"/>
+                                                <TableColumn text="Tổng tiền" prefWidth="120"/>
+                                                <TableColumn text="Trạng thái" prefWidth="120"/>
+                                            </columns>
+                                        </TableView>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                        </ScrollPane>
+                    </content>
+                </Tab>
+                <Tab text="💰 Sổ quỹ thu chi">
+                    <content>
+                        <fx:include source="SoQuyView.fxml" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
     </center>
 </BorderPane>

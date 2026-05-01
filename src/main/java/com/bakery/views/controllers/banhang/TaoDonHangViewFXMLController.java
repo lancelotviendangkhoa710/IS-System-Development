@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.banhang;
+package com.bakery.views.controllers.banhang;
 
 import com.bakery.utils.QRGenerator;
 import com.bakery.views.interfaces.banhang.IDonHangDialogFactory;
@@ -149,7 +149,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
     @Override
     public boolean showPaymentConfirmation(int maDon, double tongTien, double daCoc, double conLai) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PaymentDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ThanhToanDialog.fxml"));
             Parent root = loader.load();
             ThanhToanDialogViewFXMLController controller = loader.getController();
             controller.initData(maDon, tongTien, daCoc, conLai);

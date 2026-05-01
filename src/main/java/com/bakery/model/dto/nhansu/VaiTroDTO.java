@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.nhansu;
+package com.bakery.model.dto.nhansu;
 
 import java.time.LocalDateTime;
 

@@ -1,5 +1,6 @@
-﻿package com.bakery.views.controllers.kho;
+package com.bakery.views.controllers.kho;
 
+import com.bakery.views.controllers.hethong.MainMenuViewFXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

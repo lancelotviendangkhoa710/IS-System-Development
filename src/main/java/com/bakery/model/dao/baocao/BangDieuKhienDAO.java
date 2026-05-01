@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao.baocao;
+package com.bakery.model.dao.baocao;
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.baocao.BangDieuKhienKPIDTO;

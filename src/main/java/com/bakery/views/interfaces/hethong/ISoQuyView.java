@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.hethong;
+package com.bakery.views.interfaces.hethong;
 
 import com.bakery.model.dto.hethong.LoaiThuChiDTO;
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;

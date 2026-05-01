@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.banhang;
+package com.bakery.views.interfaces.banhang;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
@@ -146,7 +146,7 @@ public interface IDonHangView {
     /**
      * Mở cửa sổ xem trước (Preview) và in hóa đơn/phiếu thu.
      */
-    void inPhieuHoaDon(String tieuDe, com.bakery.model.dto.HoaDonDTO hd, DonDatHangDTO don,
+    void inPhieuHoaDon(String tieuDe, com.bakery.model.dto.banhang.HoaDonDTO hd, DonDatHangDTO don,
                        List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam,
                        double khachDua, double tienThua, boolean laDonCoc);
 
@@ -154,7 +154,7 @@ public interface IDonHangView {
     /**
      * Mở cửa sổ xem trước hóa đơn đã hoàn thành (bao gồm đầy đủ thông tin thanh toán).
      */
-    void inHoaDonHoanThanh(DonDatHangDTO don, com.bakery.model.dto.HoaDonDTO hd,
+    void inHoaDonHoanThanh(DonDatHangDTO don, com.bakery.model.dto.banhang.HoaDonDTO hd,
                            List<CTDonHangDTO> dsItems, double khachDua, double tienThua, boolean laDonCoc);
 
     // ——— TRUY XUẤT TRẠNG THÁI (GETTERS) ———

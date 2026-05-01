@@ -19,7 +19,7 @@
     Controller: com.bakery.views.controllers.CashbookController
 -->
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.views.controllers.SoQuyViewFXMLController"
+      fx:controller="com.bakery.views.controllers.hethong.SoQuyViewFXMLController"
       spacing="0" style="-fx-background-color: -bg-app;">
 
     <!-- ══ NOTIFICATION BAR ════════════════════════════════════════════════ -->
@@ -307,3 +307,4 @@
 
     </StackPane>
 </VBox>
+

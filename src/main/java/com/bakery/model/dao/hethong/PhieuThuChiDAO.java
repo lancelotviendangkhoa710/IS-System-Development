@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao.hethong;
+package com.bakery.model.dao.hethong;
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;
@@ -101,6 +101,25 @@ public class PhieuThuChiDAO extends BaseDAO {
         } catch (SQLException e) {
             handleException("huyPhieu", e);
         }
+    }
+
+    /**
+     * Tìm mã loại thu chi theo tên (ví dụ: 'Bán hàng', 'Nhập hàng').
+     */
+    public int layMaLoaiTheoTen(String tenLoai) throws Exception {
+        String sql = "SELECT MALOAITHUCHI FROM LOAITHUCHI WHERE UPPER(TENLOAITHUCHI) = UPPER(?)";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenLoai);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layMaLoaiTheoTen", e);
+        }
+        return -1;
     }
 
 }

@@ -12,10 +12,9 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="768.0" prefWidth="1366.0" styleClass="bg-app"
-            stylesheets="@../css/bakery.css"
             xmlns="http://javafx.com/javafx/24"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.ThuNganViewFXMLController">
+            fx:controller="com.bakery.views.controllers.banhang.ThuNganViewFXMLController">
 
     <!-- SIDEBAR -->
     <left>

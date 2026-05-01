@@ -1,10 +1,7 @@
-﻿package com.bakery.views.controllers.kho;
+package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.DanhMucSPDTO;
-import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.kho.DanhMucSPPresenter;
-import com.bakery.presenters.khachhang.FormKhachHangPresenter;
-import com.bakery.views.interfaces.khachhang.CapNhatKhachHangView;
 import com.bakery.views.interfaces.kho.IDanhMucSPView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -134,62 +131,5 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
     @FXML
     private void onQuayLai() {
         quayLaiMenuChinh(tblDanhMuc);
-    }
-
-    /**
-     * Controller cho màn hình Cập nhật Khách hàng.
-     * Implement CapNhatKhachHangView interface - Presenter giao tiếp qua interface này.
-     */
-    public static class CustomerUpdateViewFXMLController extends BaoCaoViewFXMLController.AbstractCustomerController implements CapNhatKhachHangView {
-
-        @FXML private TextField txtMaKH;
-        @FXML private TextField txtHoTen;
-        @FXML private TextField txtSDT;
-        @FXML private TextField txtDiemTichLuy;
-        @FXML private TextField txtHangThanhVien;
-        @FXML private TextArea txtDiaChi;
-
-        private boolean updated = false;
-        private KhachHangDTO customer;
-        private FormKhachHangPresenter presenter;
-
-        public boolean isUpdated() { return updated; }
-        public void loadCustomer(KhachHangDTO cust) { customer = cust; loadCustomerData(cust); }
-
-        @FXML public void initialize() {
-            presenter = new FormKhachHangPresenter();
-        }
-
-        @FXML private void onSaveClicked() {
-            if (customer != null) {
-                presenter.handleUpdateCustomer(this, customer.getMaKH());
-                updated = true;
-            }
-        }
-
-        @FXML private void onCancelClicked() { closeForm(); }
-
-        @Override public String getFullName() { return txtHoTen.getText().trim(); }
-        @Override public String getPhoneNumber() { return txtSDT.getText().trim(); }
-        @Override public String getAddress() { return txtDiaChi.getText().trim(); }
-        @Override public void loadCustomerData(KhachHangDTO cust) {
-            if (cust != null) {
-                txtMaKH.setText("#" + cust.getMaKH());
-                txtHoTen.setText(cust.getHoTen());
-                txtSDT.setText(cust.getSdt());
-                txtDiaChi.setText(cust.getDiaChi());
-                txtDiemTichLuy.setText(String.valueOf(cust.getDiemTichLuy()));
-                String tierName = cust.getTenHang();
-                txtHangThanhVien.setText(tierName == null || tierName.isEmpty() ? "-" : tierName);
-            }
-        }
-        @Override public void clearForm() { txtHoTen.clear(); txtSDT.clear(); txtDiaChi.clear(); }
-        @Override public void setFullNameError(String error) { capNhatLoiTruongNhap(txtHoTen, error); }
-        @Override public void setPhoneError(String error) { capNhatLoiTruongNhap(txtSDT, error); }
-        @Override public void setAddressError(String error) { capNhatLoiTruongNhap(txtDiaChi, error); }
-        @Override public void showErrorAlert(String title, String message) { hienThiLoi(title, message); }
-        @Override public void showSuccessAlert(String title, String message) { hienThiThanhCong(title, message); }
-        @Override public void setBusy(boolean busy) { }
-        @Override public void closeForm() { dongForm(); }
     }
 }

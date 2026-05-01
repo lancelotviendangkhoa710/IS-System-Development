@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao.khachhang;
+package com.bakery.model.dao.khachhang;
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;

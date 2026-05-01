@@ -1,4 +1,4 @@
-﻿package com.bakery.services.banhang;
+package com.bakery.services.banhang;
 
 import com.bakery.model.dao.banhang.DonHangDAO;
 import com.bakery.model.dto.banhang.CTDonHangDTO;

@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.banhang;
+package com.bakery.views.controllers.banhang;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.HoaDonDTO;

@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.nhansu;
+package com.bakery.views.interfaces.nhansu;
 
 public interface IDangNhapView {
 

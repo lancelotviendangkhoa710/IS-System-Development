@@ -16,7 +16,7 @@
     Controller: com.bakery.views.controllers.MoCaController
 -->
 <StackPane xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.bakery.views.controllers.MoCaViewFXMLController"
+           fx:controller="com.bakery.views.controllers.hethong.MoCaViewFXMLController"
            styleClass="app-bg">
 
     <!-- Card trung tâm -->
@@ -113,3 +113,4 @@
     </VBox>
 
 </StackPane>
+

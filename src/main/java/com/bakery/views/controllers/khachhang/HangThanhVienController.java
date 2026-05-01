@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.khachhang;
+package com.bakery.views.controllers.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.presenters.khachhang.HangThanhVienPresenter;
@@ -6,7 +6,6 @@ import com.bakery.views.interfaces.khachhang.HangThanhVienView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -22,10 +21,10 @@ public class HangThanhVienController implements HangThanhVienView {
     @FXML private TableColumn<HangThanhVienDTO, Double> colPhanTramGiamGia;
     @FXML private TableColumn<HangThanhVienDTO, Void> colThaoTac;
 
-    private Stage stage;
+    
     private HangThanhVienPresenter presenter;
 
-    public void setStage(Stage stage) { this.stage = stage; }
+    
 
     @FXML public void initialize() {
         presenter = new HangThanhVienPresenter(this);

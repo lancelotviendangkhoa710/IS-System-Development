@@ -1,4 +1,4 @@
-﻿package com.bakery.services.khachhang;
+package com.bakery.services.khachhang;
 
 import com.bakery.model.dao.khachhang.HangThanhVienDAO;
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
@@ -10,11 +10,11 @@ import java.util.List;
 public class HangThanhVienService {
 
 	private final HangThanhVienDAO tierDAO;
-	private final com.bakery.model.dao.KhachHangDAO customerDAO;
+	private final com.bakery.model.dao.khachhang.KhachHangDAO customerDAO;
 
 	public HangThanhVienService() {
 		this.tierDAO = new HangThanhVienDAO();
-		this.customerDAO = new com.bakery.model.dao.KhachHangDAO();
+		this.customerDAO = new com.bakery.model.dao.khachhang.KhachHangDAO();
 	}
 
 	// Kiem tra du lieu dau vao truoc khi goi DAO.

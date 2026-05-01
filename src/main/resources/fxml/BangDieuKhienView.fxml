@@ -14,7 +14,7 @@
     Controller: com.bakery.views.controllers.DashboardController
 -->
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.views.controllers.BangDieuKhienViewFXMLController"
+      fx:controller="com.bakery.views.controllers.baocao.BangDieuKhienViewFXMLController"
       spacing="20">
 
     <!-- ══ ROW 1: 4 KPI CARDS ══════════════════════════════════════════════ -->
@@ -137,3 +137,4 @@
     </HBox>
 
 </VBox>
+

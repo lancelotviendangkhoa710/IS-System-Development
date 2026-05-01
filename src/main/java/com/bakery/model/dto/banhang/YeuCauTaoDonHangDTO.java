@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.banhang;
+package com.bakery.model.dto.banhang;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

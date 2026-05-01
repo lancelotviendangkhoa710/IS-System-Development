@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefWidth="400.0" spacing="0" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.HoaDonViewFXMLController">
+<VBox prefWidth="400.0" spacing="0" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.banhang.HoaDonViewFXMLController">
     <children>
         <!-- Receipt Content Area (Scrollable) -->
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="bg-app" VBox.vgrow="ALWAYS">
@@ -161,3 +161,4 @@
         </HBox>
     </children>
 </VBox>
+

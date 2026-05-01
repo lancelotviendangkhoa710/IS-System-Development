@@ -1,4 +1,5 @@
-﻿package com.bakery.model.dto.nhansu;
+package com.bakery.model.dto.nhansu;
+import com.bakery.model.dto.BaseDTO;
 import java.time.LocalDate;
 
 public class NhanVienDTO extends BaseDTO {

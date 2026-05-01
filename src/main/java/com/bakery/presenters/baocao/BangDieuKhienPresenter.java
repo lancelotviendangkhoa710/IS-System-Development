@@ -1,4 +1,4 @@
-﻿package com.bakery.presenters.baocao;
+package com.bakery.presenters.baocao;
 
 import com.bakery.model.dto.baocao.BangDieuKhienKPIDTO;
 import com.bakery.model.dto.baocao.TopSanPhamDTO;

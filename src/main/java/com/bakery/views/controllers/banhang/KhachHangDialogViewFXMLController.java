@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.banhang;
+package com.bakery.views.controllers.banhang;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import javafx.fxml.FXML;
@@ -17,7 +17,7 @@ public class KhachHangDialogViewFXMLController {
     @FXML private Label lblError;
     @FXML private Button btnLuu;
 
-    private final com.bakery.services.KhachHangService khachHangService = new com.bakery.services.KhachHangService();
+    private final com.bakery.services.khachhang.KhachHangService khachHangService = new com.bakery.services.khachhang.KhachHangService();
     private KhachHangDTO khachHangHienTai;
     private boolean laChinhSua = false;
     private KhachHangDTO ketQua;

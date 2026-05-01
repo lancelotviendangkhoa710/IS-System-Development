@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.banhang;
+package com.bakery.model.dto.banhang;
 
 public class YeuCauChiTietDonTuyChinhDTO extends YeuCauChiTietDonHangDTO {
     private Integer maKC;

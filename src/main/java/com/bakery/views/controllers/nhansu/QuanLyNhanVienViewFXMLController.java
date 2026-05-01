@@ -1,7 +1,8 @@
-﻿package com.bakery.views.controllers.nhansu;
+package com.bakery.views.controllers.nhansu;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.nhansu.NhanVienService;
+import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

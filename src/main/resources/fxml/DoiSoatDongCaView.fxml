@@ -16,7 +16,7 @@
     Controller: com.bakery.views.controllers.DoiSoatDongCaController
 -->
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.views.controllers.DoiSoatDongCaViewFXMLController"
+      fx:controller="com.bakery.views.controllers.hethong.DoiSoatDongCaViewFXMLController"
       prefWidth="520" spacing="0"
       style="-fx-background-color: white; -fx-background-radius: 0;">
 
@@ -239,3 +239,4 @@
         </VBox><!-- /paneInfo -->
     </VBox><!-- /content -->
 </VBox>
+

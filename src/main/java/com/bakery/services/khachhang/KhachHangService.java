@@ -1,9 +1,10 @@
-﻿package com.bakery.services.khachhang;
+package com.bakery.services.khachhang;
 
 import com.bakery.model.dao.khachhang.KhachHangDAO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class KhachHangService {
@@ -92,7 +93,7 @@ public class KhachHangService {
             }
 
             HangThanhVienService tierService = new HangThanhVienService();
-            com.bakery.model.dto.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(customer.getDiemTichLuy());
+            com.bakery.model.dto.khachhang.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(customer.getDiemTichLuy());
             if (appropriateTier != null) {
                 customer.setMaHang(appropriateTier.getMaHang());
             }
@@ -256,7 +257,7 @@ public class KhachHangService {
             customerDAO.updateCustomerPoints(customerId, newPoints);
 
             HangThanhVienService tierService = new HangThanhVienService();
-            com.bakery.model.dto.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(newPoints);
+            com.bakery.model.dto.khachhang.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(newPoints);
 
             if (appropriateTier != null) {
                 KhachHangDTO customer = customerDAO.findActiveCustomerById(customerId);
@@ -268,6 +269,23 @@ public class KhachHangService {
         } catch (Exception e) {
             throw taoLoiDichVu("Loi cap nhat diem", e);
         }
+    }
+
+    // Compatibility methods cho cac luong cu.
+    public KhachHangDTO timKhachHangTheoSoDienThoai(String sdt) throws Exception {
+        return getCustomerByPhone(sdt);
+    }
+
+    public int themKhachHangMoi(KhachHangDTO khachHang) throws Exception {
+        if (khachHang != null && khachHang.getNgayDangKy() == null) {
+            khachHang.setNgayDangKy(LocalDate.now());
+        }
+        return createCustomer(khachHang);
+    }
+
+    public boolean capNhatKhachHang(KhachHangDTO khachHang) throws Exception {
+        updateCustomer(khachHang);
+        return true;
     }
 
     private SQLException taoLoiDichVu(String thongDiep, Exception e) {

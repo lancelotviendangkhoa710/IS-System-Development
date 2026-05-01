@@ -1,4 +1,4 @@
-﻿package com.bakery.presenters.banhang;
+package com.bakery.presenters.banhang;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.CTDonTuyChinhDTO;

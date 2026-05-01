@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.khachhang;
+package com.bakery.views.interfaces.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import java.util.List;

@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.kho;
+package com.bakery.model.dto.kho;
 
 public class CongThucDTO {
     private int maSP;

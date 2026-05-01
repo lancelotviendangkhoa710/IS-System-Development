@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.baocao;
+package com.bakery.views.interfaces.baocao;
 
 import com.bakery.model.dto.baocao.BangDieuKhienKPIDTO;
 import com.bakery.model.dto.baocao.TopSanPhamDTO;

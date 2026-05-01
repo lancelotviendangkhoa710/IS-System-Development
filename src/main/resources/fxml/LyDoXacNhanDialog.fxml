@@ -16,7 +16,7 @@
     Controller: com.bakery.views.controllers.ReasonConfirmDialogController
 -->
 <StackPane xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.bakery.views.controllers.LyDoXacNhanDialogViewFXMLController"
+           fx:controller="com.bakery.views.controllers.banhang.LyDoXacNhanDialogViewFXMLController"
            style="-fx-background-color: transparent;"
            minWidth="460" maxWidth="460">
     <padding>
@@ -81,3 +81,4 @@
 
     </VBox>
 </StackPane>
+

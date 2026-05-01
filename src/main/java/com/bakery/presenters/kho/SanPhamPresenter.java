@@ -1,4 +1,4 @@
-﻿package com.bakery.presenters.kho;
+package com.bakery.presenters.kho;
 
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.services.kho.SanPhamService;

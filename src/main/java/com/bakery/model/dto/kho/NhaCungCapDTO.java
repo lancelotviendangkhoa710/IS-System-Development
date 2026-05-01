@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.kho;
+package com.bakery.model.dto.kho;
 
 import java.time.LocalDateTime;
 

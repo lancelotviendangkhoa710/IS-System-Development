@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao.khachhang;
+package com.bakery.model.dao.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.utils.DBConnect;

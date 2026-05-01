@@ -1,7 +1,8 @@
-﻿package com.bakery.views.interfaces.kho;
+package com.bakery.views.interfaces.kho;
 
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.views.interfaces.IBaseView;
 
 import java.util.List;
 

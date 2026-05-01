@@ -1,5 +1,6 @@
-﻿package com.bakery.model.dto.kho;
+package com.bakery.model.dto.kho;
 
+import com.bakery.model.dto.BaseDTO;
 import java.time.LocalDateTime;
 
 public class SanPhamDTO extends BaseDTO {

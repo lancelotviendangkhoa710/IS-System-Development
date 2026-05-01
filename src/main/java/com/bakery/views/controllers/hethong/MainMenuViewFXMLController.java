@@ -1,10 +1,12 @@
-﻿package com.bakery.views.controllers.hethong;
+package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.enums.SystemModule;
 import com.bakery.services.baocao.ThongKeService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
+import com.bakery.views.controllers.banhang.DonHangViewFXMLController;
+import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -63,6 +65,8 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnNhanSuSidebar;
     @FXML
+    private Button btnKhachHang;
+    @FXML
     private Button btnBaoCao;
     @FXML
     private Button btnBaoCaoCard;
@@ -74,8 +78,6 @@ public class MainMenuViewFXMLController {
     private Button btnAuditLogs;
     @FXML
     private Button btnNhaCungCap;
-    @FXML
-    private Button btnSoQuy;
     @FXML
     private Button btnDanhMuc;
     @FXML
@@ -113,6 +115,7 @@ public class MainMenuViewFXMLController {
         capNhatTrangThaiNut(btnKho, modulesDuocCap.contains(SystemModule.KHO));
         capNhatTrangThaiNut(btnNhanSu, modulesDuocCap.contains(SystemModule.NHAN_SU));
         capNhatTrangThaiNut(btnNhanSuSidebar, modulesDuocCap.contains(SystemModule.NHAN_SU));
+        capNhatTrangThaiNut(btnKhachHang, modulesDuocCap.contains(SystemModule.KHACH_HANG));
         capNhatTrangThaiNut(btnBaoCao, modulesDuocCap.contains(SystemModule.BAO_CAO));
         if (btnBaoCaoCard != null)
             capNhatTrangThaiNut(btnBaoCaoCard, modulesDuocCap.contains(SystemModule.BAO_CAO));
@@ -181,6 +184,13 @@ public class MainMenuViewFXMLController {
     }
 
     @FXML
+    private void onMoKhachHang() {
+        moScene(btnKhachHang, "/fxml/KhachHangView.fxml",
+                "H3K Bakery - Quản lý khách hàng", 1280, 720,
+                "Không thể mở Quản lý khách hàng: ");
+    }
+
+    @FXML
     private void onMoBaoCao() {
         moScene(btnBaoCao, "/fxml/BaoCaoView.fxml", "H3K Bakery - Thống kê Kinh doanh", 1280, 720,
                 "Không thể mở Thống kê: ");
@@ -208,12 +218,6 @@ public class MainMenuViewFXMLController {
     private void onMoNguyenLieu() {
         moScene(btnNguyenLieu, "/fxml/NguyenLieuView.fxml", "H3K Bakery - Quản lý Nguyên liệu", 1280, 720,
                 "Không thể mở Nguyên liệu: ");
-    }
-
-    @FXML
-    private void onMoSoQuy() {
-        moScene(btnSoQuy, "/fxml/SoQuyView.fxml", "H3K Bakery - Sổ quỹ thu chi", 1280, 720,
-                "Không thể mở Sổ quỹ: ");
     }
 
     @FXML
@@ -295,8 +299,9 @@ public class MainMenuViewFXMLController {
         if (buttonTextMap.isEmpty()) {
             // Store original text
             Button[] navButtons = {
-                    btnTongQuan, btnBanHang, btnInventory, btnNhanSuSidebar, btnBaoCao,
-                    btnTheoDoiDon, btnKds, btnAuditLogs, btnNhaCungCap, btnSoQuy,
+                    btnTongQuan, btnBanHang, btnInventory, btnNhanSuSidebar, 
+                    btnKhachHang, btnBaoCao,
+                    btnTheoDoiDon, btnKds, btnAuditLogs, btnNhaCungCap,
                     btnDanhMuc, btnSanPham, btnNguyenLieu
             };
             for (Button btn : navButtons) {

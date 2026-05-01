@@ -16,7 +16,7 @@
     Controller: com.bakery.views.controllers.MainController
 -->
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.MainViewFXMLController"
+            fx:controller="com.bakery.views.controllers.hethong.MainViewFXMLController"
             styleClass="app-bg">
 
     <!-- ══════════════════════════════════════════════════════
@@ -120,3 +120,4 @@
     </center>
 
 </BorderPane>
+

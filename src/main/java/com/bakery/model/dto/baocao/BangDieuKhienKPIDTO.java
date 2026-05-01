@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.baocao;
+package com.bakery.model.dto.baocao;
 
 import java.math.BigDecimal;
 

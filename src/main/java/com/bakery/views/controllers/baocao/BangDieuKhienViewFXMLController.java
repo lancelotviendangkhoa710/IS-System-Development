@@ -1,10 +1,11 @@
-﻿package com.bakery.views.controllers.baocao;
+package com.bakery.views.controllers.baocao;
 
 import com.bakery.model.dto.baocao.BangDieuKhienKPIDTO;
 import com.bakery.model.dto.baocao.TopSanPhamDTO;
 import com.bakery.presenters.baocao.BangDieuKhienPresenter;
 import com.bakery.services.baocao.BangDieuKhienService;
 import com.bakery.utils.CurrencyFormatter;
+import com.bakery.views.controllers.hethong.DoiSoatDongCaViewFXMLController;
 import com.bakery.views.interfaces.baocao.IBangDieuKhienView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao.nhansu;
+package com.bakery.model.dao.nhansu;
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;

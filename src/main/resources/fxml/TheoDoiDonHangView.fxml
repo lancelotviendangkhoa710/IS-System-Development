@@ -5,7 +5,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.TheoDoiDonHangViewFXMLController"
+            fx:controller="com.bakery.views.controllers.banhang.TheoDoiDonHangViewFXMLController"
             styleClass="bg-app">
 
     <center>

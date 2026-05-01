@@ -13,7 +13,7 @@
 -->
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.TaoDonHangViewFXMLController"
+            fx:controller="com.bakery.views.controllers.banhang.TaoDonHangViewFXMLController"
             minWidth="600" minHeight="550"
             style="-fx-background-color: #FDFBF7;">
 
@@ -209,3 +209,4 @@
     </bottom>
 
 </BorderPane>
+

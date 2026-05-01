@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.kho;
+package com.bakery.views.interfaces.kho;
 
 import com.bakery.model.dto.kho.SanPhamDTO;
 import java.util.List;

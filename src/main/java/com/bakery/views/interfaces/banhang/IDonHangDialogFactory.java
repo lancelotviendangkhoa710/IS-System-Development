@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces.banhang;
+package com.bakery.views.interfaces.banhang;
 
 import java.time.LocalDateTime;
 

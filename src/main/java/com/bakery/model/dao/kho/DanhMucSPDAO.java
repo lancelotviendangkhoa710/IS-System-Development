@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dao.kho;
+package com.bakery.model.dao.kho;
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.kho.DanhMucSPDTO;

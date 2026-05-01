@@ -1,4 +1,4 @@
-﻿package com.bakery.presenters.banhang;
+package com.bakery.presenters.banhang;
 
 import com.bakery.model.dto.hethong.LoaiThuChiDTO;
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;

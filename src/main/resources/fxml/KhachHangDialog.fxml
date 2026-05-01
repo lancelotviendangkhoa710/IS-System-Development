@@ -6,7 +6,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.views.controllers.KhachHangDialogViewFXMLController"
+      fx:controller="com.bakery.views.controllers.banhang.KhachHangDialogViewFXMLController"
       styleClass="dialog-container" prefWidth="520">
 
     <Label fx:id="lblTitle" text="Thêm Khách Hàng" styleClass="dialog-header-title"/>
@@ -35,3 +35,4 @@
         <Button fx:id="btnLuu" text="Lưu khách hàng" onAction="#onLuu" styleClass="dialog-button-save"/>
     </HBox>
 </VBox>
+

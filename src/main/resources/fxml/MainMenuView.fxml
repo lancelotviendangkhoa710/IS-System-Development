@@ -19,7 +19,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.MainMenuViewFXMLController"
+            fx:controller="com.bakery.views.controllers.hethong.MainMenuViewFXMLController"
             styleClass="dashboard-root">
 
     <!-- SIDEBAR -->
@@ -42,10 +42,10 @@
                         <Button fx:id="btnBanHang" text="🛒 Tạo đơn mới" styleClass="dash-nav-item"  maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoBanHang"/>
                         <Button fx:id="btnInventory" text="📦 Inventory" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         <Button fx:id="btnNhanSuSidebar" text="👥 Nhân viên" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNhanSu"/>
+                        <Button fx:id="btnKhachHang" text="🤝 Khách hàng" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoKhachHang"/>
                         <Button fx:id="btnBaoCao" text="📈 Báo cáo" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoBaoCao"/>
                         <Button fx:id="btnTheoDoiDon" text="🚚 Theo dõi đơn" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoTheoDoiDon"/>
                         <Button fx:id="btnNhaCungCap" text="🏭 Nhà cung cấp" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNhaCungCap"/>
-                        <Button fx:id="btnSoQuy" text="💰 Sổ quỹ thu chi" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSoQuy"/>
                         <Button fx:id="btnDanhMuc"     text="📂 Danh mục SP"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoDanhMuc"/>
                         <Button fx:id="btnSanPham"     text="🍞 Quản lý SP"      styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSanPham"/>
                         <Button fx:id="btnNguyenLieu"  text="🍎 Quản lý NL"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNguyenLieu"/>

@@ -1,9 +1,13 @@
-﻿package com.bakery.services.banhang;
+package com.bakery.services.banhang;
 
 import com.bakery.model.dao.banhang.HoaDonDAO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.banhang.HoaDonDTO;
 import com.bakery.model.dto.banhang.YeuCauTaoDonHangDTO;
+import com.bakery.model.dto.hethong.PhieuThuChiDTO;
+import com.bakery.model.dao.hethong.PhieuThuChiDAO;
+import com.bakery.utils.SessionContext;
+import java.math.BigDecimal;
 
 import java.sql.SQLException;
 
@@ -16,15 +20,18 @@ public class ThanhToanService {
 
     private final HoaDonDAO hoaDonDAO;
     private final QuanLyDonHangService quanLyDonHangService;
+    private final PhieuThuChiDAO phieuThuChiDAO;
 
     public ThanhToanService() {
         this.hoaDonDAO = new HoaDonDAO();
         this.quanLyDonHangService = new QuanLyDonHangService();
+        this.phieuThuChiDAO = new PhieuThuChiDAO();
     }
 
-    public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService) {
+    public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService, PhieuThuChiDAO phieuThuChiDAO) {
         this.hoaDonDAO = hoaDonDAO;
         this.quanLyDonHangService = quanLyDonHangService;
+        this.phieuThuChiDAO = phieuThuChiDAO;
     }
 
     public double tinhTienHoaDon(YeuCauTaoDonHangDTO request) {
@@ -64,6 +71,10 @@ public class ThanhToanService {
         // 6. Chốt hóa đơn & cộng điểm thành viên qua Procedure
         try {
             hoaDonDAO.thanhToanVaThangHang(maHD, request.getMaKH(), tongTien);
+            
+            // 6.1 Tạo phiếu thu đi kèm (Sổ quỹ)
+            taoPhieuThuChiTuHoaDon(maHD, tongTien, "Thu tiền bán lẻ HD" + maHD);
+            
         } catch (SQLException e) {
             throw new Exception("Thanh toán thất bại: " + e.getMessage(), e);
         }
@@ -94,6 +105,10 @@ public class ThanhToanService {
             int maHD = hoaDonDAO.themHoaDonMoi(hd);
             if (maHD > 0) {
                 hoaDonDAO.thanhToanVaThangHang(maHD, donHang.getMaKH(), tongTien);
+                
+                // Tạo phiếu thu đi kèm (Sổ quỹ)
+                taoPhieuThuChiTuHoaDon(maHD, tongTienConLai, "Thu tiền đơn hàng HD" + maHD);
+                
                 return hoaDonDAO.layHoaDonTheoMa(maHD);
             }
             return null;
@@ -113,12 +128,30 @@ public class ThanhToanService {
     public HoaDonDTO taoHoaDonDTO(int maDon, double soTien, String loaiHD) {
         HoaDonDTO hd = new HoaDonDTO();
         hd.setMaDon(maDon);
-        hd.setMaCa(1); // Mặc định hoặc lấy từ Session
+        hd.setMaCa(SessionContext.getInstance().getMaCa()); 
         hd.setThueVAT(0.0);
         hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(soTien));
         hd.setMaPTTT(1); // Mặc định Tiền mặt
         hd.setLoaiHD(loaiHD);
         return hd;
+    }
+
+    /**
+     * Tạo phiếu thu chi liên kết với hóa đơn.
+     */
+    private void taoPhieuThuChiTuHoaDon(int maHD, double soTien, String ghiChu) throws Exception {
+        int maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Bán hàng");
+        if (maLoaiThu == -1) maLoaiThu = 1; // Fallback
+
+        PhieuThuChiDTO ptc = new PhieuThuChiDTO();
+        ptc.setMaLoaiThuChi(maLoaiThu);
+        ptc.setSoTien(BigDecimal.valueOf(soTien));
+        ptc.setMaNV(SessionContext.getInstance().getMaNV());
+        ptc.setMaHD(maHD);
+        ptc.setMaCa(SessionContext.getInstance().getMaCa());
+        ptc.setGhiChu(ghiChu);
+
+        phieuThuChiDAO.taoPhieuThuChi(ptc);
     }
 
     private int layMaTrangThaiHoanThanh() throws Exception {

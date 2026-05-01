@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.khachhang;
+package com.bakery.views.controllers.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
@@ -15,6 +15,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -30,6 +31,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+import java.net.URL;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -130,8 +134,22 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     }
 
     @FXML
-    private void onTierManagementClicked() {
-        viewFactory.openMembershipTierDialog(this::taiBoLocHang);
+    private void onBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainMenuView.fxml"));
+            Scene scene = new Scene(loader.load(), 1280, 720);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+            Stage stage = (Stage) lblTotalCustomers.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("H3K Bakery - Dashboard");
+            stage.centerOnScreen();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Khong the quay lai", e);
+            hienThiLoi("Lỗi", "Không thể quay lại Menu chính.");
+        }
     }
 
     @FXML
@@ -270,7 +288,8 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
             }
         });
 
-        colTier.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenHang() == null ? "-" : cell.getValue().getTenHang()));
+        colTier.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().getTenHang() == null ? "-" : cell.getValue().getTenHang()));
         colActions.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -295,12 +314,14 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
                 Button btnSua = new Button("Sửa");
                 btnSua.setOnAction(event -> {
                     Optional<ThongTinNhapKhachHang> ketQua = hienThiDialogNhapKhachHang("Cập nhật khách hàng", kh);
-                    ketQua.ifPresent(thongTin -> presenter.capNhatKhachHang(kh.getMaKH(), thongTin.hoTen(), thongTin.sdt(), thongTin.diaChi()));
+                    ketQua.ifPresent(thongTin -> presenter.capNhatKhachHang(kh.getMaKH(), thongTin.hoTen(),
+                            thongTin.sdt(), thongTin.diaChi()));
                 });
 
                 Button btnXoa = new Button("Xóa");
                 btnXoa.setOnAction(event -> {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Xóa khách hàng \"" + kh.getHoTen() + "\"?", ButtonType.OK, ButtonType.CANCEL);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Xóa khách hàng \"" + kh.getHoTen() + "\"?",
+                            ButtonType.OK, ButtonType.CANCEL);
                     if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
                         presenter.xoaKhachHang(kh.getMaKH(), SessionManager.getCurrentEmployeeId());
                     }
@@ -354,8 +375,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         return Optional.of(new ThongTinNhapKhachHang(
                 txtHoTen.getText().trim(),
                 txtSdt.getText().trim(),
-                txtDiaChi.getText().trim()
-        ));
+                txtDiaChi.getText().trim()));
     }
 
     private boolean hopLeThongTin(String hoTen, String sdt, String diaChi) {
@@ -425,5 +445,6 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         return value == null ? "" : value;
     }
 
-    private record ThongTinNhapKhachHang(String hoTen, String sdt, String diaChi) {}
+    private record ThongTinNhapKhachHang(String hoTen, String sdt, String diaChi) {
+    }
 }

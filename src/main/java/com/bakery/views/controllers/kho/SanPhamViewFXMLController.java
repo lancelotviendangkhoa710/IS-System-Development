@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.kho;
+package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.presenters.kho.SanPhamPresenter;
@@ -44,6 +44,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
     @FXML private CheckBox chkTuyChinh;
     @FXML private TextField txtTGBaoQuan;
     @FXML private TextField txtTGChuanBi;
+    @FXML private TextField txtTonKho;
     @FXML private ImageView imgSanPham;
 
     @FXML private Button btnThemMoi;
@@ -114,6 +115,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         txtGiaBan.setText(String.valueOf(sp.getGiaCoBan()));
         chkTuyChinh.setSelected(sp.getChoPhepTuyChinh() == 1);
         txtTGBaoQuan.setText(String.valueOf(sp.getThoiGianBaoQuan()));
+        txtTonKho.setText(String.valueOf(sp.getSoLuongTon()));
         txtTGChuanBi.setText(String.valueOf(sp.getThoiGianChuanBi()));
 
         for (Map.Entry<Integer, String> entry : cmbDanhMuc.getItems()) {
@@ -158,6 +160,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         txtTenSP.clear();
         txtGiaBan.clear();
         txtTGBaoQuan.clear();
+        txtTonKho.clear();
         txtTGChuanBi.clear();
         chkTuyChinh.setSelected(false);
         cmbDanhMuc.getSelectionModel().clearSelection();
@@ -193,12 +196,14 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
 
             double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
             int tgBaoQuan = Integer.parseInt(txtTGBaoQuan.getText().trim());
+            double tonKho = Double.parseDouble(txtTonKho.getText().trim());
             int tgChuanBi = Integer.parseInt(txtTGChuanBi.getText().trim());
 
             SanPhamDTO sp = new SanPhamDTO();
             sp.setMaDM(selectedDM.getKey());
             sp.setTenSP(tenSP);
             sp.setGiaCoBan(giaBan);
+            sp.setSoLuongTon(tonKho);
             sp.setChoPhepTuyChinh(chkTuyChinh.isSelected() ? 1 : 0);
             sp.setThoiGianBaoQuan(tgBaoQuan);
             sp.setThoiGianChuanBi(tgChuanBi);

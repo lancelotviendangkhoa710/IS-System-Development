@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.baocao;
+package com.bakery.views.controllers.baocao;
 
 import com.bakery.services.baocao.ThongKeService;
 import com.bakery.utils.UserSession;

@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.banhang;
+package com.bakery.model.dto.banhang;
 
 public class YeuCauChiTietDonHangDTO {
     private int maSP;

@@ -1,4 +1,4 @@
-﻿package com.bakery.views.controllers.banhang;
+package com.bakery.views.controllers.banhang;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

@@ -15,7 +15,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.KhoViewFXMLController"
+            fx:controller="com.bakery.views.controllers.kho.KhoViewFXMLController"
             styleClass="bg-app">
 
     <left>
@@ -130,3 +130,4 @@
         </VBox>
     </center>
 </BorderPane>
+

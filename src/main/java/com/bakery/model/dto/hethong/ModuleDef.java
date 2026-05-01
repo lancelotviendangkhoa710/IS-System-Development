@@ -1,4 +1,4 @@
-﻿package com.bakery.model.dto.hethong;
+package com.bakery.model.dto.hethong;
 
 import com.bakery.model.enums.SystemModule;
 

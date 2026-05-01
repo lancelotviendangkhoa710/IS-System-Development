@@ -1,4 +1,4 @@
-﻿package com.bakery.views.interfaces;
+package com.bakery.views.interfaces;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 

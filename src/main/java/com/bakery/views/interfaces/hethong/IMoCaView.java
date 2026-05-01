@@ -1,5 +1,6 @@
-﻿package com.bakery.views.interfaces.hethong;
+package com.bakery.views.interfaces.hethong;
 
+import com.bakery.views.interfaces.IBaseView;
 import java.util.List;
 
 public interface IMoCaView extends IBaseView {

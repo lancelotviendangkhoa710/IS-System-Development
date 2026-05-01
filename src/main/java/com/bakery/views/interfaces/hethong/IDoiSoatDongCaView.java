@@ -1,5 +1,6 @@
-﻿package com.bakery.views.interfaces.hethong;
+package com.bakery.views.interfaces.hethong;
 
+import com.bakery.views.interfaces.IBaseView;
 import java.math.BigDecimal;
 
 public interface IDoiSoatDongCaView extends IBaseView {

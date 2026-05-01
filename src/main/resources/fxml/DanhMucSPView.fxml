@@ -13,7 +13,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/25" 
       xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.bakery.views.controllers.DanhMucSPViewFXMLController"
+      fx:controller="com.bakery.views.controllers.kho.DanhMucSPViewFXMLController"
       spacing="20" styleClass="bg-app">
     
     <padding>
@@ -80,3 +80,4 @@
     </HBox>
 
 </VBox>
+
