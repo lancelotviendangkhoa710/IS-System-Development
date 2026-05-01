@@ -9,7 +9,7 @@ File này định nghĩa quy trình bắt buộc cho mọi cuộc hội thoại 
    - `/.agents/1_core/general.md`
    - `/.agents/1_core/skill.md`
    - `/.agents/1_core/workflow.md`
-   - `/.agents/1_core/parallel_agents.md`
+   - `/.agents/1_core/naming-convention.md`
    - `/.agents/1_core/tree_folder.txt`
    - `/.agents/1_core/commit.md`
    - `/.agents/1_core/review_agent.md`
