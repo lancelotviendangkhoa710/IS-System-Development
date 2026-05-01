@@ -28,6 +28,8 @@ src/main/java/com/bakery/utils/DBConnect.java
 
 # Tệp hệ thống
 .DS_Store
+.claude
+.vscode
 Thumbs.db
 .gitnexus
 .agents/
