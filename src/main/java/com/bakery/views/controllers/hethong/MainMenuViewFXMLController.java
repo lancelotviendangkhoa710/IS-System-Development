@@ -7,6 +7,7 @@ import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.banhang.DonHangViewFXMLController;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -132,7 +133,7 @@ public class MainMenuViewFXMLController {
         if (btnNguyenLieu != null)
             capNhatTrangThaiNut(btnNguyenLieu, modulesDuocCap.contains(SystemModule.KHO));
 
-        loadBestSellers();
+        // Tam thoi bo tai thong ke dong bo de tranh treo man hinh menu.
     }
 
     private void loadBestSellers() {

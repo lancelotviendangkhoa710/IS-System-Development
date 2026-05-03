@@ -2,13 +2,13 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/25"
@@ -28,24 +28,86 @@
             <Label text="H3K Bakery" styleClass="login-hero-brand"/>
         </VBox>
 
-        <VBox alignment="TOP_LEFT" spacing="20" prefWidth="420" styleClass="card,login-form-box">
-            <Label text="Đăng nhập" styleClass="lbl-title-screen"/>
-            <Label text="Chào mừng bạn trở lại với hệ thống quản trị." styleClass="lbl-body"/>
-
-            <VBox spacing="8">
-                <Label text="Tên đăng nhập" styleClass="lbl-body-bold"/>
-                <TextField fx:id="txtTenDangNhap" promptText="" styleClass="text-field"/>
+        <StackPane alignment="CENTER" prefWidth="420" minWidth="420" maxWidth="420">
+            <VBox fx:id="panelStartScreen" alignment="CENTER" spacing="18" styleClass="card,login-form-box">
+                <Label text="Chào mừng trở lại" styleClass="lbl-title-screen"/>
+                <Button text="Đăng nhập" styleClass="btn-primary" maxWidth="Infinity" onAction="#onMoDangNhap"/>
+                <Label text="Chưa có tài khoản?" styleClass="lbl-small"/>
+                <Button text="Đăng ký" styleClass="btn-secondary" maxWidth="Infinity" onAction="#onMoDangKy"/>
             </VBox>
 
-            <VBox spacing="8">
-                <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox fx:id="panelLogin" alignment="TOP_LEFT" spacing="20" prefWidth="420" styleClass="card,login-form-box">
+                <Label text="Đăng nhập" styleClass="lbl-title-screen"/>
+                <Label text="Nhập thông tin tài khoản để bắt đầu phiên làm việc." styleClass="lbl-body"/>
+
+                <VBox spacing="8">
+                    <Label text="Tên đăng nhập" styleClass="lbl-body-bold"/>
+                    <TextField fx:id="txtTenDangNhap" styleClass="text-field"/>
+                </VBox>
+
+                <VBox spacing="8">
                     <Label text="Mật khẩu" styleClass="lbl-body-bold"/>
-                </HBox>
-                <PasswordField fx:id="txtMatKhau" promptText="" styleClass="text-field" onAction="#onDangNhap"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <StackPane HBox.hgrow="ALWAYS">
+                            <PasswordField fx:id="txtMatKhau" styleClass="text-field" onAction="#onDangNhap" maxWidth="Infinity"/>
+                            <TextField fx:id="txtMatKhauVisible" styleClass="text-field" onAction="#onDangNhap" visible="false" managed="false" maxWidth="Infinity"/>
+                        </StackPane>
+                        <Button fx:id="btnToggleMatKhau" text="Hiện" styleClass="btn-secondary" onAction="#onToggleMatKhau"/>
+                    </HBox>
+                </VBox>
+
+                <Button fx:id="btnDangNhap" text="Đăng nhập" styleClass="btn-primary" maxWidth="Infinity" onAction="#onDangNhap"/>
+                <Label fx:id="lblThongBao" styleClass="lbl-danger" wrapText="true" maxWidth="Infinity"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+                <Button text="Quay lại" styleClass="btn-secondary" maxWidth="Infinity" onAction="#onQuayVeStart"/>
             </VBox>
 
-            <Button text="Đăng nhập" styleClass="btn-primary" maxWidth="Infinity" onAction="#onDangNhap"/>
-            <Label fx:id="lblThongBao" styleClass="lbl-danger" wrapText="true" maxWidth="Infinity"/>
-        </VBox>
+            <VBox fx:id="panelRegister" alignment="TOP_LEFT" spacing="16" prefWidth="420" styleClass="card,login-form-box">
+                <Label text="Đăng ký" styleClass="lbl-title-screen"/>
+                <Label text="Tạo tài khoản nhân viên mới." styleClass="lbl-body"/>
+
+                <VBox spacing="8">
+                    <Label text="Họ tên nhân viên" styleClass="lbl-body-bold"/>
+                    <TextField fx:id="txtRegisterHoTen" styleClass="text-field"/>
+                </VBox>
+
+                <VBox spacing="8">
+                    <Label text="Tên đăng nhập" styleClass="lbl-body-bold"/>
+                    <TextField fx:id="txtRegisterTenDangNhap" styleClass="text-field"/>
+                </VBox>
+
+                <VBox spacing="8">
+                    <Label text="Số điện thoại" styleClass="lbl-body-bold"/>
+                    <TextField fx:id="txtRegisterSoDienThoai" styleClass="text-field"/>
+                </VBox>
+
+                <VBox spacing="8">
+                    <Label text="Mật khẩu" styleClass="lbl-body-bold"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <StackPane HBox.hgrow="ALWAYS">
+                            <PasswordField fx:id="txtRegisterMatKhau" styleClass="text-field" maxWidth="Infinity"/>
+                            <TextField fx:id="txtRegisterMatKhauVisible" styleClass="text-field" visible="false" managed="false" maxWidth="Infinity"/>
+                        </StackPane>
+                        <Button fx:id="btnToggleRegisterMatKhau" text="Hiện" styleClass="btn-secondary" onAction="#onToggleRegisterMatKhau"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="8">
+                    <Label text="Vai trò" styleClass="lbl-body-bold"/>
+                    <ComboBox fx:id="cboRegisterVaiTro" maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="8">
+                    <Label text="Mã xác nhận của quản lý" styleClass="lbl-body-bold"/>
+                    <TextField fx:id="txtRegisterMaXacNhan" styleClass="text-field"/>
+                </VBox>
+
+                <Button fx:id="btnTaoTaiKhoan" text="Tạo tài khoản" styleClass="btn-primary" maxWidth="Infinity" onAction="#onTaoTaiKhoan"/>
+                <Label fx:id="lblRegisterThongBao" styleClass="lbl-danger" wrapText="true" maxWidth="Infinity"/>
+
+                <Button text="Quay lại" styleClass="btn-secondary" maxWidth="Infinity" onAction="#onQuayVeStart"/>
+            </VBox>
+        </StackPane>
     </HBox>
 </VBox>

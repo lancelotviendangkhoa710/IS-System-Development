@@ -38,7 +38,6 @@ PROMPT [3/7] Dang tao cac ham (Functions)...
 @@03_functions/func_availability.sql;
 @@03_functions/func_bestseller.sql;
 @@03_functions/func_calccost.sql;
-@@03_functions/func_calculate_custorm_cake.sql;
 @@03_functions/func_customprice.sql;
 @@03_functions/func_fefo.sql;
 @@03_functions/func_idealcash.sql;

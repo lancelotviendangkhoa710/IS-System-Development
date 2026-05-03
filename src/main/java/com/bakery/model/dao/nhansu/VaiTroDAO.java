@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VaiTroDAO extends BaseDAO {
-    private static final List<String> DEFAULT_ROLE_NAMES = List.of("Thu ngan", "Quan ly", "Tho bep");
+    private static final List<String> DEFAULT_ROLE_NAMES = List.of("Thu ngan", "Quan ly", "Tho bep", "Thu kho");
 
     public List<VaiTroDTO> layDanhSachVaiTroDangHoatDong() throws Exception {
         damBaoVaiTroMacDinh();

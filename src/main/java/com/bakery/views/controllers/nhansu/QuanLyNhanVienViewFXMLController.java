@@ -8,50 +8,45 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 public class QuanLyNhanVienViewFXMLController extends BaseController {
 
-    @FXML
-    private TableView<NhanVienDTO> tblNhanVien;
-    @FXML
-    private TableColumn<NhanVienDTO, Integer> colMaNV;
-    @FXML
-    private TableColumn<NhanVienDTO, String> colHoTen;
-    @FXML
-    private TableColumn<NhanVienDTO, String> colSdt;
-    @FXML
-    private TableColumn<NhanVienDTO, String> colVaiTro;
-    @FXML
-    private TableColumn<NhanVienDTO, String> colTenDangNhap;
-    @FXML
-    private TableColumn<NhanVienDTO, String> colTrangThai;
+    @FXML private TableView<NhanVienDTO> tblNhanVien;
+    @FXML private TableColumn<NhanVienDTO, Integer> colMaNV;
+    @FXML private TableColumn<NhanVienDTO, String> colHoTen;
+    @FXML private TableColumn<NhanVienDTO, String> colSdt;
+    @FXML private TableColumn<NhanVienDTO, String> colVaiTro;
+    @FXML private TableColumn<NhanVienDTO, String> colTenDangNhap;
+    @FXML private TableColumn<NhanVienDTO, String> colTrangThai;
 
-    @FXML
-    private TextField txtHoTen;
-    @FXML
-    private TextField txtSdt;
-    @FXML
-    private ComboBox<String> cmbVaiTro;
-    @FXML
-    private TextField txtTenDangNhap;
-    @FXML
-    private PasswordField txtMatKhau;
-    @FXML
-    private CheckBox chkHoatDong;
-    @FXML
-    private TextField txtTimKiem;
-    @FXML
-    private ComboBox<String> cmbLocTrangThai;
-    @FXML
-    private Button btnVoHieuHoa;
+    @FXML private TextField txtHoTen;
+    @FXML private TextField txtSdt;
+    @FXML private ComboBox<String> cmbVaiTro;
+    @FXML private TextField txtTenDangNhap;
+    @FXML private PasswordField txtMatKhau;
+    @FXML private TextField txtMatKhauVisible;
+    @FXML private Button btnToggleMatKhau;
+    @FXML private CheckBox chkHoatDong;
+    @FXML private TextField txtTimKiem;
+    @FXML private ComboBox<String> cmbLocTrangThai;
+    @FXML private Button btnVoHieuHoa;
 
     private final NhanVienService nhanVienService = new NhanVienService();
-    private ObservableList<NhanVienDTO> masterData = FXCollections.observableArrayList();
+    private final ObservableList<NhanVienDTO> masterData = FXCollections.observableArrayList();
     private Map<Integer, String> roleMap;
     private NhanVienDTO selectedNhanVien;
 
@@ -61,6 +56,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         loadRoles();
         setupFilters();
         loadData();
+        bindPasswordToggle();
 
         tblNhanVien.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
@@ -101,7 +97,6 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     private void loadData() {
         try {
             List<NhanVienDTO> list = nhanVienService.layTatCaNhanVien();
-            // Group by vai trò, sau đó sort theo mã nhân viên
             list.sort(Comparator.comparing(NhanVienDTO::getTenVaiTro, Comparator.nullsLast(String::compareTo))
                     .thenComparing(NhanVienDTO::getMaNV));
 
@@ -120,6 +115,10 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         cmbVaiTro.getSelectionModel().select(nv.getTenVaiTro());
         txtTenDangNhap.setText(nv.getTenDangNhap());
         txtMatKhau.clear();
+        txtMatKhauVisible.clear();
+        if (txtMatKhauVisible.isVisible()) {
+            onToggleMatKhau();
+        }
         chkHoatDong.setSelected(nv.getTrangThaiLamViec() == 1);
         lblThongBao.setText("Đang xem: " + nv.getHoTen());
     }
@@ -128,23 +127,21 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         String selectedStatus = cmbLocTrangThai.getValue();
 
         FilteredList<NhanVienDTO> filtered = new FilteredList<>(masterData, nv -> {
-            // Lọc theo từ khóa (Tên, SĐT, Tên đăng nhập)
             boolean matchesKeyword = true;
             if (keyword != null && !keyword.isBlank()) {
                 String lowerKey = keyword.toLowerCase().trim();
-                matchesKeyword = nv.getHoTen().toLowerCase().contains(lowerKey) ||
-                        nv.getSdt().contains(lowerKey) ||
-                        nv.getTenDangNhap().toLowerCase().contains(lowerKey);
+                matchesKeyword = nv.getHoTen().toLowerCase().contains(lowerKey)
+                        || nv.getSdt().contains(lowerKey)
+                        || nv.getTenDangNhap().toLowerCase().contains(lowerKey);
             }
 
-            // Lọc theo trạng thái
             boolean matchesStatus = true;
             if (selectedStatus != null && !selectedStatus.equals("Tất cả trạng thái")) {
                 int status = nv.getTrangThaiLamViec();
                 if (selectedStatus.equals("Đang làm việc")) {
-                    matchesStatus = (status == 1);
+                    matchesStatus = status == 1;
                 } else if (selectedStatus.equals("Ngừng việc")) {
-                    matchesStatus = (status == 0);
+                    matchesStatus = status == 0;
                 }
             }
 
@@ -163,6 +160,10 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         cmbVaiTro.getSelectionModel().clearSelection();
         txtTenDangNhap.clear();
         txtMatKhau.clear();
+        txtMatKhauVisible.clear();
+        if (txtMatKhauVisible.isVisible()) {
+            onToggleMatKhau();
+        }
         chkHoatDong.setSelected(true);
         txtHoTen.requestFocus();
         lblThongBao.setText("Mời nhập thông tin nhân viên mới.");
@@ -171,8 +172,9 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     @FXML
     private void onLuu() {
         try {
-            if (!validateInput())
+            if (!validateInput()) {
                 return;
+            }
 
             NhanVienDTO nv = selectedNhanVien != null ? selectedNhanVien : new NhanVienDTO();
             nv.setHoTen(txtHoTen.getText().trim());
@@ -180,19 +182,17 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
             nv.setTenDangNhap(txtTenDangNhap.getText().trim());
             nv.setTrangThaiLamViec(chkHoatDong.isSelected() ? 1 : 0);
 
-            // Map vai tro name back to ID
             String roleName = cmbVaiTro.getValue();
             int roleId = roleMap.entrySet().stream()
                     .filter(e -> e.getValue().equals(roleName))
                     .map(Map.Entry::getKey)
-                    .findFirst().orElse(0);
+                    .findFirst()
+                    .orElse(0);
             nv.setMaVaiTro(roleId);
 
-            if (!txtMatKhau.getText().isEmpty()) {
-                // In a real app, hash password here or in service.
-                // For simplicity assuming service or DAO handles hashing if password is set.
-                // However NhanVienDAO.themNhanVien expects hashed password.
-                nv.setMatKhau(com.bakery.utils.PasswordUtils.hash(txtMatKhau.getText()));
+            String matKhau = getPasswordValue();
+            if (!matKhau.isEmpty()) {
+                nv.setMatKhau(com.bakery.utils.PasswordUtils.hash(matKhau));
             }
 
             if (selectedNhanVien == null) {
@@ -207,14 +207,12 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
             onThemMoi();
         } catch (Exception e) {
             String msg = e.getMessage();
-            // Xử lý thông báo lỗi từ Oracle để thân thiện hơn (bỏ ORA-xxxxx)
-            if (msg.contains("ORA-")) {
+            if (msg != null && msg.contains("ORA-")) {
                 msg = msg.substring(msg.indexOf(":") + 1).trim();
-                if (msg.contains("ORA-")) { // Nếu vẫn còn (do lồng nhau)
+                if (msg.contains("ORA-")) {
                     msg = msg.substring(msg.indexOf(":") + 1).trim();
                 }
             }
-
             hienThiThongBaoLoi("Lỗi nghiệp vụ", msg);
         }
     }
@@ -256,6 +254,28 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         quayLaiMenuChinh(tblNhanVien);
     }
 
+    @FXML
+    private void onToggleMatKhau() {
+        boolean showing = txtMatKhauVisible.isVisible();
+        txtMatKhauVisible.setVisible(!showing);
+        txtMatKhauVisible.setManaged(!showing);
+        txtMatKhau.setVisible(showing);
+        txtMatKhau.setManaged(showing);
+        btnToggleMatKhau.setText(showing ? "Hiện" : "Ẩn");
+    }
+
+    private void bindPasswordToggle() {
+        txtMatKhauVisible.textProperty().bindBidirectional(txtMatKhau.textProperty());
+        txtMatKhauVisible.setVisible(false);
+        txtMatKhauVisible.setManaged(false);
+        btnToggleMatKhau.setText("Hiện");
+    }
+
+    private String getPasswordValue() {
+        String value = txtMatKhauVisible.isVisible() ? txtMatKhauVisible.getText() : txtMatKhau.getText();
+        return value == null ? "" : value.trim();
+    }
+
     private boolean validateInput() {
         String hoTen = txtHoTen.getText().trim();
         String sdt = txtSdt.getText().trim();
@@ -266,23 +286,20 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
             return false;
         }
 
-        // Kiểm tra định dạng số điện thoại
         if (!sdt.matches("\\d{10,11}")) {
             hienThiThongBaoLoi("Lỗi kiểu dữ liệu", "Số điện thoại phải là chữ số và có độ dài từ 10-11 ký tự.");
             return false;
         }
 
-        // Kiểm tra tên đăng nhập (không chứa khoảng trắng)
         if (tenDN.contains(" ")) {
             hienThiThongBaoLoi("Lỗi kiểu dữ liệu", "Tên đăng nhập không được chứa khoảng trắng.");
             return false;
         }
 
-        if (selectedNhanVien == null && txtMatKhau.getText().isEmpty()) {
+        if (selectedNhanVien == null && getPasswordValue().isEmpty()) {
             hienThiThongBaoLoi("Lỗi nhập liệu", "Nhân viên mới bắt buộc phải có mật khẩu.");
             return false;
         }
         return true;
     }
-
 }

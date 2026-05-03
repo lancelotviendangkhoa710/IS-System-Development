@@ -14,7 +14,73 @@ import java.util.List;
 import java.util.Set;
 
 public class PhanQuyenDAO extends BaseDAO {
+    private static final String[][] DEFAULT_CHUC_NANG = {
+            {"Hệ thống", "Quản lý cấu hình hệ thống", "SYSTEM"},
+            {"Nhân sự", "Quản lý nhân viên và vai trò", "HR"},
+            {"Khách hàng", "Quản lý khách hàng và hạng thành viên", "CRM"},
+            {"Sản phẩm", "Quản lý danh mục và sản phẩm", "INVENTORY"},
+            {"Kho", "Quản lý nguyên liệu và nhập xuất kho", "INVENTORY"},
+            {"Bán hàng", "Màn hình bán hàng POS", "POS"},
+            {"Đơn hàng", "Quản lý đơn đặt hàng và trạng thái", "POS"},
+            {"Báo cáo", "Xem báo cáo thống kê doanh thu", "REPORTS"}
+    };
+
+    private void damBaoChucNangMacDinh() throws Exception {
+        String sql = """
+                INSERT INTO CHUCNANG (TENCHUCNANG, MOTA, MODULE)
+                SELECT ?, ?, ?
+                FROM DUAL
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM CHUCNANG
+                    WHERE UPPER(TRIM(TENCHUCNANG)) = UPPER(TRIM(?))
+                )
+                """;
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            for (String[] chucNang : DEFAULT_CHUC_NANG) {
+                pstmt.setString(1, chucNang[0]);
+                pstmt.setString(2, chucNang[1]);
+                pstmt.setString(3, chucNang[2]);
+                pstmt.setString(4, chucNang[0]);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            handleException("damBaoChucNangMacDinh", e);
+            throw new Exception("Khong the khoi tao cac chuc nang mac dinh.");
+        }
+    }
+
+    private void capQuyenChoTatCaVaiTro() throws Exception {
+        damBaoChucNangMacDinh();
+
+        String sql = """
+                INSERT INTO VAITRO_CHUCNANG (MAVAITRO, MACHUCNANG)
+                SELECT V.MAVAITRO, C.MACHUCNANG
+                FROM VAITRO V
+                CROSS JOIN CHUCNANG C
+                WHERE V.THOIDIEMXOA IS NULL
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM VAITRO_CHUCNANG VC
+                      WHERE VC.MAVAITRO = V.MAVAITRO
+                        AND VC.MACHUCNANG = C.MACHUCNANG
+                  )
+                """;
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            handleException("capQuyenChoTatCaVaiTro", e);
+            throw new Exception("Khong the dong bo phan quyen cho tat ca vai tro.");
+        }
+    }
+
     public RolePermissionInfo layThongTinPhanQuyenTheoVaiTro(int maVaiTro) throws Exception {
+        capQuyenChoTatCaVaiTro();
+
         String sql = """
                 SELECT V.TENVAITRO,
                        CASE WHEN V.THOIDIEMXOA IS NULL THEN 1 ELSE 0 END AS VAITRO_HOATDONG,
