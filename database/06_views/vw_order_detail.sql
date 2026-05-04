@@ -1,5 +1,5 @@
 -- Dữ liệu in hóa đơn nhiệt cho JasperReports
-CREATE OR REPLACE VIEW VW_ChiTietInHoaDon AS
+CREATE OR REPLACE VIEW VW_CHI_TIET_IN_HOADON AS
 -- Các dòng bánh bán sẵn (từ CTDONHANG)
 SELECT
     HD.MAHD,

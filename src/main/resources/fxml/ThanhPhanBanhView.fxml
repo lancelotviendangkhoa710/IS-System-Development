@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.kho.ThanhPhanBanhController">
+    <padding>
+        <Insets bottom="20" left="20" right="20" top="20" />
+    </padding>
+
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Cot Banh Section -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="card">
+            <Label text="Cốt bánh" styleClass="lbl-title-card" />
+            <TableView fx:id="tblCotBanh" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colTenCot" text="Tên cốt bánh" prefWidth="150" />
+                    <TableColumn fx:id="colPhuPhiCot" text="Phụ phí" prefWidth="100" />
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+            <HBox spacing="10">
+                <Button text="➕" onAction="#onThemCot" styleClass="btn-primary" />
+                <Button text="✏️" onAction="#onSuaCot" styleClass="btn-secondary" />
+                <Button text="🗑" onAction="#onXoaCot" styleClass="btn-danger" />
+            </HBox>
+        </VBox>
+
+        <!-- Nhan Banh Section -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="card">
+            <Label text="Nhân bánh" styleClass="lbl-title-card" />
+            <TableView fx:id="tblNhanBanh" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colTenNhan" text="Tên nhân bánh" prefWidth="150" />
+                    <TableColumn fx:id="colPhuPhiNhan" text="Phụ phí" prefWidth="100" />
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+            <HBox spacing="10">
+                <Button text="➕" onAction="#onThemNhan" styleClass="btn-primary" />
+                <Button text="✏️" onAction="#onSuaNhan" styleClass="btn-secondary" />
+                <Button text="🗑" onAction="#onXoaNhan" styleClass="btn-danger" />
+            </HBox>
+        </VBox>
+
+        <!-- Kieu Trang Tri Section -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="card">
+            <Label text="Kiểu trang trí" styleClass="lbl-title-card" />
+            <TableView fx:id="tblKieuTrangTri" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colTenTrangTri" text="Tên kiểu trang trí" prefWidth="150" />
+                    <TableColumn fx:id="colPhuPhiTrangTri" text="Phụ phí" prefWidth="100" />
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+            <HBox spacing="10">
+                <Button text="➕" onAction="#onThemTrangTri" styleClass="btn-primary" />
+                <Button text="✏️" onAction="#onSuaTrangTri" styleClass="btn-secondary" />
+                <Button text="🗑" onAction="#onXoaTrangTri" styleClass="btn-danger" />
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <Label fx:id="lblThongBao" styleClass="lbl-small-bold" />
+</VBox>

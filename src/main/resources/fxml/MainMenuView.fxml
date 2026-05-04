@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.layout.ColumnConstraints?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.hethong.MainMenuViewFXMLController"
+            styleClass="dashboard-root">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox fx:id="vboxSidebar" styleClass="dash-sidebar" prefWidth="240">
+            <!-- Header with Toggle -->
+            <HBox fx:id="hboxLogo" alignment="CENTER_LEFT" spacing="10" styleClass="dash-logo-box">
+                <children>
+                    <Button fx:id="btnToggleSidebar" text="☰" onAction="#onToggleSidebar" styleClass="icon-btn" />
+                    <Label fx:id="lblLogoText" text="H3K Bakery" styleClass="dash-logo-text"/>
+                </children>
+            </HBox>
+            
+            <!-- Navigation with Scroll -->
+            <ScrollPane fx:id="scrollNav" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" 
+                        VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                <content>
+                    <VBox styleClass="dash-nav" spacing="8">
+                        <Button fx:id="btnTongQuan" text="📊 Tổng quan" styleClass="dash-nav-item, dash-nav-active" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                        <Button fx:id="btnBanHang" text="🛒 Tạo đơn mới" styleClass="dash-nav-item"  maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoBanHang"/>
+                        <Button fx:id="btnInventory" text="📦 Inventory" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                        <Button fx:id="btnNhanSuSidebar" text="👥 Nhân viên" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNhanSu"/>
+                        <Button fx:id="btnKhachHang" text="🤝 Khách hàng" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoKhachHang"/>
+                        <Button fx:id="btnBaoCao" text="📈 Báo cáo" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoBaoCao"/>
+                        <Button fx:id="btnTheoDoiDon" text="🚚 Theo dõi đơn" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoTheoDoiDon"/>
+                        <Button fx:id="btnNhaCungCap" text="🏭 Nhà cung cấp" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNhaCungCap"/>
+                        <Button fx:id="btnDanhMuc"     text="📂 Danh mục SP"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoDanhMuc"/>
+                        <Button fx:id="btnSanPham"     text="🍞 Quản lý SP"      styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoSanPham"/>
+                        <Button fx:id="btnNguyenLieu"  text="🍎 Quản lý NL"   styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT" onAction="#onMoNguyenLieu"/>
+                         <Button fx:id="btnKds" text="👨‍🍳 Màn hình bếp" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                        <Button fx:id="btnAuditLogs" text="📜 Lịch sử" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </VBox>
+    </left>
+ 
+    <!-- CENTER CONTENT -->
+    <center>
+        <BorderPane>
+            <!-- HEADER -->
+            <top>
+                <HBox styleClass="dash-header" alignment="CENTER_LEFT">
+                    <!-- Nav links -->
+               
+                    
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <Region prefWidth="24"/>
+                    
+                    <!-- Icons -->
+                    <HBox styleClass="dash-header-icons" spacing="12" alignment="CENTER">
+                        <Button text="⛶" styleClass="dash-icon-btn" onAction="#onToggleFullScreen">
+                            <tooltip>
+                                <Tooltip text="Toàn màn hình"/>
+                            </tooltip>
+                        </Button>
+                        <Button text="🔔" styleClass="dash-icon-btn"/>
+                        <Button text="⚙" styleClass="dash-icon-btn"/>
+                        <Button text="☁" styleClass="dash-icon-btn"/>
+                    </HBox>
+                    
+                    <!-- User Profile -->
+                    <HBox styleClass="dash-user-profile" spacing="12" alignment="CENTER">
+                        <VBox alignment="CENTER_RIGHT">
+                            <Label fx:id="lblTenNguoiDung" text="User Name" styleClass="dash-user-name"/>
+                            <Label fx:id="lblVaiTro" text="ROLE ACCESS" styleClass="dash-user-role"/>
+                        </VBox>
+                        <!-- Fake Avatar -->
+                        <Circle radius="18" fill="#1C0A00" styleClass="dash-avatar"/>
+                        
+                        <Button text="🚪" styleClass="dash-icon-btn" onAction="#onDangXuat" style="-fx-font-size: 16px;"/>
+                    </HBox>
+                </HBox>
+            </top>
+
+            <!-- MAIN DASHBOARD SCROLL -->
+            <center>
+                <ScrollPane fitToWidth="true" styleClass="dash-scroll" style="-fx-background-color: transparent;">
+                    <VBox styleClass="dash-main-content" spacing="30">
+                        <!-- BANNER -->
+                        <HBox styleClass="dash-banner">
+                            <VBox styleClass="dash-banner-text-box" spacing="12" HBox.hgrow="ALWAYS">
+                                <HBox alignment="BOTTOM_LEFT">
+                                    <Label text="Xin chào, " styleClass="dash-banner-title"/>
+                                    <Label fx:id="lblBannerName" text="user name" styleClass="dash-banner-title-name"/>
+                                </HBox>
+                                <Label text="Chào mừng bạn quay lại với hệ thống quản lý tiệm bánh H3K!" styleClass="dash-banner-sub" wrapText="true" maxWidth="500"/>
+                                <Region prefHeight="8"/>
+                                <HBox spacing="16">
+                                    <Button text="Tạo đơn hàng mới" styleClass="dash-btn-primary" onAction="#onMoBanHang"/>
+                                    <Button fx:id="btnQuanLyCa" text="Quản lý Ca làm việc" styleClass="dash-btn-secondary" onAction="#onQuanLyCa"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="lblThongBao" style="-fx-text-fill: #DC2626; -fx-font-weight: bold;"/>
+
+                        <!-- BEST SELLERS MENU -->
+                        <VBox spacing="16" style="-fx-padding: 0 0 40 0;">
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Label text="🌟 Bánh Bán Chạy Nhất" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                            </HBox>
+                            <FlowPane fx:id="flowBestSellersMenu" hgap="16" vgap="16" maxWidth="Infinity">
+                                <!-- Dynamic items loaded via Controller -->
+                            </FlowPane>
+                        </VBox>
+
+                        <!-- MODULES GRID -->
+                        <GridPane hgap="24" vgap="24" styleClass="dash-grid">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="33.33"/>
+                                <ColumnConstraints percentWidth="33.33"/>
+                                <ColumnConstraints percentWidth="33.33"/>
+                            </columnConstraints>
+
+                            <!-- Card 1: POS -->
+                            <VBox styleClass="dash-card" GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="12">
+                                <StackPane styleClass="dash-icon-box, dash-icon-pos">
+                                    <Label text="🛒" styleClass="dash-icon-text, dash-icon-text-pos"/>
+                                </StackPane>
+                                <Label text="POS (Bán hàng)" styleClass="dash-card-title"/>
+                                <Label text="Manage daily sales, process payments, and generate digital receipts seamlessly." styleClass="dash-card-desc" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button fx:id="btnBanHang" text="Truy cập ngay →" styleClass="dash-card-action, dash-action-pos" onAction="#onMoBanHang"/>
+                            </VBox>
+                            
+                            <!-- Card 2: Inventory -->
+                            <VBox styleClass="dash-card" GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="12">
+                                <StackPane styleClass="dash-icon-box, dash-icon-inv">
+                                    <Label text="📦" styleClass="dash-icon-text, dash-icon-text-inv"/>
+                                </StackPane>
+                                <Label text="Inventory (Kho hàng)" styleClass="dash-card-title"/>
+                                <Label text="Track stock levels, manage ingredients, and set automated reorder alerts." styleClass="dash-card-desc" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button fx:id="btnKho" text="Kiểm kê kho →" styleClass="dash-card-action, dash-action-inv" onAction="#onMoKho"/>
+                            </VBox>
+
+                            <!-- Card 3: Staff -->
+                            <VBox styleClass="dash-card" GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="12">
+                                <StackPane styleClass="dash-icon-box, dash-icon-staff">
+                                    <Label text="👥" styleClass="dash-icon-text, dash-icon-text-staff"/>
+                                </StackPane>
+                                <Label text="Staff (Nhân sự)" styleClass="dash-card-title"/>
+                                <Label text="Manage employee shifts, payroll, and performance metrics for the team." styleClass="dash-card-desc" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button fx:id="btnNhanSu" text="Quản lý đội ngũ →" styleClass="dash-card-action, dash-action-staff" onAction="#onMoNhanSu"/>
+                            </VBox>
+
+                            <!-- Card 4: Reports -->
+                            <VBox styleClass="dash-card" onMouseClicked="#onMoBaoCao" style="-fx-cursor: hand;" GridPane.columnIndex="0" GridPane.rowIndex="1" spacing="12">
+                                <StackPane styleClass="dash-icon-box, dash-icon-report">
+                                    <Label text="📈" styleClass="dash-icon-text, dash-icon-text-report"/>
+                                </StackPane>
+                                <Label text="Business Reports" styleClass="dash-card-title"/>
+                                <Label text="Deep dive into financial health, popular items, and customer trends." styleClass="dash-card-desc" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button fx:id="btnBaoCaoCard" text="Xem báo cáo →" styleClass="dash-card-action, dash-action-report" onAction="#onMoBaoCao"/>
+                            </VBox>
+
+                            <!-- Card 5: KDS -->
+                            <VBox styleClass="dash-card" GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="12">
+                                <StackPane styleClass="dash-icon-box, dash-icon-kds">
+                                    <Label text="👨‍🍳" styleClass="dash-icon-text, dash-icon-text-kds"/>
+                                </StackPane>
+                                <Label text="KDS (Màn hình bếp)" styleClass="dash-card-title"/>
+                                <Label text="Live kitchen display system to manage order queues and preparation times." styleClass="dash-card-desc" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button fx:id="btnKds" text="Điều phối bếp →" styleClass="dash-card-action, dash-action-kds" onAction="#onModuleChuaSanSang"/>
+                            </VBox>
+
+                            <!-- Card 6: Audit Logs -->
+                            <VBox styleClass="dash-card" GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="12">
+                                <StackPane styleClass="dash-icon-box, dash-icon-audit">
+                                    <Label text="🧾" styleClass="dash-icon-text, dash-icon-text-audit"/>
+                                </StackPane>
+                                <Label text="Audit Logs" styleClass="module-title"/>
+                                <Label text="Monitor all system activities and security events for total transparency." styleClass="dash-card-desc" wrapText="true"/>
+                                <Region VBox.vgrow="ALWAYS"/>
+                                <Button fx:id="btnAuditLogs" text="Kiểm tra hệ thống →" styleClass="dash-card-action, dash-action-audit" onAction="#onModuleChuaSanSang"/>
+                            </VBox>
+                        </GridPane>
+                    
+                        
+                        <Region prefHeight="40"/>
+                    </VBox>
+                </ScrollPane>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

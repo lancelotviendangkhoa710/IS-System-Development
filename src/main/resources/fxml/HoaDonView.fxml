@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="400.0" spacing="0" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.banhang.HoaDonViewFXMLController">
+    <children>
+        <!-- Receipt Content Area (Scrollable) -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="bg-app" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox fx:id="receiptContainer" alignment="TOP_CENTER" spacing="10" styleClass="receipt-panel">
+                    <padding>
+                        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <!-- Header -->
+                        <Label fx:id="lblBakeryName" text="H3K BAKERY" styleClass="receipt-brand" />
+                        <Label text="Thưởng thức hương vị ngọt ngào" styleClass="lbl-small" />
+                        <Label fx:id="lblTieuDe" text="HÓA ĐƠN THANH TOÁN" styleClass="receipt-title">
+                            <VBox.margin>
+                                <Insets top="15.0" />
+                            </VBox.margin>
+                        </Label>
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="5.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Info Grid -->
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Mã đơn:" styleClass="lbl-muted" />
+                                        <Label fx:id="lblMaDon" text="-" styleClass="lbl-body-bold" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Mã HĐ:" styleClass="lbl-muted" />
+                                        <Label fx:id="lblMaHoaDon" text="-" styleClass="lbl-body-bold" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Ngày lập:" styleClass="lbl-muted" />
+                                        <Label fx:id="lblNgayLap" text="-" styleClass="lbl-body-bold" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label prefWidth="100.0" text="Khách hàng:" styleClass="lbl-muted" />
+                                        <Label fx:id="lblTenKhach" text="-" styleClass="lbl-body-bold" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Items Table Header -->
+                        <HBox>
+                            <children>
+                                <Label prefWidth="180.0" text="Sản phẩm" styleClass="lbl-body-bold" />
+                                <Label alignment="CENTER" prefWidth="40.0" text="SL" styleClass="lbl-body-bold" />
+                                <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Thành tiền" styleClass="lbl-body-bold" />
+                            </children>
+                        </HBox>
+                        
+                        <!-- Items Container -->
+                        <VBox fx:id="vboxItems" spacing="8.0" />
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="10.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Summary -->
+                        <VBox spacing="5.0" styleClass="receipt-summary">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Tổng cộng:" HBox.hgrow="ALWAYS" styleClass="lbl-body" />
+                                        <Label fx:id="lblTongTien" text="0 đ" styleClass="lbl-body-bold" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label fx:id="lblGiamGiaLabel" maxWidth="Infinity" text="Giảm giá:" HBox.hgrow="ALWAYS" styleClass="lbl-body" />
+                                        <Label fx:id="lblGiamGia" text="0 đ" styleClass="lbl-danger" />
+                                    </children>
+                                </HBox>
+                                <HBox styleClass="receipt-total-row">
+                                    <children>
+                                        <Label fx:id="lblPayLabel" maxWidth="Infinity" text="THANH TOÁN:" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="lblDaThu" text="0 đ" styleClass="lbl-price" />
+                                    </children>
+                                    <padding>
+                                        <Insets top="5.0" />
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="5.0" top="5.0" />
+                            </VBox.margin>
+                        </Separator>
+                        
+                        <!-- Payment details -->
+                        <VBox spacing="5.0">
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Tiền khách đưa:" HBox.hgrow="ALWAYS" styleClass="lbl-small" />
+                                        <Label fx:id="lblTienKhachDua" text="-" styleClass="lbl-small-bold" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Tiền thừa:" HBox.hgrow="ALWAYS" styleClass="lbl-small" />
+                                        <Label fx:id="lblTienThua" text="-" styleClass="lbl-small-bold" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        
+                        <Label text="CẢM ƠN QUÝ KHÁCH &amp; HẸN GẶP LẠI!" styleClass="lbl-small">
+                            <VBox.margin>
+                                <Insets top="20.0" />
+                            </VBox.margin>
+                        </Label>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+        
+        <!-- Actions -->
+        <HBox alignment="CENTER" spacing="15.0" styleClass="dialog-footer">
+            <padding>
+                <Insets bottom="15.0" top="15.0" />
+            </padding>
+            <children>
+                <Button fx:id="btnPrint" mnemonicParsing="false" onAction="#handlePrint" prefWidth="120.0" styleClass="btn-primary" text="In hóa đơn" />
+                <Button fx:id="btnClose" mnemonicParsing="false" onAction="#handleClose" prefWidth="120.0" styleClass="btn-secondary" text="Đóng" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
+

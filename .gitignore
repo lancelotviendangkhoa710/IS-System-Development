@@ -1,13 +1,12 @@
 # Biểu mẫu gitignore cho dự án Java Maven (VSCode)
 
-# Thư mục dành cho Agent xử lý
-.agents/
-
 # Thư mục build
 target/
 bin/
 build/
 out/
+build-check/
+.tools/
 
 # Cấu hình IDE / Môi trường phát triển
 .vscode/
@@ -29,4 +28,5 @@ src/main/java/com/bakery/utils/DBConnect.java
 
 # Tệp hệ thống
 .DS_Store
+.vscode
 Thumbs.db

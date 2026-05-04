@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    DoiSoatDongCaView.fxml — Dialog đối soát & đóng ca (chỉ dành cho CASHIER)
+    Mở như modal Stage từ DashboardController.onThucHienDongCa().
+    Controller: com.bakery.views.controllers.DoiSoatDongCaController
+-->
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.hethong.DoiSoatDongCaViewFXMLController"
+      prefWidth="520" spacing="0"
+      style="-fx-background-color: white; -fx-background-radius: 0;">
+
+    <!-- ══ HEADER ═══════════════════════════════════════════════════════════ -->
+    <HBox styleClass="doisoat-header" spacing="10" alignment="CENTER_LEFT">
+        <Label text="&#9635;"
+               style="-fx-text-fill: -amber-primary; -fx-font-size: 18px;
+                      -fx-font-family: 'Segoe UI';"/>
+        <Label text="Đối soát đóng ca"
+               style="-fx-text-fill: -amber-primary; -fx-font-size: 16px;
+                      -fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+    </HBox>
+
+    <!-- ══ NỘI DUNG ══════════════════════════════════════════════════════════ -->
+    <VBox style="-fx-padding: 20 24 24 24;" spacing="0">
+
+        <!-- LOADING -->
+        <StackPane fx:id="paneLoading" prefHeight="80" alignment="CENTER">
+            <ProgressIndicator prefWidth="32" prefHeight="32"/>
+        </StackPane>
+
+        <!-- ── INFO CA (hiện sau khi load xong) ── -->
+        <VBox fx:id="paneInfo" spacing="12" visible="false" managed="false">
+
+            <!-- Hàng 1: Mã ca | Máy POS -->
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Mã ca: " styleClass="text-small"/>
+                <Label fx:id="lblMaCa" text="—"
+                       style="-fx-font-weight: bold; -fx-font-size: 13px;
+                              -fx-font-family: 'Segoe UI'; -fx-text-fill: -text-primary;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Máy POS: " styleClass="text-small"/>
+                <Label fx:id="lblMayPOS" text="—"
+                       style="-fx-font-weight: bold; -fx-font-size: 13px;
+                              -fx-font-family: 'Segoe UI'; -fx-text-fill: -text-primary;"/>
+            </HBox>
+
+            <!-- Hàng 2: Tiền đầu ca (label trái, giá trị phải) -->
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Tiền mặt đầu ca:" styleClass="text-small"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblTienDauCa" text="—"
+                       style="-fx-text-fill: -amber-primary; -fx-font-size: 14px;
+                              -fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+            </HBox>
+
+            <!-- Hàng 3: Doanh thu (label trái, giá trị phải) -->
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Doanh thu phát sinh:" styleClass="text-small"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblDoanhThu" text="—"
+                       style="-fx-text-fill: -amber-primary; -fx-font-size: 14px;
+                              -fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+            </HBox>
+
+            <Separator style="-fx-padding: 4 0 4 0;"/>
+
+            <!-- ── LABEL CHUNG ── -->
+            <Label text="Tiền thực tế đếm được trong két (VNĐ):" styleClass="text-small"/>
+
+            <!-- ══════════════════════════════════════════════════════════════
+                 TRẠNG THÁI 1 — Nhập tiền
+                 ══════════════════════════════════════════════════════════════ -->
+            <HBox fx:id="sectionNhapTien" spacing="10" alignment="CENTER_LEFT">
+                <HBox styleClass="prefix-field-box" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+                    <Label text="đ" styleClass="prefix-label"/>
+                    <TextField fx:id="tfNhap"
+                               styleClass="prefix-input"
+                               promptText="Ví dụ: 1500000"
+                               HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <Button text="Kiểm tra"
+                        styleClass="btn-primary"
+                        onAction="#onKiemTra"
+                        prefWidth="110" prefHeight="40"/>
+            </HBox>
+
+            <!-- ══════════════════════════════════════════════════════════════
+                 TRẠNG THÁI 2 — Sau kiểm tra
+                 ══════════════════════════════════════════════════════════════ -->
+            <VBox fx:id="sectionSauKiemTra" spacing="12"
+                  visible="false" managed="false">
+
+                <!-- Tiền + Sửa lại -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <HBox styleClass="prefix-field-box" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+                        <Label text="đ" styleClass="prefix-label"/>
+                        <TextField fx:id="tfHienThi"
+                                   styleClass="prefix-input"
+                                   editable="false"
+                                   HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Button text="Sửa lại"
+                            styleClass="btn-secondary"
+                            onAction="#onSuaLai"
+                            prefWidth="90" prefHeight="40"/>
+                </HBox>
+
+                <!-- Cảnh báo (mismatch) -->
+                <VBox fx:id="boxCanhBao" styleClass="alert-box-warning"
+                      spacing="4" visible="false" managed="false">
+                    <Label text="&#9888; Cảnh báo: Số tiền không khớp!"
+                           style="-fx-font-weight: bold; -fx-text-fill: -amber-text;
+                                  -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;"/>
+                    <Label text="Tiền đếm đang chênh lệch. Vui lòng đếm lại hoặc nhập lý do giải trình."
+                           styleClass="text-small" wrapText="true" maxWidth="440"/>
+                </VBox>
+
+                <!-- Thành công (match) -->
+                <VBox fx:id="boxThanhCong" styleClass="alert-box-success"
+                      visible="false" managed="false">
+                    <Label text="&#10003; Tuyệt vời! Số tiền đếm thực tế khớp 100%."
+                           style="-fx-font-weight: bold; -fx-text-fill: -color-success;
+                                  -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Lý do (chỉ khi mismatch) -->
+                <VBox fx:id="vboxLyDo" spacing="6"
+                      visible="false" managed="false">
+                    <Label text="&#9888; Lý do giải trình (Bắt buộc):"
+                           style="-fx-text-fill: -amber-text; -fx-font-weight: bold;
+                                  -fx-font-size: 12px; -fx-font-family: 'Segoe UI';"/>
+                    <TextArea fx:id="taLyDo"
+                              prefRowCount="3"
+                              wrapText="true"
+                              promptText="Nhập lý do chênh lệch..."
+                              styleClass="text-area"/>
+                </VBox>
+            </VBox>
+
+            <!-- ══════════════════════════════════════════════════════════════
+                 TRẠNG THÁI 3 — Kết quả đóng ca
+                 ══════════════════════════════════════════════════════════════ -->
+            <VBox fx:id="sectionKetQua" spacing="12"
+                  visible="false" managed="false">
+
+                <!-- Tiền (read-only) -->
+                <HBox styleClass="prefix-field-box" alignment="CENTER_LEFT">
+                    <Label text="đ" styleClass="prefix-label"/>
+                    <TextField fx:id="tfKetQua"
+                               styleClass="prefix-input"
+                               editable="false"
+                               HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <!-- Lý do read-only (nếu có) -->
+                <VBox fx:id="vboxLyDoReadOnly" spacing="4"
+                      visible="false" managed="false">
+                    <Label text="Lý do đã giải trình:" styleClass="text-small"/>
+                    <Label fx:id="lblLyDoReadOnly" text=""
+                           style="-fx-font-style: italic; -fx-font-family: 'Segoe UI';
+                                  -fx-font-size: 13px; -fx-text-fill: -text-secondary;"
+                           wrapText="true"/>
+                </VBox>
+
+                <!-- Bảng kết quả -->
+                <VBox styleClass="result-box" spacing="10">
+                    <Label text="KẾT QUẢ ĐỐI SOÁT"
+                           style="-fx-font-weight: bold; -fx-font-size: 13px;
+                                  -fx-text-fill: -amber-primary; -fx-font-family: 'Segoe UI';"
+                           maxWidth="Infinity"/>
+                    <HBox>
+                        <Label text="Tiền đếm thực tế:" styleClass="text-small"
+                               HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblKQThucTe" text="—" styleClass="text-body-bold"/>
+                    </HBox>
+                    <HBox>
+                        <Label text="Hệ thống tính:" styleClass="text-small"
+                               HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblKQHeThonh" text="—" styleClass="text-body-bold"/>
+                    </HBox>
+                    <Separator/>
+                    <HBox>
+                        <Label text="Chênh lệch:" styleClass="text-body-bold"
+                               HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblKQChenhLech" text="—"
+                               style="-fx-font-weight: bold; -fx-font-size: 16px;
+                                      -fx-font-family: 'Segoe UI';"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <Label fx:id="lblThongBao" text="" styleClass="text-error" wrapText="true" maxWidth="480"/>
+
+            <!-- ══ NÚT BẤM ═══════════════════════════════════════════════════ -->
+
+            <!-- Trạng thái 1: Hủy bỏ -->
+            <HBox fx:id="hboxBtnInput" style="-fx-padding: 4 0 0 0;">
+                <Button text="Hủy bỏ"
+                        styleClass="btn-secondary"
+                        onAction="#onHuyBo"
+                        maxWidth="Infinity" HBox.hgrow="ALWAYS" prefHeight="40"/>
+            </HBox>
+
+            <!-- Trạng thái 2: Hủy bỏ + Khóa sổ -->
+            <HBox fx:id="hboxBtnKhoaSo" spacing="12"
+                  visible="false" managed="false"
+                  style="-fx-padding: 4 0 0 0;">
+                <Button text="Hủy bỏ"
+                        styleClass="btn-secondary"
+                        onAction="#onHuyBo"
+                        maxWidth="Infinity" HBox.hgrow="ALWAYS" prefHeight="40"/>
+                <Button fx:id="btnKhoaSo"
+                        text="&#128274; Khóa sổ &amp; Xem kết quả"
+                        styleClass="btn-primary"
+                        onAction="#onKhoaSo"
+                        maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                        prefHeight="40" disable="true"/>
+            </HBox>
+
+            <!-- Trạng thái 3: Hoàn tất & Đăng xuất -->
+            <Button fx:id="btnHoanTat"
+                    text="&#10003; Hoàn tất &amp; Đăng xuất"
+                    styleClass="btn-success"
+                    onAction="#onHoanTat"
+                    maxWidth="Infinity" prefHeight="44"
+                    visible="false" managed="false"
+                    style="-fx-padding: 4 0 0 0;"/>
+
+        </VBox><!-- /paneInfo -->
+    </VBox><!-- /content -->
+</VBox>
+

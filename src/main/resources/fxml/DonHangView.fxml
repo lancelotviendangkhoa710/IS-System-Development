@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<!--
+    OrderView.fxml — Màn hình chính POS System
+    Layout: BorderPane (Sidebar | Header + Content)
+    Controller: com.bakery.views.controllers.OrderController
+-->
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.banhang.DonHangViewFXMLController"
+            styleClass="bg-app">
+
+    <!-- ═══════════════ SIDEBAR TRÁI (220px) ═══════════════ -->
+    <left>
+        <VBox styleClass="sidebar" spacing="0">
+
+            <!-- Logo Block -->
+            <VBox styleClass="bg-surface" alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 16 20 16 20;">
+                <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onBackToMenu" style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
+                <Label text="🥐 H3K Bakery" styleClass="sidebar-logo"/>
+                <Label text="BAKERY MANAGEMENT" styleClass="sidebar-tagline"/>
+                <Separator/>
+            </VBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="6" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="16" right="12" bottom="16" left="12"/>
+                </padding>
+
+                <Label text="MENU" styleClass="lbl-small-bold"
+                       style="-fx-padding: 8 4 4 4; -fx-text-fill: #D97706;"/>
+
+                <Button fx:id="btnNavPOS"
+                        text="🛒  POS - Bán hàng"
+                        styleClass="nav-item, nav-item-active"
+                        onAction="#onNavPOS"
+                        maxWidth="Infinity"/>
+
+                <Button fx:id="btnNavTheoDoi"
+                        text="📋  Theo dõi đơn"
+                        styleClass="nav-item"
+                        onAction="#onNavTheoDoi"
+                        maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- User Info Block (dưới cùng sidebar) -->
+            <Separator/>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <padding>
+                    <Insets top="16" right="12" bottom="16" left="12"/>
+                </padding>
+                <Label text="👤" style="-fx-font-size: 24px;"/>
+                <VBox spacing="2">
+                    <Label fx:id="lblNguoiDungDangNhap" text="Nguoi dung" styleClass="lbl-body-bold"/>
+                    <Label fx:id="lblQuyenDangNhap" text="Role Access" styleClass="lbl-small"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </left>
+
+    <!-- ═══════════════ NỘI DUNG CHÍNH ═══════════════ -->
+    <center>
+        <VBox>
+
+            <!-- Header (64px) -->
+            <HBox styleClass="app-header" alignment="CENTER_LEFT" spacing="16">
+                <Label fx:id="lblHeaderTitle"
+                       text="POS — Bán hàng &amp; Quản lý đơn"
+                       styleClass="header-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblThongBaoHeader"
+                       text=""
+                       styleClass="lbl-body"
+                       style="-fx-text-fill: #16A34A;"/>
+            </HBox>
+
+            <!-- Content (Tab area dùng StackPane + CardLayout logic) -->
+            <StackPane VBox.vgrow="ALWAYS">
+
+                <!-- TAB 1: POS - Tạo đơn -->
+                <HBox fx:id="tabTaoDon" spacing="16" visible="true">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <!-- Panel trái: Danh sách sản phẩm (65%) -->
+                    <VBox HBox.hgrow="ALWAYS" spacing="12">
+
+                        <!-- Filter Bar -->
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <ToggleButton fx:id="btnLocTatCa" text="Tất cả"
+                                         styleClass="toggle-filter"
+                                         onAction="#onLocDanhMuc"
+                                         userData="ALL" selected="true"/>
+                            <ToggleButton fx:id="btnLocCake" text="🎂 Cake"
+                                         styleClass="toggle-filter"
+                                         onAction="#onLocDanhMuc"
+                                         userData="Cake"/>
+                            <ToggleButton fx:id="btnLocCookie" text="🍪 Cookie"
+                                         styleClass="toggle-filter"
+                                         onAction="#onLocDanhMuc"
+                                         userData="Cookie"/>
+                            <ToggleButton fx:id="btnLocBread" text="🍞 Bread"
+                                         styleClass="toggle-filter"
+                                         onAction="#onLocDanhMuc"
+                                         userData="Bread"/>
+                            <ToggleButton fx:id="btnLocTuyChinh" text="✨ Tùy chỉnh"
+                                         styleClass="toggle-filter"
+                                         onAction="#onLocDanhMuc"
+                                         userData="CUSTOM"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtTimKiemSanPham"
+                                       promptText="🔍  Tìm sản phẩm..."
+                                       prefWidth="220"
+                                       styleClass="text-field"/>
+                        </HBox>
+
+                        <!-- Product Area (StackPane chứa 2 màn hình: Products / Custom) -->
+                        <StackPane VBox.vgrow="ALWAYS">
+
+                            <!-- Màn hình sản phẩm thông thường -->
+                            <ScrollPane fx:id="scrollSanPham" fitToWidth="true"
+                                        style="-fx-background-color: transparent; -fx-background: transparent;"
+                                        visible="true">
+                                <FlowPane fx:id="tileSanPham"
+                                          hgap="14" vgap="14"
+                                          prefWrapLength="600"
+                                          style="-fx-background-color: transparent;"/>
+                            </ScrollPane>
+
+                            <!-- Màn hình bánh tùy chỉnh (ẩn mặc định) -->
+                            <ScrollPane fx:id="scrollTuyChinh" fitToWidth="true"
+                                        style="-fx-background-color: transparent; -fx-background: transparent;"
+                                        visible="false">
+                                <VBox fx:id="panelTuyChinh" spacing="16">
+                                    <padding>
+                                        <Insets top="8" right="8" bottom="8" left="8"/>
+                                    </padding>
+
+                                    <Label text="✨ Bánh Tùy Chỉnh" styleClass="lbl-title-card"/>
+
+                                    <GridPane hgap="16" vgap="12">
+                                        <!-- Hàng 1: Loại bánh -->
+                                        <Label text="Loại bánh:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                               styleClass="lbl-small-bold"/>
+                                        <ComboBox fx:id="cbCustomSp" prefWidth="240"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                                  styleClass="combo-box"
+                                                  onAction="#onTuyChinhChanged"/>
+
+                                        <!-- Hàng 2: Kích cỡ -->
+                                        <Label text="Kích cỡ:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                               styleClass="lbl-small-bold"/>
+                                        <ComboBox fx:id="cbCustomKichCo" prefWidth="240"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                                  styleClass="combo-box"
+                                                  onAction="#onTuyChinhChanged"/>
+
+                                        <!-- Hàng 3: Cốt bánh -->
+                                        <Label text="Cốt bánh:" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                               styleClass="lbl-small-bold"/>
+                                        <ComboBox fx:id="cbCustomCotBanh" prefWidth="240"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                                  styleClass="combo-box"
+                                                  onAction="#onTuyChinhChanged"/>
+
+                                        <!-- Hàng 4: Nhân bánh -->
+                                        <Label text="Nhân bánh:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                                               styleClass="lbl-small-bold"/>
+                                        <ComboBox fx:id="cbCustomNhanBanh" prefWidth="240"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                                  styleClass="combo-box"
+                                                  onAction="#onTuyChinhChanged"/>
+
+                                        <!-- Hàng 5: Trang trí -->
+                                        <Label text="Trang trí:" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                                               styleClass="lbl-small-bold"/>
+                                        <ComboBox fx:id="cbCustomTrangTri" prefWidth="240"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="4"
+                                                  styleClass="combo-box"
+                                                  onAction="#onTuyChinhChanged"/>
+
+                                        <!-- Hàng 6: Lời chúc -->
+                                        <Label text="Lời chúc:" GridPane.columnIndex="0" GridPane.rowIndex="5"
+                                               styleClass="lbl-small-bold"/>
+                                        <TextArea fx:id="txtCustomLoiChuc" prefWidth="240" prefHeight="60"
+                                                  styleClass="text-area" promptText="Nhập lời chúc..."
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+                                        <!-- Hàng 7: Ghi chú -->
+                                        <Label text="Ghi chú:" GridPane.columnIndex="0" GridPane.rowIndex="6"
+                                               styleClass="lbl-small-bold"/>
+                                        <TextArea fx:id="txtCustomGhiChu" prefWidth="240" prefHeight="60"
+                                                  styleClass="text-area" promptText="Ghi chú đặc biệt..."
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                                    </GridPane>
+
+                                    <!-- Giá + Số lượng + Thêm -->
+                                    <HBox spacing="12" alignment="CENTER_LEFT">
+                                        <Label text="Đơn giá:" styleClass="lbl-small-bold"/>
+                                        <Label fx:id="lblGiaTuyChinh" text="0 đ" styleClass="lbl-price"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="Số lượng:" styleClass="lbl-small-bold"/>
+                                        <Spinner fx:id="spCustomSoLuong" prefWidth="80"
+                                                 styleClass="text-field"/>
+                                        <Button text="🛒 Thêm vào giỏ"
+                                                fx:id="btnThemTuyChinh"
+                                                styleClass="btn-primary"
+                                                onAction="#onThemBanhTuyChinh"/>
+                                    </HBox>
+                                </VBox>
+                            </ScrollPane>
+
+                        </StackPane>
+                    </VBox>
+
+                    <!-- Panel phải: Giỏ hàng (35%) -->
+                    <VBox prefWidth="320" minWidth="280" spacing="12">
+
+                        <!-- Giỏ hàng -->
+                        <VBox styleClass="card" spacing="8" VBox.vgrow="ALWAYS">
+                            <Label text="🛒 Giỏ hàng" styleClass="lbl-title-card"/>
+                            <TableView fx:id="tblGioHang" VBox.vgrow="ALWAYS"
+                                       styleClass="table-view">
+                                <columns>
+                                    <TableColumn fx:id="colTenSP" text="Sản phẩm" prefWidth="120"/>
+                                    <TableColumn fx:id="colSoLuong" text="SL" prefWidth="40"/>
+                                    <TableColumn fx:id="colDonGia" text="Đơn giá" prefWidth="80"/>
+                                    <TableColumn fx:id="colThanhTien" text="Thành tiền" prefWidth="90"/>
+                                    <TableColumn fx:id="colXoa" text="" prefWidth="40"/>
+                                </columns>
+                                <placeholder>
+                                    <Label text="Chưa có sản phẩm nào" styleClass="lbl-muted"/>
+                                </placeholder>
+                            </TableView>
+                        </VBox>
+
+                        <!-- Tóm tắt tiền -->
+                        <VBox styleClass="card" spacing="6">
+                            <HBox>
+                                <Label text="Tạm tính:" styleClass="lbl-body"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblTongTienHang" text="0 đ" styleClass="lbl-body-bold"/>
+                            </HBox>
+                            <HBox>
+                                <Label text="Giảm giá (10%):" styleClass="lbl-body"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblTienGiamGia" text="0 đ"
+                                       style="-fx-text-fill: #16A34A; -fx-font-weight: bold;"/>
+                            </HBox>
+                            <Separator/>
+                            <HBox>
+                                <Label text="Tổng thanh toán:" styleClass="lbl-body-bold"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblTongThanhToan" text="0 đ" styleClass="lbl-price"/>
+                            </HBox>
+                            <HBox>
+                                <Label text="Cọc tối thiểu (50%):" styleClass="lbl-small"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblCocToiThieu" text="0 đ" styleClass="lbl-small"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Thông báo & Nút thanh toán -->
+                        <Label fx:id="lblThongBao" text="" wrapText="true"
+                               styleClass="lbl-small-bold" maxWidth="Infinity"/>
+                        <Button fx:id="btnThanhToan"
+                                text="💳 Tạo đơn &amp; Thanh toán"
+                                styleClass="btn-primary"
+                                maxWidth="Infinity"
+                                disable="true"
+                                onAction="#onThanhToan"/>
+                    </VBox>
+                </HBox>
+
+            </StackPane>
+        </VBox>
+    </center>
+
+</BorderPane>
+

@@ -38,14 +38,14 @@ BEGIN
     WHERE MANL = P_MANL;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy Nguyên liệu để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy Nguyên liệu để cập nhật.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_CN THEN RAISE; END IF;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Nguyên Liệu: ' || SQLERRM);
 END;
 /
@@ -58,32 +58,27 @@ CREATE OR REPLACE PROCEDURE PROC_XOA_NGUYENLIEU(
 IS
     V_LST_COUNT NUMBER := 0;
 BEGIN
-    -- Kiểm tra xem nguyên liệu này đã từng được giao dịch (Nhập/Xuất chưa)
-    SELECT COUNT(*) INTO V_LST_COUNT
-    FROM CTPHIEUNHAP
-    WHERE MANL = P_MANL;
+    SELECT COUNT(*) INTO V_LST_COUNT FROM CTPHIEUNHAP WHERE MANL = P_MANL;
 
     IF V_LST_COUNT > 0 THEN
-        -- Đã có lịch sử -> Tiến hành XÓA MỀM (Soft Delete)
         UPDATE NGUYENLIEU
         SET THOIDIEMXOA = SYSDATE,
             MANX = P_MANX,
             PHIENBAN = PHIENBAN + 1
         WHERE MANL = P_MANL;
     ELSE
-        -- Chưa từng cấu thành lịch sử -> Cho phép XÓA CỨNG (Hard Delete) triệt để
         DELETE FROM NGUYENLIEU WHERE MANL = P_MANL;
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy Nguyên liệu để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy Nguyên liệu để xóa.');
     END IF;
     
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI THEN RAISE; END IF;
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_XOA THEN RAISE; END IF;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_XOA_HE_THONG, 'Lỗi hệ thống khi xóa Nguyên Liệu: ' || SQLERRM);
 END;
 /

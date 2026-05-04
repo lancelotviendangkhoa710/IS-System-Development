@@ -28,7 +28,7 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_CO_NGUYEN_LIEU, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
 END;
 /
 

@@ -1,37 +1,47 @@
--- Procedure Đóng ca đối soát
+-- ============================================================
+-- PROC_DONGCADOISOAT — Ghi kết quả đối soát cuối ca
+--
+-- Lưu ý thiết kế:
+
 CREATE OR REPLACE PROCEDURE PROC_DONGCADOISOAT(
-    P_MACA            IN CALAMVIEC.MACA%type,
-    P_TIENTHUCTEDEM   IN DOISOAT.TIENTHUCTEDEM%type,
-    P_LYDOCHENHLECH   IN DOISOAT.LYDOCHENHLECH%type DEFAULT NULL
+    P_MACA          IN CALAMVIEC.MACA%TYPE,
+    P_TIENTHUCTEDEM IN DOISOAT.TIENTHUCTEDEM%TYPE,
+    P_CHENHLECH     IN DOISOAT.CHENHLECH%TYPE,        -- tham khảo từ Java
+    P_LYDOCHENHLECH IN DOISOAT.LYDOCHENHLECH%TYPE DEFAULT NULL
 )
 IS
-    V_TONGTIENHETHONG NUMBER;
-    V_CHENHLECH       NUMBER;
+    V_TONGTIENHETHONG   NUMBER;
+    V_CHENHLECH         NUMBER;
+    V_ROWS_UPDATED      NUMBER;
 BEGIN
-    -- 1. LẤY CON SỐ HỆ THỐNG MỚI NHẤT (DOUBLE-CHECK)
-    V_TONGTIENHETHONG := FUNC_TIENMATLYTUONG(P_MACA);
+    -- 1. Tính lại tiền lý tưởng từ hệ thống (double-check)
+    V_TONGTIENHETHONG := FUNC_TINHTIENMATLYTUONG(P_MACA);
     V_CHENHLECH       := P_TIENTHUCTEDEM - V_TONGTIENHETHONG;
 
-    -- 2. LƯU KẾT QUẢ ĐỐI SOÁT (Chỉ được lập 1 lần lúc đóng ca)
-    INSERT INTO DOISOAT (MACA, TONGTIENHETHONG, TIENTHUCTEDEM, CHENHLECH, LYDOCHENHLECH)
-    VALUES (P_MACA, V_TONGTIENHETHONG, P_TIENTHUCTEDEM, V_CHENHLECH, P_LYDOCHENHLECH);
+    -- 2. Cập nhật DOISOAT (row đã tồn tại từ bước mở ca)
+    UPDATE DOISOAT
+    SET TONGTIENHETHONG = V_TONGTIENHETHONG,
+        TIENTHUCTEDEM   = P_TIENTHUCTEDEM,
+        CHENHLECH       = V_CHENHLECH,
+        LYDOCHENHLECH   = P_LYDOCHENHLECH
+    WHERE MACA = P_MACA;
 
-    -- 3. CẬP NHẬT TRẠNG THÁI CA
-    UPDATE CALAMVIEC
-    SET THOIGIANDONGCA = SYSDATE,
-        TRANGTHAI = 'Đã đóng'
-    WHERE MACA = P_MACA AND TRANGTHAI = 'Đang mở';
+    V_ROWS_UPDATED := SQL%ROWCOUNT;
 
-    IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI, 'Lỗi: Ca làm việc không tồn tại hoặc đã được đóng trước đó.');
+    IF V_ROWS_UPDATED = 0 THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI,
+        'Không tìm thấy bản ghi đối soát cho ca: ' || P_MACA
+        );
     END IF;
 
-    COMMIT;
+    -- Không COMMIT ở đây — Java tự quản lý transaction
+    -- (caLamViecDAO.dongCa() sẽ UPDATE CALAMVIEC trong cùng connection)
 
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_DONG_HE_THONG, 'Lỗi hệ thống khi Đóng ca và đối soát: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_DONG_HE_THONG,
+        'Lỗi hệ thống khi ghi kết quả đối soát: ' || SQLERRM
+        );
 END;
 /

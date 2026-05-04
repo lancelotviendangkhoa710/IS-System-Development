@@ -1,9 +1,79 @@
-module com.bakery {
-    requires javafx.controls;
-    requires javafx.fxml;
+module BakeryManagementSystem {
+    requires java.datatransfer;
+    requires transitive java.sql;
+    requires transitive javafx.base;
+    requires transitive javafx.controls;
+    requires transitive javafx.fxml;
     requires transitive javafx.graphics;
-    requires java.sql;
-    
-    opens com.bakery.controllers to javafx.fxml;
+    requires java.desktop;
+    requires javafx.swing;
+    requires org.apache.pdfbox;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
+    requires jbcrypt;
+
+    // Mở gói cho JavaFX reflection (FXML binding, Platform.runLater, Scene graph)
+    opens com.bakery.main to javafx.graphics;
+    opens com.bakery.views.controllers to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.banhang to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.baocao to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.hethong to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.khachhang to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.kho to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.nhansu to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.model.dto to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.banhang to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.baocao to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.hethong to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.khachhang to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.kho to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.nhansu to javafx.base, javafx.fxml;
+    opens com.bakery.presenters to javafx.fxml, javafx.graphics;
+    opens com.bakery.utils to jbcrypt;
+
     exports com.bakery.main;
+    exports com.bakery.model.dto;
+    exports com.bakery.model.dto.banhang;
+    exports com.bakery.model.dto.baocao;
+    exports com.bakery.model.dto.hethong;
+    exports com.bakery.model.dto.khachhang;
+    exports com.bakery.model.dto.kho;
+    exports com.bakery.model.dto.nhansu;
+    exports com.bakery.model.enums;
+    exports com.bakery.model.dao;
+    exports com.bakery.model.dao.banhang;
+    exports com.bakery.model.dao.baocao;
+    exports com.bakery.model.dao.hethong;
+    exports com.bakery.model.dao.khachhang;
+    exports com.bakery.model.dao.kho;
+    exports com.bakery.model.dao.nhansu;
+    exports com.bakery.views.interfaces;
+    exports com.bakery.views.interfaces.banhang;
+    exports com.bakery.views.interfaces.baocao;
+    exports com.bakery.views.interfaces.hethong;
+    exports com.bakery.views.interfaces.khachhang;
+    exports com.bakery.views.interfaces.kho;
+    exports com.bakery.views.interfaces.nhansu;
+    exports com.bakery.views.controllers;
+    exports com.bakery.views.controllers.banhang;
+    exports com.bakery.views.controllers.baocao;
+    exports com.bakery.views.controllers.hethong;
+    exports com.bakery.views.controllers.khachhang;
+    exports com.bakery.views.controllers.kho;
+    exports com.bakery.views.controllers.nhansu;
+    exports com.bakery.presenters;
+    exports com.bakery.presenters.banhang;
+    exports com.bakery.presenters.baocao;
+    exports com.bakery.presenters.hethong;
+    exports com.bakery.presenters.khachhang;
+    exports com.bakery.presenters.kho;
+    exports com.bakery.presenters.nhansu;
+    exports com.bakery.services;
+    exports com.bakery.services.banhang;
+    exports com.bakery.services.baocao;
+    exports com.bakery.services.hethong;
+    exports com.bakery.services.khachhang;
+    exports com.bakery.services.kho;
+    exports com.bakery.services.nhansu;
+    exports com.bakery.utils;
 }
