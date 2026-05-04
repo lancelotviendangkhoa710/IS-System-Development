@@ -99,12 +99,12 @@ public class DangNhapViewFXMLController extends BaseController {
 
         if (tenDangNhap.isBlank() || matKhau.isBlank()) {
             hienDangNhap();
-            hienThiLoiLabel("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
+            hienThiLoiLabel("Vui long nhap day du ten dang nhap va mat khau.");
             return;
         }
 
         setLoginFormDisabled(true);
-        hienThiThanhCongLabel("Đang xác thực tài khoản...");
+        hienThiThanhCongLabel("Dang xac thuc tai khoan...");
 
         Task<NhanVienDTO> task = new Task<>() {
             @Override
@@ -118,19 +118,20 @@ public class DangNhapViewFXMLController extends BaseController {
             try {
                 NhanVienDTO nhanVien = task.getValue();
                 UserSession.setCurrentUser(nhanVien);
-                if (phanQuyenService.laAdmin(nhanVien)) {
-                    quayLaiMenuChinh(txtTenDangNhap);
+
+                if (phanQuyenService.laThuNgan(nhanVien)) {
+                    CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
+                    if (caHienTai != null) {
+                        com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
+                        quayLaiMenuChinh(txtTenDangNhap);
+                        return;
+                    }
+
+                    transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mo ca lam viec", 1366, 768);
                     return;
                 }
 
-                CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
-                if (caHienTai != null) {
-                    com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
-                    quayLaiMenuChinh(txtTenDangNhap);
-                    return;
-                }
-
-                    transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                quayLaiMenuChinh(txtTenDangNhap);
             } catch (Exception ex) {
                 hienDangNhap();
                 hienThiLoiLabel(resolveErrorMessage(ex));
@@ -151,12 +152,12 @@ public class DangNhapViewFXMLController extends BaseController {
         RoleOption selectedRole = cboRegisterVaiTro.getSelectionModel().getSelectedItem();
         if (selectedRole == null) {
             hienDangKy();
-            hienThiRegisterLoi("Vui lòng chọn vai trò.");
+            hienThiRegisterLoi("Vui long chon vai tro.");
             return;
         }
 
         setRegisterFormDisabled(true);
-        hienThiRegisterThanhCong("Đang tạo tài khoản...");
+        hienThiRegisterThanhCong("Dang tao tai khoan...");
 
         Task<Integer> task = new Task<>() {
             @Override
@@ -176,7 +177,7 @@ public class DangNhapViewFXMLController extends BaseController {
             setRegisterFormDisabled(false);
             clearRegisterForm();
             hienDangNhap();
-            hienThiThanhCongLabel("Tạo tài khoản thành công. Mã nhân viên mới: " + task.getValue());
+            hienThiThanhCongLabel("Tao tai khoan thanh cong. Ma nhan vien moi: " + task.getValue());
             txtTenDangNhap.requestFocus();
         });
 
@@ -330,7 +331,7 @@ public class DangNhapViewFXMLController extends BaseController {
         visibleField.textProperty().bindBidirectional(hiddenField.textProperty());
         visibleField.setManaged(false);
         visibleField.setVisible(false);
-        toggleButton.setText("Hiện");
+        toggleButton.setText("Hien");
     }
 
     private void togglePasswordField(PasswordField hiddenField, TextField visibleField, Button toggleButton) {
@@ -339,7 +340,7 @@ public class DangNhapViewFXMLController extends BaseController {
         visibleField.setManaged(!showing);
         hiddenField.setVisible(showing);
         hiddenField.setManaged(showing);
-        toggleButton.setText(showing ? "Hiện" : "Ẩn");
+        toggleButton.setText(showing ? "Hien" : "An");
         if (showing) {
             hiddenField.requestFocus();
             hiddenField.positionCaret(hiddenField.getText().length());
@@ -372,7 +373,7 @@ public class DangNhapViewFXMLController extends BaseController {
             current = current.getCause();
         }
         if (current == null || current.getMessage() == null || current.getMessage().isBlank()) {
-            return "Đã xảy ra lỗi không xác định.";
+            return "Da xay ra loi khong xac dinh.";
         }
         return current.getMessage();
     }

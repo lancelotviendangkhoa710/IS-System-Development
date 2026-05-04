@@ -11,58 +11,84 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- * Dịch vụ xử lý phân quyền và kiểm tra quyền truy cập module.
- */
 public class PhanQuyenService {
+    private static final String ROLE_QUAN_LY = "QUAN LY";
+    private static final String ROLE_THU_NGAN = "THU NGAN";
+    private static final String ROLE_THO_BEP = "THO BEP";
+    private static final String ROLE_THU_KHO = "THU KHO";
+
     private final PhanQuyenDAO phanQuyenDAO;
 
     public PhanQuyenService() {
         this.phanQuyenDAO = new PhanQuyenDAO();
     }
 
-    /**
-     * Kiểm tra xem nhân viên có quyền Admin hay không.
-     */
     public boolean laAdmin(NhanVienDTO nhanVien) {
         if (nhanVien == null) {
             return false;
         }
-        // Mapping theo mã vai trò (1 thường là Admin)
-        if (nhanVien.getMaVaiTro() == 1) {
-            return true;
-        }
-        // Kiểm tra theo tên vai trò nếu mã không khớp
         String tenVaiTro = chuanHoa(nhanVien.getTenVaiTro());
         return chuaMotTrong(tenVaiTro, "ADMIN", "QUAN TRI", "QUANTRI", "QUAN TRI VIEN", "QUANTRIVIEN");
     }
 
-    /**
-     * Lấy danh sách các Module mà nhân viên được phép truy cập.
-     */
+    public boolean laQuanLy(NhanVienDTO nhanVien) {
+        return laVaiTro(nhanVien, ROLE_QUAN_LY);
+    }
+
+    public boolean laThuNgan(NhanVienDTO nhanVien) {
+        return laVaiTro(nhanVien, ROLE_THU_NGAN);
+    }
+
+    public boolean laThoBep(NhanVienDTO nhanVien) {
+        return laVaiTro(nhanVien, ROLE_THO_BEP);
+    }
+
+    public boolean laThuKho(NhanVienDTO nhanVien) {
+        return laVaiTro(nhanVien, ROLE_THU_KHO);
+    }
+
+    public String layManHinhTrangChu(NhanVienDTO nhanVien) {
+        if (laThuNgan(nhanVien)) {
+            return "/fxml/ThuNganDashboardView.fxml";
+        }
+        if (laThoBep(nhanVien)) {
+            return "/fxml/ThoBepDashboardView.fxml";
+        }
+        if (laThuKho(nhanVien)) {
+            return "/fxml/ThuKhoDashboardView.fxml";
+        }
+        return "/fxml/MainMenuView.fxml";
+    }
+
+    public String layTieuDeTrangChu(NhanVienDTO nhanVien) {
+        if (laThuNgan(nhanVien)) {
+            return "H3K Bakery - Thu ngan";
+        }
+        if (laThoBep(nhanVien)) {
+            return "H3K Bakery - Tho bep";
+        }
+        if (laThuKho(nhanVien)) {
+            return "H3K Bakery - Thu kho";
+        }
+        return "H3K Bakery - He thong quan ly";
+    }
+
     public Set<SystemModule> layModulesDuocCap(NhanVienDTO nhanVien) {
         if (nhanVien == null) {
             return EnumSet.noneOf(SystemModule.class);
         }
-        
-        // Admin có quyền truy cập tất cả các module
-        if (laAdmin(nhanVien)) {
-            return EnumSet.allOf(SystemModule.class);
-        }
 
         Set<SystemModule> modules = EnumSet.noneOf(SystemModule.class);
         List<ChucNangDTO> danhSach = phanQuyenDAO.layDanhSachChucNangTheoVaiTro(nhanVien.getMaVaiTro());
-        
+
         for (ChucNangDTO chucNang : danhSach) {
-            // Nếu DTO đã có Module được map từ database, sử dụng nó luôn
             if (chucNang.getModule() != null) {
                 modules.add(chucNang.getModule());
                 continue;
             }
 
-            // Logic fallback: Tự động map dựa trên tên chức năng nếu cột MODULE trong DB bị trống
             String normalized = chuanHoa(chucNang.getTenChucNang());
-            
+
             if (chuaMotTrong(normalized, "POS", "BAN HANG", "LAP HOA DON", "DON HANG")) {
                 modules.add(SystemModule.BAN_HANG);
             }
@@ -86,6 +112,13 @@ public class PhanQuyenService {
             }
         }
         return modules;
+    }
+
+    private boolean laVaiTro(NhanVienDTO nhanVien, String roleKey) {
+        if (nhanVien == null) {
+            return false;
+        }
+        return chuanHoa(nhanVien.getTenVaiTro()).contains(roleKey);
     }
 
     private String chuanHoa(String value) {

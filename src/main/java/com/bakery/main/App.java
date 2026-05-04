@@ -13,6 +13,8 @@ public class App extends Application {
     public static final String MAIN_MENU_VIEW = "/fxml/MainMenuView.fxml";
     public static final String DASHBOARD_VIEW = "/fxml/BangDieuKhienView.fxml";
     public static final String THU_NGAN_DASHBOARD_VIEW = "/fxml/ThuNganDashboardView.fxml";
+    public static final String THO_BEP_DASHBOARD_VIEW = "/fxml/ThoBepDashboardView.fxml";
+    public static final String THU_KHO_DASHBOARD_VIEW = "/fxml/ThuKhoDashboardView.fxml";
 
     @Override
     public void start(Stage primaryStage) throws Exception {

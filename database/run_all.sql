@@ -93,9 +93,6 @@ PROMPT [6/7] Dang tao cac views...
 
 -- 7. CAP NHAT PHIEN BAN & SEED DATA
 PROMPT [7/7] Dang cap nhat cau hinh va nap du lieu mau...
-@@config/alter_chucnang_module.sql;
-@@config/alter_hoadon_trangthai.sql;
-@@config/alter_phieuthuchi_trangthai.sql;
 @@config/script_insert_data.sql;
 
 PROMPT >>> HOAN THANH KHOI TAO DATABASE <<<

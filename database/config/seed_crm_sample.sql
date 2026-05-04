@@ -18,7 +18,7 @@ DECLARE
 BEGIN
     -- 1) Vai tro (cho NHANVIEN)
     INSERT INTO VAITRO (TENVAITRO, MOTA)
-    SELECT 'ADMIN', 'Quan tri he thong CRM'
+    SELECT 'Quản lý', 'Quản trị hệ thống CRM'
     FROM DUAL
     WHERE NOT EXISTS (SELECT 1 FROM VAITRO WHERE TENVAITRO = 'ADMIN');
 

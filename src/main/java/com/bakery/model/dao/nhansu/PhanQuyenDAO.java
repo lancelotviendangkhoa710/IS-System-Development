@@ -1,6 +1,6 @@
 package com.bakery.model.dao.nhansu;
-import com.bakery.model.dao.BaseDAO;
 
+import com.bakery.model.dao.BaseDAO;
 import com.bakery.model.dto.nhansu.ChucNangDTO;
 import com.bakery.model.enums.SystemModule;
 
@@ -14,15 +14,20 @@ import java.util.List;
 import java.util.Set;
 
 public class PhanQuyenDAO extends BaseDAO {
+    private static final String ROLE_QUAN_LY = "Quản lý";
+    private static final String ROLE_THU_NGAN = "Thu ngân";
+    private static final String ROLE_THO_BEP = "Thợ bếp";
+    private static final String ROLE_THU_KHO = "Thủ kho";
+
     private static final String[][] DEFAULT_CHUC_NANG = {
-            {"Hệ thống", "Quản lý cấu hình hệ thống", "SYSTEM"},
-            {"Nhân sự", "Quản lý nhân viên và vai trò", "HR"},
-            {"Khách hàng", "Quản lý khách hàng và hạng thành viên", "CRM"},
-            {"Sản phẩm", "Quản lý danh mục và sản phẩm", "INVENTORY"},
-            {"Kho", "Quản lý nguyên liệu và nhập xuất kho", "INVENTORY"},
-            {"Bán hàng", "Màn hình bán hàng POS", "POS"},
-            {"Đơn hàng", "Quản lý đơn đặt hàng và trạng thái", "POS"},
-            {"Báo cáo", "Xem báo cáo thống kê doanh thu", "REPORTS"}
+            {"Bán hàng POS", "Lập hóa đơn bán lẻ tại quầy.", "POS"},
+            {"Theo dõi đơn hàng", "Tra cứu và cập nhật tiến độ đơn bánh.", "POS"},
+            {"Khách hàng thành viên", "Quản lý khách hàng và lịch sử mua hàng.", "CRM"},
+            {"Kho và nguyên liệu", "Quản lý tồn kho, nguyên liệu và xuất nhập.", "INVENTORY"},
+            {"Nhà cung cấp", "Quản lý đối tác cung ứng nguyên liệu.", "INVENTORY"},
+            {"Nhân sự và phân quyền", "Quản lý nhân viên và vai trò truy cập.", "HR"},
+            {"Báo cáo kinh doanh", "Theo dõi doanh thu và số liệu vận hành.", "REPORTS"},
+            {"Điều phối bếp", "Theo dõi sản xuất và ưu tiên đơn trong bếp.", "KDS"}
     };
 
     private void damBaoChucNangMacDinh() throws Exception {
@@ -52,34 +57,58 @@ public class PhanQuyenDAO extends BaseDAO {
         }
     }
 
-    private void capQuyenChoTatCaVaiTro() throws Exception {
+    private void capQuyenMacDinhTheoVaiTro() throws Exception {
         damBaoChucNangMacDinh();
 
-        String sql = """
+        String sqlVaiTro = """
+                SELECT MAVAITRO, TENVAITRO
+                FROM VAITRO
+                WHERE THOIDIEMXOA IS NULL
+                  AND TENVAITRO IN (?, ?, ?, ?)
+                """;
+        String sqlCapQuyen = """
                 INSERT INTO VAITRO_CHUCNANG (MAVAITRO, MACHUCNANG)
-                SELECT V.MAVAITRO, C.MACHUCNANG
-                FROM VAITRO V
-                CROSS JOIN CHUCNANG C
-                WHERE V.THOIDIEMXOA IS NULL
+                SELECT ?, C.MACHUCNANG
+                FROM CHUCNANG C
+                WHERE C.TENCHUCNANG = ?
                   AND NOT EXISTS (
                       SELECT 1
                       FROM VAITRO_CHUCNANG VC
-                      WHERE VC.MAVAITRO = V.MAVAITRO
+                      WHERE VC.MAVAITRO = ?
                         AND VC.MACHUCNANG = C.MACHUCNANG
                   )
                 """;
 
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.executeUpdate();
+             PreparedStatement roleStmt = conn.prepareStatement(sqlVaiTro);
+             PreparedStatement grantStmt = conn.prepareStatement(sqlCapQuyen)) {
+
+            roleStmt.setString(1, ROLE_QUAN_LY);
+            roleStmt.setString(2, ROLE_THU_NGAN);
+            roleStmt.setString(3, ROLE_THO_BEP);
+            roleStmt.setString(4, ROLE_THU_KHO);
+
+            try (ResultSet rs = roleStmt.executeQuery()) {
+                while (rs.next()) {
+                    int maVaiTro = rs.getInt("MAVAITRO");
+                    String tenVaiTro = rs.getString("TENVAITRO");
+
+                    for (String tenChucNang : layDanhSachChucNangMacDinh(tenVaiTro)) {
+                        grantStmt.setInt(1, maVaiTro);
+                        grantStmt.setString(2, tenChucNang);
+                        grantStmt.setInt(3, maVaiTro);
+                        grantStmt.executeUpdate();
+                    }
+                }
+            }
         } catch (SQLException e) {
-            handleException("capQuyenChoTatCaVaiTro", e);
-            throw new Exception("Khong the dong bo phan quyen cho tat ca vai tro.");
+            handleException("capQuyenMacDinhTheoVaiTro", e);
+            throw new Exception("Khong the dong bo phan quyen mac dinh theo vai tro.");
         }
     }
 
     public RolePermissionInfo layThongTinPhanQuyenTheoVaiTro(int maVaiTro) throws Exception {
-        capQuyenChoTatCaVaiTro();
+        capQuyenMacDinhTheoVaiTro();
 
         String sql = """
                 SELECT V.TENVAITRO,
@@ -139,6 +168,7 @@ public class PhanQuyenDAO extends BaseDAO {
             throw new Exception("Khong the tai phan quyen tu CSDL.");
         }
     }
+
     public List<ChucNangDTO> layDanhSachChucNangTheoVaiTro(int maVaiTro) {
         try {
             RolePermissionInfo info = layThongTinPhanQuyenTheoVaiTro(maVaiTro);
@@ -153,6 +183,33 @@ public class PhanQuyenDAO extends BaseDAO {
             return "";
         }
         return tenChucNang.trim().replaceAll("\\s+", "_").toUpperCase();
+    }
+
+    private List<String> layDanhSachChucNangMacDinh(String tenVaiTro) {
+        return switch (tenVaiTro) {
+            case ROLE_QUAN_LY -> List.of(
+                    "Bán hàng POS",
+                    "Theo dõi đơn hàng",
+                    "Khách hàng thành viên",
+                    "Kho và nguyên liệu",
+                    "Nhà cung cấp",
+                    "Nhân sự và phân quyền",
+                    "Báo cáo kinh doanh",
+                    "Điều phối bếp");
+            case ROLE_THU_NGAN -> List.of(
+                    "Bán hàng POS",
+                    "Theo dõi đơn hàng",
+                    "Khách hàng thành viên",
+                    "Báo cáo kinh doanh");
+            case ROLE_THO_BEP -> List.of(
+                    "Điều phối bếp",
+                    "Theo dõi đơn hàng",
+                    "Kho và nguyên liệu");
+            case ROLE_THU_KHO -> List.of(
+                    "Kho và nguyên liệu",
+                    "Nhà cung cấp");
+            default -> List.of();
+        };
     }
 
     public static final class RolePermissionInfo {

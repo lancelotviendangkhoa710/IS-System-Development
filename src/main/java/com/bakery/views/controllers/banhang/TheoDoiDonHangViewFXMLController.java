@@ -98,19 +98,27 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     @FXML
     private void onBackToMenu() {
         try {
-            URL fxmlUrl = getClass().getResource("/fxml/MainMenuView.fxml");
+            com.bakery.services.nhansu.PhanQuyenService phanQuyenService = new com.bakery.services.nhansu.PhanQuyenService();
+            String fxmlPath = phanQuyenService.layManHinhTrangChu(UserSession.getCurrentUser());
+            URL fxmlUrl = getClass().getResource(fxmlPath);
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load(), 1280, 720);
 
-            MainMenuViewFXMLController controller = loader.getController();
-            controller.khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
+            Object controller = loader.getController();
+            if (controller instanceof MainMenuViewFXMLController) {
+                ((MainMenuViewFXMLController) controller).khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
+            } else if (controller instanceof ThuNganViewFXMLController) {
+                ((ThuNganViewFXMLController) controller).khoiTaoDashboard(UserSession.getCurrentUser());
+            } else if (controller instanceof com.bakery.views.controllers.hethong.ThoBepDashboardViewFXMLController) {
+                ((com.bakery.views.controllers.hethong.ThoBepDashboardViewFXMLController) controller).khoiTaoDashboard(UserSession.getCurrentUser());
+            }
 
             URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null)
                 scene.getStylesheets().add(cssUrl.toExternalForm());
 
             Stage stage = (Stage) panelChuaDon.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Management Console");
+            stage.setTitle(phanQuyenService.layTieuDeTrangChu(UserSession.getCurrentUser()));
             stage.setScene(scene);
             stage.centerOnScreen();
         } catch (Exception ex) {

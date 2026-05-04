@@ -1,8 +1,7 @@
 package com.bakery.model.dao.nhansu;
+
 import com.bakery.model.dao.BaseDAO;
-
 import com.bakery.model.dto.nhansu.VaiTroDTO;
-
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VaiTroDAO extends BaseDAO {
-    private static final List<String> DEFAULT_ROLE_NAMES = List.of("Thu ngan", "Quan ly", "Tho bep", "Thu kho");
+    private static final List<String> DEFAULT_ROLE_NAMES = List.of("Quản lý", "Thu ngân", "Thợ bếp", "Thủ kho");
 
     public List<VaiTroDTO> layDanhSachVaiTroDangHoatDong() throws Exception {
         damBaoVaiTroMacDinh();
@@ -23,27 +22,33 @@ public class VaiTroDAO extends BaseDAO {
                 SELECT MAVAITRO, TENVAITRO, MOTA
                 FROM VAITRO
                 WHERE THOIDIEMXOA IS NULL
+                  AND TENVAITRO IN (?, ?, ?, ?)
                 ORDER BY MAVAITRO
                 """;
 
         List<VaiTroDTO> danhSachVaiTro = new ArrayList<>();
 
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                VaiTroDTO vaiTro = new VaiTroDTO();
-                vaiTro.setMaVaiTro(rs.getInt("MAVAITRO"));
-                vaiTro.setTenVaiTro(rs.getString("TENVAITRO"));
-                vaiTro.setMoTa(rs.getString("MOTA"));
-                danhSachVaiTro.add(vaiTro);
+            for (int i = 0; i < DEFAULT_ROLE_NAMES.size(); i++) {
+                pstmt.setString(i + 1, DEFAULT_ROLE_NAMES.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    VaiTroDTO vaiTro = new VaiTroDTO();
+                    vaiTro.setMaVaiTro(rs.getInt("MAVAITRO"));
+                    vaiTro.setTenVaiTro(rs.getString("TENVAITRO"));
+                    vaiTro.setMoTa(rs.getString("MOTA"));
+                    danhSachVaiTro.add(vaiTro);
+                }
             }
 
             return danhSachVaiTro;
         } catch (SQLException e) {
             handleException("layDanhSachVaiTroDangHoatDong", e);
-            throw new Exception("Loi he thong khi tai danh sach vai tro!");
+            throw new Exception("Lỗi hệ thống khi tải danh sách vai trò!");
         }
     }
 
@@ -68,13 +73,13 @@ public class VaiTroDAO extends BaseDAO {
                 }
 
                 cstmt.setNString(1, tenVaiTro);
-                cstmt.setNString(2, "Vai tro mac dinh cho man hinh dang ky.");
+                cstmt.setNString(2, "Vai trò mặc định phân quyền theo module.");
                 cstmt.registerOutParameter(3, Types.NUMERIC);
                 cstmt.execute();
             }
         } catch (SQLException e) {
             handleException("damBaoVaiTroMacDinh", e);
-            throw new Exception("Khong the khoi tao cac vai tro mac dinh.");
+            throw new Exception("Không thể khởi tạo các vai trò mặc định.");
         }
     }
 }

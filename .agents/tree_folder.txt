@@ -1,0 +1,31 @@
+PROJECT STRUCTURE OVERVIEW
+==========================
+
+├── database                   # Script SQL và cấu hình Database
+│   ├── 01_tables              # Định nghĩa bảng
+│   ├── 02_constraints         # Ràng buộc FK, Check...
+│   ├── 03_functions           # Các hàm tính toán (Oracle)
+│   ├── 04_triggers            # Trình kích hoạt tự động (Stock, Finance)
+│   ├── 05_procedures          # Thủ tục CUD và nghiệp vụ chính
+│   │   └── cud                # Các procedure CUD phân loại theo module
+│   └── 06_views               # Các view báo cáo/tra cứu
+└── src
+    └── main
+        ├── java
+        │   ├── module-info.java
+        │   └── com.bakery
+        │       ├── main       # Lớp khởi chạy ứng dụng (App.java)
+        │       ├── model
+        │       │   ├── dao    # Tầng truy cập dữ liệu (JDBC + Procedures)
+        │       │   └── dto    # Các lớp chứa dữ liệu (POJO)
+        │       ├── presenters # Tầng điều phối MVP (Logic điều khiển)
+        │       ├── services   # Tầng nghiệp vụ (Business Logic phân tách SRP)
+        │       ├── utils      # Tiện ích dùng chung (DBConnect, QR, Session)
+        │       └── views
+        │           ├── controllers # Điều khiển FXML (JavaFX)
+        │           └── interfaces  # Các interface định nghĩa View/Factory
+        └── resources
+            ├── css            # File định dạng giao diện (bakery.css)
+            ├── fxml           # Định nghĩa giao diện (Layout FXML)
+            ├── hoadon         # Lưu trữ bản in hóa đơn (PDF)
+            └── images         # Tài nguyên hình ảnh sản phẩm

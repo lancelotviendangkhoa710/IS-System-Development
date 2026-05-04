@@ -475,7 +475,6 @@ BEGIN
     ELSE
         RAISE_APPLICATION_ERROR(-20002, 'Function hoạt động gặp lỗi sai thuật toán! Tính capacity bị lệch, kết quả hiện tại là: ' || V_SO_LUONG_MAX);
     END IF;
-    END IF;
 END;
 /
 

@@ -1,8 +1,10 @@
 package com.bakery.views.controllers.banhang;
 
 import com.bakery.main.App;
+import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.nhansu.XacThucService;
 import com.bakery.utils.SessionContext;
+import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -10,6 +12,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -24,155 +27,107 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Controller cho màn hình giao diện Thu ngân (Cashier).
- * Quản lý các chức năng: Tổng quan, Bán hàng POS, Đơn đặt bánh, Khách hàng, Lịch sử hóa đơn.
- */
 public class ThuNganViewFXMLController {
-
     private final XacThucService xacThucService = new XacThucService();
 
-    // --- FXML Controls ---
-    @FXML
-    private Label lblCashierName;      // Tên thu ngân đang đăng nhập
-    @FXML
-    private Label lblShiftStatus;     // Trạng thái ca làm việc (Mã ca)
-    @FXML
-    private Label lblHeaderTitle;     // Tiêu đề phân hệ hiện tại
-    @FXML
-    private Label lblClock;           // Đồng hồ hiển thị thời gian thực
+    @FXML private Label lblCashierName;
+    @FXML private Label lblShiftStatus;
+    @FXML private Label lblHeaderTitle;
+    @FXML private Label lblClock;
 
-    @FXML
-    private Button btnMenuOverview;    // Nút menu Tổng quan
-    @FXML
-    private Button btnMenuPOS;         // Nút menu Bán hàng POS
-    @FXML
-    private Button btnMenuCustomOrders; // Nút menu Đơn đặt bánh
-    @FXML
-    private Button btnMenuCustomers;    // Nút menu Khách hàng
-    @FXML
-    private Button btnMenuHistory;      // Nút menu Lịch sử hóa đơn
+    @FXML private Button btnMenuOverview;
+    @FXML private Button btnMenuPOS;
+    @FXML private Button btnMenuCustomOrders;
+    @FXML private Button btnMenuCustomers;
+    @FXML private Button btnMenuHistory;
 
-    @FXML
-    private VBox paneOverview;         // Panel hiển thị các chỉ số tổng quan
-    @FXML
-    private VBox panePlaceholder;      // Panel tạm thời cho các chức năng đang phát triển
-    @FXML
-    private Label lblPlaceholderMessage; // Thông báo trên panel tạm thời
+    @FXML private VBox paneOverview;
+    @FXML private VBox panePlaceholder;
+    @FXML private Label lblPlaceholderMessage;
 
-    @FXML
-    private Label lblTotalRevenue;      // Hiển thị Tổng doanh thu trong ca
-    @FXML
-    private Label lblTotalInvoices;     // Hiển thị Tổng số hóa đơn
-    @FXML
-    private Label lblTotalCustomOrders; // Hiển thị Tổng đơn đặt bánh
+    @FXML private Label lblTotalRevenue;
+    @FXML private Label lblTotalInvoices;
+    @FXML private Label lblTotalCustomOrders;
 
-    private Timeline clockTimeline;    // Timeline để cập nhật đồng hồ mỗi giây
+    private Timeline clockTimeline;
 
-    /**
-     * Khởi tạo các thành phần giao diện khi View được load.
-     */
     @FXML
     private void initialize() {
         startClock();
-        loadSessionInfo();
-        handleNavOverview(); // Mặc định hiển thị tab Tổng quan
+        loadSessionInfo(UserSession.getCurrentUser());
+        handleNavOverview();
     }
 
-    /**
-     * Bắt đầu chạy đồng hồ cập nhật mỗi giây.
-     */
+    public void khoiTaoDashboard(NhanVienDTO nhanVien) {
+        UserSession.setCurrentUser(nhanVien);
+        loadSessionInfo(nhanVien);
+        handleNavOverview();
+    }
+
     private void startClock() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        clockTimeline = new Timeline(new KeyFrame(Duration.ZERO, e -> {
-            lblClock.setText(LocalDateTime.now().format(formatter));
-        }), new KeyFrame(Duration.seconds(1)));
+        clockTimeline = new Timeline(new KeyFrame(Duration.ZERO, e ->
+                lblClock.setText(LocalDateTime.now().format(formatter))), new KeyFrame(Duration.seconds(1)));
         clockTimeline.setCycleCount(Animation.INDEFINITE);
         clockTimeline.play();
     }
 
-    /**
-     * Hiển thị thông tin nhân viên và trạng thái ca từ SessionContext.
-     */
-    private void loadSessionInfo() {
+    private void loadSessionInfo(NhanVienDTO nhanVien) {
         SessionContext.AuthSession session = xacThucService.layPhienHienTai();
-        if (session != null) {
-            lblCashierName.setText(session.getHoTen());
-
-            lblShiftStatus.setText("Ca làm việc: Đang mở (CA_AUTO)");
+        if (session == null) {
+            return;
         }
+        String hoTen = nhanVien != null && nhanVien.getHoTen() != null ? nhanVien.getHoTen() : session.getHoTen();
+        lblCashierName.setText(hoTen);
+        String maCa = SessionContext.getInstance().isCaoDangMo()
+                ? "CA" + SessionContext.getInstance().getMaCa()
+                : "Chua mo ca";
+        lblShiftStatus.setText("Ca lam viec: " + maCa);
     }
 
-    // --- ĐIỀU HƯỚNG MENU (NAVIGATION) ---
-
-    /**
-     * Xóa trạng thái 'active' (CSS class) của tất cả các nút menu.
-     */
     private void resetMenuStyles() {
-        List<Button> buttons = Arrays.asList(btnMenuOverview, btnMenuPOS, btnMenuCustomOrders, btnMenuCustomers,
-                btnMenuHistory);
+        List<Button> buttons = Arrays.asList(btnMenuOverview, btnMenuPOS, btnMenuCustomOrders, btnMenuCustomers, btnMenuHistory);
         for (Button btn : buttons) {
             btn.getStyleClass().remove("active");
         }
     }
 
-    /**
-     * Chuyển hướng sang màn hình Tổng quan giao dịch.
-     */
     @FXML
     private void handleNavOverview() {
         resetMenuStyles();
         btnMenuOverview.getStyleClass().add("active");
-        lblHeaderTitle.setText("Tổng quan Giao dịch");
+        lblHeaderTitle.setText("Tong quan giao dich");
 
         paneOverview.setVisible(true);
         paneOverview.setManaged(true);
         panePlaceholder.setVisible(false);
         panePlaceholder.setManaged(false);
 
-        // Load các chỉ số (Mock data cho MVP, sẽ kết nối DAO sau)
         lblTotalRevenue.setText("0 đ");
         lblTotalInvoices.setText("0");
         lblTotalCustomOrders.setText("0");
     }
 
-    /**
-     * Chuyển hướng sang module Bán hàng POS.
-     */
     @FXML
     private void handleNavPOS() {
-        navigateToModule(btnMenuPOS, "Bán hàng POS", "Chức năng Bán hàng POS đang được xây dựng.");
+        moScene(btnMenuPOS, "/fxml/DonHangView.fxml", "H3K Bakery - Ban hang POS", 1280, 720);
     }
 
-    /**
-     * Chuyển hướng sang module Quản lý Đơn đặt bánh.
-     */
     @FXML
     private void handleNavCustomOrders() {
-        navigateToModule(btnMenuCustomOrders, "Đơn đặt bánh", "Danh sách đơn khách theo yêu cầu riêng.");
+        moScene(btnMenuCustomOrders, "/fxml/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
     }
 
-    /**
-     * Chuyển hướng sang module Quản lý Khách hàng.
-     */
     @FXML
     private void handleNavCustomers() {
-        navigateToModule(btnMenuCustomers, "Quản lý Khách hàng",
-                "Chức năng Hàng thành viên và Khách hàng.");
+        moScene(btnMenuCustomers, "/fxml/KhachHangView.fxml", "H3K Bakery - Khach hang", 1280, 720);
     }
 
-    /**
-     * Chuyển hướng sang module Lịch sử hóa đơn.
-     */
     @FXML
     private void handleNavHistory() {
-        navigateToModule(btnMenuHistory, "Lịch sử hóa đơn",
-                "Dữ liệu biên lai các giao dịch đã thực hiện trong ca.");
+        moScene(btnMenuHistory, "/fxml/BaoCaoView.fxml", "H3K Bakery - Bao cao giao dich", 1280, 720);
     }
 
-    /**
-     * Phương thức dùng chung để chuyển sang các module đang phát triển (dùng placeholder).
-     */
     private void navigateToModule(Button activeBtn, String title, String placeholderMsg) {
         resetMenuStyles();
         activeBtn.getStyleClass().add("active");
@@ -182,55 +137,59 @@ public class ThuNganViewFXMLController {
         paneOverview.setManaged(false);
         panePlaceholder.setVisible(true);
         panePlaceholder.setManaged(true);
-
         lblPlaceholderMessage.setText(placeholderMsg);
     }
 
-    // --- CÁC HÀNH ĐỘNG HỆ THỐNG (ACTIONS) ---
-
-    /**
-     * Xử lý đối soát và đóng ca làm việc (UC17).
-     */
     @FXML
     private void handleShiftReconciliation() {
-        showAlert(Alert.AlertType.INFORMATION, "Đối soát",
-                "Chức năng Đối soát đóng ca sẽ tổng hợp tiền mặt theo Use Case UC17.");
+        showAlert(Alert.AlertType.INFORMATION, "Doi soat", "Mo nghiep vu doi soat cuoi ca theo UC17.");
     }
 
-    /**
-     * Chuyển đến màn hình đổi mật khẩu cá nhân.
-     */
     @FXML
     private void handleChangePassword() {
-        showAlert(Alert.AlertType.INFORMATION, "Đổi mật khẩu",
-                "Truy cập giao diện đổi mật khẩu cá nhân.");
+        navigateToModule(btnMenuOverview, "Doi mat khau", "Chuc nang doi mat khau se duoc bo sung o phase tiep theo.");
     }
 
-    /**
-     * Đăng xuất khỏi hệ thống và quay về màn hình Đăng nhập.
-     */
     @FXML
     private void handleLogout() {
-        if (clockTimeline != null)
+        if (clockTimeline != null) {
             clockTimeline.stop();
+        }
         xacThucService.dangXuat();
+        UserSession.clear();
         try {
             FXMLLoader loader = new FXMLLoader(App.class.getResource(App.LOGIN_VIEW));
             Parent root = loader.load();
             DangNhapViewFXMLController controller = loader.getController();
-            controller.setLoginInfo("Đã đăng xuất tài khoản Thu ngân.");
+            controller.setLoginInfo("Da dang xuat tai khoan Thu ngan.");
 
             Stage stage = (Stage) lblCashierName.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
         } catch (Exception ex) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi đăng xuất", ex.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Loi dang xuat", ex.getMessage());
         }
     }
 
-    /**
-     * Hiển thị thông báo (Alert) cho người dùng.
-     */
+    private void moScene(Node source, String fxmlPath, String title, int width, int height) {
+        try {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, width, height);
+            java.net.URL cssUrl = App.class.getResource("/css/bakery.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
+            Stage stage = (Stage) source.getScene().getWindow();
+            stage.setTitle(title);
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            showAlert(Alert.AlertType.ERROR, "Loi dieu huong", ex.getMessage());
+        }
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
         Platform.runLater(() -> {
             Alert alert = new Alert(type);

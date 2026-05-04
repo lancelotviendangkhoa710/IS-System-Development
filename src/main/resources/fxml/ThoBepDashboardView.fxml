@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bakery.views.controllers.hethong.ThoBepDashboardViewFXMLController"
+            styleClass="bg-app">
+    <top>
+        <HBox styleClass="app-header" alignment="CENTER_LEFT">
+            <Label text="Bang dieu phoi bep" styleClass="header-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Dang xuat" styleClass="btn-danger" onAction="#onDangXuat"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="24.0" styleClass="dash-main-content">
+            <VBox spacing="8.0" styleClass="card">
+                <Label fx:id="lblTenThoBep" styleClass="lbl-title-screen" text="Tho bep"/>
+                <Label fx:id="lblVaiTro" styleClass="lbl-small-bold" text="Vai tro"/>
+                <Label fx:id="lblMoTa" styleClass="lbl-body" wrapText="true"/>
+            </VBox>
+
+            <HBox spacing="24.0">
+                <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <Label text="Theo doi don san xuat" styleClass="dash-card-title"/>
+                    <Label text="Uu tien don moi nhan, don dang lam va don cho giao theo UC14, UC15." styleClass="dash-card-desc" wrapText="true"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Mo danh sach don" styleClass="btn-primary" onAction="#onMoTheoDoiDon"/>
+                </VBox>
+                <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <Label text="Cong thuc va thanh phan" styleClass="dash-card-title"/>
+                    <Label text="Tra cuu thanh phan banh, cot, nhan va trang tri de chuan hoa san xuat." styleClass="dash-card-desc" wrapText="true"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Mo thanh phan banh" styleClass="btn-primary" onAction="#onMoThanhPhanBanh"/>
+                </VBox>
+                <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <Label text="Kho phuc vu bep" styleClass="dash-card-title"/>
+                    <Label text="Phoi hop xuat nguyen lieu va kiem tra trang thai ton kho phuc vu FEFO." styleClass="dash-card-desc" wrapText="true"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Mo kho nguyen lieu" styleClass="btn-primary" onAction="#onMoKho"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
