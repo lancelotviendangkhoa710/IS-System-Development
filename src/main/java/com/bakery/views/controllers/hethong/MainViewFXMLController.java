@@ -4,7 +4,6 @@ import com.bakery.main.App;
 import com.bakery.model.dto.nhansu.ChucNangDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.dto.nhansu.VaiTroDTO;
-import com.bakery.services.AuthService;
 import com.bakery.services.nhansu.XacThucService;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
@@ -38,7 +37,6 @@ import java.util.Map;
  */
 public class MainViewFXMLController {
     private final XacThucService xacThucService = new XacThucService();
-    private final AuthService authService = new AuthService();
     private static final List<String> REGISTER_ROLE_ORDER = List.of("Thu ngân", "Quản lý", "Thợ bếp");
 
     @FXML private TextField txtUsername;
@@ -98,11 +96,7 @@ public class MainViewFXMLController {
         Task<NhanVienDTO> task = new Task<>() {
             @Override
             protected NhanVienDTO call() throws Exception {
-                NhanVienDTO nhanVien = xacThucService.dangNhap(getUsername(), getPassword());
-                String token = authService.login(getUsername(), getPassword());
-                UserSession.setCurrentToken(token);
-                
-                return nhanVien;
+                return xacThucService.dangNhap(getUsername(), getPassword());
             }
         };
 
@@ -199,13 +193,8 @@ public class MainViewFXMLController {
 
     @FXML
     private void handleLogout() {
+        xacThucService.dangXuat();
         try {
-            String currentToken = UserSession.getCurrentToken();
-            if (currentToken != null) {
-                authService.logout(currentToken);
-            }
-            xacThucService.dangXuat();
-            UserSession.clear();
             switchScene(App.LOGIN_VIEW, "Đã đăng xuất thành công.");
         } catch (Exception ex) {
             showAlert(Alert.AlertType.ERROR, "Lỗi đăng xuất", ex.getMessage());

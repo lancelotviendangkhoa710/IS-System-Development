@@ -5,6 +5,7 @@ import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.banhang.ThuNganViewFXMLController;
 import com.bakery.views.controllers.hethong.MainMenuViewFXMLController;
+import com.bakery.views.controllers.hethong.MainViewFXMLController;
 import com.bakery.views.controllers.hethong.ThoBepDashboardViewFXMLController;
 import com.bakery.views.controllers.hethong.ThuKhoDashboardViewFXMLController;
 import javafx.fxml.FXML;
@@ -85,6 +86,8 @@ public abstract class BaseController {
             Object controller = loader.getController();
             if (controller instanceof MainMenuViewFXMLController) {
                 ((MainMenuViewFXMLController) controller).khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
+            } else if (controller instanceof MainViewFXMLController) {
+                // MainView (Shell) tu dong lay User tu Session trong initialize()
             } else if (controller instanceof ThuNganViewFXMLController) {
                 ((ThuNganViewFXMLController) controller).khoiTaoDashboard(UserSession.getCurrentUser());
             } else if (controller instanceof ThoBepDashboardViewFXMLController) {

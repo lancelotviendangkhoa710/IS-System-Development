@@ -371,9 +371,7 @@ public class MainMenuViewFXMLController {
 
             // Optional: Pass a logout message to MainViewFXMLController
             Object controller = loader.getController();
-            if (controller instanceof MainViewFXMLController) {
-                ((MainViewFXMLController) controller).setLoginInfo("Bạn đã đăng xuất thành công.");
-            } else if (controller instanceof DangNhapViewFXMLController) {
+            if (controller instanceof DangNhapViewFXMLController) {
                 ((DangNhapViewFXMLController) controller).setLoginInfo("Bạn đã đăng xuất thành công.");
             }
 
@@ -402,10 +400,6 @@ public class MainMenuViewFXMLController {
             }
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load(), width, height);
-            if ("/fxml/DonHangView.fxml".equals(fxmlPath)) {
-                DonHangViewFXMLController controller = loader.getController();
-                controller.apDungThongTinDangNhap(UserSession.getCurrentUser());
-            }
             URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null) {
                 scene.getStylesheets().add(cssUrl.toExternalForm());

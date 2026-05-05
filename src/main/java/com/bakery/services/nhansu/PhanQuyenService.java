@@ -57,7 +57,7 @@ public class PhanQuyenService {
         if (laThuKho(nhanVien)) {
             return "/fxml/ThuKhoDashboardView.fxml";
         }
-        return "/fxml/MainMenuView.fxml";
+        return "/fxml/MainView.fxml";
     }
 
     public String layTieuDeTrangChu(NhanVienDTO nhanVien) {
