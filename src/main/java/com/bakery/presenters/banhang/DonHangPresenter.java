@@ -70,6 +70,9 @@ public class DonHangPresenter {
 
     public void taiDuLieuBanDau() {
         try {
+            // Bảo vệ phiên đăng nhập trước khi thực hiện nghiệp vụ
+            com.bakery.utils.SessionValidator.requireValidSession();
+
             tatCaSanPham = orderService.layDanhSachSanPhamPOS();
             mapDanhMuc.putAll(orderService.layMapDanhMucSanPham());
 

@@ -99,12 +99,12 @@ public class DangNhapViewFXMLController extends BaseController {
 
         if (tenDangNhap.isBlank() || matKhau.isBlank()) {
             hienDangNhap();
-            hienThiLoiLabel("Vui long nhap day du ten dang nhap va mat khau.");
+            hienThiLoiLabel("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
             return;
         }
 
         setLoginFormDisabled(true);
-        hienThiThanhCongLabel("Dang xac thuc tai khoan...");
+        hienThiThanhCongLabel("Đang xác thực tài khoản...");
 
         Task<NhanVienDTO> task = new Task<>() {
             @Override
@@ -127,7 +127,7 @@ public class DangNhapViewFXMLController extends BaseController {
                         return;
                     }
 
-                    transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mo ca lam viec", 1366, 768);
+                    transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
                     return;
                 }
 
@@ -152,12 +152,12 @@ public class DangNhapViewFXMLController extends BaseController {
         RoleOption selectedRole = cboRegisterVaiTro.getSelectionModel().getSelectedItem();
         if (selectedRole == null) {
             hienDangKy();
-            hienThiRegisterLoi("Vui long chon vai tro.");
+            hienThiRegisterLoi("Vui lòng chọn vai trò.");
             return;
         }
 
         setRegisterFormDisabled(true);
-        hienThiRegisterThanhCong("Dang tao tai khoan...");
+        hienThiRegisterThanhCong("Đang tạo tài khoản...");
 
         Task<Integer> task = new Task<>() {
             @Override
@@ -177,7 +177,7 @@ public class DangNhapViewFXMLController extends BaseController {
             setRegisterFormDisabled(false);
             clearRegisterForm();
             hienDangNhap();
-            hienThiThanhCongLabel("Tao tai khoan thanh cong. Ma nhan vien moi: " + task.getValue());
+            hienThiThanhCongLabel("Tạo tài khoản thành công, mã nhân viên mới: " + task.getValue());
             txtTenDangNhap.requestFocus();
         });
 
@@ -331,7 +331,7 @@ public class DangNhapViewFXMLController extends BaseController {
         visibleField.textProperty().bindBidirectional(hiddenField.textProperty());
         visibleField.setManaged(false);
         visibleField.setVisible(false);
-        toggleButton.setText("Hien");
+        toggleButton.setText("Hiện");
     }
 
     private void togglePasswordField(PasswordField hiddenField, TextField visibleField, Button toggleButton) {
@@ -340,7 +340,7 @@ public class DangNhapViewFXMLController extends BaseController {
         visibleField.setManaged(!showing);
         hiddenField.setVisible(showing);
         hiddenField.setManaged(showing);
-        toggleButton.setText(showing ? "Hien" : "An");
+        toggleButton.setText(showing ? "Hiện" : "Ẩn");
         if (showing) {
             hiddenField.requestFocus();
             hiddenField.positionCaret(hiddenField.getText().length());
@@ -373,7 +373,7 @@ public class DangNhapViewFXMLController extends BaseController {
             current = current.getCause();
         }
         if (current == null || current.getMessage() == null || current.getMessage().isBlank()) {
-            return "Da xay ra loi khong xac dinh.";
+            return "Đã xảy ra lỗi không xác định.";
         }
         return current.getMessage();
     }
