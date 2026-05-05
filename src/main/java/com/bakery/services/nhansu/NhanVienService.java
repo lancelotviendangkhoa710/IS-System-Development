@@ -62,4 +62,8 @@ public class NhanVienService extends BaseService {
         }
         return result;
     }
+
+    public void capNhatVaiTro(int maNV, List<Integer> dsMaVT) throws Exception {
+        nhanVienDAO.capNhatVaiTroNhanVien(maNV, dsMaVT);
+    }
 }

@@ -19,8 +19,8 @@
 
     <HBox alignment="CENTER_LEFT" spacing="15">
         <VBox spacing="5">
-            <Label text="Ma Trận Phân Quyền" styleClass="lbl-title-screen"/>
-            <Label text="Thiết lập chi tiết quyền (Flags) cho từng vai trò hệ thống" styleClass="lbl-body-secondary"/>
+            <Label text="Phân quyền tài khoản" styleClass="lbl-title-screen"/>
+            <Label text="Gán vai trò trực tiếp cho từng tài khoản nhân viên" styleClass="lbl-body-secondary"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="Lưu tất cả" styleClass="btn-primary" onAction="#onLuuTatCa"/>

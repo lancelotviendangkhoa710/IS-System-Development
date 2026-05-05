@@ -1,27 +1,35 @@
 package com.bakery.views.controllers.nhansu;
 
-import com.bakery.model.dao.nhansu.PhanQuyenDAO;
-import com.bakery.model.dao.nhansu.VaiTroDAO;
-import com.bakery.model.dto.nhansu.ChucNangDTO;
+import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.dto.nhansu.VaiTroDTO;
+import com.bakery.services.nhansu.NhanVienService;
+import com.bakery.views.controllers.BaseController;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class MaTranPhanQuyenViewFXMLController {
+/**
+ * Controller cho MaTranPhanQuyenView.
+ * Đã refactor sang 'Nhân viên vs Vai trò' theo yêu cầu.
+ */
+public class MaTranPhanQuyenViewFXMLController extends BaseController {
 
     @FXML private ScrollPane scrollMatrix;
     @FXML private Label lblThongBao;
 
-    private final PhanQuyenDAO phanQuyenDAO = new PhanQuyenDAO();
-    private final VaiTroDAO vaiTroDAO = new VaiTroDAO();
+    private final NhanVienService nhanVienService = new NhanVienService();
+    private List<NhanVienDTO> dsNhanVien;
+    private List<Integer> dsMaVaiTroHeader;
+    private Map<String, List<CheckBox>> matrixMap; // Key: maNV, Value: list of role checkboxes
 
     @FXML
     public void initialize() {
@@ -34,86 +42,83 @@ public class MaTranPhanQuyenViewFXMLController {
     }
 
     private void loadMatrix() throws Exception {
-        List<VaiTroDTO> dsVaiTro = vaiTroDAO.layDanhSachVaiTroDangHoatDong();
-        List<ChucNangDTO> dsChucNang = phanQuyenDAO.layToanBoChucNang();
+        dsNhanVien = nhanVienService.layTatCaNhanVien();
+        Map<Integer, String> roleMap = nhanVienService.layDanhSachVaiTro();
+        
+        dsMaVaiTroHeader = new ArrayList<>(roleMap.keySet());
+        matrixMap = new HashMap<>();
 
         GridPane grid = new GridPane();
-        grid.setHgap(10);
+        grid.setHgap(15);
         grid.setVgap(10);
         grid.getStyleClass().add("grid-matrix");
+        grid.setAlignment(Pos.TOP_LEFT);
 
-        // 1. Header Row: Role Names
-        grid.add(new Label("CHỨC NĂNG / VAI TRÒ"), 0, 0);
-        for (int i = 0; i < dsVaiTro.size(); i++) {
-            Label lblRole = new Label(dsVaiTro.get(i).getTenVaiTro());
+        // 1. Header Row
+        Label lblHeader = new Label("NHÂN VIÊN / VAI TRÒ");
+        lblHeader.getStyleClass().add("lbl-matrix-header-first");
+        grid.add(lblHeader, 0, 0);
+
+        int col = 1;
+        for (Integer maVT : dsMaVaiTroHeader) {
+            Label lblRole = new Label(roleMap.get(maVT));
             lblRole.getStyleClass().add("lbl-matrix-header");
-            grid.add(lblRole, i + 1, 0);
+            lblRole.setMinWidth(100);
+            lblRole.setAlignment(Pos.CENTER);
+            grid.add(lblRole, col++, 0);
         }
 
-        // 2. Data Rows: Function -> Role Flags
-        for (int row = 0; row < dsChucNang.size(); row++) {
-            ChucNangDTO cn = dsChucNang.get(row);
-            grid.add(new Label(cn.getTenChucNang()), 0, row + 1);
+        // 2. Data Rows
+        for (int row = 0; row < dsNhanVien.size(); row++) {
+            NhanVienDTO nv = dsNhanVien.get(row);
+            
+            Label lblName = new Label(nv.getHoTen());
+            lblName.getStyleClass().add("lbl-matrix-row-name");
+            grid.add(lblName, 0, row + 1);
 
-            for (int col = 0; col < dsVaiTro.size(); col++) {
-                VaiTroDTO vt = dsVaiTro.get(col);
+            List<CheckBox> checkBoxes = new ArrayList<>();
+            for (int i = 0; i < dsMaVaiTroHeader.size(); i++) {
+                int maVT = dsMaVaiTroHeader.get(i);
+                CheckBox cb = new CheckBox();
+                cb.setSelected(nv.getDanhSachMaVaiTro().contains(maVT));
+                cb.setAlignment(Pos.CENTER);
                 
-                // Fetch current flags for this pair
-                PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layThongTinPhanQuyenTheoVaiTro(vt.getMaVaiTro());
-                ChucNangDTO currentPerm = info.getDanhSachChucNang().stream()
-                        .filter(c -> c.getMaChucNang() == cn.getMaChucNang())
-                        .findFirst()
-                        .orElse(new ChucNangDTO());
-
-                grid.add(createPermissionBox(vt.getMaVaiTro(), cn.getMaChucNang(), currentPerm), col + 1, row + 1);
+                VBox cell = new VBox(cb);
+                cell.setAlignment(Pos.CENTER);
+                cell.getStyleClass().add("matrix-cell");
+                
+                grid.add(cell, i + 1, row + 1);
+                checkBoxes.add(cb);
             }
+            matrixMap.put(String.valueOf(nv.getMaNV()), checkBoxes);
         }
 
         scrollMatrix.setContent(grid);
+        lblThongBao.setText("Đã tải " + dsNhanVien.size() + " nhân viên.");
     }
-
-    private VBox createPermissionBox(int maVT, int maCN, ChucNangDTO perm) {
-        VBox box = new VBox(5);
-        box.setAlignment(Pos.CENTER_LEFT);
-        box.getStyleClass().add("matrix-cell");
-
-        CheckBox cbV = new CheckBox("Xem");
-        cbV.setSelected(perm.isCanView());
-        CheckBox cbA = new CheckBox("Thêm");
-        cbA.setSelected(perm.isCanAdd());
-        CheckBox cbE = new CheckBox("Sửa");
-        cbE.setSelected(perm.isCanEdit());
-        CheckBox cbD = new CheckBox("Xóa");
-        cbD.setSelected(perm.isCanDelete());
-        CheckBox cbDL = new CheckBox("Tải");
-        cbDL.setSelected(perm.isCanDownload());
-
-        // Action to save on change
-        Runnable saveAction = () -> {
-            try {
-                phanQuyenDAO.capNhatQuyenChiTiet(maVT, maCN, 
-                    cbV.isSelected(), cbA.isSelected(), cbE.isSelected(), cbD.isSelected(), cbDL.isSelected());
-                lblThongBao.setText("Đã cập nhật quyền cho " + vtName(maVT) + " - " + cnName(maCN));
-            } catch (Exception e) {
-                lblThongBao.setText("Lỗi cập nhật!");
-            }
-        };
-
-        cbV.setOnAction(e -> saveAction.run());
-        cbA.setOnAction(e -> saveAction.run());
-        cbE.setOnAction(e -> saveAction.run());
-        cbD.setOnAction(e -> saveAction.run());
-        cbDL.setOnAction(e -> saveAction.run());
-
-        box.getChildren().addAll(cbV, cbA, cbE, cbD, cbDL);
-        return box;
-    }
-
-    private String vtName(int id) { return "Vai trò " + id; } // Placeholder
-    private String cnName(int id) { return "Chức năng " + id; } // Placeholder
 
     @FXML
     public void onLuuTatCa() {
-        lblThongBao.setText("Hệ thống tự động lưu khi thay đổi.");
+        try {
+            int count = 0;
+            for (NhanVienDTO nv : dsNhanVien) {
+                List<CheckBox> checkBoxes = matrixMap.get(String.valueOf(nv.getMaNV()));
+                List<Integer> selectedRoleIds = new ArrayList<>();
+                
+                for (int i = 0; i < dsMaVaiTroHeader.size(); i++) {
+                    if (checkBoxes.get(i).isSelected()) {
+                        selectedRoleIds.add(dsMaVaiTroHeader.get(i));
+                    }
+                }
+                
+                // Cập nhật nếu có thay đổi (optional optimization, but let's just save for simplicity)
+                nhanVienService.capNhatVaiTro(nv.getMaNV(), selectedRoleIds);
+                count++;
+            }
+            lblThongBao.setText("Lưu thành công phân quyền cho " + count + " tài khoản!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            lblThongBao.setText("Lỗi khi lưu: " + e.getMessage());
+        }
     }
 }

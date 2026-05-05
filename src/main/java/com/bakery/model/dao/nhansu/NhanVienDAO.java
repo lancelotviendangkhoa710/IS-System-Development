@@ -246,4 +246,31 @@ public class NhanVienDAO extends BaseDAO {
         nv.setTrangThaiLamViec(rs.getInt("TRANGTHAILAMVIEC"));
         return nv;
     }
+
+    public void capNhatVaiTroNhanVien(int maNV, java.util.List<Integer> dsMaVT) throws Exception {
+        try (Connection conn = moKetNoi()) {
+            // 1. Xóa vai trò cũ
+            String sqlDel = "DELETE FROM NHANVIEN_VAITRO WHERE MANV = ?";
+            try (PreparedStatement delStmt = conn.prepareStatement(sqlDel)) {
+                delStmt.setInt(1, maNV);
+                delStmt.executeUpdate();
+            }
+
+            // 2. Thêm vai trò mới
+            if (dsMaVT != null && !dsMaVT.isEmpty()) {
+                String sqlIns = "{CALL PROC_GAN_VAITRO_NHANVIEN(?, ?)}";
+                try (CallableStatement insStmt = conn.prepareCall(sqlIns)) {
+                    for (Integer maVT : dsMaVT) {
+                        insStmt.setInt(1, maNV);
+                        insStmt.setInt(2, maVT);
+                        insStmt.addBatch();
+                    }
+                    insStmt.executeBatch();
+                }
+            }
+        } catch (SQLException e) {
+            handleException("capNhatVaiTroNhanVien", e);
+            throw new Exception("Không thể cập nhật vai trò nhân viên.");
+        }
+    }
 }
