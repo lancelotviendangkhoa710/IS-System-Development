@@ -8,6 +8,13 @@ public class ChucNangDTO {
     private String moTa;
     private SystemModule module;
 
+    // Chi tiết quyền (Flags)
+    private boolean canView;
+    private boolean canAdd;
+    private boolean canEdit;
+    private boolean canDelete;
+    private boolean canDownload;
+
     public ChucNangDTO() {}
 
     public ChucNangDTO(int maChucNang, String tenChucNang, String moTa, SystemModule module) {
@@ -28,4 +35,19 @@ public class ChucNangDTO {
 
     public SystemModule getModule() { return module; }
     public void setModule(SystemModule module) { this.module = module; }
+
+    public boolean isCanView() { return canView; }
+    public void setCanView(boolean canView) { this.canView = canView; }
+
+    public boolean isCanAdd() { return canAdd; }
+    public void setCanAdd(boolean canAdd) { this.canAdd = canAdd; }
+
+    public boolean isCanEdit() { return canEdit; }
+    public void setCanEdit(boolean canEdit) { this.canEdit = canEdit; }
+
+    public boolean isCanDelete() { return canDelete; }
+    public void setCanDelete(boolean canDelete) { this.canDelete = canDelete; }
+
+    public boolean isCanDownload() { return canDownload; }
+    public void setCanDownload(boolean canDownload) { this.canDownload = canDownload; }
 }

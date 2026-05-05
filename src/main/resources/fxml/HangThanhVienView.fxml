@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.khachhang.HangThanhVienController">
+<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.khachhang.HangThanhVienController">
     <padding>
         <Insets top="20" bottom="20" left="0" right="0" />
     </padding>

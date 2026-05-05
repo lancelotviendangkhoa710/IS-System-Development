@@ -35,6 +35,7 @@ public class DonHangPresenter {
     private static final int MOCK_CURRENT_USER_ID = 1;
 
     private String lastSearchMaDon = "";
+    private String lastSearchTenKhach = "";
     private LocalDate lastSearchNgay = LocalDate.now();
     private LocalTime lastSearchTu = null;
     private LocalTime lastSearchDen = null;
@@ -95,7 +96,7 @@ public class DonHangPresenter {
                     orderService.layDanhSachNhanBanh(), orderService.layDanhSachKieuTrangTri());
 
             view.taiDanhSachTrangThai(new ArrayList<>(mapTrangThaiMoi.keySet()));
-            timKiemDonTheoDoi(null, LocalDate.now(), null, null, "ALL");
+            timKiemDonTheoDoi(null, null, LocalDate.now(), null, null, "ALL");
         } catch (Exception e) {
             System.err.println("[DonHangPresenter] Lỗi tải dữ liệu ban đầu: " + e.getMessage());
             view.hienThiLoi("Không thể tải dữ liệu ban đầu từ hệ thống.");
@@ -288,7 +289,7 @@ public class DonHangPresenter {
                 xuLyDatTruoc(req, tongTienPhaiTra);
             }
             lamMoiTrangThai();
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoi("Lỗi: " + e.getMessage());
         }
@@ -421,7 +422,7 @@ public class DonHangPresenter {
             }
 
             view.hienThiThongBaoTraCuu("Cập nhật thành công đơn #" + maDon);
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
         }
@@ -453,21 +454,22 @@ public class DonHangPresenter {
                 view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon);
             }
 
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoiTraCuu("Lỗi hủy đơn: " + e.getMessage());
         }
     }
 
-    public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen,
+    public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen,
             String trangThaiFilter) {
         this.lastSearchMaDon = maDonSearch;
+        this.lastSearchTenKhach = tenKhachSearch;
         this.lastSearchNgay = ngayNhan;
         this.lastSearchTu = gioTu;
         this.lastSearchDen = gioDen;
         this.lastSearchTrangThai = trangThaiFilter == null ? "ALL" : trangThaiFilter;
         try {
-            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen,
+            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen,
                     this.lastSearchTrangThai);
             view.hienThiDanhSachDonTheoDoi(dsDon);
         } catch (Exception e) {
@@ -475,8 +477,8 @@ public class DonHangPresenter {
         }
     }
 
-    public void timKiemDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) {
-        timKiemDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
+    public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) {
+        timKiemDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
 
     private void lamMoiTrangThai() {

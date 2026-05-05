@@ -4,6 +4,7 @@ import com.bakery.main.App;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.banhang.ThuNganViewFXMLController;
+import com.bakery.views.controllers.hethong.AppShellController;
 import com.bakery.views.controllers.hethong.MainMenuViewFXMLController;
 import com.bakery.views.controllers.hethong.MainViewFXMLController;
 import com.bakery.views.controllers.hethong.ThoBepDashboardViewFXMLController;
@@ -72,10 +73,10 @@ public abstract class BaseController {
     protected void quayLaiMenuChinh(Node sourceNode) {
         transitionTo(
                 sourceNode,
-                phanQuyenService.layManHinhTrangChu(UserSession.getCurrentUser()),
+                App.APP_SHELL_VIEW,
                 phanQuyenService.layTieuDeTrangChu(UserSession.getCurrentUser()),
-                1366,
-                768);
+                1400,
+                900);
     }
 
     protected void transitionTo(Node sourceNode, String fxmlPath, String title, int width, int height) {
@@ -84,7 +85,9 @@ public abstract class BaseController {
             Parent root = loader.load();
 
             Object controller = loader.getController();
-            if (controller instanceof MainMenuViewFXMLController) {
+            if (controller instanceof AppShellController) {
+                ((AppShellController) controller).setNhanVienInfo(UserSession.getCurrentUser());
+            } else if (controller instanceof MainMenuViewFXMLController) {
                 ((MainMenuViewFXMLController) controller).khoiTaoThongTinDangNhap(UserSession.getCurrentUser());
             } else if (controller instanceof MainViewFXMLController) {
                 // MainView (Shell) tu dong lay User tu Session trong initialize()
@@ -107,6 +110,7 @@ public abstract class BaseController {
             stage.setScene(scene);
             stage.centerOnScreen();
         } catch (Exception e) {
+            e.printStackTrace();
             hienThiThongBaoLoi("Loi dieu huong", "Khong the chuyen sang man hinh " + title + ": " + e.getMessage());
         }
     }

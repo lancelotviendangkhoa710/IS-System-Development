@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.bakery.views.controllers.hethong.AppShellController"
+            styleClass="app-shell-root"
+            stylesheets="@../css/bakery.css">
+    
+    <center>
+        <fx:include fx:id="mainMenu" source="MainMenuView.fxml" />
+    </center>
+
+</BorderPane>

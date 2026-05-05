@@ -1,11 +1,13 @@
 package com.bakery.model.dto.nhansu;
 import com.bakery.model.dto.BaseDTO;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NhanVienDTO extends BaseDTO {
     private int maNV;
-    private int maVaiTro;
-    private String tenVaiTro;
+    private List<Integer> danhSachMaVaiTro = new ArrayList<>();
+    private List<String> danhSachTenVaiTro = new ArrayList<>();
     private String hoTen;
     private LocalDate ngaySinh;
     private String sdt;
@@ -15,9 +17,8 @@ public class NhanVienDTO extends BaseDTO {
 
     public NhanVienDTO() {}
 
-    public NhanVienDTO(int maNV, int maVaiTro, String hoTen, LocalDate ngaySinh, String sdt, String tenDangNhap, String matKhau, int trangThaiLamViec) {
+    public NhanVienDTO(int maNV, String hoTen, LocalDate ngaySinh, String sdt, String tenDangNhap, String matKhau, int trangThaiLamViec) {
         this.maNV = maNV;
-        this.maVaiTro = maVaiTro;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
         this.sdt = sdt;
@@ -29,11 +30,11 @@ public class NhanVienDTO extends BaseDTO {
     public int getMaNV() { return maNV; }
     public void setMaNV(int maNV) { this.maNV = maNV; }
 
-    public int getMaVaiTro() { return maVaiTro; }
-    public void setMaVaiTro(int maVaiTro) { this.maVaiTro = maVaiTro; }
+    public List<Integer> getDanhSachMaVaiTro() { return danhSachMaVaiTro; }
+    public void setDanhSachMaVaiTro(List<Integer> danhSachMaVaiTro) { this.danhSachMaVaiTro = danhSachMaVaiTro; }
 
-    public String getTenVaiTro() { return tenVaiTro; }
-    public void setTenVaiTro(String tenVaiTro) { this.tenVaiTro = tenVaiTro; }
+    public List<String> getDanhSachTenVaiTro() { return danhSachTenVaiTro; }
+    public void setDanhSachTenVaiTro(List<String> danhSachTenVaiTro) { this.danhSachTenVaiTro = danhSachTenVaiTro; }
 
     public String getHoTen() { return hoTen; }
     public void setHoTen(String hoTen) { this.hoTen = hoTen; }
@@ -52,4 +53,33 @@ public class NhanVienDTO extends BaseDTO {
 
     public int getTrangThaiLamViec() { return trangThaiLamViec; }
     public void setTrangThaiLamViec(int trangThaiLamViec) { this.trangThaiLamViec = trangThaiLamViec; }
+
+    /** Helper để lấy tên vai trò chính hoặc danh sách chuỗi */
+    public String getTenVaiTroHienThi() {
+        if (danhSachTenVaiTro == null || danhSachTenVaiTro.isEmpty()) return "N/A";
+        return String.join(", ", danhSachTenVaiTro);
+    }
+
+    // --- Legacy Compatibility ---
+    public int getMaVaiTro() {
+        return (danhSachMaVaiTro == null || danhSachMaVaiTro.isEmpty()) ? 0 : danhSachMaVaiTro.get(0);
+    }
+    
+    public void setMaVaiTro(int maVaiTro) {
+        if (this.danhSachMaVaiTro == null) this.danhSachMaVaiTro = new ArrayList<>();
+        if (!this.danhSachMaVaiTro.contains(maVaiTro)) {
+            this.danhSachMaVaiTro.add(maVaiTro);
+        }
+    }
+
+    public String getTenVaiTro() {
+        return (danhSachTenVaiTro == null || danhSachTenVaiTro.isEmpty()) ? "" : danhSachTenVaiTro.get(0);
+    }
+
+    public void setTenVaiTro(String tenVaiTro) {
+        if (this.danhSachTenVaiTro == null) this.danhSachTenVaiTro = new ArrayList<>();
+        if (!this.danhSachTenVaiTro.contains(tenVaiTro)) {
+            this.danhSachTenVaiTro.add(tenVaiTro);
+        }
+    }
 }

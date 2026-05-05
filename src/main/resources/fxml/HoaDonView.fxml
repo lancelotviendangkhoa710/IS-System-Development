@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefWidth="400.0" spacing="0" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.banhang.HoaDonViewFXMLController">
+<VBox prefWidth="400.0" spacing="0" styleClass="bg-app" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.banhang.HoaDonViewFXMLController">
     <children>
         <!-- Receipt Content Area (Scrollable) -->
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="bg-app" VBox.vgrow="ALWAYS">
@@ -101,6 +101,12 @@
                                     <children>
                                         <Label fx:id="lblGiamGiaLabel" maxWidth="Infinity" text="Giảm giá:" HBox.hgrow="ALWAYS" styleClass="lbl-body" />
                                         <Label fx:id="lblGiamGia" text="0 đ" styleClass="lbl-danger" />
+                                    </children>
+                                </HBox>
+                                <HBox>
+                                    <children>
+                                        <Label maxWidth="Infinity" text="Thuế VAT (8.5%):" HBox.hgrow="ALWAYS" styleClass="lbl-body" />
+                                        <Label fx:id="lblThueVAT" text="0 đ" styleClass="lbl-body" />
                                     </children>
                                 </HBox>
                                 <HBox styleClass="receipt-total-row">

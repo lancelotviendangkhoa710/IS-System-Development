@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.geometry.*?>
 
 <!--
     DonHangView.fxml — Màn hình nghiệp vụ POS (Chỉ chứa content)
     Được load động vào MainView (AppShell)
     Controller: com.bakery.views.controllers.banhang.DonHangViewFXMLController
 -->
-<VBox xmlns="http://javafx.com/javafx/25"
+<VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.bakery.views.controllers.banhang.DonHangViewFXMLController"
       styleClass="bg-app"
@@ -20,7 +20,7 @@
     </padding>
 
     <!-- CONTENT AREA -->
-    <HBox spacing="16" VBox.vgrow="ALWAYS">
+    <HBox fx:id="tabTaoDon" spacing="16" VBox.vgrow="ALWAYS">
         
         <!-- Panel trái: Danh sách sản phẩm (65%) -->
         <VBox HBox.hgrow="ALWAYS" spacing="12">

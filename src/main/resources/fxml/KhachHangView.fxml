@@ -5,7 +5,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.khachhang.KhachHangViewFXMLController">
+<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.khachhang.KhachHangViewFXMLController">
     <padding>
         <Insets bottom="20" left="24" right="24" top="20" />
     </padding>

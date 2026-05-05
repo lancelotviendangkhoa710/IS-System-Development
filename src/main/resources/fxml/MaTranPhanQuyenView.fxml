@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.bakery.views.controllers.nhansu.MaTranPhanQuyenViewFXMLController"
+      spacing="20" styleClass="bg-app">
+
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <VBox spacing="5">
+            <Label text="Ma Trận Phân Quyền" styleClass="lbl-title-screen"/>
+            <Label text="Thiết lập chi tiết quyền (Flags) cho từng vai trò hệ thống" styleClass="lbl-body-secondary"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Lưu tất cả" styleClass="btn-primary" onAction="#onLuuTatCa"/>
+    </HBox>
+
+    <VBox spacing="10" VBox.vgrow="ALWAYS" styleClass="card">
+        <ScrollPane fx:id="scrollMatrix" fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <!-- GridPane will be injected here -->
+        </ScrollPane>
+    </VBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold" text="Sẵn sàng."/>
+    </HBox>
+
+</VBox>

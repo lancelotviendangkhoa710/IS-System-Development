@@ -36,9 +36,10 @@ public class ThanhToanService {
 
     public double tinhTienHoaDon(YeuCauTaoDonHangDTO request) {
         if (request == null || request.getItems() == null) return 0.0;
-        return request.getItems().stream()
+        double subtotal = request.getItems().stream()
                 .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
                 .sum();
+        return subtotal * 1.085; // Mặc định tính thêm 8.5% (Thuế/Phụ phí)
     }
 
     /**
@@ -129,7 +130,7 @@ public class ThanhToanService {
         HoaDonDTO hd = new HoaDonDTO();
         hd.setMaDon(maDon);
         hd.setMaCa(SessionContext.getInstance().getMaCa()); 
-        hd.setThueVAT(0.0);
+        hd.setThueVAT(8.5); // Mặc định 8.5%
         hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(soTien));
         hd.setMaPTTT(1); // Mặc định Tiền mặt
         hd.setLoaiHD(loaiHD);

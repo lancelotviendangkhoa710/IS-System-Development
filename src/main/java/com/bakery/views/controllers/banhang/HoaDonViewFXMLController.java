@@ -60,6 +60,8 @@ public class HoaDonViewFXMLController extends BaseController {
     @FXML
     private Label lblTienThua;
     @FXML
+    private Label lblThueVAT;
+    @FXML
     private Button btnPrint;
     @FXML
     private Button btnClose;
@@ -106,13 +108,15 @@ public class HoaDonViewFXMLController extends BaseController {
         // tiền cọc
         // Ta nên tính lại dựa trên tổng hàng thực tế và tổng tiền thanh toán của ĐƠN
         // HÀNG (nếu có)
-        double tongPhaiTraCuaDon = (donHang != null && donHang.getTongTienHDBan() != null)
-                ? donHang.getTongTienHDBan().doubleValue()
-                : (laDonCoc ? tongHangThucTe : tongTienHD);
-
-        double giamGiaChuan = Math.max(0, tongHangThucTe - tongPhaiTraCuaDon);
+        // Tính toán các thông số tài chính
+        double tienThue = tongHangThucTe * 0.085;
+        double tongSauThue = tongHangThucTe + tienThue;
+        
+        // Giảm giá thực tế là chênh lệch giữa (Tổng hàng + Thuế) và số tiền khách thực trả
+        double giamGiaChuan = Math.max(0, tongSauThue - tongTienHD);
 
         lblTongTien.setText(FORMAT_TIEN.format(tongHangThucTe) + " đ");
+        lblThueVAT.setText(FORMAT_TIEN.format(tienThue) + " đ");
         lblGiamGia.setText("-" + FORMAT_TIEN.format(giamGiaChuan) + " đ");
         lblDaThu.setText(FORMAT_TIEN.format(tongTienHD) + " đ");
         lblTienKhachDua.setText(FORMAT_TIEN.format(khachDua) + " đ");

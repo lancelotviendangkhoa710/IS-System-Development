@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/25" 
+<VBox xmlns="http://javafx.com/javafx/21" 
       xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="com.bakery.views.controllers.kho.DanhMucSPViewFXMLController"
       spacing="20" styleClass="bg-app">

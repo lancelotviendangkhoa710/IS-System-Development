@@ -9,7 +9,7 @@
     Hiện khi chuyển trạng thái đơn sang "Hoàn thành"
     Controller: com.bakery.views.controllers.PaymentDialogController
 -->
-<BorderPane xmlns="http://javafx.com/javafx/25"
+<BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bakery.views.controllers.banhang.ThanhToanDialogViewFXMLController"
             minWidth="480" minHeight="320"

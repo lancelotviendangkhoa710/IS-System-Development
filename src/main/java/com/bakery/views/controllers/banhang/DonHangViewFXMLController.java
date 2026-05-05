@@ -61,10 +61,12 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     @FXML private ComboBox<CotBanhDTO> cbCustomCotBanh;
     @FXML private ComboBox<NhanBanhDTO> cbCustomNhanBanh;
     @FXML private ComboBox<KieuTrangTriDTO> cbCustomTrangTri;
+    @FXML private VBox panelTuyChinh;
     @FXML private TextArea txtCustomLoiChuc;
     @FXML private TextArea txtCustomGhiChu;
     @FXML private Spinner<Integer> spCustomSoLuong;
     @FXML private Label lblGiaTuyChinh;
+    @FXML private Button btnThemTuyChinh;
     @FXML private TableView<CTDonHangDTO> tblGioHang;
     @FXML private TableColumn<CTDonHangDTO, String> colTenSP;
     @FXML private TableColumn<CTDonHangDTO, Integer> colSoLuong;

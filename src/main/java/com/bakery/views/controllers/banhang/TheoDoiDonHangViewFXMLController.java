@@ -43,11 +43,12 @@ import java.util.ResourceBundle;
 public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializable {
 
     @FXML private TextField txtTimMaDon;
+    @FXML private TextField txtTimKhachHang;
     @FXML private DatePicker dpNgayTheoDoi;
     @FXML private ComboBox<String> cbGioTu;
     @FXML private ComboBox<String> cbGioDen;
     @FXML private ComboBox<String> cbLocTrangThaiTheoDoi;
-    @FXML private Label lblThongBaoTab2;
+    @FXML private Label lblThongBao;
     @FXML private VBox panelChuaDon;
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
@@ -81,10 +82,11 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     private void onTimKiemDon() {
         if (presenter == null) return;
         String maDon = txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim();
-        LocalDate ngay = dpNgayTheoDoi.getValue() != null ? dpNgayTheoDoi.getValue() : LocalDate.now();
+        String tenKH = txtTimKhachHang.getText() == null ? "" : txtTimKhachHang.getText().trim();
+        LocalDate ngay = dpNgayTheoDoi.getValue();
         LocalTime gioTu = parseGioTheoDoi(cbGioTu.getValue());
         LocalTime gioDen = parseGioTheoDoi(cbGioDen.getValue());
-        presenter.timKiemDonTheoDoi(maDon, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
+        presenter.timKiemDonTheoDoi(maDon, tenKH, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
     }
 
     @FXML
@@ -238,9 +240,9 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         alert.showAndWait();
     }
 
-    @Override public void hienThiLoiTraCuu(String msg) { lblThongBaoTab2.getStyleClass().setAll("lbl-danger"); lblThongBaoTab2.setText(msg); }
-    @Override public void hienThiThongBaoTraCuu(String msg) { lblThongBaoTab2.getStyleClass().setAll("lbl-success"); lblThongBaoTab2.setText(msg); }
-    @Override public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) { lblThongBaoTab2.getStyleClass().setAll("lbl-info"); lblThongBaoTab2.setText("KQ: " + kh + " | " + tt + " | " + dinhDangTien(tongTien)); }
+    @Override public void hienThiLoiTraCuu(String msg) { lblThongBao.getStyleClass().setAll("lbl-danger"); lblThongBao.setText(msg); }
+    @Override public void hienThiThongBaoTraCuu(String msg) { lblThongBao.getStyleClass().setAll("lbl-success"); lblThongBao.setText(msg); }
+    @Override public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) { lblThongBao.getStyleClass().setAll("lbl-info"); lblThongBao.setText("KQ: " + kh + " | " + tt + " | " + dinhDangTien(tongTien)); }
 
     @Override public void lamMoiBangGioHang(List<CTDonHangDTO> items, List<SanPhamDTO> originData) {}
     @Override public void lamMoiBaoCaoTien(double tongHang, double giamGia, double tongThanhToan, double minCoc, double conLai, double tienThua, boolean isThieuTienThua) {}

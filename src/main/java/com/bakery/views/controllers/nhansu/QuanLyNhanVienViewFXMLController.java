@@ -35,7 +35,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     @FXML private TextField txtHoTen;
     @FXML private TextField txtSdt;
-    @FXML private ComboBox<String> cmbVaiTro;
+    @FXML private javafx.scene.layout.FlowPane flowVaiTro;
     @FXML private TextField txtTenDangNhap;
     @FXML private PasswordField txtMatKhau;
     @FXML private TextField txtMatKhauVisible;
@@ -77,7 +77,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         colMaNV.setCellValueFactory(new PropertyValueFactory<>("maNV"));
         colHoTen.setCellValueFactory(new PropertyValueFactory<>("hoTen"));
         colSdt.setCellValueFactory(new PropertyValueFactory<>("sdt"));
-        colVaiTro.setCellValueFactory(new PropertyValueFactory<>("tenVaiTro"));
+        colVaiTro.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenVaiTroHienThi()));
         colTenDangNhap.setCellValueFactory(new PropertyValueFactory<>("tenDangNhap"));
         colTrangThai.setCellValueFactory(cellData -> {
             int status = cellData.getValue().getTrangThaiLamViec();
@@ -88,7 +88,13 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     private void loadRoles() {
         try {
             roleMap = nhanVienService.layDanhSachVaiTro();
-            cmbVaiTro.getItems().setAll(roleMap.values());
+            flowVaiTro.getChildren().clear();
+            for (Map.Entry<Integer, String> entry : roleMap.entrySet()) {
+                CheckBox chk = new CheckBox(entry.getValue());
+                chk.setUserData(entry.getKey());
+                chk.getStyleClass().add("check-box-role");
+                flowVaiTro.getChildren().add(chk);
+            }
         } catch (Exception e) {
             lblThongBao.setText("Lỗi tải vai trò: " + e.getMessage());
         }
@@ -112,7 +118,13 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         selectedNhanVien = nv;
         txtHoTen.setText(nv.getHoTen());
         txtSdt.setText(nv.getSdt());
-        cmbVaiTro.getSelectionModel().select(nv.getTenVaiTro());
+        // Check roles
+        for (javafx.scene.Node node : flowVaiTro.getChildren()) {
+            if (node instanceof CheckBox chk) {
+                int roleId = (int) chk.getUserData();
+                chk.setSelected(nv.getDanhSachMaVaiTro().contains(roleId));
+            }
+        }
         txtTenDangNhap.setText(nv.getTenDangNhap());
         txtMatKhau.clear();
         txtMatKhauVisible.clear();
@@ -157,7 +169,11 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         tblNhanVien.getSelectionModel().clearSelection();
         txtHoTen.clear();
         txtSdt.clear();
-        cmbVaiTro.getSelectionModel().clearSelection();
+        for (javafx.scene.Node node : flowVaiTro.getChildren()) {
+            if (node instanceof CheckBox chk) {
+                chk.setSelected(false);
+            }
+        }
         txtTenDangNhap.clear();
         txtMatKhau.clear();
         txtMatKhauVisible.clear();
@@ -182,13 +198,13 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
             nv.setTenDangNhap(txtTenDangNhap.getText().trim());
             nv.setTrangThaiLamViec(chkHoatDong.isSelected() ? 1 : 0);
 
-            String roleName = cmbVaiTro.getValue();
-            int roleId = roleMap.entrySet().stream()
-                    .filter(e -> e.getValue().equals(roleName))
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse(0);
-            nv.setMaVaiTro(roleId);
+            List<Integer> selectedRoleIds = new java.util.ArrayList<>();
+            for (javafx.scene.Node node : flowVaiTro.getChildren()) {
+                if (node instanceof CheckBox chk && chk.isSelected()) {
+                    selectedRoleIds.add((int) chk.getUserData());
+                }
+            }
+            nv.setDanhSachMaVaiTro(selectedRoleIds);
 
             String matKhau = getPasswordValue();
             if (!matKhau.isEmpty()) {
@@ -281,8 +297,16 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         String sdt = txtSdt.getText().trim();
         String tenDN = txtTenDangNhap.getText().trim();
 
-        if (hoTen.isEmpty() || sdt.isEmpty() || tenDN.isEmpty() || cmbVaiTro.getValue() == null) {
-            hienThiThongBaoLoi("Lỗi nhập liệu", "Vui lòng điền đầy đủ các trường bắt buộc (*).");
+        boolean hasRole = false;
+        for (javafx.scene.Node node : flowVaiTro.getChildren()) {
+            if (node instanceof CheckBox chk && chk.isSelected()) {
+                hasRole = true;
+                break;
+            }
+        }
+
+        if (hoTen.isEmpty() || sdt.isEmpty() || tenDN.isEmpty() || !hasRole) {
+            hienThiThongBaoLoi("Lỗi nhập liệu", "Vui lòng điền đầy đủ các trường bắt buộc (*) và chọn ít nhất 1 vai trò.");
             return false;
         }
 

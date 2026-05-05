@@ -160,8 +160,8 @@ public class DonHangService {
         return donHangService.theoDoiDonHang(maDon);
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan,
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan,
             LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
-        return theoDoiDonService.layDanhSachDonTheoDoi(maDonSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
+        return theoDoiDonService.layDanhSachDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
     }
 }

@@ -6,128 +6,91 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.bakery.views.controllers.kho.KhoViewFXMLController"
-            styleClass="bg-app">
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.KhoViewFXMLController"
+      styleClass="bg-app"
+      spacing="16">
 
-    <left>
-        <VBox styleClass="sidebar" spacing="8">
-            <VBox style="-fx-padding: 16 20 12 20;" spacing="12">
-                <Button text="← Quay lại Menu" styleClass="btn-secondary" onAction="#onVeMenu" 
-                        style="-fx-font-weight: bold; -fx-padding: 6 12;"/>
-                <VBox spacing="4">
-                    <Label text="Artisan Bakery" styleClass="sidebar-logo" style="-fx-padding: 0;"/>
-                    <Label text="Management Suite" styleClass="sidebar-tagline" style="-fx-padding: 0;"/>
-                </VBox>
-            </VBox>
-            <Separator style="-fx-padding: 0 16;"/>
-            <VBox spacing="6" style="-fx-padding: 12 12 8 12;">
-                <Button text="👤  Staff" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="👥  Customers" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="🍰  Products &amp; Recipes" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="📦  Inventory" styleClass="nav-item, nav-item-active" maxWidth="Infinity"/>
-                <Button text="📊  Business Reports" styleClass="nav-item" maxWidth="Infinity"/>
-            </VBox>
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <VBox spacing="4">
+            <Label text="Quản lý Kho hàng" styleClass="lbl-title-screen"/>
+            <Label text="Theo dõi tồn kho, quản lý đơn nhập hàng và hậu cần." styleClass="lbl-body"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="➕ Tạo phiếu nhập mới" styleClass="btn-primary" onAction="#onActionTam"/>
+    </HBox>
+
+    <HBox spacing="16" VBox.vgrow="ALWAYS">
+        <!-- Cột trái: Cảnh báo & Thống kê nhanh -->
+        <VBox styleClass="card" spacing="10" prefWidth="320">
+            <Label text="⚠️ Cảnh báo quan trọng" styleClass="lbl-title-card"/>
+            <Button text="Bột mì - Sắp hết: Còn 5kg" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
+            <Button text="Men tươi - Hết hạn: 12/10/2023" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
+            <Button text="Vani - Cần nhập thêm" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
             <Region VBox.vgrow="ALWAYS"/>
-            <VBox spacing="6" style="-fx-padding: 10 12 16 12;">
-                <Button text="⚙️  Settings" styleClass="nav-item" maxWidth="Infinity"/>
-                <Button text="❓  Support" styleClass="nav-item" maxWidth="Infinity"/>
+            <VBox spacing="8" styleClass="dash-banner" style="-fx-padding: 15;">
+                <Label text="Giá trị tồn kho: 12.450.000 đ" styleClass="lbl-small-bold" style="-fx-text-fill: white;"/>
+                <Label text="Đơn nhập chờ: 08" styleClass="lbl-small-bold" style="-fx-text-fill: white;"/>
             </VBox>
         </VBox>
-    </left>
 
-    <center>
-        <VBox spacing="16">
-            <HBox styleClass="app-header" alignment="CENTER_LEFT" spacing="12">
-                <TextField promptText="Search inventory, products, orders..." styleClass="text-field" prefWidth="420"/>
+        <!-- Cột phải: Chi tiết đơn nhập -->
+        <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS">
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Phiếu Nhập Kho (Purchase Order)" styleClass="lbl-title-card"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="?" styleClass="icon-btn"/>
-                <Button text="?" styleClass="icon-btn"/>
-                <Button text="?" styleClass="icon-btn"/>
+                <Label text="PO-#2023-4492" styleClass="lbl-small-bold"/>
             </HBox>
 
-            <VBox spacing="16" style="-fx-padding: 20;">
-                <HBox alignment="CENTER_LEFT" spacing="12">
-                    <VBox spacing="4">
-                        <Label text="Inventory Management" styleClass="lbl-title-screen"/>
-                        <Label text="Monitor stock levels, manage supplier purchase orders, and track logistics." styleClass="lbl-body"/>
-                    </VBox>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="?  Create Purchase Order" styleClass="btn-primary" onAction="#onActionTam"/>
-                </HBox>
+            <HBox spacing="10">
+                <TextField promptText="Chọn nhà cung cấp" styleClass="text-field" HBox.hgrow="ALWAYS"/>
+                <TextField promptText="Ngày giao hàng dự kiến" styleClass="text-field" HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-                <HBox spacing="16">
-                    <VBox styleClass="card" spacing="10" prefWidth="380">
-                        <Label text="? Critical Alerts" styleClass="lbl-title-card"/>
-                        <Button text="Unbleached Flour - Low Stock: 5kg left" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
-                        <Button text="Fresh Yeast - Expired: 12 Oct 2023" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
-                        <Button text="Tahitian Vanilla Beans - Reorder level reached" styleClass="nav-item" maxWidth="Infinity" onAction="#onActionTam"/>
-                        <FlowPane hgap="8" vgap="8">
-                            <Label text="Total Stock Value: $12,450.80" styleClass="lbl-small-bold"/>
-                            <Label text="Pending POs: 08" styleClass="lbl-small-bold"/>
-                        </FlowPane>
-                    </VBox>
+            <TableView styleClass="table-view" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="Tên mặt hàng" prefWidth="230"/>
+                    <TableColumn text="Đơn vị" prefWidth="110"/>
+                    <TableColumn text="Số lượng" prefWidth="100"/>
+                    <TableColumn text="Đơn giá" prefWidth="110"/>
+                    <TableColumn text="Thành tiền" prefWidth="120"/>
+                </columns>
+            </TableView>
 
-                    <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS">
-                        <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Label text="Phieu Nhap Kho (Purchase Order)" styleClass="lbl-title-card"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Label text="PO-#2023-4492" styleClass="lbl-small-bold"/>
-                        </HBox>
-
-                        <HBox spacing="10">
-                            <TextField promptText="Supplier Selection" styleClass="text-field" HBox.hgrow="ALWAYS"/>
-                            <TextField promptText="Estimated Delivery (yyyy-MM-dd)" styleClass="text-field" HBox.hgrow="ALWAYS"/>
-                        </HBox>
-
-                        <TableView styleClass="table-view" VBox.vgrow="ALWAYS">
-                            <columns>
-                                <TableColumn text="Item Name" prefWidth="230"/>
-                                <TableColumn text="Unit" prefWidth="110"/>
-                                <TableColumn text="Quantity" prefWidth="100"/>
-                                <TableColumn text="Unit Price" prefWidth="110"/>
-                                <TableColumn text="Subtotal" prefWidth="120"/>
-                            </columns>
-                        </TableView>
-
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Button text="? Add New Item Row" styleClass="btn-secondary" onAction="#onActionTam"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="Save as Draft" styleClass="btn-secondary" onAction="#onActionTam"/>
-                            <Button text="Confirm Purchase Order" styleClass="btn-primary" onAction="#onActionTam"/>
-                        </HBox>
-                    </VBox>
-                </HBox>
-
-                <VBox styleClass="card" spacing="10">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Recent Supplier Shipments &amp; Logistics" styleClass="lbl-title-card"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="View Full Shipment Logs ?" styleClass="btn-secondary" onAction="#onActionTam"/>
-                    </HBox>
-                    <FlowPane hgap="12" vgap="12">
-                        <Button text="? Artisan Grain - Arrived today 08:30" styleClass="nav-item" onAction="#onActionTam"/>
-                        <Button text="? Normandy Dairy - Delayed approx 2h" styleClass="nav-item" onAction="#onActionTam"/>
-                        <Button text="? Vanilla Dreams - Delivered yesterday" styleClass="nav-item" onAction="#onActionTam"/>
-                        <Button text="? Pantry Plus - Pending receipt" styleClass="nav-item" onAction="#onActionTam"/>
-                    </FlowPane>
-                </VBox>
-
-                <HBox>
-                    <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="? Mo POS" styleClass="btn-primary" onAction="#onMoPOS"/>
-                </HBox>
-            </VBox>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button text="➕ Thêm dòng mới" styleClass="btn-secondary" onAction="#onActionTam"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Lưu bản nháp" styleClass="btn-secondary" onAction="#onActionTam"/>
+                <Button text="Xác nhận nhập kho" styleClass="btn-primary" onAction="#onActionTam"/>
+            </HBox>
         </VBox>
-    </center>
-</BorderPane>
+    </HBox>
 
+    <VBox styleClass="card" spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Lịch sử nhập hàng &amp; Logistics" styleClass="lbl-title-card"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Xem tất cả lịch sử →" styleClass="btn-secondary" onAction="#onActionTam"/>
+        </HBox>
+        <FlowPane hgap="12" vgap="12">
+            <Button text="🚚 Artisan Grain - Đã về 08:30" styleClass="nav-item" onAction="#onActionTam"/>
+            <Button text="🚚 Normandy Dairy - Giao trễ 2h" styleClass="nav-item" onAction="#onActionTam"/>
+            <Button text="🚚 Vanilla Dreams - Đã giao hôm qua" styleClass="nav-item" onAction="#onActionTam"/>
+            <Button text="🚚 Pantry Plus - Đang chờ xử lý" styleClass="nav-item" onAction="#onActionTam"/>
+        </FlowPane>
+    </VBox>
+
+    <HBox>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
+</VBox>

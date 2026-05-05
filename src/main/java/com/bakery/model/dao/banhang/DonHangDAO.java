@@ -136,10 +136,10 @@ public class DonHangDAO extends BaseDAO {
         return null;
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         List<DonDatHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT MADON, MAKH, MATRANGTHAI, TENTRANGTHAI, NGAYGIONHANBANH, TONGTIENHDBAN " +
+                "SELECT MADON, MAKH, TENKHACHHANG, MATRANGTHAI, TENTRANGTHAI, NGAYGIONHANBANH, TONGTIENHDBAN " +
                 "FROM VW_DanhSachDonHang " +
                 "WHERE 1 = 1");
 
@@ -151,6 +151,9 @@ public class DonHangDAO extends BaseDAO {
 
         if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
             sql.append(" AND MADON = ?");
+        }
+        if (tenKhachSearch != null && !tenKhachSearch.trim().isEmpty()) {
+            sql.append(" AND UPPER(TENKHACHHANG) LIKE UPPER(?)");
         }
         if (ngayNhan != null) {
             sql.append(" AND TRUNC(NGAYGIONHANBANH) = ?");
@@ -168,6 +171,9 @@ public class DonHangDAO extends BaseDAO {
                 int paramIndex = 1;
                 if (maDonSearch != null && !maDonSearch.trim().isEmpty()) {
                     pstmt.setInt(paramIndex++, Integer.parseInt(maDonSearch.trim()));
+                }
+                if (tenKhachSearch != null && !tenKhachSearch.trim().isEmpty()) {
+                    pstmt.setString(paramIndex++, "%" + tenKhachSearch.trim() + "%");
                 }
                 if (ngayNhan != null) {
                     pstmt.setTimestamp(paramIndex++, Timestamp.valueOf(ngayNhan.atStartOfDay()));

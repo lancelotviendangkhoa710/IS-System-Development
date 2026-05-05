@@ -44,22 +44,28 @@ public class XacThucService {
                     "Tên đăng nhập hoặc mật khẩu không chính xác.");
         }
 
-        PhanQuyenDAO.RolePermissionInfo roleInfo = phanQuyenDAO.layThongTinPhanQuyenTheoVaiTro(nhanVien.getMaVaiTro());
+        // Lấy thông tin phân quyền hợp nhất từ tất cả các vai trò của nhân viên
+        PhanQuyenDAO.RolePermissionInfo roleInfo = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
+        
         if (roleInfo == null || !roleInfo.isVaiTroHoatDong()) {
-            throw new NgoaiLeXacThuc(MaLoiXacThuc.VAI_TRO_KHONG_HOP_LE, "Vai trò của tài khoản không còn hiệu lực.");
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.VAI_TRO_KHONG_HOP_LE, "Nhân viên chưa được gán vai trò hợp lệ.");
         }
 
-        if (roleInfo.getDanhSachChucNang().isEmpty()) {
+        if (roleInfo.getPermissionKeys().isEmpty()) {
             throw new NgoaiLeXacThuc(MaLoiXacThuc.VAI_TRO_KHONG_HOP_LE,
-                    "Vai trò hiện tại không được cấp quyền truy cập.");
+                    "Tài khoản hiện tại không được cấp bất kỳ quyền truy cập nào.");
         }
 
         Set<String> permissionKeys = new LinkedHashSet<>(roleInfo.getPermissionKeys());
-        nhanVien.setTenVaiTro(roleInfo.getTenVaiTro());
+        nhanVien.setDanhSachTenVaiTro(java.util.Arrays.asList(roleInfo.getTenVaiTro().split(" \\+ ")));
+
+        // SessionContext cần được cập nhật để hỗ trợ danh sách vai trò
+        // Ở đây ta lấy vai trò đầu tiên làm đại diện hoặc dùng chuỗi hợp nhất
+        int primaryRole = nhanVien.getDanhSachMaVaiTro().isEmpty() ? 0 : nhanVien.getDanhSachMaVaiTro().get(0);
 
         SessionContext.AuthSession session = new SessionContext.AuthSession(
                 nhanVien.getMaNV(),
-                nhanVien.getMaVaiTro(),
+                primaryRole,
                 nhanVien.getTenDangNhap(),
                 nhanVien.getHoTen(),
                 roleInfo.getTenVaiTro(),

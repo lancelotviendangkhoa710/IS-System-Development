@@ -7,9 +7,11 @@ import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.banhang.DonHangViewFXMLController;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
+import com.bakery.utils.FXMLLoaderUtil;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.control.ScrollPane;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
@@ -60,17 +63,11 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnBanHang;
     @FXML
-    private Button btnKho;
-    @FXML
-    private Button btnNhanSu;
-    @FXML
     private Button btnNhanSuSidebar;
     @FXML
     private Button btnKhachHang;
     @FXML
     private Button btnBaoCao;
-    @FXML
-    private Button btnBaoCaoCard;
     @FXML
     private Button btnTheoDoiDon;
     @FXML
@@ -86,7 +83,23 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnNguyenLieu;
     @FXML
+    private Button btnNhapKho;
+    @FXML
+    private Button btnXuatKho;
+    @FXML
+    private Button btnKiemKe;
+    @FXML
+    private Button btnMaTranPhanQuyen;
+    @FXML
+    private Button btnCongThuc;
+    @FXML
     private FlowPane flowBestSellersMenu;
+    @FXML
+    private StackPane contentArea;
+
+    public StackPane getContentArea() {
+        return contentArea;
+    }
 
     private boolean isSidebarCollapsed = false;
     private final java.util.Map<Button, String> buttonTextMap = new java.util.HashMap<>();
@@ -94,6 +107,11 @@ public class MainMenuViewFXMLController {
     private final PhanQuyenService authorizationService = new PhanQuyenService();
     private final ThongKeService thongKeService = new ThongKeService();
     private NhanVienDTO currentUser;
+    private AppShellController appShellController;
+
+    public void setAppShellController(AppShellController appShellController) {
+        this.appShellController = appShellController;
+    }
 
     public void khoiTaoThongTinDangNhap(NhanVienDTO nhanVien) {
         this.currentUser = nhanVien != null ? nhanVien : UserSession.getCurrentUser();
@@ -113,13 +131,10 @@ public class MainMenuViewFXMLController {
         }
         lblVaiTro.setText(xayDungNhanQuyen(this.currentUser, laAdmin));
         capNhatTrangThaiNut(btnBanHang, modulesDuocCap.contains(SystemModule.BAN_HANG));
-        capNhatTrangThaiNut(btnKho, modulesDuocCap.contains(SystemModule.KHO));
-        capNhatTrangThaiNut(btnNhanSu, modulesDuocCap.contains(SystemModule.NHAN_SU));
+        capNhatTrangThaiNut(btnInventory, modulesDuocCap.contains(SystemModule.KHO));
         capNhatTrangThaiNut(btnNhanSuSidebar, modulesDuocCap.contains(SystemModule.NHAN_SU));
         capNhatTrangThaiNut(btnKhachHang, modulesDuocCap.contains(SystemModule.KHACH_HANG));
         capNhatTrangThaiNut(btnBaoCao, modulesDuocCap.contains(SystemModule.BAO_CAO));
-        if (btnBaoCaoCard != null)
-            capNhatTrangThaiNut(btnBaoCaoCard, modulesDuocCap.contains(SystemModule.BAO_CAO));
         if (btnTheoDoiDon != null)
             capNhatTrangThaiNut(btnTheoDoiDon, modulesDuocCap.contains(SystemModule.BAN_HANG));
         capNhatTrangThaiNut(btnKds, modulesDuocCap.contains(SystemModule.NHA_BEP));
@@ -132,93 +147,90 @@ public class MainMenuViewFXMLController {
             capNhatTrangThaiNut(btnSanPham, modulesDuocCap.contains(SystemModule.KHO));
         if (btnNguyenLieu != null)
             capNhatTrangThaiNut(btnNguyenLieu, modulesDuocCap.contains(SystemModule.KHO));
+        if (btnNhapKho != null)
+            capNhatTrangThaiNut(btnNhapKho, modulesDuocCap.contains(SystemModule.KHO));
+        if (btnXuatKho != null)
+            capNhatTrangThaiNut(btnXuatKho, modulesDuocCap.contains(SystemModule.KHO));
+        if (btnKiemKe != null)
+            capNhatTrangThaiNut(btnKiemKe, modulesDuocCap.contains(SystemModule.KHO));
+        if (btnMaTranPhanQuyen != null)
+            capNhatTrangThaiNut(btnMaTranPhanQuyen, laAdmin);
+        if (btnCongThuc != null)
+            capNhatTrangThaiNut(btnCongThuc, modulesDuocCap.contains(SystemModule.KHO));
 
-        // Tam thoi bo tai thong ke dong bo de tranh treo man hinh menu.
+        // Load dashboard mặc định nếu chưa có gì
+        if (contentArea != null && contentArea.getChildren().isEmpty()) {
+            onMoDashboard();
+        }
     }
 
-    private void loadBestSellers() {
-        if (flowBestSellersMenu == null)
-            return;
-        flowBestSellersMenu.getChildren().clear();
-
-        try {
-            Map<String, Integer> top5 = thongKeService.getTop5BanChay();
-            for (Map.Entry<String, Integer> entry : top5.entrySet()) {
-                VBox card = new VBox(8);
-                card.getStyleClass().add("best-seller-card");
-                card.setPrefWidth(220); // Fixed width for better grid look in FlowPane
-                card.setMinWidth(200);
-
-                Label lblIcon = new Label("🍰"); // Biểu tượng bánh
-                lblIcon.getStyleClass().add("best-seller-icon");
-
-                Label lblName = new Label(entry.getKey());
-                lblName.getStyleClass().add("best-seller-name");
-
-                Label lblQty = new Label(entry.getValue() + " đã bán");
-                lblQty.getStyleClass().add("best-seller-qty");
-
-                card.getChildren().addAll(lblIcon, lblName, lblQty);
-                flowBestSellersMenu.getChildren().add(card);
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi tải best sellers: " + e.getMessage());
+    @FXML
+    private void onMoDashboard() {
+        if (appShellController != null) {
+            appShellController.loadView("/fxml/DashboardView.fxml");
+        } else {
+            loadView("/fxml/DashboardView.fxml");
         }
     }
 
     @FXML
     private void onMoBanHang() {
-        moScene(btnBanHang, "/fxml/DonHangView.fxml", "H3K Bakery - Bán hàng", 1280, 720, "Không thể mở POS: ");
+        loadView("/fxml/DonHangView.fxml");
     }
 
     @FXML
     private void onMoKho() {
-        moScene(btnKho, "/fxml/KhoView.fxml", "H3K Bakery - Kho hàng", 1280, 720,
-                "Không thể mở Kho hàng: ");
+        loadView("/fxml/KhoView.fxml");
     }
 
     @FXML
     private void onMoNhanSu() {
-        moScene(btnNhanSu != null ? btnNhanSu : btnNhanSuSidebar, "/fxml/QuanLyNhanVienView.fxml",
-                "H3K Bakery - Quản lý nhân sự", 1280, 720,
-                "Không thể mở Quản lý nhân sự: ");
-    }
-
-    @FXML
-    private void onMoKhachHang() {
-        moScene(btnKhachHang, "/fxml/KhachHangView.fxml",
-                "H3K Bakery - Quản lý khách hàng", 1280, 720,
-                "Không thể mở Quản lý khách hàng: ");
-    }
-
-    @FXML
-    private void onMoBaoCao() {
-        moScene(btnBaoCao, "/fxml/BaoCaoView.fxml", "H3K Bakery - Thống kê Kinh doanh", 1280, 720,
-                "Không thể mở Thống kê: ");
-    }
-
-    @FXML
-    private void onMoNhaCungCap() {
-        moScene(btnNhaCungCap, "/fxml/QuanLyNhaCungCapView.fxml", "H3K Bakery - Quản lý Nhà Cung Cấp", 1280, 720,
-                "Không thể mở Nhà Cung Cấp: ");
-    }
-
-    @FXML
-    private void onMoDanhMuc() {
-        moScene(btnDanhMuc, "/fxml/DanhMucSPView.fxml", "H3K Bakery - Quản lý Danh mục", 1280, 720,
-                "Không thể mở Danh mục: ");
+        loadView("/fxml/QuanLyNhanVienView.fxml");
     }
 
     @FXML
     private void onMoSanPham() {
-        moScene(btnSanPham, "/fxml/SanPhamView.fxml", "H3K Bakery - Quản lý Sản phẩm", 1280, 720,
-                "Không thể mở Sản phẩm: ");
+        loadView("/fxml/SanPhamView.fxml");
     }
 
     @FXML
     private void onMoNguyenLieu() {
-        moScene(btnNguyenLieu, "/fxml/NguyenLieuView.fxml", "H3K Bakery - Quản lý Nguyên liệu", 1280, 720,
-                "Không thể mở Nguyên liệu: ");
+        loadView("/fxml/NguyenLieuView.fxml");
+    }
+
+    @FXML
+    private void onMoDanhMuc() {
+        loadView("/fxml/DanhMucSPView.fxml");
+    }
+
+    @FXML
+    private void onMoPhanQuyen() {
+        loadView("/fxml/MaTranPhanQuyenView.fxml");
+    }
+
+    @FXML
+    private void onMoCongThuc() {
+        loadView("/fxml/ThanhPhanBanhView.fxml");
+    }
+
+    @FXML
+    private void onMoKhachHang() {
+        loadView("/fxml/KhachHangView.fxml");
+    }
+
+    @FXML
+    private void onMoBaoCao() {
+        loadView("/fxml/BaoCaoView.fxml");
+    }
+
+    @FXML
+    private void onMoTheoDoiDon() {
+        loadView("/fxml/TheoDoiDonHangView.fxml");
+    }
+
+    @FXML
+    private void onMoNhaCungCap() {
+        loadView("/fxml/QuanLyNhaCungCapView.fxml");
     }
 
     @FXML
@@ -232,7 +244,7 @@ public class MainMenuViewFXMLController {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load());
 
-            URL cssUrl = getClass().getResource("/css/amber.css");
+            URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null)
                 scene.getStylesheets().add(cssUrl.toExternalForm());
 
@@ -246,29 +258,6 @@ public class MainMenuViewFXMLController {
         } catch (Exception ex) {
             lblThongBao.setText("Lỗi mở quản lý ca: " + ex.getMessage());
             System.err.println("[MainMenu] Quản lý ca error: " + ex.getMessage());
-        }
-    }
-
-    @FXML
-    private void onMoTheoDoiDon() {
-        try {
-            URL fxmlUrl = getClass().getResource("/fxml/TheoDoiDonHangView.fxml");
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Parent root = loader.load();
-
-            Scene scene = new Scene(root, 1366, 768);
-            URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null)
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-
-            Button source = btnTheoDoiDon != null ? btnTheoDoiDon : btnBanHang;
-            Stage stage = (Stage) source.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Theo Dõi Đơn");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-        } catch (Exception ex) {
-            lblThongBao.setText("Không thể mở Theo dõi đơn: " + ex.getMessage());
-            System.err.println("[MainMenu] Theo dõi đơn error: " + ex.getMessage());
         }
     }
 
@@ -303,7 +292,8 @@ public class MainMenuViewFXMLController {
                     btnTongQuan, btnBanHang, btnInventory, btnNhanSuSidebar, 
                     btnKhachHang, btnBaoCao,
                     btnTheoDoiDon, btnKds, btnAuditLogs, btnNhaCungCap,
-                    btnDanhMuc, btnSanPham, btnNguyenLieu
+                    btnDanhMuc, btnSanPham, btnNguyenLieu,
+                    btnNhapKho, btnXuatKho, btnKiemKe, btnMaTranPhanQuyen, btnCongThuc
             };
             for (Button btn : navButtons) {
                 if (btn != null)
@@ -392,36 +382,26 @@ public class MainMenuViewFXMLController {
         }
     }
 
-    private void moScene(Button source, String fxmlPath, String title, int width, int height, String errorPrefix) {
-        try {
-            URL fxmlUrl = getClass().getResource(fxmlPath);
-            if (fxmlUrl == null) {
-                throw new RuntimeException("Không tìm thấy " + fxmlPath);
-            }
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Scene scene = new Scene(loader.load(), width, height);
-            URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            }
-            Stage stage = (Stage) source.getScene().getWindow();
-            stage.setTitle(title);
-            stage.setScene(scene);
-            stage.centerOnScreen();
-        } catch (Exception ex) {
-            lblThongBao.setText(errorPrefix + ex.getMessage());
+
+    private void loadView(String fxmlPath) {
+        if (contentArea == null) {
+            LOGGER.warning("contentArea is null, cannot load view: " + fxmlPath);
+            return;
+        }
+        Node view = FXMLLoaderUtil.loadFXML(fxmlPath);
+        if (view != null) {
+            contentArea.getChildren().setAll(view);
         }
     }
 
     private void capNhatTrangThaiNut(Button button, boolean duocCapQuyen) {
+        if (button == null) return;
         button.setDisable(!duocCapQuyen);
         button.setOpacity(duocCapQuyen ? 1.0 : 0.45);
-        if (button.getParent() != null) {
-            button.getParent().setDisable(!duocCapQuyen);
-        }
     }
 
     private String xayDungNhanQuyen(NhanVienDTO nhanVien, boolean laAdmin) {
+        if (nhanVien == null) return "Role Access";
         String tenVaiTro = nhanVien.getTenVaiTro();
         if (tenVaiTro != null && !tenVaiTro.isBlank()) {
             return laAdmin ? tenVaiTro + " - Full Access" : tenVaiTro + " - Role Access";

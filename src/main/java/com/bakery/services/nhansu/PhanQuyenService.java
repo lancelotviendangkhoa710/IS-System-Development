@@ -24,11 +24,16 @@ public class PhanQuyenService {
     }
 
     public boolean laAdmin(NhanVienDTO nhanVien) {
-        if (nhanVien == null) {
+        if (nhanVien == null || nhanVien.getDanhSachTenVaiTro() == null) {
             return false;
         }
-        String tenVaiTro = chuanHoa(nhanVien.getTenVaiTro());
-        return chuaMotTrong(tenVaiTro, "ADMIN", "QUAN TRI", "QUANTRI", "QUAN TRI VIEN", "QUANTRIVIEN");
+        for (String tenVT : nhanVien.getDanhSachTenVaiTro()) {
+            String tenChuan = chuanHoa(tenVT);
+            if (chuaMotTrong(tenChuan, "ADMIN", "QUAN TRI", "QUANTRI", "QUAN TRI VIEN", "QUANTRIVIEN", "QUAN LY")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean laQuanLy(NhanVienDTO nhanVien) {
@@ -79,7 +84,16 @@ public class PhanQuyenService {
         }
 
         Set<SystemModule> modules = EnumSet.noneOf(SystemModule.class);
-        List<ChucNangDTO> danhSach = phanQuyenDAO.layDanhSachChucNangTheoVaiTro(nhanVien.getMaVaiTro());
+        List<ChucNangDTO> danhSach;
+        
+        try {
+            // Sử dụng logic hợp nhất quyền từ tất cả vai trò của nhân viên
+            PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
+            danhSach = info != null ? info.getDanhSachChucNang() : List.of();
+        } catch (Exception e) {
+            System.err.println("[PhanQuyenService] Lỗi khi hợp nhất quyền: " + e.getMessage());
+            danhSach = List.of();
+        }
 
         for (ChucNangDTO chucNang : danhSach) {
             if (chucNang.getModule() != null) {
@@ -115,10 +129,15 @@ public class PhanQuyenService {
     }
 
     private boolean laVaiTro(NhanVienDTO nhanVien, String roleKey) {
-        if (nhanVien == null) {
+        if (nhanVien == null || nhanVien.getDanhSachTenVaiTro() == null) {
             return false;
         }
-        return chuanHoa(nhanVien.getTenVaiTro()).contains(roleKey);
+        for (String tenVT : nhanVien.getDanhSachTenVaiTro()) {
+            if (chuanHoa(tenVT).contains(roleKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String chuanHoa(String value) {

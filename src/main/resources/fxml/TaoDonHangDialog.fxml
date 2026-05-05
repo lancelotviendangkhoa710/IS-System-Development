@@ -11,7 +11,7 @@
     Bước 2: Chọn loại đơn (Thanh toán ngay / Đặt trước)
     Controller: com.bakery.views.controllers.CreateOrderController
 -->
-<BorderPane xmlns="http://javafx.com/javafx/25"
+<BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bakery.views.controllers.banhang.TaoDonHangViewFXMLController"
             minWidth="600" minHeight="550"

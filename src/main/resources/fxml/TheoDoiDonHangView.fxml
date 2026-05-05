@@ -9,41 +9,70 @@
     Được load động vào MainView (AppShell)
     Controller: com.bakery.views.controllers.banhang.TheoDoiDonHangViewFXMLController
 -->
-<VBox xmlns="http://javafx.com/javafx/25"
+<VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.bakery.views.controllers.banhang.TheoDoiDonHangViewFXMLController"
-      styleClass="bg-app"
-      spacing="0">
+      spacing="20" styleClass="bg-app">
 
-    <!-- Content -->
-    <VBox fx:id="tabTheoDoi" spacing="12" VBox.vgrow="ALWAYS">
-        <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
-        </padding>
+    <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
 
-        <!-- Filter bar Theo dõi -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Mã đơn:" styleClass="lbl-body-bold"/>
-            <TextField fx:id="txtTimMaDon" promptText="VD: 1001" prefWidth="100" styleClass="text-field"/>
+    <!-- ① HEADER: Tiêu đề + Nút hành động -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <VBox spacing="5">
+            <Label text="Theo dõi tiến độ đơn hàng" styleClass="lbl-title-screen"/>
+            <Label text="Quản lý và cập nhật trạng thái đơn đặt bánh" styleClass="lbl-body"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <!-- ② CONTENT: Filter Bar + Scrollable Cards -->
+    <VBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Filter bar -->
+        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="card">
+            <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
             
-            <Label text="Ngày:" styleClass="lbl-body-bold"/>
-            <DatePicker fx:id="dpNgayTheoDoi" styleClass="text-field" prefWidth="150"/>
+            <VBox spacing="8">
+                <Label text="Mã đơn:" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtTimMaDon" promptText="VD: 1001" prefWidth="80" styleClass="text-field"/>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Tên khách:" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtTimKhachHang" promptText="Tìm theo tên..." prefWidth="150" styleClass="text-field"/>
+            </VBox>
             
-            <Label text="Từ:" styleClass="lbl-body-bold"/>
-            <ComboBox fx:id="cbGioTu" prefWidth="90" styleClass="combo-box"/>
+            <VBox spacing="8">
+                <Label text="Ngày nhận:" styleClass="lbl-body-bold"/>
+                <DatePicker fx:id="dpNgayTheoDoi" styleClass="text-field" prefWidth="140"/>
+            </VBox>
             
-            <Label text="Đến:" styleClass="lbl-body-bold"/>
-            <ComboBox fx:id="cbGioDen" prefWidth="90" styleClass="combo-box"/>
+            <VBox spacing="8">
+                <Label text="Từ giờ:" styleClass="lbl-body-bold"/>
+                <ComboBox fx:id="cbGioTu" prefWidth="90" styleClass="combo-box"/>
+            </VBox>
             
-            <Label text="Trạng thái:" styleClass="lbl-body-bold"/>
-            <ComboBox fx:id="cbLocTrangThaiTheoDoi" prefWidth="140" styleClass="combo-box" onAction="#onLocTrangThaiTheoDoi"/>
+            <VBox spacing="8">
+                <Label text="Đến giờ:" styleClass="lbl-body-bold"/>
+                <ComboBox fx:id="cbGioDen" prefWidth="90" styleClass="combo-box"/>
+            </VBox>
             
-            <Button text="🔍 Tìm kiếm" styleClass="btn-primary" onAction="#onTimKiemDon"/>
+            <VBox spacing="8">
+                <Label text="Trạng thái:" styleClass="lbl-body-bold"/>
+                <ComboBox fx:id="cbLocTrangThaiTheoDoi" prefWidth="150" styleClass="combo-box" onAction="#onLocTrangThaiTheoDoi"/>
+            </VBox>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🔍 Tìm kiếm" styleClass="btn-primary" onAction="#onTimKiemDon" prefHeight="40"/>
         </HBox>
 
         <!-- Danh sách card đơn hàng -->
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox fx:id="panelChuaDon" spacing="10" style="-fx-background-color: transparent;"/>
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane-transparent">
+            <VBox fx:id="panelChuaDon" spacing="15" style="-fx-background-color: transparent;"/>
         </ScrollPane>
     </VBox>
+
+    <!-- ③ FOOTER STATUS BAR -->
+    <HBox>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
 </VBox>
