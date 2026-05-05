@@ -3,7 +3,7 @@ package com.bakery.model.dao.kho;
 import com.bakery.model.dao.BaseDAO;
 import com.bakery.model.dto.kho.KieuTrangTriDTO;
 
-import java.math.BigDecimal;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
