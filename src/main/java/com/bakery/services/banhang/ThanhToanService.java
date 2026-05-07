@@ -13,13 +13,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Service duy nhất chịu trách nhiệm xử lý Thanh toán.
- *
- * <p><b>Distributed Transaction:</b> Mỗi nghiệp vụ thanh toán dùng 1 Connection
- * duy nhất cho toàn bộ chuỗi DAO → đảm bảo tính ATOMICITY (ACID).
- * Nếu bất kỳ bước nào thất bại, toàn bộ giao dịch sẽ được ROLLBACK.</p>
- */
 public class ThanhToanService {
 
     private final HoaDonDAO hoaDonDAO;
@@ -32,14 +25,16 @@ public class ThanhToanService {
         this.phieuThuChiDAO = new PhieuThuChiDAO();
     }
 
-    public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService, PhieuThuChiDAO phieuThuChiDAO) {
+    public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService,
+            PhieuThuChiDAO phieuThuChiDAO) {
         this.hoaDonDAO = hoaDonDAO;
         this.quanLyDonHangService = quanLyDonHangService;
         this.phieuThuChiDAO = phieuThuChiDAO;
     }
 
     public double tinhTienHoaDon(YeuCauTaoDonHangDTO request) {
-        if (request == null || request.getItems() == null) return 0.0;
+        if (request == null || request.getItems() == null)
+            return 0.0;
         double subtotal = request.getItems().stream()
                 .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
                 .sum();
@@ -50,8 +45,12 @@ public class ThanhToanService {
      * Tạo đơn hàng HOÀN_THÀNH và xuất hóa đơn bán lẻ ngay.
      * Dùng cho luồng thanh toán trực tiếp tại quầy.
      *
-     * <p><b>ATOMICITY:</b> Toàn bộ luồng (taoDonHang → themHoaDon → thanhToan → phieuThu)
-     * chạy trên 1 Connection duy nhất. Nếu bất kỳ bước nào thất bại → ROLLBACK toàn bộ.</p>
+     * <p>
+     * <b>ATOMICITY:</b> Toàn bộ luồng (taoDonHang → themHoaDon → thanhToan →
+     * phieuThu)
+     * chạy trên 1 Connection duy nhất. Nếu bất kỳ bước nào thất bại → ROLLBACK toàn
+     * bộ.
+     * </p>
      */
     public HoaDonDTO thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
         // 1. Tính tổng tiền từ giỏ hàng
@@ -70,12 +69,15 @@ public class ThanhToanService {
         Connection conn = null;
         try {
             conn = DBConnect.getConnection();
-            if (conn == null) throw new Exception("Không thể kết nối CSDL.");
+            if (conn == null)
+                throw new Exception("Không thể kết nối CSDL.");
             conn.setAutoCommit(false); // BẮT ĐẦU TRANSACTION
 
-            // 4a. Tạo đơn hàng (PROC_TAODONHANG tự COMMIT nội bộ — bỏ qua, ta sẽ COMMIT sau)
+            // 4a. Tạo đơn hàng (PROC_TAODONHANG tự COMMIT nội bộ — bỏ qua, ta sẽ COMMIT
+            // sau)
             int maDon = quanLyDonHangService.taoDonHang(conn, request);
-            if (maDon <= 0) throw new Exception("Tạo đơn hàng thất bại.");
+            if (maDon <= 0)
+                throw new Exception("Tạo đơn hàng thất bại.");
 
             // 4b. Tạo hóa đơn bán lẻ
             HoaDonDTO hd = taoHoaDonDTO(maDon, tongTien, "BAN_LE");
@@ -100,14 +102,19 @@ public class ThanhToanService {
         } catch (Exception e) {
             // ROLLBACK TOÀN BỘ nếu bất kỳ bước nào thất bại
             if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
                     System.err.println("[ThanhToanService] Lỗi rollback: " + ex.getMessage());
                 }
             }
             throw e;
         } finally {
             if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ex) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException ex) {
                     System.err.println("[ThanhToanService] Lỗi đóng connection: " + ex.getMessage());
                 }
             }
@@ -118,7 +125,9 @@ public class ThanhToanService {
      * Tạo và chốt hóa đơn khi đơn đặt hàng chuyển sang HOÀN_THÀNH.
      * Được gọi bởi DonHangService sau khi chuyển trạng thái.
      *
-     * <p><b>ATOMICITY:</b> themHoaDon + thanhToan + phieuThu chạy trên 1 Connection.</p>
+     * <p>
+     * <b>ATOMICITY:</b> themHoaDon + thanhToan + phieuThu chạy trên 1 Connection.
+     * </p>
      *
      * @throws Exception nếu bất kỳ bước nào thất bại (không trả về null)
      */
@@ -136,7 +145,8 @@ public class ThanhToanService {
         Connection conn = null;
         try {
             conn = DBConnect.getConnection();
-            if (conn == null) throw new Exception("Không thể kết nối CSDL.");
+            if (conn == null)
+                throw new Exception("Không thể kết nối CSDL.");
             conn.setAutoCommit(false); // BẮT ĐẦU TRANSACTION
 
             int maHD = hoaDonDAO.themHoaDonMoi(conn, hd);
@@ -157,14 +167,19 @@ public class ThanhToanService {
 
         } catch (Exception e) {
             if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
                     System.err.println("[ThanhToanService] Lỗi rollback chotHoaDon: " + ex.getMessage());
                 }
             }
             throw e;
         } finally {
             if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ex) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException ex) {
                     System.err.println("[ThanhToanService] Lỗi đóng connection: " + ex.getMessage());
                 }
             }
@@ -194,7 +209,8 @@ public class ThanhToanService {
      */
     private void taoPhieuThuChiTuHoaDon(Connection conn, int maHD, double soTien, String ghiChu) throws Exception {
         int maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen(conn, "Bán hàng");
-        if (maLoaiThu == -1) maLoaiThu = 1; // Fallback
+        if (maLoaiThu == -1)
+            maLoaiThu = 1; // Fallback
 
         PhieuThuChiDTO ptc = new PhieuThuChiDTO();
         ptc.setMaLoaiThuChi(maLoaiThu);

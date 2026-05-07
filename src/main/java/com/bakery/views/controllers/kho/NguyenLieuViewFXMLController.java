@@ -92,9 +92,10 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @Override public String getTuKhoaTimKiemInput() { return txtTimKiem.getText(); }
     @Override public double getMucTonAnToanInput() { try { return Double.parseDouble(txtMucTonAnToan.getText()); } catch (Exception e) { return 0; } }
 
-    @FXML private void onThemMoi() { lblThongBao.setText("Chế độ Demo: Đã thêm nguyên liệu mới."); }
-    @FXML private void onLuuThayDoi() { lblThongBao.setText("Chế độ Demo: Đã cập nhật nguyên liệu."); }
-    @FXML private void onXoa() { lblThongBao.setText("Chế độ Demo: Đã xóa nguyên liệu."); }
-    @FXML private void onTimKiem() { presenter.timKiem(); }
-    @FXML private void onQuayLai() { quayLaiMenuChinh(tblNguyenLieu); }
+    @FXML private void onThemMoi()     { if (presenter != null) presenter.themNguyenLieu(); }
+    @FXML private void onLuuThayDoi() { if (presenter != null) presenter.suaNguyenLieu(); }
+    @FXML private void onXoa()         { if (presenter != null) presenter.xoaNguyenLieu(); }
+    @FXML private void onTimKiem()     { if (presenter != null) presenter.timKiem(); }
+    @FXML private void onLamMoi()      { if (presenter != null) presenter.taiDanhSach(); }
+    @FXML private void onQuayLai()     { quayLaiMenuChinh(tblNguyenLieu); }
 }

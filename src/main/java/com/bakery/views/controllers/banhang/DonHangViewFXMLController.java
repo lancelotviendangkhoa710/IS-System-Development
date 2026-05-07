@@ -180,106 +180,25 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     @Override
     public void hienThiDanhSachSanPham(List<SanPhamDTO> ds, Map<Integer, String> dict) {
         danhSachSanPham.clear();
-        
-        // Mock data for demo if DB is empty
-        if (ds == null || ds.isEmpty()) {
-            ds = getMockProducts();
-            dict = getMockCategories();
-        }
-        
-        danhSachSanPham.addAll(ds);
+        if (ds != null) danhSachSanPham.addAll(ds);
         mapDanhMuc.clear();
-        mapDanhMuc.putAll(dict);
+        if (dict != null) mapDanhMuc.putAll(dict);
         mapSanPhamById.clear();
-        for (SanPhamDTO sanPham : ds) {
-            mapSanPhamById.put(sanPham.getMaSP(), sanPham);
-        }
+        for (SanPhamDTO sanPham : danhSachSanPham) mapSanPhamById.put(sanPham.getMaSP(), sanPham);
         apDungBoLocSanPham();
-    }
-
-    private List<SanPhamDTO> getMockProducts() {
-        List<SanPhamDTO> mock = new ArrayList<>();
-        mock.add(createMockSP(1, "Bánh Kem Bắp", 250000, 1, 10));
-        mock.add(createMockSP(2, "Bánh Mì Bơ Tỏi", 45000, 2, 25));
-        mock.add(createMockSP(3, "Cookie Socola", 25000, 3, 50));
-        mock.add(createMockSP(4, "Bánh Donut Dâu", 35000, 2, 15));
-        mock.add(createMockSP(5, "Bánh Mì Sandwich", 30000, 2, 40));
-        mock.add(createMockSP(6, "Cupcake Vanila", 40000, 1, 20));
-        return mock;
-    }
-
-    private Map<Integer, String> getMockCategories() {
-        Map<Integer, String> mock = new HashMap<>();
-        mock.put(1, "Cake");
-        mock.put(2, "Bread");
-        mock.put(3, "Cookie");
-        return mock;
-    }
-
-    private SanPhamDTO createMockSP(int id, String name, double price, int catId, double stock) {
-        SanPhamDTO sp = new SanPhamDTO();
-        sp.setMaSP(id);
-        sp.setTenSP(name);
-        sp.setGiaCoBan(price);
-        sp.setMaDM(catId);
-        sp.setSoLuongTon(stock);
-        sp.setHinhAnh(null); // Will use default icon logic in card
-        return sp;
     }
 
     @Override
     public void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo,
             List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh, List<KieuTrangTriDTO> trangTri) {
-        
-        if (spTuyChinh == null || spTuyChinh.isEmpty()) spTuyChinh = getMockProducts();
-        if (kichCo == null || kichCo.isEmpty()) kichCo = getMockKichCo();
-        if (cotBanh == null || cotBanh.isEmpty()) cotBanh = getMockCotBanh();
-        if (nhanBanh == null || nhanBanh.isEmpty()) nhanBanh = getMockNhanBanh();
-        if (trangTri == null || trangTri.isEmpty()) trangTri = getMockTrangTri();
-
-        cbCustomSp.setItems(FXCollections.observableArrayList(spTuyChinh));
-        if (!spTuyChinh.isEmpty()) cbCustomSp.getSelectionModel().selectFirst();
-
-        setupCombo(cbCustomKichCo, kichCo);
-        setupCombo(cbCustomCotBanh, cotBanh);
-        setupCombo(cbCustomNhanBanh, nhanBanh);
-        setupCombo(cbCustomTrangTri, trangTri);
-
+        cbCustomSp.setItems(FXCollections.observableArrayList(spTuyChinh != null ? spTuyChinh : List.of()));
+        if (spTuyChinh != null && !spTuyChinh.isEmpty()) cbCustomSp.getSelectionModel().selectFirst();
+        setupCombo(cbCustomKichCo, kichCo != null ? kichCo : List.of());
+        setupCombo(cbCustomCotBanh, cotBanh != null ? cotBanh : List.of());
+        setupCombo(cbCustomNhanBanh, nhanBanh != null ? nhanBanh : List.of());
+        setupCombo(cbCustomTrangTri, trangTri != null ? trangTri : List.of());
         capNhatGiaBanhTuyChinh();
     }
-
-    private List<KichCoBanhDTO> getMockKichCo() {
-        List<KichCoBanhDTO> list = new ArrayList<>();
-        list.add(createKC(1, "Size 14cm", 0));
-        list.add(createKC(2, "Size 18cm", 50000));
-        list.add(createKC(3, "Size 22cm", 100000));
-        return list;
-    }
-    private KichCoBanhDTO createKC(int id, String name, double price) { KichCoBanhDTO d = new KichCoBanhDTO(); d.setMaKC(id); d.setTenKC(name); d.setPhuPhi(java.math.BigDecimal.valueOf(price)); return d; }
-
-    private List<CotBanhDTO> getMockCotBanh() {
-        List<CotBanhDTO> list = new ArrayList<>();
-        list.add(createCot(1, "Bông lan bơ", 0));
-        list.add(createCot(2, "Bông lan Socola", 20000));
-        return list;
-    }
-    private CotBanhDTO createCot(int id, String name, double price) { CotBanhDTO d = new CotBanhDTO(); d.setMaCot(id); d.setTenCot(name); d.setPhuPhi(java.math.BigDecimal.valueOf(price)); return d; }
-
-    private List<NhanBanhDTO> getMockNhanBanh() {
-        List<NhanBanhDTO> list = new ArrayList<>();
-        list.add(createNhan(1, "Mứt dâu", 0));
-        list.add(createNhan(2, "Phô mai", 15000));
-        return list;
-    }
-    private NhanBanhDTO createNhan(int id, String name, double price) { NhanBanhDTO d = new NhanBanhDTO(); d.setMaNhan(id); d.setTenNhan(name); d.setPhuPhi(java.math.BigDecimal.valueOf(price)); return d; }
-
-    private List<KieuTrangTriDTO> getMockTrangTri() {
-        List<KieuTrangTriDTO> list = new ArrayList<>();
-        list.add(createTT(1, "Hoa kem bơ", 30000));
-        list.add(createTT(2, "Trái cây tươi", 50000));
-        return list;
-    }
-    private KieuTrangTriDTO createTT(int id, String name, double price) { KieuTrangTriDTO d = new KieuTrangTriDTO(); d.setMaTrangTri(id); d.setTenTrangTri(name); d.setPhuPhi(java.math.BigDecimal.valueOf(price)); return d; }
 
     private <T> void setupCombo(ComboBox<T> combo, List<T> items) {
         ObservableList<T> list = FXCollections.observableArrayList();

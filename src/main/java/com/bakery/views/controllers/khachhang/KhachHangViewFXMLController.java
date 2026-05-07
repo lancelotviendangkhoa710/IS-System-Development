@@ -86,9 +86,9 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     @Override public void hienThiThongTin(String tieuDe, String noiDung) {}
     @Override public void capNhatCheDoThungRac(boolean cheDoThungRac) {}
     
-    @FXML private void onRefreshClicked() { presenter.taiDuLieu(); }
-    @FXML private void onAddCustomerClicked() { lblThongBao.setText("Chế độ Demo: Đã mở dialog thêm khách hàng."); }
-    @FXML private void onBack() { quayLaiMenuChinh(customerTable); }
+    @FXML private void onRefreshClicked()       { presenter.taiDuLieu(); }
+    @FXML private void onAddCustomerClicked()    { hienThiLoiLabel("Chức năng thêm khách hàng đang được phát triển."); }
+    @FXML private void onBack()                  { quayLaiMenuChinh(customerTable); }
 
     @FXML private void onToggleFilterClicked() {
         if (filterPanel != null) {
@@ -98,16 +98,11 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         }
     }
 
-    @FXML private void onDeletedViewClicked() {
-        lblThongBao.setText("Chế độ Demo: Mở thùng rác.");
-    }
-
-    @FXML private void onExportExcelClicked() {
-        lblThongBao.setText("Chế độ Demo: Đã xuất Excel.");
-    }
+    @FXML private void onDeletedViewClicked() { hienThiLoiLabel("Chức năng thùng rác đang được phát triển."); }
+    @FXML private void onExportExcelClicked()  { hienThiLoiLabel("Chức năng xuất Excel đang được phát triển."); }
 
     @FXML private void onApplyFilterClicked() {
-        lblThongBao.setText("Chế độ Demo: Đã áp dụng bộ lọc.");
+        hienThiLoiLabel("Chức năng bộ lọc đang được phát triển.");
     }
 
     @FXML private void onClearFilterClicked() {
@@ -115,6 +110,5 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         if (dpToDate != null) dpToDate.setValue(null);
         if (cbTierFilter != null) cbTierFilter.getSelectionModel().clearSelection();
         if (searchField != null) searchField.clear();
-        lblThongBao.setText("Chế độ Demo: Đã xóa bộ lọc.");
     }
 }

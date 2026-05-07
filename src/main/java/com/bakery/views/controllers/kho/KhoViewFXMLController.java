@@ -32,14 +32,7 @@ public class KhoViewFXMLController extends BaseController {
             colType.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().type()));
             colAmount.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().amount()));
             colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().status()));
-
-            tblStock.setItems(FXCollections.observableArrayList(
-                new StockItem("Bột mì đa dụng", "Nguyên liệu", "85.5 Kg", "Đủ hàng"),
-                new StockItem("Bơ lạt Anchor", "Nguyên liệu", "5.2 Kg", "Sắp hết"),
-                new StockItem("Bánh Kem Bắp", "Sản phẩm", "12 Cái", "Đủ hàng"),
-                new StockItem("Trứng gà ta", "Nguyên liệu", "15 Quả", "Cần nhập thêm"),
-                new StockItem("Socola chip", "Nguyên liệu", "1.5 Kg", "Bình thường")
-            ));
+            tblStock.setPlaceholder(new javafx.scene.control.Label("Chức năng tổng hợp tồn kho đang được phát triển."));
         }
     }
 

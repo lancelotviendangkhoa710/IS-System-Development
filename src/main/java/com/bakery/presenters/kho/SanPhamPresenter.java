@@ -24,8 +24,8 @@ public class SanPhamPresenter {
             view.hienThiDanhSachDanhMuc(danhMucMap);
             taiDanhSachSanPham();
         } catch (Exception e) {
-            view.hienThiLoi("Lỗi tải dữ liệu ban đầu: " + e.getMessage() + ". Đang dùng mock data.");
-            view.hienThiDanhSachDanhMuc(java.util.Map.of(1, "Cake", 2, "Bread", 3, "Cookie"));
+            view.hienThiLoi("Lỗi tải danh mục sản phẩm: " + e.getMessage());
+            view.hienThiDanhSachDanhMuc(java.util.Map.of());
             taiDanhSachSanPham();
         }
     }
@@ -35,8 +35,8 @@ public class SanPhamPresenter {
             List<SanPhamDTO> ds = sanPhamService.layDanhSachSanPhamQuanLy();
             view.hienThiDanhSachSanPham(ds);
         } catch (Exception e) {
-            view.hienThiLoi("Lỗi tải danh sách sản phẩm: " + e.getMessage() + ". Đang dùng mock data.");
-            view.hienThiDanhSachSanPham(new java.util.ArrayList<>());
+            view.hienThiLoi("Lỗi tải danh sách sản phẩm: " + e.getMessage());
+            view.hienThiDanhSachSanPham(java.util.List.of());
         }
     }
 

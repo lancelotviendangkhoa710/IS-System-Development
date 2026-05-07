@@ -72,12 +72,61 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
         txtDiaChi.setText(ncc.getDiaChi());
     }
 
-    @FXML private void onThem() { hienThiThanhCongLabel("Chế độ Demo: Đã thêm nhà cung cấp."); }
-    @FXML private void onLuu() { hienThiThanhCongLabel("Chế độ Demo: Đã cập nhật nhà cung cấp."); }
-    @FXML private void onXoa() { hienThiThanhCongLabel("Chế độ Demo: Đã xóa nhà cung cấp."); }
+    @FXML private void onThem() {
+        NhaCungCapDTO ncc = layDuLieuTuForm();
+        if (ncc == null) return;
+        try {
+            nhaCungCapService.themNhaCungCap(ncc);
+            hienThiThanhCongLabel("Thêm nhà cung cấp thành công.");
+            onHuy();
+            loadData();
+        } catch (Exception e) { hienThiLoiLabel("Lỗi: " + e.getMessage()); }
+    }
+
+    @FXML private void onLuu() {
+        NhaCungCapDTO selected = tvNhaCungCap.getSelectionModel().getSelectedItem();
+        if (selected == null) { hienThiLoiLabel("Vui lòng chọn nhà cung cấp cần sửa."); return; }
+        NhaCungCapDTO ncc = layDuLieuTuForm();
+        if (ncc == null) return;
+        ncc.setMaNCC(selected.getMaNCC());
+        try {
+            nhaCungCapService.suaNhaCungCap(ncc);
+            hienThiThanhCongLabel("Cập nhật nhà cung cấp thành công.");
+            loadData();
+        } catch (Exception e) { hienThiLoiLabel("Lỗi: " + e.getMessage()); }
+    }
+
+    @FXML private void onXoa() {
+        NhaCungCapDTO selected = tvNhaCungCap.getSelectionModel().getSelectedItem();
+        if (selected == null) { hienThiLoiLabel("Vui lòng chọn nhà cung cấp cần xóa."); return; }
+        try {
+            int maNV = com.bakery.utils.UserSession.getCurrentUser() != null ? com.bakery.utils.UserSession.getCurrentUser().getMaNV() : 1;
+            nhaCungCapService.xoaNhaCungCap(selected.getMaNCC(), maNV);
+            hienThiThanhCongLabel("Xóa nhà cung cấp thành công.");
+            onHuy();
+            loadData();
+        } catch (Exception e) { hienThiLoiLabel("Lỗi: " + e.getMessage()); }
+    }
+
     @FXML private void onHuy() { txtTenNCC.clear(); txtSdt.clear(); txtDiaChi.clear(); }
     @FXML private void onVeMenu() { quayLaiMenuChinh(tvNhaCungCap); }
+    @FXML private void onTaiLai() { loadData(); }
 
-    @FXML private void onTaiLai() { loadData(); hienThiThanhCongLabel("Chế độ Demo: Đã tải lại danh sách."); }
-    @FXML private void onTimKiem() { /* Mock tìm kiếm */ }
+    @FXML private void onTimKiem() {
+        String kw = txtTimKiem != null ? txtTimKiem.getText() : "";
+        try {
+            List<NhaCungCapDTO> ketQua = nhaCungCapService.timKiemNhaCungCap(kw);
+            nccList.setAll(ketQua != null ? ketQua : java.util.Collections.emptyList());
+        } catch (Exception e) { hienThiLoiLabel("Lỗi tìm kiếm: " + e.getMessage()); }
+    }
+
+    private NhaCungCapDTO layDuLieuTuForm() {
+        String ten = txtTenNCC.getText();
+        if (ten == null || ten.isBlank()) { hienThiLoiLabel("Tên nhà cung cấp không được để trống."); return null; }
+        NhaCungCapDTO ncc = new NhaCungCapDTO();
+        ncc.setTenNCC(ten.trim());
+        ncc.setSdt(txtSdt.getText());
+        ncc.setDiaChi(txtDiaChi.getText());
+        return ncc;
+    }
 }
