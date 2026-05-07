@@ -3,14 +3,20 @@ package com.bakery.views.controllers.khachhang;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.khachhang.KhachHangPresenter;
 import com.bakery.views.controllers.BaseController;
+import com.bakery.views.controllers.banhang.KhachHangDialogViewFXMLController;
 import com.bakery.views.interfaces.khachhang.KhachHangView;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -63,6 +69,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     @FXML
     public void initialize() {
         setupTableColumns();
+        setupDoubleClickEdit();
         presenter.taiDuLieu();
     }
 
@@ -136,7 +143,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
 
     @FXML
     private void onAddCustomerClicked() {
-        hienThiLoiLabel("Chức năng thêm khách hàng đang được phát triển.");
+        moDialogKhachHang(null);
     }
 
     @FXML
@@ -170,13 +177,47 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
 
     @FXML
     private void onClearFilterClicked() {
-        if (dpFromDate != null)
-            dpFromDate.setValue(null);
-        if (dpToDate != null)
-            dpToDate.setValue(null);
-        if (cbTierFilter != null)
-            cbTierFilter.getSelectionModel().clearSelection();
-        if (searchField != null)
-            searchField.clear();
+        if (dpFromDate != null) dpFromDate.setValue(null);
+        if (dpToDate != null) dpToDate.setValue(null);
+        if (cbTierFilter != null) cbTierFilter.getSelectionModel().clearSelection();
+        if (searchField != null) searchField.clear();
+        presenter.taiDuLieu();
+    }
+
+    // ── Double-click để sửa ──────────────────────────────────────────────
+    private void setupDoubleClickEdit() {
+        customerTable.setRowFactory(tv -> {
+            TableRow<KhachHangDTO> row = new TableRow<>();
+            row.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !row.isEmpty()) {
+                    moDialogKhachHang(row.getItem());
+                }
+            });
+            return row;
+        });
+    }
+
+    // ── Mở dialog thêm / sửa khách hàng ─────────────────────────────────
+    private void moDialogKhachHang(KhachHangDTO kh) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/KhachHangDialog.fxml"));
+            Parent root = loader.load();
+            KhachHangDialogViewFXMLController controller = loader.getController();
+            if (kh != null) controller.khoiTaoChinhSua(kh);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle(kh == null ? "Thêm Khách Hàng" : "Chỉnh sửa Khách Hàng");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            // Sau khi dialog đóng, reload danh sách
+            if (controller.getKetQua() != null) {
+                presenter.taiDuLieu();
+            }
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể mở dialog: " + e.getMessage());
+        }
     }
 }
