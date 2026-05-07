@@ -1,0 +1,63 @@
+package com.bakery.model.dao.kho;
+
+import com.bakery.model.dao.BaseDAO;
+import com.bakery.model.dto.kho.PhieuXuatKhoDTO;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * DAO cho PHIEUXUATKHO.
+ * Gọi PROC_XUATHUYBANH để xuất hủy thành phẩm.
+ */
+public class PhieuXuatKhoDAO extends BaseDAO {
+
+    /** Lấy 50 phiếu xuất kho gần nhất. */
+    public List<PhieuXuatKhoDTO> layDanhSachPhieuXuat() throws Exception {
+        List<PhieuXuatKhoDTO> list = new ArrayList<>();
+        String sql = "SELECT PX.MAPX, PX.NGAYXUAT, PX.LYDOXUAT, NV.HOTEN AS TENNV " +
+                "FROM PHIEUXUATKHO PX " +
+                "LEFT JOIN NHANVIEN NV ON PX.MANV = NV.MANV " +
+                "ORDER BY PX.MAPX DESC " +
+                "FETCH FIRST 50 ROWS ONLY";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                PhieuXuatKhoDTO dto = new PhieuXuatKhoDTO();
+                dto.setMaPX(rs.getInt("MAPX"));
+                dto.setNgayXuat(rs.getTimestamp("NGAYXUAT") != null
+                        ? rs.getTimestamp("NGAYXUAT").toLocalDateTime() : null);
+                dto.setLyDoXuat(rs.getString("LYDOXUAT"));
+                dto.setTenNhanVien(rs.getString("TENNV"));
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            handleException("layDanhSachPhieuXuat", e);
+        }
+        return list;
+    }
+
+    /**
+     * Xuất hủy thành phẩm qua PROC_XUATHUYBANH.
+     * @param maSP         mã sản phẩm cần hủy
+     * @param soLuongHuy   số lượng hủy
+     * @param lyDoXuat     lý do hủy
+     * @param maNV         mã nhân viên thực hiện
+     */
+    public void xuatHuyBanh(int maSP, double soLuongHuy, String lyDoXuat, int maNV) throws Exception {
+        String sql = "{CALL PROC_XUATHUYBANH(?, ?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, maSP);
+            cs.setDouble(2, soLuongHuy);
+            cs.setString(3, lyDoXuat);
+            cs.setInt(4, maNV);
+            cs.execute();
+        } catch (SQLException e) {
+            handleException("xuatHuyBanh", e);
+            throw e;
+        }
+    }
+}

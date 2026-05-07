@@ -1,30 +1,119 @@
 package com.bakery.views.controllers.kho;
 
+import com.bakery.model.dao.kho.NguyenLieuDAO;
+import com.bakery.model.dao.kho.SanPhamDAO;
+import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Controller Kiểm Kê Kho.
+ * Hiển thị tổng hợp tồn kho thực tế từ DB:
+ *  - Nguyên liệu (NGUYENLIEU.SOLUONGTONTONG)
+ *  - Thành phẩm  (SANPHAM.SOLUONGTON)
+ * Không gọi mock data.
+ */
 public class KiemKeKhoViewFXMLController extends BaseController {
+
     @FXML private Label lblTitle;
-    @FXML private TableView<Record> tblData;
-    @FXML private TableColumn<Record, String> colDate, colUser, colContent, colStatus;
-    public record Record(String date, String user, String content, String status) {}
+    @FXML private TableView<TonKhoRow> tblData;
+    @FXML private TableColumn<TonKhoRow, String> colDate;   // tái dùng fx:id làm "Loại"
+    @FXML private TableColumn<TonKhoRow, String> colUser;   // tái dùng fx:id làm "Tên"
+    @FXML private TableColumn<TonKhoRow, String> colContent;// tái dùng fx:id làm "Tồn kho"
+    @FXML private TableColumn<TonKhoRow, String> colStatus; // tái dùng fx:id làm "Trạng thái"
+
+    private static final NumberFormat FMT = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
+    static { FMT.setMaximumFractionDigits(2); }
+
+    /** Row hiển thị tổng hợp tồn kho — gộp NL lẫn SP. */
+    public record TonKhoRow(String loai, String ten, String tonKho, String trangThai) {}
+
+    private final NguyenLieuDAO nguyenLieuDAO = new NguyenLieuDAO();
+    private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
+    private final ObservableList<TonKhoRow> rows = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        lblTitle.setText("KIỂM KÊ KHO ĐỊNH KỲ");
-        colDate.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().date()));
-        colUser.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().user()));
-        colContent.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().content()));
-        colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().status()));
-        tblData.setItems(FXCollections.observableArrayList());
-        tblData.setPlaceholder(new Label("Chức năng kiểm kê kho đang được phát triển."));
+        lblTitle.setText("KIỂM KÊ KHO");
+        setupTable();
+        taiDuLieu();
     }
 
-    @FXML private void onAction() { hienThiLoiLabel("Chức năng tạo đợt kiểm kê đang được phát triển."); }
-    @FXML private void onBack() { quayLaiMenuChinh(lblTitle); }
+    private void setupTable() {
+        colDate.setText("Loại");
+        colDate.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().loai()));
+
+        colUser.setText("Tên hàng");
+        colUser.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ten()));
+
+        colContent.setText("Tồn kho");
+        colContent.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().tonKho()));
+
+        colStatus.setText("Trạng thái");
+        colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().trangThai()));
+
+        tblData.setItems(rows);
+        tblData.setPlaceholder(new Label("Đang tải dữ liệu kho..."));
+    }
+
+    private void taiDuLieu() {
+        Thread t = new Thread(() -> {
+            List<TonKhoRow> data = new ArrayList<>();
+            try {
+                // --- Nguyên liệu ---
+                List<NguyenLieuDTO> dsNL = nguyenLieuDAO.layTatCaNguyenLieu();
+                for (NguyenLieuDTO nl : dsNL) {
+                    double ton = nl.getSoLuongTonTong();
+                    String trang = ton <= 0 ? "⛔ Hết hàng"
+                            : ton <= nl.getMucTonAnToan() ? "⚠ Sắp hết" : "✅ Đủ hàng";
+                    data.add(new TonKhoRow("Nguyên liệu", nl.getTenNL(),
+                            FMT.format(ton), trang));
+                }
+
+                // --- Thành phẩm ---
+                List<SanPhamDTO> dsSP = sanPhamDAO.layTatCaSanPhamQuanLy();
+                for (SanPhamDTO sp : dsSP) {
+                    double ton = sp.getSoLuongTon();
+                    String trang = ton <= 0 ? "⛔ Hết hàng"
+                            : ton < 5 ? "⚠ Sắp hết" : "✅ Đủ hàng";
+                    data.add(new TonKhoRow("Thành phẩm", sp.getTenSP(),
+                            FMT.format(ton) + " cái", trang));
+                }
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        hienThiLoiLabel("Lỗi tải dữ liệu kho: " + e.getMessage()));
+                return;
+            }
+            final List<TonKhoRow> finalData = data;
+            javafx.application.Platform.runLater(() -> {
+                rows.setAll(finalData);
+                if (finalData.isEmpty()) {
+                    tblData.setPlaceholder(new Label("Kho chưa có hàng."));
+                }
+            });
+        }, "kiem-ke-tai-du-lieu");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    @FXML
+    private void onAction() {
+        taiDuLieu();
+        hienThiThanhCongLabel("Đã làm mới dữ liệu kiểm kê.");
+    }
+
+    @FXML
+    private void onBack() {
+        quayLaiMenuChinh(lblTitle);
+    }
 }

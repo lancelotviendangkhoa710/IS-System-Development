@@ -7,6 +7,7 @@ public class CTPhieuNhapDTO {
     private int maLo;
     private int maPN;
     private int maNL;
+    private String tenNL;
     private double soLuong;
     private BigDecimal donGia;
     private double soLuongConLai;
@@ -36,6 +37,9 @@ public class CTPhieuNhapDTO {
 
     public int getMaNL() { return maNL; }
     public void setMaNL(int maNL) { this.maNL = maNL; }
+
+    public String getTenNL() { return tenNL; }
+    public void setTenNL(String tenNL) { this.tenNL = tenNL; }
 
     public double getSoLuong() { return soLuong; }
     public void setSoLuong(double soLuong) { this.soLuong = soLuong; }

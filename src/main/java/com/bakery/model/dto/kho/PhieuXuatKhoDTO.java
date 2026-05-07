@@ -7,6 +7,7 @@ public class PhieuXuatKhoDTO {
     private LocalDateTime ngayXuat;
     private String lyDoXuat;
     private int maNV;
+    private String tenNhanVien;
 
     public PhieuXuatKhoDTO() {}
 
@@ -28,4 +29,7 @@ public class PhieuXuatKhoDTO {
     
     public int getMaNV() { return maNV; }
     public void setMaNV(int maNV) { this.maNV = maNV; }
+
+    public String getTenNhanVien() { return tenNhanVien; }
+    public void setTenNhanVien(String tenNhanVien) { this.tenNhanVien = tenNhanVien; }
 }

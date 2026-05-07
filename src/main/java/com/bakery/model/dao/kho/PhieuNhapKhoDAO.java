@@ -1,0 +1,117 @@
+package com.bakery.model.dao.kho;
+
+import com.bakery.model.dao.BaseDAO;
+import com.bakery.model.dto.kho.PhieuNhapKhoDTO;
+import com.bakery.model.dto.kho.CTPhieuNhapDTO;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * DAO cho PHIEUNHAPKHO và CTPHIEUNHAP.
+ * Gọi PROC_TAOPHIEUNHAPKHO với payload JSON.
+ */
+public class PhieuNhapKhoDAO extends BaseDAO {
+
+    /** Lấy danh sách phiếu nhập gần đây (50 phiếu mới nhất). */
+    public List<PhieuNhapKhoDTO> layDanhSachPhieuNhap() throws Exception {
+        List<PhieuNhapKhoDTO> list = new ArrayList<>();
+        String sql = "SELECT PN.MAPN, PN.NGAYNHAP, PN.TONGTIENNHAP, " +
+                "NV.HOTEN AS TENNV, NCC.TENNCC " +
+                "FROM PHIEUNHAPKHO PN " +
+                "LEFT JOIN NHANVIEN NV ON PN.MANV = NV.MANV " +
+                "LEFT JOIN NHACUNGCAP NCC ON PN.MANCC = NCC.MANCC " +
+                "ORDER BY PN.MAPN DESC " +
+                "FETCH FIRST 50 ROWS ONLY";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                PhieuNhapKhoDTO dto = new PhieuNhapKhoDTO();
+                dto.setMaPN(rs.getInt("MAPN"));
+                dto.setNgayNhap(rs.getTimestamp("NGAYNHAP") != null
+                        ? rs.getTimestamp("NGAYNHAP").toLocalDateTime() : null);
+                dto.setTongTienNhap(rs.getBigDecimal("TONGTIENNHAP"));
+                dto.setTenNhanVien(rs.getString("TENNV"));
+                dto.setTenNhaCungCap(rs.getString("TENNCC"));
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            handleException("layDanhSachPhieuNhap", e);
+        }
+        return list;
+    }
+
+    /** Lấy chi tiết các lô trong một phiếu nhập. */
+    public List<CTPhieuNhapDTO> layChiTietPhieuNhap(int maPN) throws Exception {
+        List<CTPhieuNhapDTO> list = new ArrayList<>();
+        String sql = "SELECT CT.MALO, CT.MANL, NL.TENNL, CT.SOLUONG, CT.DONGIA, " +
+                "CT.SOLUONGCONLAI, CT.NGAYSANXUAT, CT.HANSUDUNG " +
+                "FROM CTPHIEUNHAP CT " +
+                "JOIN NGUYENLIEU NL ON CT.MANL = NL.MANL " +
+                "WHERE CT.MAPN = ? ORDER BY CT.MALO";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maPN);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CTPhieuNhapDTO dto = new CTPhieuNhapDTO();
+                    dto.setMaLo(rs.getInt("MALO"));
+                    dto.setMaPN(rs.getInt("MAPN"));
+                    dto.setMaNL(rs.getInt("MANL"));
+                    dto.setTenNL(rs.getString("TENNL"));
+                    dto.setSoLuong(rs.getDouble("SOLUONG"));
+                    dto.setDonGia(rs.getBigDecimal("DONGIA"));
+                    dto.setSoLuongConLai(rs.getDouble("SOLUONGCONLAI"));
+                    if (rs.getDate("NGAYSANXUAT") != null)
+                        dto.setNgaySanXuat(rs.getDate("NGAYSANXUAT").toLocalDate());
+                    if (rs.getDate("HANSUDUNG") != null)
+                        dto.setHanSuDung(rs.getDate("HANSUDUNG").toLocalDate());
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layChiTietPhieuNhap", e);
+        }
+        return list;
+    }
+
+    /**
+     * Tạo phiếu nhập kho qua PROC_TAOPHIEUNHAPKHO.
+     * @param maNV  mã nhân viên thực hiện
+     * @param maNCC mã nhà cung cấp
+     * @param jsonChiTiet JSON array chi tiết lô hàng
+     * @return mã phiếu nhập vừa tạo
+     */
+    public int taoPhieuNhap(int maNV, int maNCC, String jsonChiTiet) throws Exception {
+        String sql = "{CALL PROC_TAOPHIEUNHAPKHO(?, ?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, maNV);
+            cs.setInt(2, maNCC);
+            cs.setClob(3, new java.io.StringReader(jsonChiTiet));
+            cs.registerOutParameter(4, Types.NUMERIC);
+            cs.execute();
+            return cs.getInt(4);
+        } catch (SQLException e) {
+            handleException("taoPhieuNhap", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Hủy phiếu nhập kho qua PROC_HUYPHIEUNHAPKHO.
+     */
+    public void huyPhieuNhap(int maPN) throws Exception {
+        String sql = "{CALL PROC_HUYPHIEUNHAPKHO(?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, maPN);
+            cs.execute();
+        } catch (SQLException e) {
+            handleException("huyPhieuNhap", e);
+            throw e;
+        }
+    }
+}

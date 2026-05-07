@@ -9,6 +9,8 @@ public class PhieuNhapKhoDTO {
     private int maNV;
     private int maNCC;
     private BigDecimal tongTienNhap;
+    private String tenNhanVien;
+    private String tenNhaCungCap;
 
     public PhieuNhapKhoDTO() {}
 
@@ -34,4 +36,10 @@ public class PhieuNhapKhoDTO {
 
     public BigDecimal getTongTienNhap() { return tongTienNhap; }
     public void setTongTienNhap(BigDecimal tongTienNhap) { this.tongTienNhap = tongTienNhap; }
+
+    public String getTenNhanVien() { return tenNhanVien; }
+    public void setTenNhanVien(String tenNhanVien) { this.tenNhanVien = tenNhanVien; }
+
+    public String getTenNhaCungCap() { return tenNhaCungCap; }
+    public void setTenNhaCungCap(String tenNhaCungCap) { this.tenNhaCungCap = tenNhaCungCap; }
 }
