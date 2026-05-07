@@ -1,55 +1,60 @@
 package com.bakery.views.controllers.kho;
 
 import com.bakery.views.controllers.BaseController;
-import com.bakery.views.controllers.hethong.AppShellController;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-
-
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 
 /**
- * Controller cho KhoView.
- * Hiển thị bảng tồn kho tổng hợp với Mock Data.
+ * KhoViewFXMLController — Controller shell cho màn hình Quản lý Kho.
+ * Chỉ quản lý header và TabPane. Mỗi tab chứa FXML con riêng với controller riêng.
+ * Không xử lý dữ liệu trực tiếp — điều phối việc chọn tab theo yêu cầu từ MainMenu.
  */
 public class KhoViewFXMLController extends BaseController {
 
-    @FXML private TableView<StockItem> tblStock;
-    @FXML private TableColumn<StockItem, String> colName;
-    @FXML private TableColumn<StockItem, String> colType;
-    @FXML private TableColumn<StockItem, String> colAmount;
-    @FXML private TableColumn<StockItem, String> colStatus;
+    @FXML private TabPane tabPaneKho;
+    @FXML private Label lblThongBao;
 
-    public record StockItem(String name, String type, String amount, String status) {}
+    // Tab references — khớp với fx:id trong FXML
+    @FXML private Tab tabKiemKe;
+    @FXML private Tab tabNguyenLieu;
+    @FXML private Tab tabSanPham;
+    @FXML private Tab tabDanhMuc;
+    @FXML private Tab tabNhapKho;
+    @FXML private Tab tabXuatKho;
+    @FXML private Tab tabNhaCungCap;
 
     @FXML
     public void initialize() {
-        if (colName != null) {
-            colName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().name()));
-            colType.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().type()));
-            colAmount.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().amount()));
-            colStatus.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().status()));
-            tblStock.setPlaceholder(new javafx.scene.control.Label("Chức năng tổng hợp tồn kho đang được phát triển."));
+        // Mặc định hiển thị tab Kiểm kê đầu tiên
+        if (tabPaneKho != null && tabKiemKe != null) {
+            tabPaneKho.getSelectionModel().select(tabKiemKe);
+        }
+    }
+
+    /**
+     * Được gọi từ MainMenuViewFXMLController để chuyển sang tab cụ thể.
+     * Ví dụ: controller.chuyenTab("nhapkho")
+     */
+    public void chuyenTab(String tabKey) {
+        if (tabPaneKho == null) return;
+        Tab target = switch (tabKey.toLowerCase()) {
+            case "nguyenlieu"  -> tabNguyenLieu;
+            case "sanpham"     -> tabSanPham;
+            case "danhmuc"     -> tabDanhMuc;
+            case "nhapkho"     -> tabNhapKho;
+            case "xuatkho"     -> tabXuatKho;
+            case "nhacungcap"  -> tabNhaCungCap;
+            default            -> tabKiemKe;
+        };
+        if (target != null) {
+            tabPaneKho.getSelectionModel().select(target);
         }
     }
 
     @FXML
-    private void onVeMenu() {
-        quayLaiMenuChinh(tblStock);
-    }
-
-    @FXML
-    private void onMoPOS() {
-        AppShellController.getInstance().loadView("/fxml/DonHangView.fxml");
-    }
-
-    @FXML
-    private void onActionTam() {
-        if (lblThongBao != null) {
-            lblThongBao.setText("Chế độ Demo: Đã cập nhật trạng thái tồn kho.");
-        }
+    private void onBack() {
+        quayLaiMenuChinh(tabPaneKho);
     }
 }

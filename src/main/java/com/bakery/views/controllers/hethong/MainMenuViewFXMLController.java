@@ -182,7 +182,59 @@ public class MainMenuViewFXMLController {
 
     @FXML
     private void onMoKho() {
-        loadView("/fxml/KhoView.fxml");
+        moKhoTab("kiemke");
+    }
+
+    @FXML
+    private void onMoSanPham() {
+        moKhoTab("sanpham");
+    }
+
+    @FXML
+    private void onMoNguyenLieu() {
+        moKhoTab("nguyenlieu");
+    }
+
+    @FXML
+    private void onMoDanhMuc() {
+        moKhoTab("danhmuc");
+    }
+
+    @FXML
+    private void onMoNhapKho() {
+        moKhoTab("nhapkho");
+    }
+
+    @FXML
+    private void onMoXuatKho() {
+        moKhoTab("xuatkho");
+    }
+
+    @FXML
+    private void onMoKiemKe() {
+        moKhoTab("kiemke");
+    }
+
+    @FXML
+    private void onMoNhaCungCap() {
+        moKhoTab("nhacungcap");
+    }
+
+    /**
+     * Tải KhoView.fxml (chỉ 1 lần) rồi chuyển sang tab tương ứng.
+     * Dùng FXMLLoaderUtil.getLoader() để lấy controller sau khi load.
+     */
+    private void moKhoTab(String tabKey) {
+        try {
+            javafx.fxml.FXMLLoader loader = com.bakery.utils.FXMLLoaderUtil.getLoader("/fxml/KhoView.fxml");
+            javafx.scene.Node view = loader.load();
+            com.bakery.views.controllers.kho.KhoViewFXMLController khoCtrl = loader.getController();
+            if (khoCtrl != null) khoCtrl.chuyenTab(tabKey);
+            if (contentArea != null) contentArea.getChildren().setAll(view);
+        } catch (Exception e) {
+            java.util.logging.Logger.getLogger(getClass().getName())
+                    .warning("Khong the mo KhoView: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -191,38 +243,8 @@ public class MainMenuViewFXMLController {
     }
 
     @FXML
-    private void onMoSanPham() {
-        loadView("/fxml/SanPhamView.fxml");
-    }
-
-    @FXML
-    private void onMoNguyenLieu() {
-        loadView("/fxml/NguyenLieuView.fxml");
-    }
-
-    @FXML
-    private void onMoDanhMuc() {
-        loadView("/fxml/DanhMucSPView.fxml");
-    }
-
-    @FXML
     private void onMoPhanQuyen() {
         loadView("/fxml/MaTranPhanQuyenView.fxml");
-    }
-
-    @FXML
-    private void onMoNhapKho() {
-        loadView("/fxml/NhapKhoView.fxml");
-    }
-
-    @FXML
-    private void onMoXuatKho() {
-        loadView("/fxml/XuatKhoView.fxml");
-    }
-
-    @FXML
-    private void onMoKiemKe() {
-        loadView("/fxml/KiemKeKhoView.fxml");
     }
 
     @FXML
@@ -248,11 +270,6 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoTheoDoiDon() {
         loadView("/fxml/TheoDoiDonHangView.fxml");
-    }
-
-    @FXML
-    private void onMoNhaCungCap() {
-        loadView("/fxml/QuanLyNhaCungCapView.fxml");
     }
 
     @FXML
