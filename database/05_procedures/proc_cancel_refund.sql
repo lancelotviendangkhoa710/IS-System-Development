@@ -44,7 +44,7 @@ BEGIN
     IF P_SOTIEN_HOAN > 0 THEN
         -- Lấy ca hiện tại (hoặc ca gần nhất của nhân viên)
         BEGIN
-            SELECT MACA INTO V_MACA FROM CALAMVIEC WHERE THOIDIEMDONG IS NULL FETCH FIRST 1 ROW ONLY;
+            SELECT MACA INTO V_MACA FROM CALAMVIEC WHERE THOIGIANDONGCA IS NULL FETCH FIRST 1 ROW ONLY;
         EXCEPTION WHEN NO_DATA_FOUND THEN
             RAISE_APPLICATION_ERROR(-20001, 'Không tìm thấy ca làm việc đang mở để thực hiện hoàn tiền.');
         END;

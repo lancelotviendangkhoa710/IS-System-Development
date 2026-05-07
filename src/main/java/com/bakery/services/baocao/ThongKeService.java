@@ -20,18 +20,22 @@ public class ThongKeService {
     }
 
     public Map<String, Double> getDoanhThuTheoDanhMuc(String loai, String giaTri) throws Exception {
-        return thongKeDAO.getDoanhThuTheoDanhMuc(loai, giaTri);
+        Map<String, Double> res = thongKeDAO.getDoanhThuTheoDanhMuc(loai, giaTri);
+        return res != null ? res : Map.of();
     }
 
     public Map<String, Integer> getTop5BanChay() throws Exception {
-        return thongKeDAO.getTop5BanChay();
+        Map<String, Integer> res = thongKeDAO.getTop5BanChay();
+        return res != null ? res : Map.of();
     }
 
     public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) throws Exception {
-        return thongKeDAO.getXuHuongDoanhThu(loai, giaTri);
+        Map<String, Double> res = thongKeDAO.getXuHuongDoanhThu(loai, giaTri);
+        return res != null ? res : Map.of();
     }
 
     public List<String[]> getChiTietGiaoDich(String loai, String giaTri) throws Exception {
-        return thongKeDAO.getChiTietGiaoDich(loai, giaTri);
+        List<String[]> res = thongKeDAO.getChiTietGiaoDich(loai, giaTri);
+        return res != null ? res : List.of();
     }
 }

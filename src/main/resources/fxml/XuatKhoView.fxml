@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.bakery.views.controllers.kho.XuatKhoViewFXMLController">
+    <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label fx:id="lblTitle" text="QUẢN LÝ XUẤT KHO" styleClass="lbl-header"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="+ Tạo phiếu xuất" onAction="#onAction" styleClass="btn-primary"/>
+    </HBox>
+
+    <VBox styleClass="card" VBox.vgrow="ALWAYS">
+        <TableView fx:id="tblData" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colDate" text="Ngày xuất" prefWidth="150"/>
+                <TableColumn fx:id="colUser" text="Người thực hiện" prefWidth="180"/>
+                <TableColumn fx:id="colContent" text="Nội dung xuất" prefWidth="400"/>
+                <TableColumn fx:id="colStatus" text="Trạng thái" prefWidth="150"/>
+            </columns>
+            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+        </TableView>
+    </VBox>
+    
+    <Label fx:id="lblThongBao" styleClass="lbl-status"/>
+</VBox>

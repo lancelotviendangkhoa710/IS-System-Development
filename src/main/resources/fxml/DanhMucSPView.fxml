@@ -22,7 +22,6 @@
 
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
         <VBox spacing="5">
             <Label text="Quản lý danh mục sản phẩm" styleClass="lbl-title-screen"/>
             <Label text="Thêm, sửa hoặc xóa các loại danh mục như Bánh ngọt, Bánh kem, Đồ uống..." styleClass="lbl-body"/>

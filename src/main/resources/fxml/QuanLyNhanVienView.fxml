@@ -27,7 +27,6 @@
     </padding>
 
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
         <VBox spacing="5">
             <Label text="Quản lý nhân sự" styleClass="lbl-title-screen"/>
         </VBox>

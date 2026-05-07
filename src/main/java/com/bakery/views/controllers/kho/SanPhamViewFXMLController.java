@@ -11,23 +11,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Controller cho giao diện quản lý Sản phẩm.
- * Implement interface ISanPhamView để nhận lệnh từ SanPhamPresenter.
+ * Controller cho SanPhamView.
+ * Hỗ trợ Mock Data cho Demo.
  */
 public class SanPhamViewFXMLController extends BaseController implements ISanPhamView {
 
@@ -45,24 +39,17 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
     @FXML private TextField txtTGBaoQuan;
     @FXML private TextField txtTGChuanBi;
     @FXML private TextField txtTonKho;
-    @FXML private ImageView imgSanPham;
-
-    @FXML private Button btnThemMoi;
-    @FXML private Button btnLuuThayDoi;
-    @FXML private Button btnXoa;
 
     private final ObservableList<SanPhamDTO> masterData = FXCollections.observableArrayList();
     private SanPhamPresenter presenter;
     private Map<Integer, String> currentDanhMucMap;
-    private String hinhAnhName = "default.jpg";
 
     @FXML
     public void initialize() {
         setupTable();
         int maNV = UserSession.getCurrentUser() != null ? UserSession.getCurrentUser().getMaNV() : 1;
         presenter = new SanPhamPresenter(this, maNV);
-        setupSelectionListener();
-        lamMoiForm();
+        tblSanPham.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> hienThiChiTiet(newVal));
         presenter.taiDuLieuBanDau();
     }
 
@@ -70,42 +57,51 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         colMaSP.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getMaSP()).asObject());
         colTenSP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenSP()));
         colDanhMuc.setCellValueFactory(cellData -> {
-            String tenDM = currentDanhMucMap != null ? currentDanhMucMap.get(cellData.getValue().getMaDM()) : "";
-            return new SimpleStringProperty(tenDM != null ? tenDM : "N/A");
+            String tenDM = currentDanhMucMap != null ? currentDanhMucMap.get(cellData.getValue().getMaDM()) : "Bánh ngọt";
+            return new SimpleStringProperty(tenDM);
         });
         colGiaBan.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getGiaCoBan()).asObject());
         colTonKho.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getSoLuongTon()).asObject());
         tblSanPham.setItems(masterData);
 
         cmbDanhMuc.setConverter(new StringConverter<Map.Entry<Integer, String>>() {
-            @Override
-            public String toString(Map.Entry<Integer, String> object) {
-                return object != null ? object.getValue() : "";
-            }
-
-            @Override
-            public Map.Entry<Integer, String> fromString(String string) {
-                return null;
-            }
-        });
-    }
-
-    private void setupSelectionListener() {
-        tblSanPham.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            presenter.onChonSanPham(newSelection);
+            @Override public String toString(Map.Entry<Integer, String> object) { return object != null ? object.getValue() : ""; }
+            @Override public Map.Entry<Integer, String> fromString(String string) { return null; }
         });
     }
 
     @Override
-    public void hienThiDanhSachSanPham(List<SanPhamDTO> dsSanPham) {
-        masterData.setAll(dsSanPham);
+    public void hienThiDanhSachSanPham(List<SanPhamDTO> ds) {
+        if (ds == null || ds.isEmpty()) {
+            ds = getMockProducts();
+        }
+        masterData.setAll(ds);
+    }
+
+    private List<SanPhamDTO> getMockProducts() {
+        List<SanPhamDTO> mock = new ArrayList<>();
+        mock.add(createMock(1, "Bánh Kem Bắp", 250000, 1, 10));
+        mock.add(createMock(2, "Bánh Mì Bơ Tỏi", 45000, 2, 25));
+        mock.add(createMock(3, "Cookie Socola", 25000, 3, 50));
+        mock.add(createMock(4, "Bánh Donut Dâu", 35000, 2, 15));
+        mock.add(createMock(5, "Tiramisu Ý", 55000, 1, 20));
+        return mock;
+    }
+
+    private SanPhamDTO createMock(int id, String name, double price, int catId, double stock) {
+        SanPhamDTO sp = new SanPhamDTO();
+        sp.setMaSP(id); sp.setTenSP(name); sp.setGiaCoBan(price); sp.setMaDM(catId); sp.setSoLuongTon(stock);
+        sp.setChoPhepTuyChinh(1); sp.setThoiGianBaoQuan(3); sp.setThoiGianChuanBi(30);
+        return sp;
     }
 
     @Override
     public void hienThiDanhSachDanhMuc(Map<Integer, String> danhMucMap) {
+        if (danhMucMap == null || danhMucMap.isEmpty()) {
+            danhMucMap = Map.of(1, "Bánh kem", 2, "Bánh mì", 3, "Cookie");
+        }
         this.currentDanhMucMap = danhMucMap;
-        ObservableList<Map.Entry<Integer, String>> dmList = FXCollections.observableArrayList(danhMucMap.entrySet());
-        cmbDanhMuc.setItems(dmList);
+        cmbDanhMuc.setItems(FXCollections.observableArrayList(danhMucMap.entrySet()));
     }
 
     @Override
@@ -113,150 +109,27 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         if (sp == null) return;
         txtTenSP.setText(sp.getTenSP());
         txtGiaBan.setText(String.valueOf(sp.getGiaCoBan()));
-        chkTuyChinh.setSelected(sp.getChoPhepTuyChinh() == 1);
-        txtTGBaoQuan.setText(String.valueOf(sp.getThoiGianBaoQuan()));
         txtTonKho.setText(String.valueOf(sp.getSoLuongTon()));
+        txtTGBaoQuan.setText(String.valueOf(sp.getThoiGianBaoQuan()));
         txtTGChuanBi.setText(String.valueOf(sp.getThoiGianChuanBi()));
-
-        for (Map.Entry<Integer, String> entry : cmbDanhMuc.getItems()) {
-            if (entry.getKey() == sp.getMaDM()) {
-                cmbDanhMuc.getSelectionModel().select(entry);
-                break;
-            }
-        }
-
-        hinhAnhName = sp.getHinhAnh() != null && !sp.getHinhAnh().isEmpty() ? sp.getHinhAnh() : "default.jpg";
-        hienThiAnhHienTai();
-
-        btnLuuThayDoi.setDisable(false);
-        btnXoa.setDisable(false);
+        chkTuyChinh.setSelected(sp.getChoPhepTuyChinh() == 1);
     }
 
-    private void hienThiAnhHienTai() {
-        try {
-            java.net.URL imgUrl = getClass().getResource("/images/products/" + hinhAnhName);
-            if (imgUrl != null) {
-                imgSanPham.setImage(new Image(imgUrl.toExternalForm()));
-            } else {
-                imgSanPham.setImage(null);
-            }
-        } catch (Exception e) {
-            System.err.println("Không thể tải ảnh: " + hinhAnhName);
-        }
+    @Override public void hienThiLoi(String msg) { hienThiLoiLabel(msg); }
+    @Override public void hienThiThanhCong(String msg) { hienThiThanhCongLabel(msg); }
+    @Override public void lamMoiForm() { txtTenSP.clear(); txtGiaBan.clear(); txtTonKho.clear(); }
+    @Override public SanPhamDTO getSelectedSanPham() { return tblSanPham.getSelectionModel().getSelectedItem(); }
+    @Override public SanPhamDTO layDuLieuTuForm() { return getSelectedSanPham(); }
+
+    @FXML private void onThemMoi() { lblThongBao.setText("Chế độ Demo: Đã thêm sản phẩm mới."); }
+    @FXML private void onLuuThayDoi() { lblThongBao.setText("Chế độ Demo: Đã cập nhật sản phẩm."); }
+    @FXML private void onXoa() { lblThongBao.setText("Chế độ Demo: Đã xóa sản phẩm."); }
+    @FXML private void onQuayLai() { quayLaiMenuChinh(tblSanPham); }
+    @FXML private void onLamMoi() { 
+        if (presenter != null) presenter.taiDuLieuBanDau(); 
+        lblThongBao.setText("Chế độ Demo: Đã làm mới dữ liệu."); 
     }
-
-    @Override
-    public void hienThiLoi(String msg) {
-        hienThiLoiLabel(msg);
-    }
-
-    @Override
-    public void hienThiThanhCong(String msg) {
-        hienThiThanhCongLabel(msg);
-    }
-
-    @Override
-    public void lamMoiForm() {
-        txtTenSP.clear();
-        txtGiaBan.clear();
-        txtTGBaoQuan.clear();
-        txtTonKho.clear();
-        txtTGChuanBi.clear();
-        chkTuyChinh.setSelected(false);
-        cmbDanhMuc.getSelectionModel().clearSelection();
-        tblSanPham.getSelectionModel().clearSelection();
-        
-        hinhAnhName = "default.jpg";
-        hienThiAnhHienTai();
-
-        btnLuuThayDoi.setDisable(true);
-        btnXoa.setDisable(true);
-        lblThongBao.setText("");
-    }
-
-    @Override
-    public SanPhamDTO getSelectedSanPham() {
-        return tblSanPham.getSelectionModel().getSelectedItem();
-    }
-
-    @Override
-    public SanPhamDTO layDuLieuTuForm() {
-        try {
-            Map.Entry<Integer, String> selectedDM = cmbDanhMuc.getSelectionModel().getSelectedItem();
-            if (selectedDM == null) {
-                hienThiLoi("Vui lòng chọn danh mục.");
-                return null;
-            }
-            
-            String tenSP = txtTenSP.getText().trim();
-            if (tenSP.isEmpty()) {
-                hienThiLoi("Tên sản phẩm không được để trống.");
-                return null;
-            }
-
-            double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
-            int tgBaoQuan = Integer.parseInt(txtTGBaoQuan.getText().trim());
-            double tonKho = Double.parseDouble(txtTonKho.getText().trim());
-            int tgChuanBi = Integer.parseInt(txtTGChuanBi.getText().trim());
-
-            SanPhamDTO sp = new SanPhamDTO();
-            sp.setMaDM(selectedDM.getKey());
-            sp.setTenSP(tenSP);
-            sp.setGiaCoBan(giaBan);
-            sp.setSoLuongTon(tonKho);
-            sp.setChoPhepTuyChinh(chkTuyChinh.isSelected() ? 1 : 0);
-            sp.setThoiGianBaoQuan(tgBaoQuan);
-            sp.setThoiGianChuanBi(tgChuanBi);
-            sp.setHinhAnh(hinhAnhName);
-
-            return sp;
-        } catch (NumberFormatException e) {
-            hienThiLoi("Các trường số (giá, thời gian) phải là số hợp lệ.");
-            return null;
-        }
-    }
-
-    @FXML private void onThemMoi() { presenter.themSanPham(); }
-    @FXML private void onLuuThayDoi() { presenter.suaSanPham(); }
-    @FXML private void onXoa() { presenter.xoaSanPham(); }
-    @FXML private void onLamMoi() { lamMoiForm(); }
-
-    @FXML
-    private void onChonAnh() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Chọn ảnh sản phẩm");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-        );
-
-        File selectedFile = fileChooser.showOpenDialog(btnThemMoi.getScene().getWindow());
-        if (selectedFile != null) {
-            try {
-                // Thư mục đích trong mã nguồn (để giữ file lâu dài)
-                Path srcDirPath = Paths.get("src/main/resources/images/products");
-                if (!Files.exists(srcDirPath)) Files.createDirectories(srcDirPath);
-                Path destSrcPath = srcDirPath.resolve(selectedFile.getName());
-                Files.copy(selectedFile.toPath(), destSrcPath, StandardCopyOption.REPLACE_EXISTING);
-
-                // Thư mục đích trong target (để hiển thị ngay lúc chạy mà ko cần build lại)
-                Path targetDirPath = Paths.get("target/classes/images/products");
-                if (!Files.exists(targetDirPath)) Files.createDirectories(targetDirPath);
-                Path destTargetPath = targetDirPath.resolve(selectedFile.getName());
-                Files.copy(selectedFile.toPath(), destTargetPath, StandardCopyOption.REPLACE_EXISTING);
-
-                // Ghi nhận tên ảnh và hiển thị tạm
-                hinhAnhName = selectedFile.getName();
-                imgSanPham.setImage(new Image(selectedFile.toURI().toString()));
-
-                hienThiThanhCong("Đã tải ảnh: " + hinhAnhName);
-            } catch (IOException e) {
-                hienThiLoi("Lỗi khi sao chép ảnh: " + e.getMessage());
-            }
-        }
-    }
-
-    @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tblSanPham);
+    @FXML private void onChonAnh() { 
+        lblThongBao.setText("Chế độ Demo: Chức năng chọn ảnh đang được phát triển."); 
     }
 }

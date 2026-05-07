@@ -15,7 +15,8 @@ public class SoQuyService extends BaseService {
     private final LoaiThuChiDAO  ltcDAO = new LoaiThuChiDAO();
 
     public List<PhieuThuChiDTO> layGiaoDich(int maCa) throws Exception {
-        return ptcDAO.layTheoMaCa(maCa);
+        List<PhieuThuChiDTO> data = ptcDAO.layTheoMaCa(maCa);
+        return data != null ? data : java.util.List.of();
     }
 
     public void huyGiaoDich(int maPhieuTC, String lyDo) throws Exception {
@@ -35,12 +36,14 @@ public class SoQuyService extends BaseService {
 
     /** Chỉ loại đang hoạt động — dùng cho ComboBox lập phiếu. */
     public List<LoaiThuChiDTO> layDanhSachLoai() throws Exception {
-        return ltcDAO.layDanhSach();
+        List<LoaiThuChiDTO> data = ltcDAO.layDanhSach();
+        return data != null ? data : java.util.List.of();
     }
 
     /** Tất cả loại kể cả đã khoá — dùng cho tab Cấu hình. */
     public List<LoaiThuChiDTO> layTatCaDanhSachLoai() throws Exception {
-        return ltcDAO.layTatCa();
+        List<LoaiThuChiDTO> data = ltcDAO.layTatCa();
+        return data != null ? data : java.util.List.of();
     }
 
     public void moKhoaLoai(int ma) throws Exception {

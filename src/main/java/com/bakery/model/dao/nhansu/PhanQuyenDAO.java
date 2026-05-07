@@ -68,8 +68,8 @@ public class PhanQuyenDAO extends BaseDAO {
                   AND TENVAITRO IN (?, ?, ?, ?)
                 """;
         String sqlCapQuyen = """
-                INSERT INTO VAITRO_CHUCNANG (MAVAITRO, MACHUCNANG)
-                SELECT ?, C.MACHUCNANG
+                INSERT INTO VAITRO_CHUCNANG (MAVAITRO, MACHUCNANG, CAN_VIEW, CAN_ADD, CAN_EDIT, CAN_DELETE, CAN_DOWNLOAD)
+                SELECT ?, C.MACHUCNANG, 1, 1, 1, 0, 0
                 FROM CHUCNANG C
                 WHERE C.TENCHUCNANG = ?
                   AND NOT EXISTS (

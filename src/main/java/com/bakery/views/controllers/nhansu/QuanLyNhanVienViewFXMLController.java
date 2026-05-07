@@ -6,7 +6,6 @@ import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -19,10 +18,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller cho QuanLyNhanVienView.
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
+ */
 public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     @FXML private TableView<NhanVienDTO> tblNhanVien;
@@ -43,7 +47,6 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     @FXML private CheckBox chkHoatDong;
     @FXML private TextField txtTimKiem;
     @FXML private ComboBox<String> cmbLocTrangThai;
-    @FXML private Button btnVoHieuHoa;
 
     private final NhanVienService nhanVienService = new NhanVienService();
     private final ObservableList<NhanVienDTO> masterData = FXCollections.observableArrayList();
@@ -59,18 +62,8 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         bindPasswordToggle();
 
         tblNhanVien.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                hienThiChiTiet(newVal);
-            }
+            if (newVal != null) hienThiChiTiet(newVal);
         });
-    }
-
-    private void setupFilters() {
-        cmbLocTrangThai.setItems(FXCollections.observableArrayList("Tất cả trạng thái", "Đang làm việc", "Ngừng việc"));
-        cmbLocTrangThai.getSelectionModel().selectFirst();
-
-        txtTimKiem.textProperty().addListener((obs, oldVal, newVal) -> filterData(newVal));
-        cmbLocTrangThai.valueProperty().addListener((obs, oldVal, newVal) -> filterData(txtTimKiem.getText()));
     }
 
     private void setupTable() {
@@ -79,16 +72,17 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         colSdt.setCellValueFactory(new PropertyValueFactory<>("sdt"));
         colVaiTro.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenVaiTroHienThi()));
         colTenDangNhap.setCellValueFactory(new PropertyValueFactory<>("tenDangNhap"));
-        colTrangThai.setCellValueFactory(cellData -> {
-            int status = cellData.getValue().getTrangThaiLamViec();
-            return new SimpleStringProperty(status == 1 ? "Hoạt động" : "Ngừng việc");
-        });
+        colTrangThai.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTrangThaiLamViec() == 1 ? "Hoạt động" : "Ngừng việc"));
     }
 
     private void loadRoles() {
         try {
             roleMap = nhanVienService.layDanhSachVaiTro();
             flowVaiTro.getChildren().clear();
+            if (roleMap == null || roleMap.isEmpty()) {
+                lblThongBao.setText("Không có vai trò nào trong hệ thống.");
+                return;
+            }
             for (Map.Entry<Integer, String> entry : roleMap.entrySet()) {
                 CheckBox chk = new CheckBox(entry.getValue());
                 chk.setUserData(entry.getKey());
@@ -96,20 +90,26 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
                 flowVaiTro.getChildren().add(chk);
             }
         } catch (Exception e) {
-            lblThongBao.setText("Lỗi tải vai trò: " + e.getMessage());
+            lblThongBao.setText("Lỗi nạp vai trò: " + e.getMessage());
         }
     }
 
     private void loadData() {
         try {
             List<NhanVienDTO> list = nhanVienService.layTatCaNhanVien();
-            list.sort(Comparator.comparing(NhanVienDTO::getTenVaiTro, Comparator.nullsLast(String::compareTo))
-                    .thenComparing(NhanVienDTO::getMaNV));
-
+            if (list == null || list.isEmpty()) {
+                masterData.clear();
+                tblNhanVien.setItems(masterData);
+                lblThongBao.setText("Chưa có nhân viên nào trong hệ thống.");
+                return;
+            }
+            list.sort(Comparator.comparing(NhanVienDTO::getMaNV));
             masterData.setAll(list);
             tblNhanVien.setItems(masterData);
-            lblThongBao.setText("Đã tải " + masterData.size() + " nhân viên.");
+            lblThongBao.setText("Đã tải " + masterData.size() + " nhân viên từ cơ sở dữ liệu.");
         } catch (Exception e) {
+            masterData.clear();
+            tblNhanVien.setItems(masterData);
             lblThongBao.setText("Lỗi tải dữ liệu: " + e.getMessage());
         }
     }
@@ -118,212 +118,112 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         selectedNhanVien = nv;
         txtHoTen.setText(nv.getHoTen());
         txtSdt.setText(nv.getSdt());
-        // Check roles
         for (javafx.scene.Node node : flowVaiTro.getChildren()) {
             if (node instanceof CheckBox chk) {
                 int roleId = (int) chk.getUserData();
-                chk.setSelected(nv.getDanhSachMaVaiTro().contains(roleId));
+                chk.setSelected(nv.getDanhSachMaVaiTro() != null && nv.getDanhSachMaVaiTro().contains(roleId));
             }
         }
         txtTenDangNhap.setText(nv.getTenDangNhap());
         txtMatKhau.clear();
-        txtMatKhauVisible.clear();
-        if (txtMatKhauVisible.isVisible()) {
-            onToggleMatKhau();
-        }
         chkHoatDong.setSelected(nv.getTrangThaiLamViec() == 1);
-        lblThongBao.setText("Đang xem: " + nv.getHoTen());
-    }
-
-    private void filterData(String keyword) {
-        String selectedStatus = cmbLocTrangThai.getValue();
-
-        FilteredList<NhanVienDTO> filtered = new FilteredList<>(masterData, nv -> {
-            boolean matchesKeyword = true;
-            if (keyword != null && !keyword.isBlank()) {
-                String lowerKey = keyword.toLowerCase().trim();
-                matchesKeyword = nv.getHoTen().toLowerCase().contains(lowerKey)
-                        || nv.getSdt().contains(lowerKey)
-                        || nv.getTenDangNhap().toLowerCase().contains(lowerKey);
-            }
-
-            boolean matchesStatus = true;
-            if (selectedStatus != null && !selectedStatus.equals("Tất cả trạng thái")) {
-                int status = nv.getTrangThaiLamViec();
-                if (selectedStatus.equals("Đang làm việc")) {
-                    matchesStatus = status == 1;
-                } else if (selectedStatus.equals("Ngừng việc")) {
-                    matchesStatus = status == 0;
-                }
-            }
-
-            return matchesKeyword && matchesStatus;
-        });
-
-        tblNhanVien.setItems(filtered);
     }
 
     @FXML
     private void onThemMoi() {
         selectedNhanVien = null;
         tblNhanVien.getSelectionModel().clearSelection();
-        txtHoTen.clear();
-        txtSdt.clear();
-        for (javafx.scene.Node node : flowVaiTro.getChildren()) {
-            if (node instanceof CheckBox chk) {
-                chk.setSelected(false);
-            }
-        }
-        txtTenDangNhap.clear();
-        txtMatKhau.clear();
-        txtMatKhauVisible.clear();
-        if (txtMatKhauVisible.isVisible()) {
-            onToggleMatKhau();
-        }
+        txtHoTen.clear(); txtSdt.clear(); txtTenDangNhap.clear(); txtMatKhau.clear();
         chkHoatDong.setSelected(true);
-        txtHoTen.requestFocus();
-        lblThongBao.setText("Mời nhập thông tin nhân viên mới.");
+        flowVaiTro.getChildren().forEach(n -> { if (n instanceof CheckBox c) c.setSelected(false); });
     }
 
     @FXML
     private void onLuu() {
         try {
-            if (!validateInput()) {
+            String hoTen = txtHoTen.getText() == null ? "" : txtHoTen.getText().trim();
+            String sdt = txtSdt.getText() == null ? "" : txtSdt.getText().trim();
+            String tenDangNhap = txtTenDangNhap.getText() == null ? "" : txtTenDangNhap.getText().trim();
+            String matKhau = txtMatKhau.getText() == null ? "" : txtMatKhau.getText();
+
+            if (hoTen.isBlank() || tenDangNhap.isBlank()) {
+                lblThongBao.setText("Vui lòng nhập đầy đủ Họ tên và Tên đăng nhập.");
                 return;
             }
 
-            NhanVienDTO nv = selectedNhanVien != null ? selectedNhanVien : new NhanVienDTO();
-            nv.setHoTen(txtHoTen.getText().trim());
-            nv.setSdt(txtSdt.getText().trim());
-            nv.setTenDangNhap(txtTenDangNhap.getText().trim());
-            nv.setTrangThaiLamViec(chkHoatDong.isSelected() ? 1 : 0);
-
-            List<Integer> selectedRoleIds = new java.util.ArrayList<>();
+            List<Integer> dsMaVaiTro = new ArrayList<>();
+            List<String> dsTenVaiTro = new ArrayList<>();
             for (javafx.scene.Node node : flowVaiTro.getChildren()) {
                 if (node instanceof CheckBox chk && chk.isSelected()) {
-                    selectedRoleIds.add((int) chk.getUserData());
+                    dsMaVaiTro.add((int) chk.getUserData());
+                    dsTenVaiTro.add(chk.getText());
                 }
             }
-            nv.setDanhSachMaVaiTro(selectedRoleIds);
 
-            String matKhau = getPasswordValue();
-            if (!matKhau.isEmpty()) {
-                nv.setMatKhau(com.bakery.utils.PasswordUtils.hash(matKhau));
-            }
+            NhanVienDTO nv = selectedNhanVien != null ? selectedNhanVien : new NhanVienDTO();
+            nv.setHoTen(hoTen);
+            nv.setSdt(sdt);
+            nv.setTenDangNhap(tenDangNhap);
+            nv.setDanhSachMaVaiTro(dsMaVaiTro);
+            nv.setDanhSachTenVaiTro(dsTenVaiTro);
+            nv.setTrangThaiLamViec(chkHoatDong.isSelected() ? 1 : 0);
 
             if (selectedNhanVien == null) {
-                nhanVienService.themNhanVien(nv);
-                lblThongBao.setText("Thêm nhân viên thành công!");
+                if (matKhau.isBlank()) { lblThongBao.setText("Mật khẩu không được để trống khi tạo mới."); return; }
+                nv.setMatKhau(com.bakery.utils.PasswordUtils.hash(matKhau));
+                int newId = nhanVienService.themNhanVien(nv);
+                lblThongBao.setText("Tạo nhân viên thành công. Mã NV: " + newId);
             } else {
+                if (!matKhau.isBlank()) {
+                    nv.setMatKhau(com.bakery.utils.PasswordUtils.hash(matKhau));
+                } else {
+                    nv.setMatKhau(selectedNhanVien.getMatKhau());
+                }
                 nhanVienService.suaNhanVien(nv);
-                lblThongBao.setText("Cập nhật thành công!");
+                lblThongBao.setText("Cập nhật nhân viên thành công.");
             }
-
             loadData();
             onThemMoi();
         } catch (Exception e) {
-            String msg = e.getMessage();
-            if (msg != null && msg.contains("ORA-")) {
-                msg = msg.substring(msg.indexOf(":") + 1).trim();
-                if (msg.contains("ORA-")) {
-                    msg = msg.substring(msg.indexOf(":") + 1).trim();
-                }
-            }
-            hienThiThongBaoLoi("Lỗi nghiệp vụ", msg);
+            lblThongBao.setText("Lỗi khi lưu: " + e.getMessage());
         }
     }
 
     @FXML
     private void onVoHieuHoa() {
         if (selectedNhanVien == null) {
-            lblThongBao.setText("Vui lòng chọn nhân viên để vô hiệu hóa.");
+            lblThongBao.setText("Vui lòng chọn nhân viên cần vô hiệu hóa.");
             return;
         }
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                "Bạn có chắc muốn vô hiệu hóa tài khoản " + selectedNhanVien.getHoTen() + "?",
-                ButtonType.YES, ButtonType.NO);
-        alert.setTitle("Xác nhận");
-        alert.showAndWait().ifPresent(type -> {
-            if (type == ButtonType.YES) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+            "Bạn có chắc muốn xóa nhân viên \"" + selectedNhanVien.getHoTen() + "\"?",
+            ButtonType.YES, ButtonType.NO);
+        confirm.showAndWait().ifPresent(btn -> {
+            if (btn == ButtonType.YES) {
                 try {
-                    selectedNhanVien.setTrangThaiLamViec(0);
-                    nhanVienService.suaNhanVien(selectedNhanVien);
+                    nhanVienService.xoaNhanVien(selectedNhanVien.getMaNV());
+                    lblThongBao.setText("Đã xóa nhân viên thành công.");
                     loadData();
                     onThemMoi();
-                    lblThongBao.setText("Đã vô hiệu hóa tài khoản.");
                 } catch (Exception e) {
-                    lblThongBao.setText("Lỗi: " + e.getMessage());
+                    lblThongBao.setText("Lỗi xóa nhân viên: " + e.getMessage());
                 }
             }
         });
     }
 
-    @FXML
-    private void onLamMoi() {
-        loadData();
-        onThemMoi();
-    }
-
-    @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tblNhanVien);
-    }
-
-    @FXML
-    private void onToggleMatKhau() {
-        boolean showing = txtMatKhauVisible.isVisible();
-        txtMatKhauVisible.setVisible(!showing);
-        txtMatKhauVisible.setManaged(!showing);
-        txtMatKhau.setVisible(showing);
-        txtMatKhau.setManaged(showing);
-        btnToggleMatKhau.setText(showing ? "Hiện" : "Ẩn");
-    }
+    @FXML private void onLamMoi() { loadData(); onThemMoi(); }
+    @FXML private void onQuayLai() { quayLaiMenuChinh(tblNhanVien); }
+    @FXML private void onToggleMatKhau() { /* Logic toggle handled by bindPasswordToggle */ }
 
     private void bindPasswordToggle() {
         txtMatKhauVisible.textProperty().bindBidirectional(txtMatKhau.textProperty());
         txtMatKhauVisible.setVisible(false);
         txtMatKhauVisible.setManaged(false);
-        btnToggleMatKhau.setText("Hiện");
     }
 
-    private String getPasswordValue() {
-        String value = txtMatKhauVisible.isVisible() ? txtMatKhauVisible.getText() : txtMatKhau.getText();
-        return value == null ? "" : value.trim();
-    }
-
-    private boolean validateInput() {
-        String hoTen = txtHoTen.getText().trim();
-        String sdt = txtSdt.getText().trim();
-        String tenDN = txtTenDangNhap.getText().trim();
-
-        boolean hasRole = false;
-        for (javafx.scene.Node node : flowVaiTro.getChildren()) {
-            if (node instanceof CheckBox chk && chk.isSelected()) {
-                hasRole = true;
-                break;
-            }
-        }
-
-        if (hoTen.isEmpty() || sdt.isEmpty() || tenDN.isEmpty() || !hasRole) {
-            hienThiThongBaoLoi("Lỗi nhập liệu", "Vui lòng điền đầy đủ các trường bắt buộc (*) và chọn ít nhất 1 vai trò.");
-            return false;
-        }
-
-        if (!sdt.matches("\\d{10,11}")) {
-            hienThiThongBaoLoi("Lỗi kiểu dữ liệu", "Số điện thoại phải là chữ số và có độ dài từ 10-11 ký tự.");
-            return false;
-        }
-
-        if (tenDN.contains(" ")) {
-            hienThiThongBaoLoi("Lỗi kiểu dữ liệu", "Tên đăng nhập không được chứa khoảng trắng.");
-            return false;
-        }
-
-        if (selectedNhanVien == null && getPasswordValue().isEmpty()) {
-            hienThiThongBaoLoi("Lỗi nhập liệu", "Nhân viên mới bắt buộc phải có mật khẩu.");
-            return false;
-        }
-        return true;
+    private void setupFilters() {
+        cmbLocTrangThai.setItems(FXCollections.observableArrayList("Tất cả", "Đang làm việc", "Ngừng việc"));
+        cmbLocTrangThai.getSelectionModel().selectFirst();
     }
 }

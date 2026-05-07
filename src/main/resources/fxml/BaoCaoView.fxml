@@ -14,8 +14,6 @@
     <!-- TOP HEADER (Global for both tabs) -->
     <top>
         <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20 40 10 40;">
-            <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onVeMenu" 
-                    style="-fx-font-weight: bold; -fx-padding: 8 16;"/>
             <VBox spacing="4">
                 <Label text="Báo cáo &amp; Sổ quỹ" styleClass="lbl-title-screen"/>
                 <Label text="Thống kê hiệu suất kinh doanh và quản lý dòng tiền" styleClass="lbl-body"/>
@@ -96,8 +94,6 @@
                                             <Region HBox.hgrow="ALWAYS"/>
                                             <Label text="-2.1% ↘" style="-fx-text-fill: #DC2626; -fx-background-color: #FEE2E2; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 11px;"/>
                                         </HBox>
-                                        <Label text="TỶ LỆ QUAY LẠI" style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;"/>
-                                        <Label text="68%" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
                                         <Label text="Khách hàng thành viên" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
                                     </VBox>
                                 </GridPane>

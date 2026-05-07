@@ -28,8 +28,6 @@
 
     <!-- ══ HEADER SECTION ══════════════════════════════════════════════════ -->
     <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 24 24 10 24;">
-        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"
-                style="-fx-font-weight: bold; -fx-padding: 8 16;"/>
         <VBox spacing="4">
             <Label text="Sổ Quỹ Thu Chi" styleClass="lbl-title-screen"/>
             <Label text="Quản lý giao dịch tiền mặt, chuyển khoản và cấu hình danh mục thu chi" styleClass="lbl-body"/>

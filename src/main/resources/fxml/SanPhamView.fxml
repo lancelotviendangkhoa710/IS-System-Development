@@ -12,7 +12,6 @@
 
     <!-- Header Section (Shared) -->
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button onAction="#onQuayLai" styleClass="btn-secondary" text="← Quay lại" />
         <VBox spacing="5">
             <Label styleClass="lbl-title-screen" text="Quản lý Sản phẩm &amp; Thành phần" />
             <Label styleClass="lbl-body" text="Thiết lập danh mục sản phẩm, tồn kho và các thành phần tùy chỉnh bánh" />

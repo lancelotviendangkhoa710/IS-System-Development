@@ -108,14 +108,14 @@
             </VBox>
 
             <!-- Card 6: Audit Logs -->
-            <VBox styleClass="dash-card" GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="12">
+            <VBox styleClass="dash-card" onMouseClicked="#onMoLichSuHeThong" style="-fx-cursor: hand;" GridPane.columnIndex="2" GridPane.rowIndex="1" spacing="12">
                 <StackPane styleClass="dash-icon-box, dash-icon-audit">
                     <Label text="🧾" styleClass="dash-icon-text, dash-icon-text-audit"/>
                 </StackPane>
-                <Label text="Audit Logs" styleClass="module-title"/>
+                <Label text="Audit Logs" styleClass="dash-card-title"/>
                 <Label text="Monitor all system activities and security events for total transparency." styleClass="dash-card-desc" wrapText="true"/>
                 <Region VBox.vgrow="ALWAYS"/>
-                <Button fx:id="btnAuditLogsCard" text="Kiểm tra hệ thống →" styleClass="dash-card-action, dash-action-audit" onAction="#onModuleChuaSanSang"/>
+                <Button fx:id="btnAuditLogsCard" text="Kiểm tra hệ thống →" styleClass="dash-card-action, dash-action-audit" onAction="#onMoLichSuHeThong"/>
             </VBox>
         </GridPane>
     

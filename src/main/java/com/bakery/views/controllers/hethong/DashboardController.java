@@ -8,17 +8,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Controller cho Dashboard (Trang chủ).
+ * Hỗ trợ nạp Dữ liệu ảo (Mock Data) nếu hệ thống chưa có dữ liệu thật.
+ */
 public class DashboardController {
-    @FXML
-    private Label lblBannerName;
-    @FXML
-    private Label lblThongBao;
-    @FXML
-    private FlowPane flowBestSellersMenu;
-    @FXML
-    private Button btnQuanLyCa;
+    @FXML private Label lblBannerName;
+    @FXML private Label lblThongBao;
+    @FXML private FlowPane flowBestSellersMenu;
+    @FXML private Button btnQuanLyCa;
 
     private final ThongKeService thongKeService = new ThongKeService();
 
@@ -27,6 +28,8 @@ public class DashboardController {
         NhanVienDTO currentUser = UserSession.getCurrentUser();
         if (currentUser != null) {
             lblBannerName.setText(currentUser.getHoTen() != null ? currentUser.getHoTen() : currentUser.getTenDangNhap());
+        } else {
+            lblBannerName.setText("Quản trị viên (Demo)");
         }
         loadBestSellers();
     }
@@ -37,27 +40,59 @@ public class DashboardController {
 
         try {
             Map<String, Integer> top5 = thongKeService.getTop5BanChay();
-            for (Map.Entry<String, Integer> entry : top5.entrySet()) {
-                VBox card = new VBox(8);
-                card.getStyleClass().add("best-seller-card");
-                card.setPrefWidth(220);
-                card.setMinWidth(200);
+            
+            // Nếu không có dữ liệu thật, tự động dùng Mock Data cho đồ án
+            if (top5 == null || top5.isEmpty()) {
+                top5 = getMockBestSellers();
+                if (lblThongBao != null) {
+                    lblThongBao.setText("Chào mừng bạn trở lại! Hệ thống đang hoạt động ổn định.");
+                }
+            }
 
-                Label lblIcon = new Label("🍰");
-                lblIcon.getStyleClass().add("best-seller-icon");
+            for (Map.Entry<String, Integer> entry : top5.entrySet()) {
+                VBox card = new VBox(10);
+                card.getStyleClass().add("best-seller-card");
+                card.setPrefWidth(200);
+                card.setMinWidth(180);
+                card.setAlignment(javafx.geometry.Pos.CENTER);
+                card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
+
+                Label lblIcon = new Label(getIconForProduct(entry.getKey()));
+                lblIcon.setStyle("-fx-font-size: 32px;");
 
                 Label lblName = new Label(entry.getKey());
-                lblName.getStyleClass().add("best-seller-name");
+                lblName.setStyle("-fx-font-weight: bold; -fx-text-fill: #1F2937; -fx-font-size: 14px;");
+                lblName.setWrapText(true);
+                lblName.setAlignment(javafx.geometry.Pos.CENTER);
 
                 Label lblQty = new Label(entry.getValue() + " đã bán");
-                lblQty.getStyleClass().add("best-seller-qty");
+                lblQty.setStyle("-fx-text-fill: #92400E; -fx-font-weight: bold; -fx-font-size: 12px;");
 
                 card.getChildren().addAll(lblIcon, lblName, lblQty);
                 flowBestSellersMenu.getChildren().add(card);
             }
         } catch (Exception e) {
-            System.err.println("Lỗi tải best sellers: " + e.getMessage());
+            System.err.println("Lỗi tải dashboard: " + e.getMessage());
         }
+    }
+
+    private Map<String, Integer> getMockBestSellers() {
+        Map<String, Integer> mock = new LinkedHashMap<>();
+        mock.put("Bánh Kem Dâu Tây", 152);
+        mock.put("Croissant Bơ Pháp", 128);
+        mock.put("Bánh Mì Hoa Cúc", 95);
+        mock.put("Tiramisu Cacao", 84);
+        mock.put("Bánh Su Kem", 76);
+        return mock;
+    }
+
+    private String getIconForProduct(String name) {
+        if (name.contains("Bánh Kem")) return "🎂";
+        if (name.contains("Croissant")) return "🥐";
+        if (name.contains("Bánh Mì")) return "🍞";
+        if (name.contains("Tiramisu")) return "🍰";
+        if (name.contains("Su Kem")) return "🧁";
+        return "🥐";
     }
 
     @FXML
@@ -82,8 +117,12 @@ public class DashboardController {
 
     @FXML
     private void onQuanLyCa() {
-        // Gọi logic quản lý ca từ MainMenuView hoặc tạo một Event Bus
-        // Ở đây tạm thời để trống hoặc gọi qua AppShell
+        AppShellController.getInstance().loadView("/fxml/DoiSoatDongCaView.fxml");
+    }
+
+    @FXML
+    private void onMoLichSuHeThong() {
+        AppShellController.getInstance().loadView("/fxml/LichSuHeThongView.fxml");
     }
 
     @FXML

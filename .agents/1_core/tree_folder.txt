@@ -27,5 +27,4 @@ PROJECT STRUCTURE OVERVIEW
         └── resources
             ├── css            # File định dạng giao diện (bakery.css)
             ├── fxml           # Định nghĩa giao diện (Layout FXML)
-            ├── hoadon         # Lưu trữ bản in hóa đơn (PDF)
             └── images         # Tài nguyên hình ảnh sản phẩm

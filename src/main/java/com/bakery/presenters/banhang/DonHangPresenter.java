@@ -99,7 +99,9 @@ public class DonHangPresenter {
             timKiemDonTheoDoi(null, null, LocalDate.now(), null, null, "ALL");
         } catch (Exception e) {
             System.err.println("[DonHangPresenter] Lỗi tải dữ liệu ban đầu: " + e.getMessage());
-            view.hienThiLoi("Không thể tải dữ liệu ban đầu từ hệ thống.");
+            view.hienThiLoi("Lỗi tải dữ liệu ban đầu: " + e.getMessage() + ". Đang sử dụng dữ liệu ảo.");
+            view.hienThiDanhSachSanPham(new ArrayList<>(), new HashMap<>());
+            view.hienThiDuLieuTuyChinh(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
     }
 

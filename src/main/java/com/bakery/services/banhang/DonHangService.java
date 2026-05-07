@@ -18,6 +18,7 @@ import com.bakery.model.dto.kho.KieuTrangTriDTO;
 import com.bakery.utils.StringUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class DonHangService {
         this.theoDoiDonService = new TheoDoiDonService();
     }
 
+
     // =========================================================
     // 1. QUẢN LÝ ĐƠN HÀNG
     // =========================================================
@@ -48,7 +50,7 @@ public class DonHangService {
     }
 
     public int taoDonHang(YeuCauTaoDonHangDTO request) throws Exception {
-        return donHangService.taoDonHang(request);
+        return submitNewOrder(request);
     }
 
     public DonDatHangDTO loadOrderById(int maDon) throws Exception {
@@ -162,6 +164,8 @@ public class DonHangService {
 
     public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan,
             LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
-        return theoDoiDonService.layDanhSachDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
+        List<DonDatHangDTO> list = theoDoiDonService.layDanhSachDonTheoDoi(
+            maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
+        return list != null ? list : java.util.List.of();
     }
 }

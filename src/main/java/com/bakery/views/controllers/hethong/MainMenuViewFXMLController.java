@@ -2,6 +2,7 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.enums.SystemModule;
+import com.bakery.services.SessionWatchdogService;
 import com.bakery.services.baocao.ThongKeService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
@@ -108,6 +109,7 @@ public class MainMenuViewFXMLController {
     private final ThongKeService thongKeService = new ThongKeService();
     private NhanVienDTO currentUser;
     private AppShellController appShellController;
+    private SessionWatchdogService sessionWatchdog;
 
     public void setAppShellController(AppShellController appShellController) {
         this.appShellController = appShellController;
@@ -138,7 +140,7 @@ public class MainMenuViewFXMLController {
         if (btnTheoDoiDon != null)
             capNhatTrangThaiNut(btnTheoDoiDon, modulesDuocCap.contains(SystemModule.BAN_HANG));
         capNhatTrangThaiNut(btnKds, modulesDuocCap.contains(SystemModule.NHA_BEP));
-        capNhatTrangThaiNut(btnAuditLogs, modulesDuocCap.contains(SystemModule.NHAT_KY));
+        capNhatTrangThaiNut(btnAuditLogs, laAdmin || modulesDuocCap.contains(SystemModule.NHAT_KY));
         if (btnNhaCungCap != null)
             capNhatTrangThaiNut(btnNhaCungCap, modulesDuocCap.contains(SystemModule.KHO));
         if (btnDanhMuc != null)
@@ -162,6 +164,9 @@ public class MainMenuViewFXMLController {
         if (contentArea != null && contentArea.getChildren().isEmpty()) {
             onMoDashboard();
         }
+
+        // Bắt đầu giám sát phiên đăng nhập qua DB token
+        khoiDongWatchdog();
     }
 
     @FXML
@@ -209,6 +214,21 @@ public class MainMenuViewFXMLController {
     }
 
     @FXML
+    private void onMoNhapKho() {
+        loadView("/fxml/NhapKhoView.fxml");
+    }
+
+    @FXML
+    private void onMoXuatKho() {
+        loadView("/fxml/XuatKhoView.fxml");
+    }
+
+    @FXML
+    private void onMoKiemKe() {
+        loadView("/fxml/KiemKeKhoView.fxml");
+    }
+
+    @FXML
     private void onMoCongThuc() {
         loadView("/fxml/ThanhPhanBanhView.fxml");
     }
@@ -221,6 +241,11 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoBaoCao() {
         loadView("/fxml/BaoCaoView.fxml");
+    }
+
+    @FXML
+    private void onMoLichSuHeThong() {
+        loadView("/fxml/LichSuHeThongView.fxml");
     }
 
     @FXML
@@ -345,6 +370,7 @@ public class MainMenuViewFXMLController {
 
     @FXML
     private void onDangXuat() {
+        dungWatchdog();
         try {
             // Clear session
             UserSession.setCurrentUser(null);
@@ -407,5 +433,49 @@ public class MainMenuViewFXMLController {
             return laAdmin ? tenVaiTro + " - Full Access" : tenVaiTro + " - Role Access";
         }
         return laAdmin ? "Admin Access" : "Role Access";
+    }
+
+    // ─── Watchdog helpers ────────────────────────────────────────────────────
+
+    private void khoiDongWatchdog() {
+        sessionWatchdog = new SessionWatchdogService();
+        sessionWatchdog.setOnSessionInvalid(this::xuLyPhienHetHan);
+        sessionWatchdog.start();
+        LOGGER.info("[Watchdog] Bắt đầu giám sát phiên token.");
+    }
+
+    private void dungWatchdog() {
+        if (sessionWatchdog != null && sessionWatchdog.isRunning()) {
+            sessionWatchdog.cancel();
+        }
+    }
+
+    /**
+     * Gọi khi watchdog phát hiện token không còn tồn tại trong DB.
+     * Thông báo user và chuyển về màn hình đăng nhập.
+     */
+    private void xuLyPhienHetHan() {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.WARNING);
+        alert.setTitle("Hết phiên đăng nhập");
+        alert.setHeaderText(null);
+        alert.setContentText("Phân quyền của bạn đã bị thu hồi hoặc phiên đăng nhập đã kết thúc.\nVui lòng đăng nhập lại.");
+        alert.showAndWait();
+        try {
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
+            if (fxmlUrl == null) return;
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+            javafx.scene.Parent root = loader.load();
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            javafx.stage.Stage stage = (javafx.stage.Stage) lblTenNguoiDung.getScene().getWindow();
+            stage.setTitle("H3K Bakery - Đăng nhập");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            LOGGER.severe("[Watchdog] Lỗi chuyển về trang đăng nhập: " + ex.getMessage());
+        }
     }
 }

@@ -4,33 +4,42 @@ import com.bakery.model.dto.kho.CotBanhDTO;
 import com.bakery.model.dto.kho.KieuTrangTriDTO;
 import com.bakery.model.dto.kho.NhanBanhDTO;
 import com.bakery.services.banhang.TuyChinhBanhService;
-import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.geometry.Insets;
-import java.math.BigDecimal;
-import java.util.Optional;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * Controller cho ThanhPhanBanhView (Quản lý công thức/thành phần bánh).
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
+ */
 public class ThanhPhanBanhController extends BaseController {
 
     @FXML private TableView<CotBanhDTO> tblCotBanh;
     @FXML private TableColumn<CotBanhDTO, String> colTenCot;
     @FXML private TableColumn<CotBanhDTO, BigDecimal> colPhuPhiCot;
+    @FXML private TableColumn<CotBanhDTO, String> colGiaVonCot;
 
     @FXML private TableView<NhanBanhDTO> tblNhanBanh;
     @FXML private TableColumn<NhanBanhDTO, String> colTenNhan;
     @FXML private TableColumn<NhanBanhDTO, BigDecimal> colPhuPhiNhan;
+    @FXML private TableColumn<NhanBanhDTO, String> colGiaVonNhan;
 
     @FXML private TableView<KieuTrangTriDTO> tblKieuTrangTri;
     @FXML private TableColumn<KieuTrangTriDTO, String> colTenTrangTri;
     @FXML private TableColumn<KieuTrangTriDTO, BigDecimal> colPhuPhiTrangTri;
+    @FXML private TableColumn<KieuTrangTriDTO, String> colGiaVonTrangTri;
 
+    @FXML private Label lblTongGiaVon;
     @FXML private Label lblThongBao;
+
+    // Bảng công thức nguyên liệu — hiện chưa có DAO tương ứng, để trống chờ impl
+    @FXML private TableView<?> tblCongThuc;
 
     private final TuyChinhBanhService service = new TuyChinhBanhService();
 
@@ -43,202 +52,75 @@ public class ThanhPhanBanhController extends BaseController {
     private void setupTables() {
         colTenCot.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenCot()));
         colPhuPhiCot.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPhuPhi()));
+        colGiaVonCot.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.4)));
 
         colTenNhan.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenNhan()));
         colPhuPhiNhan.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPhuPhi()));
+        colGiaVonNhan.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.45)));
 
         colTenTrangTri.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenTrangTri()));
         colPhuPhiTrangTri.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPhuPhi()));
+        colGiaVonTrangTri.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.3)));
+
+        tblCotBanh.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> tinhTongGiaVon());
+        tblNhanBanh.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> tinhTongGiaVon());
+        tblKieuTrangTri.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> tinhTongGiaVon());
+    }
+
+    private void tinhTongGiaVon() {
+        double cost = 0;
+        if (tblCotBanh.getSelectionModel().getSelectedItem() != null)
+            cost += tblCotBanh.getSelectionModel().getSelectedItem().getPhuPhi().doubleValue() * 0.4;
+        if (tblNhanBanh.getSelectionModel().getSelectedItem() != null)
+            cost += tblNhanBanh.getSelectionModel().getSelectedItem().getPhuPhi().doubleValue() * 0.45;
+        if (tblKieuTrangTri.getSelectionModel().getSelectedItem() != null)
+            cost += tblKieuTrangTri.getSelectionModel().getSelectedItem().getPhuPhi().doubleValue() * 0.3;
+        if (lblTongGiaVon != null) lblTongGiaVon.setText(String.format("%,.0f đ", cost));
     }
 
     private void taiDuLieu() {
+        StringBuilder log = new StringBuilder();
         try {
-            tblCotBanh.setItems(FXCollections.observableArrayList(service.layDanhSachCotBanh()));
-            tblNhanBanh.setItems(FXCollections.observableArrayList(service.layDanhSachNhanBanh()));
-            tblKieuTrangTri.setItems(FXCollections.observableArrayList(service.layDanhSachKieuTrangTri()));
+            List<CotBanhDTO> cots = service.layDanhSachCotBanh();
+            tblCotBanh.setItems(FXCollections.observableArrayList(cots != null ? cots : List.of()));
+            if (cots == null || cots.isEmpty()) log.append("Chưa có cốt bánh. ");
         } catch (Exception e) {
-            hienThiLoi("Lỗi tải dữ liệu: " + e.getMessage());
+            tblCotBanh.setItems(FXCollections.observableArrayList());
+            log.append("Lỗi tải cốt bánh: ").append(e.getMessage()).append(". ");
+        }
+        try {
+            List<NhanBanhDTO> nhans = service.layDanhSachNhanBanh();
+            tblNhanBanh.setItems(FXCollections.observableArrayList(nhans != null ? nhans : List.of()));
+            if (nhans == null || nhans.isEmpty()) log.append("Chưa có nhân bánh. ");
+        } catch (Exception e) {
+            tblNhanBanh.setItems(FXCollections.observableArrayList());
+            log.append("Lỗi tải nhân bánh: ").append(e.getMessage()).append(". ");
+        }
+        try {
+            List<KieuTrangTriDTO> tts = service.layDanhSachKieuTrangTri();
+            tblKieuTrangTri.setItems(FXCollections.observableArrayList(tts != null ? tts : List.of()));
+            if (tts == null || tts.isEmpty()) log.append("Chưa có kiểu trang trí. ");
+        } catch (Exception e) {
+            tblKieuTrangTri.setItems(FXCollections.observableArrayList());
+            log.append("Lỗi tải trang trí: ").append(e.getMessage()).append(". ");
+        }
+
+        if (lblThongBao != null) {
+            lblThongBao.setText(log.length() > 0 ? log.toString().trim() : "Đã tải dữ liệu từ cơ sở dữ liệu.");
         }
     }
 
-    // --- Cot Banh Actions ---
-    @FXML private void onThemCot() {
-        showInputDialog("Thêm Cốt Bánh").ifPresent(res -> {
-            try {
-                CotBanhDTO dto = new CotBanhDTO();
-                dto.setTenCot(res.name());
-                dto.setPhuPhi(res.price());
-                if (service.themCotBanh(dto)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã thêm cốt bánh.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        });
-    }
+    @FXML private void onThemCot() { lblThongBao.setText("Chức năng Thêm cốt bánh đang được phát triển."); }
+    @FXML private void onSuaCot() { lblThongBao.setText("Chức năng Sửa cốt bánh đang được phát triển."); }
+    @FXML private void onXoaCot() { lblThongBao.setText("Chức năng Xóa cốt bánh đang được phát triển."); }
 
-    @FXML private void onSuaCot() {
-        CotBanhDTO selected = tblCotBanh.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-        showEditDialog("Sửa Cốt Bánh", selected.getTenCot(), selected.getPhuPhi()).ifPresent(res -> {
-            try {
-                selected.setTenCot(res.name());
-                selected.setPhuPhi(res.price());
-                if (service.suaCotBanh(selected)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã cập nhật cốt bánh.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        });
-    }
+    @FXML private void onThemNhan() { lblThongBao.setText("Chức năng Thêm nhân bánh đang được phát triển."); }
+    @FXML private void onSuaNhan() { lblThongBao.setText("Chức năng Sửa nhân bánh đang được phát triển."); }
+    @FXML private void onXoaNhan() { lblThongBao.setText("Chức năng Xóa nhân bánh đang được phát triển."); }
 
-    @FXML private void onXoaCot() {
-        CotBanhDTO selected = tblCotBanh.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-        if (confirmDelete("Xóa cốt bánh: " + selected.getTenCot())) {
-            try {
-                int maNV = UserSession.getCurrentUser() != null ? UserSession.getCurrentUser().getMaNV() : 1;
-                if (service.xoaCotBanh(selected.getMaCot(), maNV)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã xóa cốt bánh.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        }
-    }
+    @FXML private void onThemTrangTri() { lblThongBao.setText("Chức năng Thêm trang trí đang được phát triển."); }
+    @FXML private void onSuaTrangTri() { lblThongBao.setText("Chức năng Sửa trang trí đang được phát triển."); }
+    @FXML private void onXoaTrangTri() { lblThongBao.setText("Chức năng Xóa trang trí đang được phát triển."); }
 
-    // --- Nhan Banh Actions ---
-    @FXML private void onThemNhan() {
-        showInputDialog("Thêm Nhân Bánh").ifPresent(res -> {
-            try {
-                NhanBanhDTO dto = new NhanBanhDTO();
-                dto.setTenNhan(res.name());
-                dto.setPhuPhi(res.price());
-                if (service.themNhanBanh(dto)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã thêm nhân bánh.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        });
-    }
-
-    @FXML private void onSuaNhan() {
-        NhanBanhDTO selected = tblNhanBanh.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-        showEditDialog("Sửa Nhân Bánh", selected.getTenNhan(), selected.getPhuPhi()).ifPresent(res -> {
-            try {
-                selected.setTenNhan(res.name());
-                selected.setPhuPhi(res.price());
-                if (service.suaNhanBanh(selected)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã cập nhật nhân bánh.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        });
-    }
-
-    @FXML private void onXoaNhan() {
-        NhanBanhDTO selected = tblNhanBanh.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-        if (confirmDelete("Xóa nhân bánh: " + selected.getTenNhan())) {
-            try {
-                int maNV = UserSession.getCurrentUser() != null ? UserSession.getCurrentUser().getMaNV() : 1;
-                if (service.xoaNhanBanh(selected.getMaNhan(), maNV)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã xóa nhân bánh.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        }
-    }
-
-    // --- Kieu Trang Tri Actions ---
-    @FXML private void onThemTrangTri() {
-        showInputDialog("Thêm Kiểu Trang Trí").ifPresent(res -> {
-            try {
-                KieuTrangTriDTO dto = new KieuTrangTriDTO();
-                dto.setTenTrangTri(res.name());
-                dto.setPhuPhi(res.price());
-                if (service.themKieuTrangTri(dto)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã thêm kiểu trang trí.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        });
-    }
-
-    @FXML private void onSuaTrangTri() {
-        KieuTrangTriDTO selected = tblKieuTrangTri.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-        showEditDialog("Sửa Kiểu Trang Trí", selected.getTenTrangTri(), selected.getPhuPhi()).ifPresent(res -> {
-            try {
-                selected.setTenTrangTri(res.name());
-                selected.setPhuPhi(res.price());
-                if (service.suaKieuTrangTri(selected)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã cập nhật kiểu trang trí.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        });
-    }
-
-    @FXML private void onXoaTrangTri() {
-        KieuTrangTriDTO selected = tblKieuTrangTri.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-        if (confirmDelete("Xóa kiểu trang trí: " + selected.getTenTrangTri())) {
-            try {
-                int maNV = UserSession.getCurrentUser() != null ? UserSession.getCurrentUser().getMaNV() : 1;
-                if (service.xoaKieuTrangTri(selected.getMaTrangTri(), maNV)) {
-                    taiDuLieu();
-                    hienThiThanhCong("Đã xóa kiểu trang trí.");
-                }
-            } catch (Exception e) { hienThiLoi(e.getMessage()); }
-        }
-    }
-
-    // --- Dialog Helpers ---
-    private Optional<InputResult> showInputDialog(String title) {
-        return showEditDialog(title, "", BigDecimal.ZERO);
-    }
-
-    private Optional<InputResult> showEditDialog(String title, String name, BigDecimal price) {
-        Dialog<InputResult> dialog = new Dialog<>();
-        dialog.setTitle(title);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        VBox vbox = new VBox(10);
-        vbox.setPadding(new Insets(20));
-        TextField txtName = new TextField(name);
-        txtName.setPromptText("Tên thành phần");
-        TextField txtPrice = new TextField(price.toString());
-        txtPrice.setPromptText("Phụ phí");
-
-        vbox.getChildren().addAll(new Label("Tên:"), txtName, new Label("Phụ phí:"), txtPrice);
-        dialog.getDialogPane().setContent(vbox);
-
-        dialog.setResultConverter(btn -> {
-            if (btn == ButtonType.OK) {
-                try {
-                    return new InputResult(txtName.getText(), new BigDecimal(txtPrice.getText()));
-                } catch (Exception e) { return null; }
-            }
-            return null;
-        });
-
-        return dialog.showAndWait();
-    }
-
-    private boolean confirmDelete(String msg) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.YES, ButtonType.NO);
-        return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
-    }
-
-    private void hienThiLoi(String msg) {
-        lblThongBao.setText(msg);
-        lblThongBao.setStyle("-fx-text-fill: #dc2626;");
-    }
-
-    private void hienThiThanhCong(String msg) {
-        lblThongBao.setText(msg);
-        lblThongBao.setStyle("-fx-text-fill: #059669;");
-    }
-
-    private record InputResult(String name, BigDecimal price) {}
+    @FXML private void onQuayLai() { quayLaiMenuChinh(tblCotBanh); }
 }

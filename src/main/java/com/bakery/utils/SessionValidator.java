@@ -1,36 +1,23 @@
 package com.bakery.utils;
 
-import com.bakery.services.AuthService;
-
 /**
  * SessionValidator cung cấp các tiện ích để kiểm tra và bảo vệ phiên đăng nhập.
+ * Sử dụng SessionContext (in-memory) — nguồn session thực tế của ứng dụng.
  */
 public class SessionValidator {
-    private static final AuthService authService = new AuthService();
 
     /**
      * Kiểm tra phiên đăng nhập hiện tại có hợp lệ không.
-     * 
-     * @return true nếu đã đăng nhập và token hợp lệ
+     *
+     * @return true nếu SessionContext đang có session hợp lệ
      */
     public static boolean isSessionValid() {
-        String token = UserSession.getCurrentToken();
-        if (token == null) {
-            return false;
-        }
-
-        try {
-            return authService.validateToken(token);
-        } catch (Exception e) {
-            System.err.println("Lỗi kiểm tra token: " + e.getMessage());
-            return false;
-        }
+        return SessionContext.getCurrentSession() != null;
     }
 
     /**
-     * Bảo vệ một hành động cần xác thực.
-     * Nếu phiên không hợp lệ, ném ngoại lệ.
-     * 
+     * Bảo vệ một hành động cần xác thực. Ném ngoại lệ nếu chưa đăng nhập.
+     *
      * @throws Exception nếu phiên không hợp lệ
      */
     public static void requireValidSession() throws Exception {
@@ -40,46 +27,39 @@ public class SessionValidator {
     }
 
     /**
-     * Lấy thông tin nhân viên hiện tại.
-     * 
+     * Lấy thông tin nhân viên từ UserSession (tương thích ngược với code cũ).
+     *
      * @return NhanVienDTO nếu phiên hợp lệ, null nếu không
      */
     public static com.bakery.model.dto.nhansu.NhanVienDTO getCurrentUser() {
         if (!isSessionValid()) {
             return null;
         }
-
-        try {
-            String token = UserSession.getCurrentToken();
-            return authService.getUserFromToken(token);
-        } catch (Exception e) {
-            System.err.println("Lỗi lấy thông tin người dùng: " + e.getMessage());
-            return null;
-        }
+        return UserSession.getCurrentUser();
     }
 
     /**
-     * Kiểm tra quyền truy cập dựa trên vai trò.
-     * 
+     * Kiểm tra quyền truy cập dựa trên vai trò (hỗ trợ N-N RBAC).
+     *
      * @param requiredRole Mã vai trò yêu cầu
      * @return true nếu có quyền
      */
     public static boolean hasRole(int requiredRole) {
         com.bakery.model.dto.nhansu.NhanVienDTO user = getCurrentUser();
-        return user != null && user.getMaVaiTro() == requiredRole;
+        if (user == null || user.getDanhSachMaVaiTro() == null) return false;
+        return user.getDanhSachMaVaiTro().contains(requiredRole);
     }
 
     /**
      * Bảo vệ hành động với quyền cụ thể.
-     * 
+     *
      * @param requiredRole Mã vai trò yêu cầu
      * @throws Exception nếu không có quyền
      */
     public static void requireRole(int requiredRole) throws Exception {
         requireValidSession();
-
         com.bakery.model.dto.nhansu.NhanVienDTO user = getCurrentUser();
-        if (user.getMaVaiTro() != requiredRole) {
+        if (user == null || !user.getDanhSachMaVaiTro().contains(requiredRole)) {
             throw new Exception("Bạn không có quyền thực hiện hành động này.");
         }
     }

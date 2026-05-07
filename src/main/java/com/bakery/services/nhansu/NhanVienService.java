@@ -1,4 +1,5 @@
 package com.bakery.services.nhansu;
+
 import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.nhansu.NhanVienDAO;
@@ -10,10 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Service quản lý nghiệp vụ Nhân viên.
- * Đảm bảo tuân thủ MVP/Service pattern.
- */
 public class NhanVienService extends BaseService {
 
     private final NhanVienDAO nhanVienDAO;
@@ -29,12 +26,6 @@ public class NhanVienService extends BaseService {
         this.vaiTroDAO = vaiTroDAO;
     }
 
-    /**
-     * Thêm nhân viên mới vào hệ thống.
-     * @param nv DTO chứa thông tin nhân viên
-     * @return Mã nhân viên vừa tạo
-     * @throws Exception nếu có lỗi DB (trùng lặp, vi phạm ràng buộc)
-     */
     public int themNhanVien(NhanVienDTO nv) throws Exception {
         return nhanVienDAO.themNhanVien(nv);
     }
@@ -51,9 +42,6 @@ public class NhanVienService extends BaseService {
         return nhanVienDAO.layTatCaNhanVien();
     }
 
-    /**
-     * Lấy danh sách vai trò hiện có (dùng VaiTroDAO thay vì NhanVienDAO).
-     */
     public Map<Integer, String> layDanhSachVaiTro() throws Exception {
         List<VaiTroDTO> danhSach = vaiTroDAO.layDanhSachVaiTroDangHoatDong();
         Map<Integer, String> result = new LinkedHashMap<>();

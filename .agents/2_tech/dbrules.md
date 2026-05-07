@@ -36,3 +36,12 @@
         RAISE_APPLICATION_ERROR(-20xxx, 'Thông báo lỗi tiếng Việt có dấu: ' || SQLERRM);
     ```
 - **Thông báo lỗi (Error Messages):** Đoạn text ném ra trong `RAISE_APPLICATION_ERROR` phải là tiếng Việt **CÓ DẤU**.
+
+## 3.5. CÁC LỖI THƯỜNG GẶP CẦN TRÁNH
+- **Lỗi ORA-06550 / PLS-00306 (wrong number or types of arguments):** Khi gặp lỗi này khi gọi Stored Procedure từ DAO, điều này có nghĩa là số lượng hoặc kiểu dữ liệu của các tham số (`?`) truyền vào trong `{CALL PROC_NAME(...)}` không khớp chính xác với định nghĩa của Procedure trong CSDL.
+  + **Đặc biệt lưu ý:** Nếu có nhiều file SQL chứa định nghĩa trùng tên Procedure (VD: `proc_danhmucsp_cud.sql` và `proc_product_cud.sql` cùng chứa `PROC_THEM_DANHMUCSP`), Oracle sẽ lấy bản compile cuối cùng. Hãy mở file cuối cùng được thực thi để kiểm tra chính xác số lượng tham số IN/OUT!
+  + Tham khảo thêm: [Oracle Docs ORA-06550](https://docs.oracle.com/error-help/db/ora-06550/)
+
+## 3.6. QUY TẮC CẤM TỰ Ý TẠO MỚI (STRICT RESTRICTION)
+- **KHÔNG TỰ Ý TẠO MỚI:** CẤM tuyệt đối việc tự ý tạo mới các `PROCEDURE`, `FUNCTION`, `TRIGGER` hoặc thay đổi số lượng tham số của chúng mà chưa được sự đồng ý của User.
+- **KIỂM TRA TRÙNG LẶP:** Trước khi muốn tạo một chức năng mới, AI phải dùng `grep` hoặc `gitnexus` để kiểm tra toàn bộ thư mục `database/` xem chức năng đó đã tồn tại ở đâu chưa (kể cả trong các file module khác). Việc tạo đè hoặc tạo trùng tên sẽ gây ra lỗi nghiêm trọng cho hệ thống.

@@ -52,9 +52,9 @@
                         <VBox spacing="4">
                             <Label text="KHO HÀNG" styleClass="nav-category-label"/>
                             <Button fx:id="btnInventory" text="📦 Tồn kho" onAction="#onMoKho" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnNhapKho" text="📥 Nhập kho" onAction="#onModuleChuaSanSang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnXuatKho" text="📤 Xuất kho" onAction="#onModuleChuaSanSang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnKiemKe" text="📋 Kiểm kê kho" onAction="#onModuleChuaSanSang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnNhapKho" text="📥 Nhập kho" onAction="#onMoNhapKho" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnXuatKho" text="📤 Xuất kho" onAction="#onMoXuatKho" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnKiemKe" text="📋 Kiểm kê kho" onAction="#onMoKiemKe" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnNhaCungCap" text="🏭 Nhà cung cấp" onAction="#onMoNhaCungCap" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
@@ -78,7 +78,7 @@
                         <VBox spacing="4">
                             <Label text="BÁO CÁO" styleClass="nav-category-label"/>
                             <Button fx:id="btnBaoCao" text="📈 Thống kê &amp; BC" onAction="#onMoBaoCao" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnAuditLogs" text="📜 Lịch sử hệ thống" onAction="#onModuleChuaSanSang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnAuditLogs" text="📜 Lịch sử hệ thống" onAction="#onMoLichSuHeThong" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
                     </VBox>
                 </content>

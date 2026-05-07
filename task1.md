@@ -1,0 +1,4 @@
+-Thêm giao diện màn hình bếp là danh sách các đơn mà thợ bếp phải làm các đơn là dữ liệu ảo 
+-Thêm dữ liệu ảo  nhiều nhân viên với họ tên đầy đủ cho nhóm phân quyèn
+- Phần công thức là định mức bột ,sữa, công thức cấu thành 1 bánh từ đó hiển thị giá vốn của bánh - hãy thêm dữ liệu ảo vào
+- Thêm AUdit log - dữ liệu ảo 

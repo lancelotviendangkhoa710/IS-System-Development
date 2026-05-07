@@ -1,5 +1,6 @@
 package com.bakery.services.nhansu;
 
+import com.bakery.model.dao.SessionDAO;
 import com.bakery.model.dao.nhansu.NhanVienDAO;
 import com.bakery.model.dao.nhansu.PhanQuyenDAO;
 import com.bakery.model.dao.nhansu.VaiTroDAO;
@@ -8,7 +9,11 @@ import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.dto.nhansu.VaiTroDTO;
 import com.bakery.utils.PasswordUtils;
 import com.bakery.utils.SessionContext;
+import com.bakery.utils.TokenUtils;
+import com.bakery.utils.UserSession;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,9 +23,12 @@ import java.util.Set;
  * Quản lý Đăng nhập, Đăng ký, Đổi mật khẩu và Session.
  */
 public class XacThucService {
+    private static final long TOKEN_EXPIRY_HOURS = 8; // Token hết hạn sau 8 giờ làm việc
+
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
     private final PhanQuyenDAO phanQuyenDAO = new PhanQuyenDAO();
     private final VaiTroDAO vaiTroDAO = new VaiTroDAO();
+    private final SessionDAO sessionDAO = new SessionDAO();
 
     /**
      * Đăng nhập: xác thực thông tin, kiểm tra trạng thái, tạo session.
@@ -51,10 +59,8 @@ public class XacThucService {
             throw new NgoaiLeXacThuc(MaLoiXacThuc.VAI_TRO_KHONG_HOP_LE, "Nhân viên chưa được gán vai trò hợp lệ.");
         }
 
-        if (roleInfo.getPermissionKeys().isEmpty()) {
-            throw new NgoaiLeXacThuc(MaLoiXacThuc.VAI_TRO_KHONG_HOP_LE,
-                    "Tài khoản hiện tại không được cấp bất kỳ quyền truy cập nào.");
-        }
+        // Lưu ý: permissionKeys có thể rỗng nếu VAITRO_CHUCNANG chưa có dữ liệu.
+        // Điều này KHÔNG chặn đăng nhập — quyền module sẽ được kiểm tra riêng ở PhanQuyenService.
 
         Set<String> permissionKeys = new LinkedHashSet<>(roleInfo.getPermissionKeys());
         nhanVien.setDanhSachTenVaiTro(java.util.Arrays.asList(roleInfo.getTenVaiTro().split(" \\+ ")));
@@ -71,6 +77,15 @@ public class XacThucService {
                 roleInfo.getTenVaiTro(),
                 permissionKeys);
         SessionContext.createSession(session);
+
+        // Tạo token và lưu vào DB để hỗ trợ force-logout từ bên ngoài
+        String token = TokenUtils.generateToken();
+        Timestamp expiresAt = Timestamp.valueOf(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS));
+        sessionDAO.xoaToanBoPhienCuaUser(nhanVien.getMaNV()); // Dọn session cũ trước
+        sessionDAO.insertSession(token, nhanVien.getMaNV(), expiresAt);
+        UserSession.setCurrentToken(token);  // Lưu token vào memory để watchdog dùng
+        UserSession.setCurrentUser(nhanVien);
+
         return nhanVien;
     }
 
@@ -164,8 +179,13 @@ public class XacThucService {
     }
 
     public List<ChucNangDTO> layQuyenPhienHienTai() throws Exception {
-        SessionContext.AuthSession session = requireActiveSession();
-        return phanQuyenDAO.layDanhSachChucNangTheoVaiTro(session.getMaVaiTro());
+        requireActiveSession();
+        // Lấy toàn bộ vai trò từ session thông qua NhanVienDAO để hợp nhất quyền đa vai trò
+        SessionContext.AuthSession session = SessionContext.getCurrentSession();
+        NhanVienDTO nhanVien = nhanVienDAO.timNhanVienTheoMa(session.getMaNhanVien());
+        if (nhanVien == null || nhanVien.getDanhSachMaVaiTro().isEmpty()) return List.of();
+        PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
+        return info != null ? info.getDanhSachChucNang() : List.of();
     }
 
     public SessionContext.AuthSession layPhienHienTai() {
@@ -173,6 +193,16 @@ public class XacThucService {
     }
 
     public void dangXuat() {
+        // Revoke token trong DB để các watchdog ở thiết bị khác biết phiên đã kết thúc
+        String token = UserSession.getCurrentToken();
+        if (token != null) {
+            try {
+                sessionDAO.revokeSession(token);
+            } catch (Exception e) {
+                System.err.println("[XacThucService] Lỗi revoke token khi đăng xuất: " + e.getMessage());
+            }
+        }
+        UserSession.clear();
         SessionContext.clear();
     }
 

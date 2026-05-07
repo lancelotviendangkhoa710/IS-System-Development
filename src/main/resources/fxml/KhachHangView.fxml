@@ -12,7 +12,6 @@
 
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button onAction="#onBack" styleClass="btn-secondary" text="← Quay lại" />
         <VBox spacing="5">
             <Label styleClass="lbl-title-screen" text="Quản lý Khách hàng &amp; Hội viên" />
             <Label styleClass="lbl-body" text="Theo dõi thông tin khách hàng, tích điểm và quản lý các hạng thành viên" />

@@ -23,7 +23,7 @@
 
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
+       
         <VBox spacing="5">
             <Label text="Quản lý nguyên liệu" styleClass="lbl-title-screen"/>
             <Label text="Thêm, sửa, xóa các nguyên liệu dùng trong công thức sản xuất bánh." styleClass="lbl-body"/>
