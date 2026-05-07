@@ -9,6 +9,7 @@ import com.bakery.model.dto.banhang.YeuCauChiTietDonHangDTO;
 import com.bakery.model.dto.banhang.YeuCauChiTietDonTuyChinhDTO;
 import com.bakery.model.dto.banhang.YeuCauTaoDonHangDTO;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,6 +62,33 @@ public class QuanLyDonHangService {
                 throw new Exception("Tạo đơn thất bại: không tìm thấy đơn hàng vừa tạo trong CSDL.");
             }
             return maDonMoi;
+        } catch (SQLException e) {
+            throw new Exception("Không tạo được đơn hàng: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Overload dùng trong Distributed Transaction (do ThanhToanService quản lý Connection).
+     * Không COMMIT — Service gọi method này chịu trách nhiệm COMMIT/ROLLBACK.
+     */
+    public int taoDonHang(Connection conn, YeuCauTaoDonHangDTO request) throws Exception {
+        kiemTraYeuCauDonHang(request);
+
+        int maTrangThai = request.getMaTrangThai();
+        if (maTrangThai <= 0) {
+            maTrangThai = request.getTienDaCoc() > 0
+                    ? layMaTrangThaiDaCoc()
+                    : layMaTrangThaiMoiDat();
+        }
+
+        DonDatHangDTO donDatHang = chuyenSangDonDatHangDTO(request, maTrangThai);
+        List<CTDonHangDTO> dsCtDonHang = new ArrayList<>();
+        List<CTDonTuyChinhDTO> dsCtTuyChinh = new ArrayList<>();
+        chuyenDoiChiTietDonHang(request.getItems(), dsCtDonHang, dsCtTuyChinh);
+
+        try {
+            // Truyền connection vào DAO — không tự mở/đóng connection
+            return donHangDAO.taoDonHang(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
         } catch (SQLException e) {
             throw new Exception("Không tạo được đơn hàng: " + e.getMessage(), e);
         }

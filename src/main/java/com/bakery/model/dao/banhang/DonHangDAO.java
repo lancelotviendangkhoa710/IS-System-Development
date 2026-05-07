@@ -24,24 +24,41 @@ public class DonHangDAO extends BaseDAO {
     public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
         String sql = "{CALL PROC_TAODONHANG(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
-            try (CallableStatement cstmt = conn.prepareCall(sql)) {
-                cstmt.setTimestamp(1, Timestamp.valueOf(donDatHang.getNgayGioNhanBanh()));
-                if (donDatHang.getMaKH() != null) cstmt.setInt(2, donDatHang.getMaKH()); else cstmt.setNull(2, Types.NUMERIC);
-                cstmt.setInt(3, donDatHang.getMaNVLap());
-                cstmt.setInt(4, donDatHang.getMaTrangThai());
-                cstmt.setBigDecimal(5, donDatHang.getTienDaCoc());
-                if (donDatHang.getHinhThucNhan() != null) cstmt.setInt(6, donDatHang.getHinhThucNhan()); else cstmt.setNull(6, Types.NUMERIC);
-                if (donDatHang.getDiaChiGiao() != null && !donDatHang.getDiaChiGiao().trim().isEmpty()) cstmt.setString(7, donDatHang.getDiaChiGiao().trim()); else cstmt.setNull(7, Types.NVARCHAR);
-
-                cstmt.setString(8, taoJsonChiTiet(dsCtDonHang, dsCtTuyChinh));
-                cstmt.registerOutParameter(9, Types.NUMERIC);
-                cstmt.execute();
-                return cstmt.getInt(9);
-            }
+            return taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
         } catch (SQLException e) {
             handleException("taoDonHang", e);
         }
         return -1;
+    }
+
+    /**
+     * Overload dùng trong Distributed Transaction — nhận Connection từ tầng Service.
+     * Không đóng Connection; không COMMIT (Service chịu trách nhiệm).
+     */
+    public int taoDonHang(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
+        try {
+            return taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
+        } catch (SQLException e) {
+            handleException("taoDonHang[tx]", e);
+        }
+        return -1;
+    }
+
+    private int taoDonHangWithConn(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws SQLException {
+        String sql = "{CALL PROC_TAODONHANG(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setTimestamp(1, Timestamp.valueOf(donDatHang.getNgayGioNhanBanh()));
+            if (donDatHang.getMaKH() != null) cstmt.setInt(2, donDatHang.getMaKH()); else cstmt.setNull(2, Types.NUMERIC);
+            cstmt.setInt(3, donDatHang.getMaNVLap());
+            cstmt.setInt(4, donDatHang.getMaTrangThai());
+            cstmt.setBigDecimal(5, donDatHang.getTienDaCoc());
+            if (donDatHang.getHinhThucNhan() != null) cstmt.setInt(6, donDatHang.getHinhThucNhan()); else cstmt.setNull(6, Types.NUMERIC);
+            if (donDatHang.getDiaChiGiao() != null && !donDatHang.getDiaChiGiao().trim().isEmpty()) cstmt.setString(7, donDatHang.getDiaChiGiao().trim()); else cstmt.setNull(7, Types.NVARCHAR);
+            cstmt.setString(8, taoJsonChiTiet(dsCtDonHang, dsCtTuyChinh));
+            cstmt.registerOutParameter(9, Types.NUMERIC);
+            cstmt.execute();
+            return cstmt.getInt(9);
+        }
     }
 
     public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan) throws Exception {

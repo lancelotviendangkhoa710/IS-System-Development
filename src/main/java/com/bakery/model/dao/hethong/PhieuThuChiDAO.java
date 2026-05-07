@@ -14,36 +14,55 @@ public class PhieuThuChiDAO extends BaseDAO {
      * MAHD và MAPN đều có thể null → dùng setNull(n, Types.INTEGER).
      */
     public void taoPhieuThuChi(PhieuThuChiDTO ptc) throws Exception {
-        String sql = "INSERT INTO PHIEUTHUCHI "
-                + "(MALOAITHUCHI, SOTIEN, MANV, MAHD, MAPN, MACA, GHICHU, TRANGTHAI) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
-
-        try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, ptc.getMaLoaiThuChi());
-            ps.setBigDecimal(2, ptc.getSoTien());
-            ps.setInt(3, ptc.getMaNV());
-
-            if (ptc.getMaHD() != null) {
-                ps.setInt(4, ptc.getMaHD());
-            } else {
-                ps.setNull(4, Types.INTEGER);
-            }
-
-            if (ptc.getMaPN() != null) {
-                ps.setInt(5, ptc.getMaPN());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
-
-            ps.setInt(6, ptc.getMaCa());
-            ps.setString(7, ptc.getGhiChu());
-            ps.executeUpdate();
-
+        try (Connection conn = moKetNoi()) {
+            taoPhieuThuChiWithConn(conn, ptc);
         } catch (SQLException e) {
             handleException("taoPhieuThuChi", e);
         }
+    }
+
+    /**
+     * Overload dùng trong Distributed Transaction.
+     * Không đóng Connection; không COMMIT.
+     */
+    public void taoPhieuThuChi(Connection conn, PhieuThuChiDTO ptc) throws Exception {
+        try {
+            taoPhieuThuChiWithConn(conn, ptc);
+        } catch (SQLException e) {
+            handleException("taoPhieuThuChi[tx]", e);
+        }
+    }
+
+    private void taoPhieuThuChiWithConn(Connection conn, PhieuThuChiDTO ptc) throws SQLException {
+        String sql = "INSERT INTO PHIEUTHUCHI "
+                + "(MALOAITHUCHI, SOTIEN, MANV, MAHD, MAPN, MACA, GHICHU, TRANGTHAI) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, 'active')";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ptc.getMaLoaiThuChi());
+            ps.setBigDecimal(2, ptc.getSoTien());
+            ps.setInt(3, ptc.getMaNV());
+            if (ptc.getMaHD() != null) ps.setInt(4, ptc.getMaHD()); else ps.setNull(4, Types.INTEGER);
+            if (ptc.getMaPN() != null) ps.setInt(5, ptc.getMaPN()); else ps.setNull(5, Types.INTEGER);
+            ps.setInt(6, ptc.getMaCa());
+            ps.setString(7, ptc.getGhiChu());
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Overload dùng trong Distributed Transaction.
+     */
+    public int layMaLoaiTheoTen(Connection conn, String tenLoai) throws Exception {
+        String sql = "SELECT MALOAITHUCHI FROM LOAITHUCHI WHERE UPPER(TENLOAITHUCHI) = UPPER(?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenLoai);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            handleException("layMaLoaiTheoTen[tx]", e);
+        }
+        return -1;
     }
 
     public List<PhieuThuChiDTO> layTheoMaCa(int maCa) throws Exception {
