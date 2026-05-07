@@ -8,12 +8,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Controller cho Dashboard (Trang chủ).
- * Hỗ trợ nạp Dữ liệu ảo (Mock Data) nếu hệ thống chưa có dữ liệu thật.
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
  */
 public class DashboardController {
     @FXML private Label lblBannerName;
@@ -40,13 +39,12 @@ public class DashboardController {
 
         try {
             Map<String, Integer> top5 = thongKeService.getTop5BanChay();
-            
-            // Nếu không có dữ liệu thật, tự động dùng Mock Data cho đồ án
+
             if (top5 == null || top5.isEmpty()) {
-                top5 = getMockBestSellers();
                 if (lblThongBao != null) {
-                    lblThongBao.setText("Chào mừng bạn trở lại! Hệ thống đang hoạt động ổn định.");
+                    lblThongBao.setText("Chưa có dữ liệu bán hàng để hiển thị.");
                 }
+                return;
             }
 
             for (Map.Entry<String, Integer> entry : top5.entrySet()) {
@@ -74,16 +72,6 @@ public class DashboardController {
         } catch (Exception e) {
             System.err.println("Lỗi tải dashboard: " + e.getMessage());
         }
-    }
-
-    private Map<String, Integer> getMockBestSellers() {
-        Map<String, Integer> mock = new LinkedHashMap<>();
-        mock.put("Bánh Kem Dâu Tây", 152);
-        mock.put("Croissant Bơ Pháp", 128);
-        mock.put("Bánh Mì Hoa Cúc", 95);
-        mock.put("Tiramisu Cacao", 84);
-        mock.put("Bánh Su Kem", 76);
-        return mock;
     }
 
     private String getIconForProduct(String name) {

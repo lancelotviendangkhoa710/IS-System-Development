@@ -9,12 +9,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 /**
  * Controller cho QuanLyNhaCungCap.
- * Hỗ trợ Mock Data cho Demo.
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
  */
 public class QuanLyNhaCungCapViewFXMLController extends BaseController {
 
@@ -56,29 +55,13 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
     private void loadData() {
         try {
             List<NhaCungCapDTO> list = nhaCungCapService.layDanhSachNhaCungCap();
+            nccList.setAll(list != null ? list : java.util.Collections.emptyList());
             if (list == null || list.isEmpty()) {
-                list = getMockSuppliers();
+                hienThiLoiLabel("Không có dữ liệu nhà cung cấp.");
             }
-            nccList.setAll(list);
         } catch (Exception e) {
-            nccList.setAll(getMockSuppliers());
+            hienThiLoiLabel("Lỗi tải dữ liệu: " + e.getMessage());
         }
-    }
-
-    private List<NhaCungCapDTO> getMockSuppliers() {
-        List<NhaCungCapDTO> mock = new ArrayList<>();
-        mock.add(createMock(1, "Bột mì Biên Hòa", "02838111222", "KCN Biên Hòa, Đồng Nai"));
-        mock.add(createMock(2, "Sữa tươi Vinamilk", "19001559", "Quận 7, TP.HCM"));
-        mock.add(createMock(3, "Trứng gà CP", "02436668888", "KCN Phú Nghĩa, Hà Nội"));
-        mock.add(createMock(4, "Bơ lạt Anchor (New Zealand)", "0909123456", "Phân phối bởi Fonterra VN"));
-        mock.add(createMock(5, "Đường sắt Biên Hòa", "02513836141", "Đồng Nai"));
-        return mock;
-    }
-
-    private NhaCungCapDTO createMock(int id, String name, String sdt, String address) {
-        NhaCungCapDTO ncc = new NhaCungCapDTO();
-        ncc.setMaNCC(id); ncc.setTenNCC(name); ncc.setSdt(sdt); ncc.setDiaChi(address);
-        return ncc;
     }
 
     private void hienThiChiTiet(NhaCungCapDTO ncc) {

@@ -2,9 +2,11 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
+import com.bakery.services.banhang.DonHangService;
 import com.bakery.services.nhansu.XacThucService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 
 public class ThoBepDashboardViewFXMLController extends BaseController {
     private final XacThucService xacThucService = new XacThucService();
+    private final DonHangService donHangService = new DonHangService();
 
     @FXML private Label lblTenThoBep;
     @FXML private Label lblVaiTro;
@@ -48,24 +51,25 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
         colTrangThai.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTenTrangThai()));
         
         tblDonBep.setItems(dsDon);
-        loadMockData();
+        taiDuLieuTuDB();
     }
 
-    private void loadMockData() {
-        dsDon.clear();
-        dsDon.add(createMockDon(101, LocalDateTime.now().plusHours(2), 5, "Đang sản xuất"));
-        dsDon.add(createMockDon(102, LocalDateTime.now().plusHours(4), null, "Mới đặt"));
-        dsDon.add(createMockDon(103, LocalDateTime.now().plusDays(1), 12, "Đã cọc"));
-        dsDon.add(createMockDon(104, LocalDateTime.now().plusHours(1), 8, "Đang sản xuất"));
-    }
-
-    private DonDatHangDTO createMockDon(int maDon, LocalDateTime ngayNhan, Integer maKH, String trangThai) {
-        DonDatHangDTO don = new DonDatHangDTO();
-        don.setMaDon(maDon);
-        don.setNgayGioNhanBanh(ngayNhan);
-        don.setMaKH(maKH);
-        don.setTenTrangThai(trangThai);
-        return don;
+    // Tải danh sách đơn đang sản xuất từ DB
+    private void taiDuLieuTuDB() {
+        new Thread(() -> {
+            try {
+                List<DonDatHangDTO> list = donHangService.layDanhSachDonTheoDoi(
+                        null, null, null, null, null, "Đang sản xuất");
+                Platform.runLater(() -> {
+                    dsDon.setAll(list != null ? list : java.util.Collections.emptyList());
+                    if (dsDon.isEmpty()) {
+                        lblThongBao.setText("Không có đơn nào đang sản xuất.");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> lblThongBao.setText("Lỗi tải đơn hàng: " + e.getMessage()));
+            }
+        }).start();
     }
 
     @FXML

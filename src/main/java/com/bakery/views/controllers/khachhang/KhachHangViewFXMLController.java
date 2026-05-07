@@ -13,13 +13,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Controller cho QuanLyKhachHang.
- * Hỗ trợ Mock Data cho Demo.
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
  */
 public class KhachHangViewFXMLController extends BaseController implements KhachHangView {
 
@@ -66,28 +64,15 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     @Override
     public void hienThiDanhSachKhachHang(List<KhachHangDTO> danhSach) {
         if (danhSach == null || danhSach.isEmpty()) {
-            danhSach = getMockCustomers();
+            customerTable.setItems(FXCollections.observableArrayList());
+            lblTotalCustomers.setText("0");
+            lblNewCustomers.setText("0");
+            hienThiLoiLabel("Không có dữ liệu khách hàng.");
+            return;
         }
         customerTable.setItems(FXCollections.observableArrayList(danhSach));
         lblTotalCustomers.setText(String.valueOf(danhSach.size()));
-        lblNewCustomers.setText("3");
-    }
-
-    private List<KhachHangDTO> getMockCustomers() {
-        List<KhachHangDTO> mock = new ArrayList<>();
-        mock.add(createMock(1, "Nguyễn Thị Lan", "0912345678", "123 Quận 1, TP.HCM", 500, "Vàng"));
-        mock.add(createMock(2, "Trần Văn Hùng", "0988777666", "456 Quận 7, TP.HCM", 1200, "Kim cương"));
-        mock.add(createMock(3, "Lê Minh Tâm", "0905111222", "789 Bình Thạnh, TP.HCM", 150, "Thành viên"));
-        mock.add(createMock(4, "Phạm Hồng Nhung", "0345678901", "321 Thủ Đức, TP.HCM", 800, "Bạc"));
-        mock.add(createMock(5, "Hoàng Gia Bảo", "0977123123", "111 Gò Vấp, TP.HCM", 300, "Thành viên"));
-        return mock;
-    }
-
-    private KhachHangDTO createMock(int id, String name, String sdt, String address, int points, String tier) {
-        KhachHangDTO kh = new KhachHangDTO();
-        kh.setMaKH(id); kh.setHoTen(name); kh.setSdt(sdt); kh.setDiaChi(address);
-        kh.setDiemTichLuy(points); kh.setTenHang(tier); kh.setNgayDangKy(LocalDate.now().minusMonths(2));
-        return kh;
+        lblNewCustomers.setText("0");
     }
 
     @Override public void capNhatThongTinPhanTrang(String thongTin) {}

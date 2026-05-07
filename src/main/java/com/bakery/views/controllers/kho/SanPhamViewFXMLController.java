@@ -14,14 +14,12 @@ import javafx.scene.control.*;
 import javafx.util.StringConverter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Controller cho SanPhamView.
- * Hỗ trợ Mock Data cho Demo.
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
  */
 public class SanPhamViewFXMLController extends BaseController implements ISanPhamView {
 
@@ -73,32 +71,17 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
     @Override
     public void hienThiDanhSachSanPham(List<SanPhamDTO> ds) {
         if (ds == null || ds.isEmpty()) {
-            ds = getMockProducts();
+            masterData.clear();
+            hienThiLoi("Không có dữ liệu sản phẩm.");
+            return;
         }
         masterData.setAll(ds);
-    }
-
-    private List<SanPhamDTO> getMockProducts() {
-        List<SanPhamDTO> mock = new ArrayList<>();
-        mock.add(createMock(1, "Bánh Kem Bắp", 250000, 1, 10));
-        mock.add(createMock(2, "Bánh Mì Bơ Tỏi", 45000, 2, 25));
-        mock.add(createMock(3, "Cookie Socola", 25000, 3, 50));
-        mock.add(createMock(4, "Bánh Donut Dâu", 35000, 2, 15));
-        mock.add(createMock(5, "Tiramisu Ý", 55000, 1, 20));
-        return mock;
-    }
-
-    private SanPhamDTO createMock(int id, String name, double price, int catId, double stock) {
-        SanPhamDTO sp = new SanPhamDTO();
-        sp.setMaSP(id); sp.setTenSP(name); sp.setGiaCoBan(price); sp.setMaDM(catId); sp.setSoLuongTon(stock);
-        sp.setChoPhepTuyChinh(1); sp.setThoiGianBaoQuan(3); sp.setThoiGianChuanBi(30);
-        return sp;
     }
 
     @Override
     public void hienThiDanhSachDanhMuc(Map<Integer, String> danhMucMap) {
         if (danhMucMap == null || danhMucMap.isEmpty()) {
-            danhMucMap = Map.of(1, "Bánh kem", 2, "Bánh mì", 3, "Cookie");
+            return;
         }
         this.currentDanhMucMap = danhMucMap;
         cmbDanhMuc.setItems(FXCollections.observableArrayList(danhMucMap.entrySet()));

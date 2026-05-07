@@ -12,12 +12,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 /**
  * Controller cho QuanLyNguyenLieu.
- * Hỗ trợ Mock Data cho Demo.
+ * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
  */
 public class NguyenLieuViewFXMLController extends BaseController implements INguyenLieuView {
 
@@ -56,46 +55,19 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @Override
     public void hienThiDanhSach(List<NguyenLieuDTO> ds) {
         if (ds == null || ds.isEmpty()) {
-            ds = getMockIngredients();
+            masterData.clear();
+            hienThiLoi("Không có dữ liệu nguyên liệu.");
+            return;
         }
         masterData.setAll(ds);
-    }
-
-    private List<NguyenLieuDTO> getMockIngredients() {
-        List<NguyenLieuDTO> mock = new ArrayList<>();
-        mock.add(createMock(1, "Bột mì đa dụng", "Việt Nam", 10.0, 1));
-        mock.add(createMock(2, "Đường cát trắng", "Biên Hòa", 5.0, 1));
-        mock.add(createMock(3, "Bơ lạt Anchor", "New Zealand", 2.0, 1));
-        mock.add(createMock(4, "Sữa tươi không đường", "Vinamilk", 12.0, 2));
-        mock.add(createMock(5, "Trứng gà ta", "CP", 100.0, 3));
-        mock.add(createMock(6, "Socola chip", "Bỉ", 1.5, 1));
-        return mock;
-    }
-
-    private NguyenLieuDTO createMock(int id, String name, String origin, double stock, int unitId) {
-        NguyenLieuDTO nl = new NguyenLieuDTO();
-        nl.setMaNL(id); nl.setTenNL(name); nl.setXuatXu(origin); nl.setMucTonAnToan(stock);
-        nl.setMaDVT(unitId);
-        return nl;
     }
 
     @Override
     public void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT) {
         if (dsDVT == null || dsDVT.isEmpty()) {
-            dsDVT = List.of(
-                createMockDVT(1, "Kg"),
-                createMockDVT(2, "Lít"),
-                createMockDVT(3, "Quả")
-            );
+            return;
         }
         cmbDonViTinh.setItems(FXCollections.observableArrayList(dsDVT));
-    }
-
-    private DonViTinhDTO createMockDVT(int id, String name) {
-        DonViTinhDTO dvt = new DonViTinhDTO();
-        dvt.setMaDVT(id);
-        dvt.setTenDVT(name);
-        return dvt;
     }
 
     @Override

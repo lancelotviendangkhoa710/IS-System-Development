@@ -6,9 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LichSuHeThongViewFXMLController extends BaseController {
@@ -41,7 +38,8 @@ public class LichSuHeThongViewFXMLController extends BaseController {
     public void initialize() {
         setupTable();
         setupFilters();
-        loadMockData();
+        // Chưa có bảng AUDIT_LOG trong DB. Hiển thị bảng trống.
+        tblAuditLog.setItems(masterData);
     }
 
     private void setupTable() {
@@ -62,7 +60,8 @@ public class LichSuHeThongViewFXMLController extends BaseController {
     private void onTaiLai() {
         txtTimKiem.clear();
         cbBoLoc.getSelectionModel().selectFirst();
-        loadMockData();
+        masterData.clear();
+        tblAuditLog.setItems(masterData);
     }
 
     @FXML
@@ -83,20 +82,5 @@ public class LichSuHeThongViewFXMLController extends BaseController {
         tblAuditLog.setItems(FXCollections.observableArrayList(filteredList));
     }
 
-    private void loadMockData() {
-        masterData.clear();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-
-        masterData.add(new AuditLogEntry(now.minusMinutes(5).format(fmt), "Nguyễn Văn Quản Lý (admin)", "[HỆ THỐNG] Đăng nhập", "Đăng nhập hệ thống thành công", "Thành công"));
-        masterData.add(new AuditLogEntry(now.minusMinutes(10).format(fmt), "Trần Thị Thu Ngân (cashier1)", "[BÁN HÀNG] Tạo đơn", "Tạo đơn hàng mới #105 trị giá 250,000đ", "Thành công"));
-        masterData.add(new AuditLogEntry(now.minusMinutes(15).format(fmt), "Lê Văn Đầu Bếp (chef1)", "[BÁN HÀNG] Cập nhật đơn", "Đổi trạng thái đơn #101 sang 'Đang sản xuất'", "Thành công"));
-        masterData.add(new AuditLogEntry(now.minusMinutes(20).format(fmt), "Phạm Minh Kho (warehouse1)", "[KHO HÀNG] Nhập kho", "Nhập 50kg Bột mì đa dụng vào kho chính", "Thành công"));
-        masterData.add(new AuditLogEntry(now.minusMinutes(25).format(fmt), "Nguyễn Văn Quản Lý (admin)", "[NHÂN SỰ] Phân quyền", "Thêm quyền 'Thu ngân' cho tài khoản 'cashier2'", "Thành công"));
-        masterData.add(new AuditLogEntry(now.minusMinutes(30).format(fmt), "Trần Hữu Kiên (chef2)", "[HỆ THỐNG] Đăng nhập", "Cố gắng đăng nhập sai mật khẩu 3 lần", "Thất bại"));
-        masterData.add(new AuditLogEntry(now.minusMinutes(45).format(fmt), "Hệ thống (Tự động)", "[KHO HÀNG] Cảnh báo", "Cảnh báo nguyên liệu 'Đường cát' sắp hết (còn 2kg)", "Cảnh báo"));
-        masterData.add(new AuditLogEntry(now.minusHours(2).format(fmt), "Lương Minh Tuấn (cashier3)", "[BÁN HÀNG] Hủy đơn", "Hủy đơn hàng #102 do khách không nhận", "Thành công"));
-
-        tblAuditLog.setItems(masterData);
-    }
 }
+
