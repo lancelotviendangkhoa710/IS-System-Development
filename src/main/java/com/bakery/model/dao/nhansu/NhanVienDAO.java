@@ -9,7 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
+
 
 public class NhanVienDAO extends BaseDAO {
     public NhanVienDTO kiemTraDangNhap(String username, String password) throws Exception {

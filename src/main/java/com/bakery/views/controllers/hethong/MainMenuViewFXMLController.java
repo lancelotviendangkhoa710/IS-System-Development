@@ -6,10 +6,8 @@ import com.bakery.services.SessionWatchdogService;
 import com.bakery.services.baocao.ThongKeService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
-import com.bakery.views.controllers.banhang.DonHangViewFXMLController;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
 import com.bakery.utils.FXMLLoaderUtil;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -28,7 +26,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,7 +103,7 @@ public class MainMenuViewFXMLController {
     private final java.util.Map<Button, String> buttonTextMap = new java.util.HashMap<>();
 
     private final PhanQuyenService authorizationService = new PhanQuyenService();
-    private final ThongKeService thongKeService = new ThongKeService();
+
     private NhanVienDTO currentUser;
     private AppShellController appShellController;
     private SessionWatchdogService sessionWatchdog;

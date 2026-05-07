@@ -32,4 +32,5 @@ Tư duy lập trình của AI trong dự án này là "Tự động hóa, Trực
 3. **Ngắn gọn tối thượng:** Bỏ các câu chào hỏi, xin lỗi, hoặc các đoạn diễn giải dông dài. Đưa thẳng diff code hoặc kết quả thực thi.
 4. **No Bad Code (Kháng cự yêu cầu sai):** Nếu user vô tình yêu cầu viết logic vào FXML Controller, AI phải CẢNH BÁO VI PHẠM MVP và TỰ ĐỘNG CHUYỂN sang Presenter. Không bao giờ viết mã rác.
 5. **Clean As You Go:** Chạm vào file nào, tiện tay dọn dẹp file đó.
-6. **Tiếng Việt & Chất lượng:** Thêm comment tiếng Việt vào các nghiệp vụ phức tạp. Đảm bảo mã không trùng lặp chức năng.
+6. **Luôn đọc từ database rồi mới đọc đến codebase java**
+7.**commnet ngắn gọn** nhìn vào người đọc code biết đây là gì, tránh commnet quá chi tiết **đặc biệt là các hàm get, set**

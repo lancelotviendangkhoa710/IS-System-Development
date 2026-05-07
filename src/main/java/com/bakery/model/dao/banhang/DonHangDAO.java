@@ -22,7 +22,6 @@ import java.util.List;
 public class DonHangDAO extends BaseDAO {
 
     public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
-        String sql = "{CALL PROC_TAODONHANG(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
             return taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
         } catch (SQLException e) {
