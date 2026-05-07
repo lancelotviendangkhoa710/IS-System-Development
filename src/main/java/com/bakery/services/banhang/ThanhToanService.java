@@ -6,13 +6,16 @@ import com.bakery.model.dto.banhang.HoaDonDTO;
 import com.bakery.model.dto.banhang.YeuCauTaoDonHangDTO;
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;
 import com.bakery.model.dao.hethong.PhieuThuChiDAO;
-import com.bakery.utils.DBConnect;
 import com.bakery.utils.SessionContext;
-
 import java.math.BigDecimal;
-import java.sql.Connection;
+
 import java.sql.SQLException;
 
+/**
+ * Service duy nhất chịu trách nhiệm xử lý Thanh toán:
+ * Thanh toán trực tiếp tại quầy, chốt hóa đơn đặt hàng.
+ * (SRP – Single Responsibility Principle)
+ */
 public class ThanhToanService {
 
     private final HoaDonDAO hoaDonDAO;
@@ -44,13 +47,6 @@ public class ThanhToanService {
     /**
      * Tạo đơn hàng HOÀN_THÀNH và xuất hóa đơn bán lẻ ngay.
      * Dùng cho luồng thanh toán trực tiếp tại quầy.
-     *
-     * <p>
-     * <b>ATOMICITY:</b> Toàn bộ luồng (taoDonHang → themHoaDon → thanhToan →
-     * phieuThu)
-     * chạy trên 1 Connection duy nhất. Nếu bất kỳ bước nào thất bại → ROLLBACK toàn
-     * bộ.
-     * </p>
      */
     public HoaDonDTO thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
         // 1. Tính tổng tiền từ giỏ hàng
@@ -65,71 +61,37 @@ public class ThanhToanService {
         request.setMaTrangThai(maTrangThaiHoanThanh);
         request.setTienDaCoc(tongTien);
 
-        // 4. Thực hiện toàn bộ giao dịch trong 1 Connection — đảm bảo ATOMICITY
-        Connection conn = null;
+        // 4. Tạo đơn hàng
+        int maDon = quanLyDonHangService.taoDonHang(request);
+
+        // 5. Tạo hóa đơn bán lẻ
+        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTien, "BAN_LE");
+
+        int maHD = hoaDonDAO.themHoaDonMoi(hd);
+        if (maHD <= 0)
+            throw new Exception("Không thể tạo hóa đơn cho đơn hàng " + maDon);
+
+        // 6. Chốt hóa đơn & cộng điểm thành viên qua Procedure
         try {
-            conn = DBConnect.getConnection();
-            if (conn == null)
-                throw new Exception("Không thể kết nối CSDL.");
-            conn.setAutoCommit(false); // BẮT ĐẦU TRANSACTION
+            hoaDonDAO.thanhToanVaThangHang(maHD, request.getMaKH(), tongTien);
 
-            // 4a. Tạo đơn hàng (PROC_TAODONHANG tự COMMIT nội bộ — bỏ qua, ta sẽ COMMIT
-            // sau)
-            int maDon = quanLyDonHangService.taoDonHang(conn, request);
-            if (maDon <= 0)
-                throw new Exception("Tạo đơn hàng thất bại.");
+            // 6.1 Tạo phiếu thu đi kèm (Sổ quỹ)
+            taoPhieuThuChiTuHoaDon(maHD, tongTien, "Thu tiền bán lẻ HD" + maHD);
 
-            // 4b. Tạo hóa đơn bán lẻ
-            HoaDonDTO hd = taoHoaDonDTO(maDon, tongTien, "BAN_LE");
-            int maHD = hoaDonDAO.themHoaDonMoi(conn, hd);
-            if (maHD <= 0)
-                throw new Exception("Không thể tạo hóa đơn cho đơn hàng " + maDon + ".");
-
-            // 4c. Chốt hóa đơn & cộng điểm thành viên
-            hoaDonDAO.thanhToanVaThangHang(conn, maHD, request.getMaKH(), tongTien);
-
-            // 4d. Tạo phiếu thu đi kèm (Sổ quỹ)
-            taoPhieuThuChiTuHoaDon(conn, maHD, tongTien, "Thu tiền bán lẻ HD" + maHD);
-
-            conn.commit(); // COMMIT DUY NHẤT — toàn bộ thành công
-
-            // 5. Trả về hóa đơn đầy đủ để in (dùng connection riêng sau khi commit xong)
-            HoaDonDTO hoaDonVuaTao = hoaDonDAO.layHoaDonTheoMa(maHD);
-            if (hoaDonVuaTao == null)
-                throw new Exception("Không thể tải thông tin hóa đơn vừa tạo.");
-            return hoaDonVuaTao;
-
-        } catch (Exception e) {
-            // ROLLBACK TOÀN BỘ nếu bất kỳ bước nào thất bại
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    System.err.println("[ThanhToanService] Lỗi rollback: " + ex.getMessage());
-                }
-            }
-            throw e;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    System.err.println("[ThanhToanService] Lỗi đóng connection: " + ex.getMessage());
-                }
-            }
+        } catch (SQLException e) {
+            throw new Exception("Thanh toán thất bại: " + e.getMessage(), e);
         }
+
+        // 7. Trả về hóa đơn đầy đủ để in
+        HoaDonDTO hoaDonVuaTao = hoaDonDAO.layHoaDonTheoMa(maHD);
+        if (hoaDonVuaTao == null)
+            throw new Exception("Không thể tải thông tin hóa đơn vừa tạo.");
+        return hoaDonVuaTao;
     }
 
     /**
      * Tạo và chốt hóa đơn khi đơn đặt hàng chuyển sang HOÀN_THÀNH.
-     * Được gọi bởi DonHangService sau khi chuyển trạng thái.
-     *
-     * <p>
-     * <b>ATOMICITY:</b> themHoaDon + thanhToan + phieuThu chạy trên 1 Connection.
-     * </p>
-     *
-     * @throws Exception nếu bất kỳ bước nào thất bại (không trả về null)
+     * Được gọi bởi TheoDoDonService sau khi chuyển trạng thái.
      */
     public HoaDonDTO chotHoaDonDatHang(DonDatHangDTO donHang) throws Exception {
         if (donHang == null)
@@ -142,47 +104,19 @@ public class ThanhToanService {
         HoaDonDTO hd = taoHoaDonDTO(donHang.getMaDon(), tongTienConLai, "DAT_HANG");
         hd.setMaDon(donHang.getMaDon());
 
-        Connection conn = null;
         try {
-            conn = DBConnect.getConnection();
-            if (conn == null)
-                throw new Exception("Không thể kết nối CSDL.");
-            conn.setAutoCommit(false); // BẮT ĐẦU TRANSACTION
+            int maHD = hoaDonDAO.themHoaDonMoi(hd);
+            if (maHD > 0) {
+                hoaDonDAO.thanhToanVaThangHang(maHD, donHang.getMaKH(), tongTien);
 
-            int maHD = hoaDonDAO.themHoaDonMoi(conn, hd);
-            if (maHD <= 0)
-                throw new Exception("Không thể tạo hóa đơn cho đơn hàng " + donHang.getMaDon() + ".");
+                // Tạo phiếu thu đi kèm (Sổ quỹ)
+                taoPhieuThuChiTuHoaDon(maHD, tongTienConLai, "Thu tiền đơn hàng HD" + maHD);
 
-            hoaDonDAO.thanhToanVaThangHang(conn, maHD, donHang.getMaKH(), tongTien);
-
-            // Tạo phiếu thu đi kèm (Sổ quỹ)
-            taoPhieuThuChiTuHoaDon(conn, maHD, tongTienConLai, "Thu tiền đơn hàng HD" + maHD);
-
-            conn.commit(); // COMMIT DUY NHẤT
-
-            HoaDonDTO ketQua = hoaDonDAO.layHoaDonTheoMa(maHD);
-            if (ketQua == null)
-                throw new Exception("Không thể tải hóa đơn vừa tạo MAHD=" + maHD + ".");
-            return ketQua;
-
-        } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    System.err.println("[ThanhToanService] Lỗi rollback chotHoaDon: " + ex.getMessage());
-                }
+                return hoaDonDAO.layHoaDonTheoMa(maHD);
             }
-            throw e;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    System.err.println("[ThanhToanService] Lỗi đóng connection: " + ex.getMessage());
-                }
-            }
+            return null;
+        } catch (SQLException e) {
+            throw new Exception("Chốt hóa đơn đặt hàng thất bại: " + e.getMessage(), e);
         }
     }
 
@@ -192,6 +126,7 @@ public class ThanhToanService {
 
     /**
      * Tạo một đối tượng HoaDonDTO cơ bản.
+     * Dùng cho việc chuẩn bị dữ liệu trước khi lưu hoặc hiển thị.
      */
     public HoaDonDTO taoHoaDonDTO(int maDon, double soTien, String loaiHD) {
         HoaDonDTO hd = new HoaDonDTO();
@@ -205,10 +140,10 @@ public class ThanhToanService {
     }
 
     /**
-     * Tạo phiếu thu chi liên kết với hóa đơn (trong distributed transaction).
+     * Tạo phiếu thu chi liên kết với hóa đơn.
      */
-    private void taoPhieuThuChiTuHoaDon(Connection conn, int maHD, double soTien, String ghiChu) throws Exception {
-        int maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen(conn, "Bán hàng");
+    private void taoPhieuThuChiTuHoaDon(int maHD, double soTien, String ghiChu) throws Exception {
+        int maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Bán hàng");
         if (maLoaiThu == -1)
             maLoaiThu = 1; // Fallback
 
@@ -220,7 +155,7 @@ public class ThanhToanService {
         ptc.setMaCa(SessionContext.getInstance().getMaCa());
         ptc.setGhiChu(ghiChu);
 
-        phieuThuChiDAO.taoPhieuThuChi(conn, ptc);
+        phieuThuChiDAO.taoPhieuThuChi(ptc);
     }
 
     private int layMaTrangThaiHoanThanh() throws Exception {

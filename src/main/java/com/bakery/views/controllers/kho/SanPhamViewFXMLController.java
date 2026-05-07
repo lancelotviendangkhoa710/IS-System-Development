@@ -240,7 +240,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
                 // Thử classpath (VD: /images/sanpham/banhkem.png)
                 var res = getClass().getResourceAsStream(path);
                 if (res == null) { xoaAnhPreview(); return; }
-                img = new Image(res, true);
+                img = new Image(res); // InputStream variant không hỗ trợ backgroundLoading
             }
             imgSanPham.setImage(img);
             imgSanPham.setFitWidth(120);

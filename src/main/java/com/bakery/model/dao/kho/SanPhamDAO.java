@@ -154,7 +154,7 @@ public class SanPhamDAO extends BaseDAO {
     }
 
     public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) throws Exception {
-        String sql = "{ ? = call FUNC_TINH_GIA_TUY_CHINH(?, ?, ?, ?, ?) }";
+        String sql = "{ ? = call FUNC_GIABANHTUYCHINH(?, ?, ?, ?, ?) }";
         try (Connection conn = moKetNoi();
                 java.sql.CallableStatement cstmt = conn.prepareCall(sql)) {
 
