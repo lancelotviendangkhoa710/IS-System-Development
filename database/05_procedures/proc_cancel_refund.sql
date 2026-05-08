@@ -34,10 +34,10 @@ BEGIN
     -- 3. Cập nhật trạng thái đơn
     UPDATE DONDATHANG SET MATRANGTHAI = V_MATT_HUY WHERE MADON = P_MADON;
 
-    -- 4. Hoàn kho
+    -- 4. Hoàn kho (chỉ áp dụng cho bánh bán sẵn trong CTDONHANG)
     FOR ROW_CT IN (SELECT MASP, SOLUONG FROM CTDONHANG WHERE MADON = P_MADON)
     LOOP
-        UPDATE SANPHAM SET SOLUONGTON = SOLUONGTON + ROW_CT.SOLUONG WHERE MASP = ROW_CT.MASP;
+        UPDATE SANPHAM SET TONKHO = TONKHO + ROW_CT.SOLUONG WHERE MASP = ROW_CT.MASP;
     END LOOP;
 
     -- 5. Tạo phiếu chi hoàn tiền (nếu số tiền hoàn > 0)
@@ -46,7 +46,7 @@ BEGIN
         BEGIN
             SELECT MACA INTO V_MACA FROM CALAMVIEC WHERE THOIGIANDONGCA IS NULL FETCH FIRST 1 ROW ONLY;
         EXCEPTION WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI, 'Khong tim thay ca lam viec dang mo de thuc hien hoan tien.');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI, 'Không tìm thấy ca làm việc đang mở để thực hiện hoàn tiền.');
         END;
 
         -- Lấy mã loại thu chi "Hủy đơn"
@@ -65,6 +65,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE;
+        RAISE_APPLICATION_ERROR(-20100, 'Lỗi hủy đơn hàng #' || P_MADON || ': ' || SQLERRM);
 END;
 /

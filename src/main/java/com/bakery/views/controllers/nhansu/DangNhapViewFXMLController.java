@@ -259,71 +259,112 @@ public class DangNhapViewFXMLController extends BaseController {
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setOnCloseRequest(e -> e.consume()); // Không cho đóng
 
+        // Field mật khẩu mới với toggle hiện/ẩn
         PasswordField txtMoiMatKhau = new PasswordField();
         txtMoiMatKhau.setPromptText("Mật khẩu mới (tối thiểu 6 ký tự)");
         txtMoiMatKhau.getStyleClass().add("text-field");
+        TextField txtMoiMatKhauVisible = new TextField();
+        txtMoiMatKhauVisible.setPromptText("Mật khẩu mới (tối thiểu 6 ký tự)");
+        txtMoiMatKhauVisible.getStyleClass().add("text-field");
+        Button btnToggleMoi = new Button("Hiện");
+        btnToggleMoi.getStyleClass().add("btn-secondary");
 
+        // Field xác nhận mật khẩu với toggle hiện/ẩn
         PasswordField txtXacNhan = new PasswordField();
         txtXacNhan.setPromptText("Xác nhận mật khẩu mới");
         txtXacNhan.getStyleClass().add("text-field");
+        TextField txtXacNhanVisible = new TextField();
+        txtXacNhanVisible.setPromptText("Xác nhận mật khẩu mới");
+        txtXacNhanVisible.getStyleClass().add("text-field");
+        Button btnToggleXacNhan = new Button("Hiện");
+        btnToggleXacNhan.getStyleClass().add("btn-secondary");
 
         Label lblLoi = new Label();
         lblLoi.getStyleClass().add("lbl-danger");
         lblLoi.setWrapText(true);
 
+        // Bind toggle cho 2 field
+        bindPasswordToggle(txtMoiMatKhau, txtMoiMatKhauVisible, btnToggleMoi);
+        bindPasswordToggle(txtXacNhan, txtXacNhanVisible, btnToggleXacNhan);
+        btnToggleMoi.setOnAction(e -> togglePasswordField(txtMoiMatKhau, txtMoiMatKhauVisible, btnToggleMoi));
+        btnToggleXacNhan.setOnAction(e -> togglePasswordField(txtXacNhan, txtXacNhanVisible, btnToggleXacNhan));
+
+        javafx.scene.layout.HBox rowMoi = new javafx.scene.layout.HBox(8, txtMoiMatKhau, txtMoiMatKhauVisible, btnToggleMoi);
+        javafx.scene.layout.HBox.setHgrow(txtMoiMatKhau, javafx.scene.layout.Priority.ALWAYS);
+        javafx.scene.layout.HBox.setHgrow(txtMoiMatKhauVisible, javafx.scene.layout.Priority.ALWAYS);
+
+        javafx.scene.layout.HBox rowXacNhan = new javafx.scene.layout.HBox(8, txtXacNhan, txtXacNhanVisible, btnToggleXacNhan);
+        javafx.scene.layout.HBox.setHgrow(txtXacNhan, javafx.scene.layout.Priority.ALWAYS);
+        javafx.scene.layout.HBox.setHgrow(txtXacNhanVisible, javafx.scene.layout.Priority.ALWAYS);
+
         VBox content = new VBox(8,
-                new Label("Mật khẩu mới:"), txtMoiMatKhau,
-                new Label("Xác nhận:"), txtXacNhan,
+                new Label("Mật khẩu mới:"), rowMoi,
+                new Label("Xác nhận:"), rowXacNhan,
                 lblLoi);
         content.setPadding(new Insets(20));
-        content.setPrefWidth(340);
+        content.setPrefWidth(380);
         dialog.getDialogPane().setContent(content);
 
-        ButtonType btnXacNhan = new ButtonType("Xác nhận đổi mật khẩu", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().add(btnXacNhan);
+        ButtonType btnXacNhanType = new ButtonType("Xác nhận đổi mật khẩu", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().add(btnXacNhanType);
 
-        // Validate trước khi submit
-        Node btnXacNhanNode = dialog.getDialogPane().lookupButton(btnXacNhan);
+        // Ngăn dialog đóng khi click nút — ta tự đóng sau khi Task xong
+        Node btnXacNhanNode = dialog.getDialogPane().lookupButton(btnXacNhanType);
         btnXacNhanNode.addEventFilter(ActionEvent.ACTION, e -> {
-            String mk1 = txtMoiMatKhau.getText();
-            String mk2 = txtXacNhan.getText();
+            e.consume(); // Luôn consume — tự điều khiển việc đóng
+            String mk1 = getFieldText(txtMoiMatKhau, txtMoiMatKhauVisible);
+            String mk2 = getFieldText(txtXacNhan, txtXacNhanVisible);
             if (mk1.isBlank() || mk1.length() < 6) {
                 lblLoi.setText("Mật khẩu phải từ 6 ký tự trở lên.");
-                e.consume();
                 return;
             }
             if (!mk1.equals(mk2)) {
                 lblLoi.setText("Mật khẩu xác nhận không khớp.");
-                e.consume();
                 return;
             }
-            try {
-                xacThucService.doiMatKhau(matKhauCu, mk1, mk2, false); // Giữ session, không logout
-            } catch (Exception ex) {
-                lblLoi.setText(resolveErrorMessage(ex));
-                e.consume();
-            }
+
+            // BCrypt hash nặng → chạy trên background Task, tránh UI freeze
+            lblLoi.setText("Đang cập nhật mật khẩu...");
+            btnXacNhanNode.setDisable(true);
+
+            Task<Void> doiMatKhauTask = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    xacThucService.doiMatKhau(matKhauCu, mk1, mk2, false);
+                    return null;
+                }
+            };
+
+            doiMatKhauTask.setOnSucceeded(ev -> {
+                // Đóng dialog rồi điều hướng
+                dialog.getDialogPane().getScene().getWindow().hide();
+                try {
+                    if (phanQuyenService.laThuNgan(nhanVien)) {
+                        CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
+                        if (caHienTai != null) {
+                            com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
+                            quayLaiMenuChinh(txtTenDangNhap);
+                            return;
+                        }
+                        transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                        return;
+                    }
+                    quayLaiMenuChinh(txtTenDangNhap);
+                } catch (Exception ex) {
+                    hienDangNhap();
+                    hienThiLoiLabel(resolveErrorMessage(ex));
+                }
+            });
+
+            doiMatKhauTask.setOnFailed(ev -> {
+                lblLoi.setText(resolveErrorMessage(doiMatKhauTask.getException()));
+                btnXacNhanNode.setDisable(false);
+            });
+
+            startBackgroundTask(doiMatKhauTask);
         });
 
         dialog.showAndWait();
-
-        // Đổi xong → tiếp tục điều hướng bình thường
-        try {
-            if (phanQuyenService.laThuNgan(nhanVien)) {
-                CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
-                if (caHienTai != null) {
-                    com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
-                    quayLaiMenuChinh(txtTenDangNhap);
-                    return;
-                }
-                transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
-                return;
-            }
-            quayLaiMenuChinh(txtTenDangNhap);
-        } catch (Exception ex) {
-            hienDangNhap();
-            hienThiLoiLabel(resolveErrorMessage(ex));
-        }
     }
 
     private void hienStartScreen() {

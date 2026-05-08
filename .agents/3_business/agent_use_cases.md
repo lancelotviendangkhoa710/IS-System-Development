@@ -131,3 +131,56 @@
 | Sổ quỹ | UC53, UC54, UC55, UC56, UC57 |
 | Tài khoản | UC03, UC08 |
 | Nhật ký hoạt động | UC09 |
+
+
+
+**Phân quyền vai trò**
+**1\. Quản lý** Actor "Quản lý" có quyền hạn cao nhất, được truy cập vào hầu hết các tính năng nội bộ và quản trị của hệ thống, bao gồm:
+
+*   **Quản lý tài khoản:** Đăng nhập, Đăng xuất, Đổi mật khẩu cá nhân.
+    
+*   **Quản lý nhân sự:** Thêm nhân sự, Sửa nhân sự, Cập nhật trạng thái nhân sự, Tra cứu nhân sự, Phân quyền tài khoản, Xem nhật ký hoạt động.
+    
+*   **Quản lý khách hàng:** Thêm khách hàng, Sửa khách hàng, Cập nhật trạng thái khách hàng, Tra cứu khách hàng, Xem lịch sử mua hàng, Cấu hình hạng thành viên.
+    
+*   **Quản lý bán hàng:** Hủy hóa đơn bán lẻ, Hủy đơn đặt bánh và hoàn cọc.
+    
+*   **Quản lý sản phẩm:** Thêm danh mục sản phẩm, Sửa danh mục sản phẩm, Cập nhật trạng thái danh mục sản phẩm, Thêm sản phẩm, Sửa sản phẩm, Cập nhật trạng thái sản phẩm.
+    
+*   **Quản lý công thức & kế hoạch sản xuất:** Thêm công thức, Sửa công thức, Cập nhật trạng thái công thức, Tra cứu công thức, Tính toán số lượng bánh làm ra, Cấu hình giới hạn nhận đơn.
+    
+*   **Báo cáo thống kê:** Báo cáo lợi nhuận, Báo cáo doanh thu, Báo cáo tồn kho.
+    
+*   **Quản lý thu chi:** Thêm loại thu chi, Sửa loại thu chi, Cập nhật trạng thái loại thu chi, Lập phiếu thu chi, Hủy phiếu thu chi.
+    
+
+**2\. Thu ngân** Actor "Thu ngân" chủ yếu thao tác các nghiệp vụ bán hàng, chăm sóc khách hàng và quản lý ca làm việc tại quầy:
+
+*   **Quản lý tài khoản:** Đăng nhập, Đăng xuất, Đổi mật khẩu cá nhân.
+    
+*   **Quản lý khách hàng:** Thêm khách hàng, Sửa khách hàng, Cập nhật trạng thái khách hàng, Tra cứu khách hàng, Xem lịch sử mua hàng.
+    
+*   **Bán hàng:** Lập hóa đơn bán lẻ, Hủy hóa đơn bán lẻ, Lập đơn đặt bánh tùy chỉnh, Cập nhật trạng thái đơn, Tra cứu danh sách đơn, Hủy đơn và hoàn cọc, Tra cứu thông tin sản phẩm.
+    
+*   **Ca làm việc:** Mở ca làm việc, Đóng ca và đối soát.
+    
+*   **Quản lý thu chi:** Lập phiếu thu chi, Hủy phiếu thu chi.
+    
+
+**3\. Thủ kho** Actor "Thủ kho" chuyên trách các tác vụ kiểm soát nguồn nguyên liệu và đối tác cung ứng:
+
+*   **Quản lý tài khoản:** Đăng nhập, Đăng xuất, Đổi mật khẩu cá nhân.
+    
+*   **Quản lý kho và nguyên liệu:** Thêm nguyên liệu, Sửa nguyên liệu, Cập nhật trạng thái nguyên liệu, Lập phiếu nhập kho, Lập phiếu xuất hủy, Tra cứu thẻ kho.
+    
+*   **Quản lý nhà cung cấp:** Truy vết nguồn gốc, Thêm nhà cung cấp, Sửa nhà cung cấp, Cập nhật trạng thái nhà cung cấp, Tra cứu nhà cung cấp.
+    
+
+**4\. Thợ bếp** Actor "Thợ bếp" giới hạn ở các thao tác liên quan đến lấy nguyên liệu và làm việc với hệ thống ở mức cơ bản:
+
+*   **Quản lý tài khoản:** Đăng nhập, Đăng xuất, Đổi mật khẩu cá nhân.
+    
+*   **Quản lý kho:** Lập phiếu xuất kho để lấy nguyên liệu đi làm bánh.
+    
+
+_(Ngoài ra, có một Use-case tự động do tác nhân là_ _**Hệ thống**_ _tự thực hiện, đó là chức năng Cảnh báo tồn kho)._

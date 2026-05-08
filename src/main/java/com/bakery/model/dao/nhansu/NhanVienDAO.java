@@ -283,6 +283,22 @@ public class NhanVienDAO extends BaseDAO {
             throw new Exception("Không thể cập nhật vai trò nhân viên.");
         }
     }
+    /** Lấy MATAIKHOAN từ bảng TAIKHOAN theo MANV — dùng cho AccountTokenDAO. */
+    public int layMaTaiKhoan(int maNV) throws Exception {
+        String sql = "SELECT MATAIKHOAN FROM TAIKHOAN WHERE MANV = ?";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maNV);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("MATAIKHOAN");
+                throw new Exception("Không tìm thấy tài khoản cho nhân viên mã: " + maNV);
+            }
+        } catch (SQLException e) {
+            handleException("layMaTaiKhoan", e);
+            return -1;
+        }
+    }
+
     /** Cho thôi việc (soft-delete): TRANGTHAILAMVIEC=0 + TRANGTHAITK=0 */
     public boolean thoiViec(int maNV) throws Exception {
         String sql = "{CALL PROC_THOIVIEC_NHANVIEN(?)}";

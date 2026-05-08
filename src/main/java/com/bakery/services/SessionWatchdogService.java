@@ -1,7 +1,7 @@
 package com.bakery.services;
 
-import com.bakery.model.dao.SessionDAO;
-import com.bakery.model.dto.SessionDTO;
+import com.bakery.model.dao.AccountTokenDAO;
+import com.bakery.model.dto.AccountTokenDTO;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import javafx.application.Platform;
@@ -14,7 +14,7 @@ public class SessionWatchdogService extends ScheduledService<Boolean> {
     /** Khoảng thời gian check (giây). Đủ nhạy mà không quá tải DB. */
     private static final int CHECK_INTERVAL_SECONDS = 30;
 
-    private final SessionDAO sessionDAO = new SessionDAO();
+    private final AccountTokenDAO accountTokenDAO = new AccountTokenDAO();
     private Runnable onSessionInvalid;
 
     public SessionWatchdogService() {
@@ -40,25 +40,11 @@ public class SessionWatchdogService extends ScheduledService<Boolean> {
             @Override
             protected Boolean call() throws Exception {
                 String token = UserSession.getCurrentToken();
-                // Nếu không có token trong memory → session chưa được tạo đúng cách
-                if (token == null) {
-                    return false;
-                }
+                if (token == null) return false;
 
-                SessionDTO session = sessionDAO.findSessionByToken(token);
-
-                // Token không tồn tại trong DB (bị xóa) hoặc bị revoke → phiên không hợp lệ
-                if (session == null || !"ACTIVE".equalsIgnoreCase(session.getStatus())) {
-                    return false;
-                }
-
-                // Kiểm tra hết hạn
-                if (session.getExpiresAt() != null &&
-                        session.getExpiresAt().before(new java.sql.Timestamp(System.currentTimeMillis()))) {
-                    return false;
-                }
-
-                return true;
+                AccountTokenDTO dto = accountTokenDAO.timTheoGiaTri(token);
+                // Token không tồn tại hoặc bị revoke → phiên không hợp lệ
+                return dto != null && dto.conHieuLuc();
             }
         };
     }

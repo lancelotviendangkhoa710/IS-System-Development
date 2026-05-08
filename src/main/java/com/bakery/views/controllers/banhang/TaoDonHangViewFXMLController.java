@@ -190,29 +190,32 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
             root.getStyleClass().add("bg-surface");
             root.setPrefWidth(450);
 
+            // Tiêu đề — dùng CSS class thay vì inline style (fix UI spec VI3)
             Label lblTitle = new Label("Hủy đơn và hoàn cọc");
-            lblTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #92400E;");
+            lblTitle.getStyleClass().add("lbl-title-dialog");
 
             Label lblInfo = new Label("Số tiền khách đã đặt cọc: " + dinhDangTien(depositAmount));
-            lblInfo.getStyleClass().add("lbl-body-lg");
+            lblInfo.getStyleClass().add("lbl-body");
 
-            VBox inputGroup1 = new VBox(5);
-            Label lblReason = new Label("Lý do hủy đơn:");
+            VBox inputGroup1 = new VBox(8);
+            Label lblReason = new Label("Lý do hủy đơn: *");
             lblReason.getStyleClass().add("lbl-body-bold");
             TextField txtReason = new TextField();
             txtReason.setPromptText("Nhập lý do hủy (ví dụ: Khách đổi ý, Hết nguyên liệu...)");
+            txtReason.getStyleClass().add("text-field");
             inputGroup1.getChildren().addAll(lblReason, txtReason);
 
-            VBox inputGroup2 = new VBox(5);
+            VBox inputGroup2 = new VBox(8);
             Label lblRefund = new Label("Số tiền hoàn trả cho khách:");
             lblRefund.getStyleClass().add("lbl-body-bold");
             TextField txtRefund = new TextField(String.valueOf((long) depositAmount));
             txtRefund.setPromptText("Nhập số tiền hoàn trả...");
+            txtRefund.getStyleClass().add("text-field");
             inputGroup2.getChildren().addAll(lblRefund, txtRefund);
 
             final IDonHangDialogFactory.YeuCauHuyDonHang[] finalResult = {IDonHangDialogFactory.YeuCauHuyDonHang.cancelled()};
 
-            Button btnSubmit = new Button("Xác nhận hủy đơn");
+            Button btnSubmit = new Button("✓ Xác nhận hủy đơn");
             btnSubmit.getStyleClass().add("btn-danger");
             btnSubmit.setMaxWidth(Double.MAX_VALUE);
             btnSubmit.setPrefHeight(40);

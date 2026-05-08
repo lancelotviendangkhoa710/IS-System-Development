@@ -438,35 +438,63 @@ public class DonHangPresenter {
     }
 
     public void huyDonHang(String maDonStr) {
+        // Bước 1: Validate maDon và load thông tin đơn (trên UI thread — nhanh)
+        final int maDon;
         try {
-            int maDon = Integer.parseInt(maDonStr.trim());
-            DonDatHangDTO don = orderService.loadOrderById(maDon);
-
-            if (dialogFactory == null) {
-                view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
-                return;
-            }
-
-            double daCoc = don.getTienDaCoc() != null ? don.getTienDaCoc().doubleValue() : 0.0;
-            IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, daCoc);
-
-            if (!req.confirmed())
-                return;
-
-            orderService.huyDonVaHoanCoc(maDon, req.reason(), getCurrentUserId(), don.getTenTrangThai(),
-                    req.refundAmount());
-
-            // Nếu có hoàn tiền, hiện thông báo thêm
-            if (req.refundAmount() > 0) {
-                view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon + " và hoàn tiền: " + req.refundAmount() + "đ");
-            } else {
-                view.hienThiThongBaoTraCuu("Đã hủy đơn #" + maDon);
-            }
-
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
-        } catch (Exception e) {
-            view.hienThiLoiTraCuu("Lỗi hủy đơn: " + e.getMessage());
+            maDon = Integer.parseInt(maDonStr.trim());
+        } catch (NumberFormatException e) {
+            view.hienThiLoiTraCuu("Mã đơn không hợp lệ.");
+            return;
         }
+
+        if (dialogFactory == null) {
+            view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+            return;
+        }
+
+        // Bước 2: Load đơn hàng để lấy tiền cọc (hiển thị dialog)
+        final DonDatHangDTO don;
+        try {
+            don = orderService.loadOrderById(maDon);
+        } catch (Exception e) {
+            view.hienThiLoiTraCuu("Không tải được thông tin đơn #" + maDon + ": " + e.getMessage());
+            return;
+        }
+
+        // Bước 3: Hiển thị dialog xác nhận (blocking, trên UI thread)
+        double daCoc = don.getTienDaCoc() != null ? don.getTienDaCoc().doubleValue() : 0.0;
+        IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, daCoc);
+        if (!req.confirmed()) return;
+
+        final String lyDoHuy = req.reason();
+        final double soTienHoan = req.refundAmount();
+        final int maNvHienTai = getCurrentUserId();
+        final String tenTrangThai = don.getTenTrangThai();
+
+        // Bước 4: Thực thi DB trên background Task (tránh UI freeze)
+        javafx.concurrent.Task<Void> taskHuy = new javafx.concurrent.Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                orderService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvHienTai, tenTrangThai, soTienHoan);
+                return null;
+            }
+        };
+
+        taskHuy.setOnSucceeded(event -> javafx.application.Platform.runLater(() -> {
+            String thongBao = soTienHoan > 0
+                    ? "Đã hủy đơn #" + maDon + " và hoàn tiền: " + String.format("%,.0f", soTienHoan) + " đ"
+                    : "Đã hủy đơn #" + maDon + " thành công.";
+            view.hienThiThongBaoTraCuu(thongBao);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
+                    lastSearchTu, lastSearchDen, lastSearchTrangThai);
+        }));
+
+        taskHuy.setOnFailed(event -> javafx.application.Platform.runLater(() -> {
+            Throwable cause = taskHuy.getException();
+            view.hienThiLoiTraCuu("Hủy đơn thất bại: " + (cause != null ? cause.getMessage() : "Lỗi không xác định"));
+        }));
+
+        new Thread(taskHuy, "thread-huy-don-" + maDon).start();
     }
 
     /**
@@ -475,29 +503,49 @@ public class DonHangPresenter {
      * Hoàn kho tự động; tiền mặt do quản lý xử lý ngoài hệ thống.
      */
     public void huyHoaDonBanLe(String maDonStr) {
+        final int maDon;
         try {
-            int maDon = Integer.parseInt(maDonStr.trim());
-
-            if (dialogFactory == null) {
-                view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
-                return;
-            }
-
-            // Hiển thị dialog nhập lý do hủy
-            IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, 0);
-            if (!req.confirmed())
-                return;
-
-            orderService.huyHoaDonBanLe(maDon, req.reason(), getCurrentUserId());
-
-            view.hienThiThongBaoTraCuu("Đã hủy hóa đơn bán lẻ #" + maDon + ". Kho hàng đã được hoàn trả.");
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+            maDon = Integer.parseInt(maDonStr.trim());
         } catch (NumberFormatException e) {
             view.hienThiLoiTraCuu("Mã đơn không hợp lệ.");
-        } catch (Exception e) {
-            view.hienThiLoiTraCuu("Lỗi hủy hóa đơn: " + e.getMessage());
+            return;
         }
+
+        if (dialogFactory == null) {
+            view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+            return;
+        }
+
+        // Dialog chạy trên UI thread (blocking, đúng)
+        IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, 0);
+        if (!req.confirmed()) return;
+
+        final String lyDo = req.reason();
+        final int maNv = getCurrentUserId();
+
+        // DB call chạy background
+        javafx.concurrent.Task<Void> taskHuy = new javafx.concurrent.Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                orderService.huyHoaDonBanLe(maDon, lyDo, maNv);
+                return null;
+            }
+        };
+
+        taskHuy.setOnSucceeded(event -> javafx.application.Platform.runLater(() -> {
+            view.hienThiThongBaoTraCuu("Đã hủy hóa đơn bán lẻ #" + maDon + ". Kho hàng đã được hoàn trả.");
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
+                    lastSearchTu, lastSearchDen, lastSearchTrangThai);
+        }));
+
+        taskHuy.setOnFailed(event -> javafx.application.Platform.runLater(() -> {
+            Throwable cause = taskHuy.getException();
+            view.hienThiLoiTraCuu("Lỗi hủy hóa đơn: " + (cause != null ? cause.getMessage() : "Lỗi không xác định"));
+        }));
+
+        new Thread(taskHuy, "thread-huy-hd-" + maDon).start();
     }
+
 
     public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen,
             String trangThaiFilter) {

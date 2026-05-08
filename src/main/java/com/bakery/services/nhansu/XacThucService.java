@@ -1,9 +1,10 @@
 package com.bakery.services.nhansu;
 
-import com.bakery.model.dao.SessionDAO;
+import com.bakery.model.dao.AccountTokenDAO;
 import com.bakery.model.dao.nhansu.NhanVienDAO;
 import com.bakery.model.dao.nhansu.PhanQuyenDAO;
 import com.bakery.model.dao.nhansu.VaiTroDAO;
+import com.bakery.model.dto.AccountTokenDTO;
 import com.bakery.model.dto.nhansu.ChucNangDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.dto.nhansu.VaiTroDTO;
@@ -12,8 +13,7 @@ import com.bakery.utils.SessionContext;
 import com.bakery.utils.TokenUtils;
 import com.bakery.utils.UserSession;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,12 +23,13 @@ import java.util.Set;
  * Quản lý Đăng nhập, Đăng ký, Đổi mật khẩu và Session.
  */
 public class XacThucService {
-    private static final long TOKEN_EXPIRY_HOURS = 8; // Token hết hạn sau 8 giờ làm việc
+    /** Token hiệu lực 12h — đủ cho một ca làm việc dài nhất. */
+    private static final int TOKEN_EXPIRY_HOURS = 12;
 
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
     private final PhanQuyenDAO phanQuyenDAO = new PhanQuyenDAO();
     private final VaiTroDAO vaiTroDAO = new VaiTroDAO();
-    private final SessionDAO sessionDAO = new SessionDAO();
+    private final AccountTokenDAO accountTokenDAO = new AccountTokenDAO();
 
     /**
      * Đăng nhập: xác thực thông tin, kiểm tra trạng thái, tạo session.
@@ -85,12 +86,14 @@ public class XacThucService {
                 permissionKeys);
         SessionContext.createSession(session);
 
-        // Tạo token và lưu vào DB để hỗ trợ force-logout từ bên ngoài
+        // Tạo token ACCOUNT_TOKEN — hỗ trợ force-logout và watchdog
         String token = TokenUtils.generateToken();
-        Timestamp expiresAt = Timestamp.valueOf(LocalDateTime.now().plusHours(TOKEN_EXPIRY_HOURS));
-        sessionDAO.xoaToanBoPhienCuaUser(nhanVien.getMaNV()); // Dọn session cũ trước
-        sessionDAO.insertSession(token, nhanVien.getMaNV(), expiresAt);
-        UserSession.setCurrentToken(token);  // Lưu token vào memory để watchdog dùng
+        LocalDate expiresAt = LocalDate.now().plusDays(1); // >= 12h, dùng DATE theo schema
+        int maTaiKhoan = nhanVienDAO.layMaTaiKhoan(nhanVien.getMaNV());
+        accountTokenDAO.thuHoiToanBoTheoTaiKhoan(maTaiKhoan); // Dọn token cũ trước
+        AccountTokenDTO tokenDTO = new AccountTokenDTO(maTaiKhoan, token, expiresAt);
+        accountTokenDAO.insertToken(tokenDTO);
+        UserSession.setCurrentToken(token);  // Lưu vào memory để watchdog dùng
         UserSession.setCurrentUser(nhanVien);
 
         return nhanVien;
@@ -156,7 +159,10 @@ public class XacThucService {
     public void doiMatKhau(String matKhauHienTai, String matKhauMoi, String xacNhanMatKhauMoi,
                            boolean doDangXuat) throws Exception {
         SessionContext.AuthSession session = requireActiveSession();
-        String currentPassword = validatePassword(matKhauHienTai, "Mật khẩu hiện tại");
+        // Lần đầu đăng nhập (doDangXuat=false): mật khẩu cũ là seed — không áp quy tắc độ dài
+        String currentPassword = doDangXuat
+                ? validatePassword(matKhauHienTai, "Mật khẩu hiện tại")
+                : validatePasswordNotBlank(matKhauHienTai, "Mật khẩu hiện tại");
         String newPassword = validatePassword(matKhauMoi, "Mật khẩu mới");
         String confirmPassword = validatePassword(xacNhanMatKhauMoi, "Xác nhận mật khẩu mới");
 
@@ -212,11 +218,11 @@ public class XacThucService {
     }
 
     public void dangXuat() {
-        // Revoke token trong DB để các watchdog ở thiết bị khác biết phiên đã kết thúc
+        // Thu hồi ACCOUNT_TOKEN trong DB → watchdog thiết bị khác phát hiện phiên kết thúc
         String token = UserSession.getCurrentToken();
         if (token != null) {
             try {
-                sessionDAO.revokeSession(token);
+                accountTokenDAO.revokeToken(token);
             } catch (Exception e) {
                 System.err.println("[XacThucService] Lỗi revoke token khi đăng xuất: " + e.getMessage());
             }
@@ -263,6 +269,14 @@ public class XacThucService {
                 throw new NgoaiLeXacThuc(MaLoiXacThuc.MAT_KHAU_KHONG_HOP_LE,
                         fieldName + " không được chứa ký tự điều khiển.");
             }
+        }
+        return password;
+    }
+
+    /** Chỉ check không rỗng — dùng cho mật khẩu seed (lần đầu đăng nhập). */
+    private String validatePasswordNotBlank(String password, String fieldName) throws Exception {
+        if (password == null || password.isBlank()) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.MAT_KHAU_KHONG_HOP_LE, fieldName + " không được để trống.");
         }
         return password;
     }

@@ -1,14 +1,6 @@
 -- ============================================================
 -- PROC_MOCA — Mở ca làm việc và tạo bản ghi đối soát đầu ca
---
--- Tham số:
---   P_MANV              : Mã nhân viên thực hiện mở ca
---   P_MAMAYPOS          : Mã máy POS được chọn
---   P_TIENKHAIBAODAUCA  : Tiền mặt nhân viên khai báo đầu ca (0 nếu để trống)
---   P_MACA_OUT          : OUT — Mã ca vừa tạo
---
--- Lưu ý: KHÔNG COMMIT bên trong — Java quản lý transaction.
--- ============================================================
+
 CREATE OR REPLACE PROCEDURE PROC_MOCA(
     P_MANV             IN  NHANVIEN.MANV%TYPE,
     P_MAMAYPOS         IN  CALAMVIEC.MAMAYPOS%TYPE,

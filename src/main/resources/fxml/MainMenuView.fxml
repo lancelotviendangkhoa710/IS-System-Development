@@ -28,9 +28,9 @@
                     <Label fx:id="lblLogoText" text="H3K Bakery" styleClass="dash-logo-text"/>
                 </children>
             </HBox>
-            
+
             <!-- Navigation with Scroll -->
-            <ScrollPane fx:id="scrollNav" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" 
+            <ScrollPane fx:id="scrollNav" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                         VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
                 <content>
                     <VBox styleClass="dash-nav" spacing="12">
@@ -45,6 +45,7 @@
                             <Label text="BÁN HÀNG" styleClass="nav-category-label"/>
                             <Button fx:id="btnBanHang" text="🛒 Đặt hàng (POS)" onAction="#onMoBanHang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnTheoDoiDon" text="🚚 Theo dõi đơn" onAction="#onMoTheoDoiDon" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnKds" text="👨‍🍳 Màn hình bếp (KDS)" onAction="#onMoKds" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnKhachHang" text="🤝 Khách hàng" onAction="#onMoKhachHang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
@@ -86,7 +87,7 @@
             </ScrollPane>
         </VBox>
     </left>
- 
+
     <!-- CENTER (Shell Area) -->
     <center>
         <BorderPane>
@@ -94,7 +95,7 @@
             <top>
                 <HBox styleClass="dash-header" alignment="CENTER_LEFT">
                     <Region HBox.hgrow="ALWAYS"/>
-                    
+
                     <!-- Icons -->
                     <HBox styleClass="dash-header-icons" spacing="12" alignment="CENTER">
                         <Button text="⛶" styleClass="dash-icon-btn" onAction="#onToggleFullScreen">
@@ -104,7 +105,7 @@
                         <Button text="⚙" styleClass="dash-icon-btn"/>
                         <Button text="☁" styleClass="dash-icon-btn"/>
                     </HBox>
-                    
+
                     <!-- User Profile -->
                     <HBox styleClass="dash-user-profile" spacing="12" alignment="CENTER">
                         <VBox alignment="CENTER_RIGHT">
@@ -121,7 +122,7 @@
             <center>
                 <StackPane fx:id="contentArea" styleClass="dash-content-area" />
             </center>
-            
+
             <bottom>
                 <HBox alignment="CENTER_RIGHT" style="-fx-padding: 5 20; -fx-background-color: #f8f9fa;">
                     <Label fx:id="lblThongBao" style="-fx-text-fill: #DC2626; -fx-font-size: 12px;"/>
