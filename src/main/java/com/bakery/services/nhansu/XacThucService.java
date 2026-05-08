@@ -44,13 +44,20 @@ public class XacThucService {
         }
 
         if (nhanVien.getTrangThaiLamViec() != 1) {
-            throw new NgoaiLeXacThuc(MaLoiXacThuc.TAI_KHOAN_BI_KHOA, "Tài khoản đã bị vô hiệu hóa.");
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.TAI_KHOAN_BI_KHOA, "Nhân viên này đã ngừng làm việc.");
+        }
+
+        if (nhanVien.getTrangThaiTK() != 1) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.TAI_KHOAN_BI_KHOA, "Tài khoản đã bị khóa.");
         }
 
         if (!PasswordUtils.matches(matKhauHopLe, nhanVien.getMatKhau())) {
             throw new NgoaiLeXacThuc(MaLoiXacThuc.THONG_TIN_DANG_NHAP_SAI,
                     "Tên đăng nhập hoặc mật khẩu không chính xác.");
         }
+
+        // Mật khẩu chưa được hash → đây là lần đăng nhập đầu tiên với mật khẩu seed
+        nhanVien.setCanDoiMatKhau(!PasswordUtils.isBcryptHash(nhanVien.getMatKhau()));
 
         // Lấy thông tin phân quyền hợp nhất từ tất cả các vai trò của nhân viên
         PhanQuyenDAO.RolePermissionInfo roleInfo = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
@@ -138,6 +145,16 @@ public class XacThucService {
      * Đổi mật khẩu cho phiên đăng nhập hiện tại.
      */
     public void doiMatKhau(String matKhauHienTai, String matKhauMoi, String xacNhanMatKhauMoi) throws Exception {
+        doiMatKhau(matKhauHienTai, matKhauMoi, xacNhanMatKhauMoi, true);
+    }
+
+    /**
+     * Đổi mật khẩu cho phiên đăng nhập hiện tại.
+     * @param doDangXuat true = đăng xuất sau khi đổi (đổi thông thường);
+     *                   false = giữ session (đổi bắt buộc lần đầu đăng nhập)
+     */
+    public void doiMatKhau(String matKhauHienTai, String matKhauMoi, String xacNhanMatKhauMoi,
+                           boolean doDangXuat) throws Exception {
         SessionContext.AuthSession session = requireActiveSession();
         String currentPassword = validatePassword(matKhauHienTai, "Mật khẩu hiện tại");
         String newPassword = validatePassword(matKhauMoi, "Mật khẩu mới");
@@ -171,7 +188,9 @@ public class XacThucService {
             throw new NgoaiLeXacThuc(MaLoiXacThuc.LOI_HE_THONG, "Không thể cập nhật mật khẩu trong CSDL.");
         }
 
-        dangXuat();
+        if (doDangXuat) {
+            dangXuat();
+        }
     }
 
     public List<VaiTroDTO> layDanhSachVaiTroDangHoatDong() throws Exception {

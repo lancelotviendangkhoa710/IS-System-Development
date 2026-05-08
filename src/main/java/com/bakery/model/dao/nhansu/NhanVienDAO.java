@@ -25,9 +25,11 @@ public class NhanVienDAO extends BaseDAO {
 
     public NhanVienDTO timNhanVienTheoTenDangNhap(String username) throws Exception {
         String sql = """
-                SELECT MANV, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC
-                FROM NHANVIEN
-                WHERE UPPER(TRIM(TENDANGNHAP)) = UPPER(?)
+                SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
+                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK
+                FROM NHANVIEN NV
+                JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
+                WHERE UPPER(TRIM(TK.TENDANGNHAP)) = UPPER(?)
                 """;
 
         try (Connection conn = moKetNoi();
@@ -51,9 +53,11 @@ public class NhanVienDAO extends BaseDAO {
 
     public NhanVienDTO timNhanVienTheoMa(int maNV) throws Exception {
         String sql = """
-                SELECT MANV, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC
-                FROM NHANVIEN
-                WHERE MANV = ?
+                SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
+                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK
+                FROM NHANVIEN NV
+                JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
+                WHERE NV.MANV = ?
                 """;
 
         try (Connection conn = moKetNoi();
@@ -97,16 +101,15 @@ public class NhanVienDAO extends BaseDAO {
         }
     }
 
+    /** Đổi mật khẩu qua Procedure — tuân thủ D3 */
     public boolean doiMatKhau(int maNV, String matKhauMoiDaHash) throws Exception {
-        String sql = "UPDATE NHANVIEN SET MATKHAU = ? WHERE MANV = ?";
-
+        String sql = "{CALL PROC_DOI_MATKHAU_TAIKHOAN(?, ?)}";
         try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, matKhauMoiDaHash);
-            pstmt.setInt(2, maNV);
-
-            return pstmt.executeUpdate() > 0;
+                CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, maNV);
+            cstmt.setString(2, matKhauMoiDaHash);
+            cstmt.execute();
+            return true;
         } catch (SQLException e) {
             handleException("doiMatKhau", e);
             return false;
@@ -114,7 +117,7 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public int themNhanVien(NhanVienDTO nv) throws Exception {
-        // 1. Gọi Procedure tạo nhân viên (không có MAVAITRO trong bảng NHANVIEN)
+        // 1. Gọi Procedure tạo nhân viên và tài khoản đăng nhập
         String sqlNV = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
         int generatedId = -1;
 
@@ -156,7 +159,7 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public boolean suaNhanVien(NhanVienDTO nv) throws Exception {
-        // 1. Cập nhật thông tin cơ bản
+        // 1. Cập nhật thông tin cơ bản và tài khoản đăng nhập
         String sqlNV = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sqlNV)) {
@@ -214,7 +217,13 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public java.util.List<NhanVienDTO> layTatCaNhanVien() throws Exception {
-        String sql = "SELECT MANV, HOTEN, NGAYSINH, SDT, TENDANGNHAP, MATKHAU, TRANGTHAILAMVIEC FROM NHANVIEN ORDER BY MANV DESC";
+        String sql = """
+                SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
+                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK
+                FROM NHANVIEN NV
+                JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
+                ORDER BY NV.MANV DESC
+                """;
 
         java.util.List<NhanVienDTO> list = new java.util.ArrayList<>();
         try (Connection conn = moKetNoi();
@@ -241,9 +250,10 @@ public class NhanVienDAO extends BaseDAO {
             nv.setNgaySinh(rs.getDate("NGAYSINH").toLocalDate());
         }
         nv.setSdt(rs.getString("SDT"));
+        nv.setTrangThaiLamViec(rs.getInt("TRANGTHAILAMVIEC"));
         nv.setTenDangNhap(rs.getString("TENDANGNHAP"));
         nv.setMatKhau(rs.getString("MATKHAU"));
-        nv.setTrangThaiLamViec(rs.getInt("TRANGTHAILAMVIEC"));
+        nv.setTrangThaiTK(rs.getInt("TRANGTHAITK"));
         return nv;
     }
 
@@ -271,6 +281,19 @@ public class NhanVienDAO extends BaseDAO {
         } catch (SQLException e) {
             handleException("capNhatVaiTroNhanVien", e);
             throw new Exception("Không thể cập nhật vai trò nhân viên.");
+        }
+    }
+    /** Cho thôi việc (soft-delete): TRANGTHAILAMVIEC=0 + TRANGTHAITK=0 */
+    public boolean thoiViec(int maNV) throws Exception {
+        String sql = "{CALL PROC_THOIVIEC_NHANVIEN(?)}";
+        try (Connection conn = moKetNoi();
+                CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, maNV);
+            cstmt.execute();
+            return true;
+        } catch (SQLException e) {
+            handleException("thoiViec", e);
+            return false;
         }
     }
 }

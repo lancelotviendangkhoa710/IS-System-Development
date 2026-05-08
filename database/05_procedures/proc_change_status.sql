@@ -37,7 +37,7 @@ BEGIN
 
     -- 3. Chặn sửa trạng thái nếu đơn đã hoàn thành
     IF V_MATRANGTHAI_CU = V_MATT_HOANTHANH THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Đơn đã hoàn thành, không thể cập nhật trạng thái.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Don da hoan thanh, khong the cap nhat trang thai.');
     END IF;
 
     -- 4. Trường hợp bếp đánh dấu hoàn tất: map sang Chờ giao / Chờ khách lấy theo hình thức nhận
@@ -52,7 +52,7 @@ BEGIN
 
     -- 5. Chặn cập nhật trùng trạng thái
     IF V_MATRANGTHAI_CU = V_MATRANGTHAI_CHOT THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Trạng thái mới không được trùng trạng thái hiện tại.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Trang thai moi khong duoc trung trang thai hien tai.');
     END IF;
 
     -- 6. Cập nhật đơn hàng
@@ -68,6 +68,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Lỗi hệ thống khi chuyển trạng thái đơn hàng: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_CHUYEN_TRANGTHAI, 'Loi he thong khi chuyen trang thai don hang: ' || SQLERRM);
 END;
 /

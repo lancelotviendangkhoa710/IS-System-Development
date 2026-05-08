@@ -30,7 +30,7 @@ BEGIN
 
     IF V_ROWS_UPDATED = 0 THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI,
-        'Không tìm thấy bản ghi đối soát cho ca: ' || P_MACA
+        'Loi: Khong tim thay ban ghi doi soat cho ca: ' || P_MACA
         );
     END IF;
 
@@ -41,7 +41,7 @@ EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE = PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI THEN RAISE; END IF;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_DONG_HE_THONG,
-        'Lỗi hệ thống khi ghi kết quả đối soát: ' || SQLERRM
+        'Loi he thong khi ghi ket qua doi soat: ' || SQLERRM
         );
 END;
 /

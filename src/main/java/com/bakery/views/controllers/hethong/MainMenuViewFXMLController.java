@@ -89,6 +89,8 @@ public class MainMenuViewFXMLController {
     @FXML
     private Button btnMaTranPhanQuyen;
     @FXML
+    private Button btnPhanQuyenVaiTro;
+    @FXML
     private Button btnCongThuc;
     @FXML
     private FlowPane flowBestSellersMenu;
@@ -154,6 +156,8 @@ public class MainMenuViewFXMLController {
             capNhatTrangThaiNut(btnKiemKe, modulesDuocCap.contains(SystemModule.KHO));
         if (btnMaTranPhanQuyen != null)
             capNhatTrangThaiNut(btnMaTranPhanQuyen, laAdmin);
+        if (btnPhanQuyenVaiTro != null)
+            capNhatTrangThaiNut(btnPhanQuyenVaiTro, laAdmin);
         if (btnCongThuc != null)
             capNhatTrangThaiNut(btnCongThuc, modulesDuocCap.contains(SystemModule.KHO));
 
@@ -245,6 +249,11 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoPhanQuyen() {
         loadView("/fxml/MaTranPhanQuyenView.fxml");
+    }
+
+    @FXML
+    private void onMoPhanQuyenVaiTro() {
+        loadView("/fxml/PhanQuyenVaiTroView.fxml");
     }
 
     @FXML

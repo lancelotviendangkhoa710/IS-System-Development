@@ -15,7 +15,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_THEM_HE_THONG, 'Lỗi hệ thống khi thêm nhà cung cấp: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_THEM_HE_THONG, 'Loi he thong khi them Nha cung cap: ' || SQLERRM);
 END;
 /
 
@@ -35,14 +35,14 @@ BEGIN
     WHERE MANCC = P_MANCC;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy Nhà cung cấp để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_KHONG_TON_TAI_CN, 'Loi: Khong tim thay Nha cung cap de cap nhat.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_NCC_KHONG_TON_TAI_CN THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật nhà cung cấp: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_CAPNHAT_HE_THONG, 'Loi he thong khi cap nhat Nha cung cap: ' || SQLERRM);
 END;
 /
 
@@ -65,13 +65,13 @@ BEGIN
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy Nhà cung cấp để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay Nha cung cap de xoa.');
     END IF;
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_NCC_KHONG_TON_TAI_XOA THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_XOA_HE_THONG, 'Lỗi hệ thống khi xóa nhà cung cấp: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NCC_XOA_HE_THONG, 'Loi he thong khi xoa Nha cung cap: ' || SQLERRM);
 END;
 /

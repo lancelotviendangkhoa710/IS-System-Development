@@ -1,8 +1,8 @@
 package com.bakery.model.dao.kho;
+
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.kho.SanPhamDTO;
-
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -17,7 +17,8 @@ public class SanPhamDAO extends BaseDAO {
 
     public List<SanPhamDTO> layTatCaSanPhamDeBan() throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
-        String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
+        String sql = "SELECT MASP, MADM, TENSP, NVL(GIAVON,0) AS GIAVON, NVL(GIABAN,0) AS GIABAN, " +
+                "HINHANH, CHOPHEPTUYCHINH, " +
                 "THOIGIANBAOQUAN, NVL(SOLUONGTON, 0) AS SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
                 "FROM SANPHAM " +
                 "WHERE THOIDIEMXOA IS NULL " +
@@ -28,8 +29,7 @@ public class SanPhamDAO extends BaseDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    SanPhamDTO sp = mapSanPham(rs);
-                    list.add(sp);
+                    list.add(mapSanPham(rs));
                 }
             }
         } catch (SQLException e) {
@@ -40,7 +40,8 @@ public class SanPhamDAO extends BaseDAO {
 
     public List<SanPhamDTO> layTatCaSanPhamQuanLy() throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
-        String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
+        String sql = "SELECT MASP, MADM, TENSP, NVL(GIAVON,0) AS GIAVON, NVL(GIABAN,0) AS GIABAN, " +
+                "HINHANH, CHOPHEPTUYCHINH, " +
                 "THOIGIANBAOQUAN, SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
                 "FROM SANPHAM " +
                 "WHERE THOIDIEMXOA IS NULL " +
@@ -51,8 +52,7 @@ public class SanPhamDAO extends BaseDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    SanPhamDTO sp = mapSanPham(rs);
-                    list.add(sp);
+                    list.add(mapSanPham(rs));
                 }
             }
         } catch (SQLException e) {
@@ -63,7 +63,8 @@ public class SanPhamDAO extends BaseDAO {
 
     public List<SanPhamDTO> layDanhSachSanPhamDeBan(int maDanhMuc) throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
-        String sql = "SELECT MASP, MADM, TENSP, GIACOBAN, HINHANH, CHOPHEPTUYCHINH, " +
+        String sql = "SELECT MASP, MADM, TENSP, NVL(GIAVON,0) AS GIAVON, NVL(GIABAN,0) AS GIABAN, " +
+                "HINHANH, CHOPHEPTUYCHINH, " +
                 "THOIGIANBAOQUAN, NVL(SOLUONGTON, 0) AS SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
                 "FROM SANPHAM WHERE MADM = ? AND THOIDIEMXOA IS NULL";
 
@@ -74,8 +75,7 @@ public class SanPhamDAO extends BaseDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    SanPhamDTO sp = mapSanPham(rs);
-                    list.add(sp);
+                    list.add(mapSanPham(rs));
                 }
             }
 
@@ -90,7 +90,8 @@ public class SanPhamDAO extends BaseDAO {
         sp.setMaSP(rs.getInt("MASP"));
         sp.setMaDM(rs.getInt("MADM"));
         sp.setTenSP(rs.getString("TENSP"));
-        sp.setGiaCoBan(rs.getDouble("GIACOBAN"));
+        sp.setGiaVon(rs.getDouble("GIAVON"));
+        sp.setGiaBan(rs.getDouble("GIABAN"));
         sp.setHinhAnh(rs.getString("HINHANH"));
         sp.setChoPhepTuyChinh(rs.getInt("CHOPHEPTUYCHINH"));
         sp.setThoiGianBaoQuan(rs.getInt("THOIGIANBAOQUAN"));
@@ -153,7 +154,8 @@ public class SanPhamDAO extends BaseDAO {
         return 0;
     }
 
-    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri) throws Exception {
+    public double tinhGiaBanhTuyChinh(int maSP, Integer maKC, Integer maCot, Integer maNhan, Integer maTrangTri)
+            throws Exception {
         String sql = "{ ? = call FUNC_GIABANHTUYCHINH(?, ?, ?, ?, ?) }";
         try (Connection conn = moKetNoi();
                 java.sql.CallableStatement cstmt = conn.prepareCall(sql)) {
@@ -187,21 +189,23 @@ public class SanPhamDAO extends BaseDAO {
     }
 
     public int themSanPham(SanPhamDTO sp) throws Exception {
-        String sql = "{CALL PROC_THEM_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?)}";
+        // 9 tham số: 6 thuộc tính + GIAVON + GIABAN + OUT MASP
+        String sql = "{CALL PROC_THEM_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, sp.getMaDM());
             cstmt.setString(2, sp.getTenSP());
-            cstmt.setDouble(3, sp.getGiaCoBan());
-            cstmt.setString(4, sp.getHinhAnh());
-            cstmt.setInt(5, sp.getChoPhepTuyChinh());
-            cstmt.setInt(6, sp.getThoiGianBaoQuan());
-            cstmt.setInt(7, sp.getThoiGianChuanBi());
-            cstmt.registerOutParameter(8, Types.NUMERIC);
+            cstmt.setString(3, sp.getHinhAnh());
+            cstmt.setInt(4, sp.getChoPhepTuyChinh());
+            cstmt.setInt(5, sp.getThoiGianBaoQuan());
+            cstmt.setInt(6, sp.getThoiGianChuanBi());
+            cstmt.setDouble(7, sp.getGiaVon());
+            cstmt.setDouble(8, sp.getGiaBan());
+            cstmt.registerOutParameter(9, Types.NUMERIC);
 
             cstmt.execute();
-            return cstmt.getInt(8);
+            return cstmt.getInt(9);
         } catch (SQLException e) {
             handleException("themSanPham", e);
         }
@@ -209,18 +213,20 @@ public class SanPhamDAO extends BaseDAO {
     }
 
     public boolean capNhatSanPham(SanPhamDTO sp) throws Exception {
-        String sql = "{CALL PROC_SUA_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?)}";
+        // 9 tham số: MASP + 6 thuộc tính + GIAVON + GIABAN
+        String sql = "{CALL PROC_SUA_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, sp.getMaSP());
             cstmt.setInt(2, sp.getMaDM());
             cstmt.setString(3, sp.getTenSP());
-            cstmt.setDouble(4, sp.getGiaCoBan());
-            cstmt.setString(5, sp.getHinhAnh());
-            cstmt.setInt(6, sp.getChoPhepTuyChinh());
-            cstmt.setInt(7, sp.getThoiGianBaoQuan());
-            cstmt.setInt(8, sp.getThoiGianChuanBi());
+            cstmt.setString(4, sp.getHinhAnh());
+            cstmt.setInt(5, sp.getChoPhepTuyChinh());
+            cstmt.setInt(6, sp.getThoiGianBaoQuan());
+            cstmt.setInt(7, sp.getThoiGianChuanBi());
+            cstmt.setDouble(8, sp.getGiaVon());
+            cstmt.setDouble(9, sp.getGiaBan());
 
             cstmt.execute();
             return true;
@@ -233,7 +239,7 @@ public class SanPhamDAO extends BaseDAO {
     public boolean xoaSanPham(int maSP, int maNX) throws Exception {
         String sql = "{CALL PROC_XOA_SANPHAM(?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
 
             cstmt.setInt(1, maSP);
             cstmt.setInt(2, maNX);

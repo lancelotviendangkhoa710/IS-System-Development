@@ -15,7 +15,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_THEM_MOI, 'Lỗi hệ thống khi tạo mới Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_THEM_MOI, 'Loi he thong khi tao moi Nguyen Lieu: ' || SQLERRM);
 END;
 /
 
@@ -38,7 +38,7 @@ BEGIN
     WHERE MANL = P_MANL;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_CN, 'Lỗi: Không tìm thấy Nguyên liệu để cập nhật.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_CN, 'Loi: Khong tim thay Nguyen lieu de cap nhat.');
     END IF;
     
     COMMIT;
@@ -46,7 +46,7 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_CN THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_CAPNHAT_HE_THONG, 'Lỗi hệ thống khi cập nhật Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_CAPNHAT_HE_THONG, 'Loi he thong khi cap nhat Nguyen Lieu: ' || SQLERRM);
 END;
 /
 
@@ -71,7 +71,7 @@ BEGIN
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_XOA, 'Lỗi: Không tìm thấy Nguyên liệu để xóa.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay Nguyen lieu de xoa.');
     END IF;
     
     COMMIT;
@@ -79,6 +79,6 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_TON_TAI_XOA THEN RAISE; END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_XOA_HE_THONG, 'Lỗi hệ thống khi xóa Nguyên Liệu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_XOA_HE_THONG, 'Loi he thong khi xoa Nguyen Lieu: ' || SQLERRM);
 END;
 /

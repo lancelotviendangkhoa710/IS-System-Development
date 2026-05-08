@@ -45,9 +45,9 @@ BEGIN
 
     IF (V_SOBANH_HIENTAI + V_CHENHLECH) > V_GIOIHAN THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DON_VUOT_CONG_SUAT,
-            'TỪ CHỐI NHẬN ĐƠN: Ngày Sản Xuất Thực Tế (' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY') || ') ' ||
-            ' đã đạt công suất tối đa! (Đã nhận: ' || V_SOBANH_HIENTAI || '/' || V_GIOIHAN || ' bánh, Khách đặt thêm: ' || V_CHENHLECH || ' bánh). ' ||
-            'Vui lòng khuyến khích khách đổi sang ngày khác!');
+            'TU CHOI NHAN DON: Ngay San Xuat Thuc Te (' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY') || ') ' ||
+            ' da dat cong suat toi da! (Da nhan: ' || V_SOBANH_HIENTAI || '/' || V_GIOIHAN || ' banh, Khach dat them: ' || V_CHENHLECH || ' banh). ' ||
+            'Vui long khuyen khich khach doi sang ngay khac!');
     END IF;
 
     UPDATE NANGLUCSANXUAT
@@ -56,6 +56,6 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_GIOI_HAN_SX, 'Lưu ý: Chưa có dữ liệu giới hạn công suất cho ngày sản xuất ' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY'));
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_GIOI_HAN_SX, 'Luu y: Chua co du lieu gioi han cong suat cho ngay san xuat ' || TO_CHAR(V_NGAYSANXUAT, 'DD/MM/YYYY'));
 END;
 /

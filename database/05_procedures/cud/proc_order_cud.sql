@@ -48,7 +48,7 @@ BEGIN
         IF V_TONKHO < r.SOLUONG_YC THEN
             RAISE_APPLICATION_ERROR(
                 PKG_ERROR_CODES.ERR_SP_HET_HANG,
-                'Giao dịch thất bại: Sản phẩm "' || V_TENSP || '" chỉ còn ' || V_TONKHO || ' cái, không đủ ' || r.SOLUONG_YC || ' cái yêu cầu.'
+                'Giao dich that bai: San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du ' || r.SOLUONG_YC || ' cai yeu cau.'
             );
         END IF;
     END LOOP;
@@ -124,6 +124,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Lỗi hệ thống khi Tạo Đơn Hàng: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Loi he thong khi Tao Don Hang: ' || SQLERRM);
 END;
 /

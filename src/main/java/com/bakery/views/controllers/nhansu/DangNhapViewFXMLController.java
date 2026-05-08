@@ -10,13 +10,20 @@ import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -118,6 +125,12 @@ public class DangNhapViewFXMLController extends BaseController {
             try {
                 NhanVienDTO nhanVien = task.getValue();
                 UserSession.setCurrentUser(nhanVien);
+
+                // Lần đăng nhập đầu tiên với mật khẩu seed → bắt buộc đổi mật khẩu
+                if (nhanVien.isCanDoiMatKhau()) {
+                    hienDialogDoiMatKhauBatBuoc(nhanVien, matKhau);
+                    return;
+                }
 
                 if (phanQuyenService.laThuNgan(nhanVien)) {
                     CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
@@ -236,6 +249,81 @@ public class DangNhapViewFXMLController extends BaseController {
             }
         }
         return orderedRoles;
+    }
+
+    /** Dialog bắt buộc đổi mật khẩu — không cho đóng cho đến khi đổi thành công */
+    private void hienDialogDoiMatKhauBatBuoc(NhanVienDTO nhanVien, String matKhauCu) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Đổi mật khẩu bắt buộc");
+        dialog.setHeaderText("⚠️ Đây là lần đăng nhập đầu tiên.\nVui lòng đặt mật khẩu mới trước khi tiếp tục.");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setOnCloseRequest(e -> e.consume()); // Không cho đóng
+
+        PasswordField txtMoiMatKhau = new PasswordField();
+        txtMoiMatKhau.setPromptText("Mật khẩu mới (tối thiểu 6 ký tự)");
+        txtMoiMatKhau.getStyleClass().add("text-field");
+
+        PasswordField txtXacNhan = new PasswordField();
+        txtXacNhan.setPromptText("Xác nhận mật khẩu mới");
+        txtXacNhan.getStyleClass().add("text-field");
+
+        Label lblLoi = new Label();
+        lblLoi.getStyleClass().add("lbl-danger");
+        lblLoi.setWrapText(true);
+
+        VBox content = new VBox(8,
+                new Label("Mật khẩu mới:"), txtMoiMatKhau,
+                new Label("Xác nhận:"), txtXacNhan,
+                lblLoi);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(340);
+        dialog.getDialogPane().setContent(content);
+
+        ButtonType btnXacNhan = new ButtonType("Xác nhận đổi mật khẩu", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().add(btnXacNhan);
+
+        // Validate trước khi submit
+        Node btnXacNhanNode = dialog.getDialogPane().lookupButton(btnXacNhan);
+        btnXacNhanNode.addEventFilter(ActionEvent.ACTION, e -> {
+            String mk1 = txtMoiMatKhau.getText();
+            String mk2 = txtXacNhan.getText();
+            if (mk1.isBlank() || mk1.length() < 6) {
+                lblLoi.setText("Mật khẩu phải từ 6 ký tự trở lên.");
+                e.consume();
+                return;
+            }
+            if (!mk1.equals(mk2)) {
+                lblLoi.setText("Mật khẩu xác nhận không khớp.");
+                e.consume();
+                return;
+            }
+            try {
+                xacThucService.doiMatKhau(matKhauCu, mk1, mk2, false); // Giữ session, không logout
+            } catch (Exception ex) {
+                lblLoi.setText(resolveErrorMessage(ex));
+                e.consume();
+            }
+        });
+
+        dialog.showAndWait();
+
+        // Đổi xong → tiếp tục điều hướng bình thường
+        try {
+            if (phanQuyenService.laThuNgan(nhanVien)) {
+                CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
+                if (caHienTai != null) {
+                    com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
+                    quayLaiMenuChinh(txtTenDangNhap);
+                    return;
+                }
+                transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                return;
+            }
+            quayLaiMenuChinh(txtTenDangNhap);
+        } catch (Exception ex) {
+            hienDangNhap();
+            hienThiLoiLabel(resolveErrorMessage(ex));
+        }
     }
 
     private void hienStartScreen() {

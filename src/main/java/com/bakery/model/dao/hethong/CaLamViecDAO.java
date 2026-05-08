@@ -9,34 +9,24 @@ import java.sql.*;
 public class CaLamViecDAO extends BaseDAO {
 
     /**
-     * Mở ca làm việc mới, tạo bản ghi đối soát ban đầu với tiền khai báo đầu ca.
-     * Dùng PL/SQL anonymous block với RETURNING INTO để lấy MACA vừa sinh.
+     * Mở ca làm việc mới qua PROC_MOCA.
+     * Proc tự INSERT CALAMVIEC + DOISOAT trong cùng 1 transaction.
      *
      * @return maCa vừa tạo, hoặc ném RuntimeException nếu thất bại
      */
     public int moCa(String maMayPOS, BigDecimal tienKhaiBaoDauCa, int maNV) throws Exception {
-        String sqlCa = "BEGIN "
-                + "INSERT INTO CALAMVIEC (MANV, MAMAYPOS, THOIGIANMOCA, TRANGTHAI) "
-                + "VALUES (?, ?, CURRENT_TIMESTAMP, N'Đang mở') "
-                + "RETURNING MACA INTO ?; "
-                + "END;";
-        String sqlDoiSoat = "INSERT INTO DOISOAT (MACA, TIENKHAIBAODAUCA) VALUES (?, ?)";
+        // PROC_MOCA: INSERT CALAMVIEC + INSERT DOISOAT trong cùng 1 transaction
+        String sql = "{CALL PROC_MOCA(?, ?, ?, ?)}";
 
         try (Connection conn = moKetNoi()) {
             conn.setAutoCommit(false);
-            try (CallableStatement cs = conn.prepareCall(sqlCa)) {
+            try (CallableStatement cs = conn.prepareCall(sql)) {
                 cs.setInt(1, maNV);
                 cs.setString(2, maMayPOS);
-                cs.registerOutParameter(3, Types.INTEGER);
+                cs.setBigDecimal(3, tienKhaiBaoDauCa != null ? tienKhaiBaoDauCa : BigDecimal.ZERO);
+                cs.registerOutParameter(4, Types.INTEGER);
                 cs.execute();
-                int maCa = cs.getInt(3);
-
-                try (PreparedStatement ps = conn.prepareStatement(sqlDoiSoat)) {
-                    ps.setInt(1, maCa);
-                    ps.setBigDecimal(2, tienKhaiBaoDauCa);
-                    ps.executeUpdate();
-                }
-
+                int maCa = cs.getInt(4);
                 conn.commit();
                 return maCa;
 

@@ -330,7 +330,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     }
 
     private void khoiTaoComboTuyChinh() {
-        caiDatHienThiCombo(cbCustomSp, sp -> sp.getTenSP() + " (" + dinhDangTien(sp.getGiaCoBan()) + ")", "--- Chọn loại bánh ---");
+        caiDatHienThiCombo(cbCustomSp, sp -> sp.getTenSP() + " (" + dinhDangTien(sp.getGiaBan()) + ")", "--- Chọn loại bánh ---");
         caiDatHienThiCombo(cbCustomKichCo, kc -> kc.getTenKC() + " (+" + dinhDangTien(kc.getPhuPhi()) + ")", "--- Không chọn ---");
         caiDatHienThiCombo(cbCustomCotBanh, cot -> cot.getTenCot() + " (+" + dinhDangTien(cot.getPhuPhi()) + ")", "--- Không chọn ---");
         caiDatHienThiCombo(cbCustomNhanBanh, nhan -> nhan.getTenNhan() + " (+" + dinhDangTien(nhan.getPhuPhi()) + ")", "--- Không chọn ---");
@@ -428,7 +428,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         ten.getStyleClass().add("lbl-body-bold");
         ten.setWrapText(true); ten.setMaxWidth(140);
 
-        Label gia = new Label(dinhDangTien(sanPham.getGiaCoBan()));
+        Label gia = new Label(dinhDangTien(sanPham.getGiaBan()));
         gia.getStyleClass().add("lbl-primary");
 
         Region spacer = new Region();

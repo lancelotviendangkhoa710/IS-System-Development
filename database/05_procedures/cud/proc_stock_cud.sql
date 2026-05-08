@@ -63,7 +63,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEU_NHAP_KHO, 'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEU_NHAP_KHO, 'Loi he thong khi nhap kho vat tu: ' || SQLERRM);
 END;
 /
 
@@ -82,7 +82,7 @@ BEGIN
 
     -- 2. Bắt lỗi và Chặn đứng giao dịch nếu phát hiện dấu vết xé niêm phong
     IF V_DA_SUDUNG > 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_THE_HUY_PN, 'Không thể hủy phiếu nhập này vì nguyên liệu đã được mang đi làm bánh!');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_THE_HUY_PN, 'Khong the huy phieu nhap nay vi nguyen lieu da duoc mang di lam banh!');
     END IF;
 
     -- 3. Thực thi Hủy (Xóa Chi tiết trước (Con), Xóa Phiếu gốc sau (Cha))
@@ -95,7 +95,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_PHIEU_NHAP_KHO, 'Lỗi hệ thống khi hủy phiếu nhập kho: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_PHIEU_NHAP_KHO, 'Loi he thong khi huy phieu nhap kho: ' || SQLERRM);
 END;
 /
 
@@ -139,8 +139,8 @@ BEGIN
             -- Nếu 1 nguyên liệu bất kì không đủ, lập tức đập vỡ Giao dịch và văng Exception cứu hệ thống
             IF V_TONGTON < REC.TONG_CAN_DUNG THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DU,
-                                        'Kho không đủ định mức (NL: ' || REC.TENNL || ') để làm ' || P_SOLUONGSANXUAT ||
-                                        ' cái bánh. Cần: ' || REC.TONG_CAN_DUNG || ' nhưng chỉ còn: ' || V_TONGTON);
+                                        'Kho khong du dinh muc (NL: ' || REC.TENNL || ') de lam ' || P_SOLUONGSANXUAT ||
+                                        ' cai banh. Can: ' || REC.TONG_CAN_DUNG || ' nhung chi con: ' || V_TONGTON);
             END IF;
         END LOOP;
 
@@ -179,7 +179,7 @@ BEGIN
             -- Safe check báo rủi ro (Rất hiếm thi gặp trừ khi Tổng Tồn đồng bộ sai với Tồn Chi Tiết Lô)
             IF V_LUONGCANDUNG > 0 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_TON_AO,
-                                        'Đồng bộ dữ liệu tồn ảo ở mức lô hàng: ' || REC.TENNL);
+                                        'Dong bo du lieu ton ao o muc lo hang: ' || REC.TENNL);
             END IF;
         END LOOP;
 
@@ -192,7 +192,7 @@ EXCEPTION
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO THEN
             RAISE;
         END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Lỗi hệ thống khi xuất kho sản xuất: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Loi he thong khi xuat kho san xuat: ' || SQLERRM);
 END;
 /
 
@@ -214,12 +214,12 @@ BEGIN
         WHERE MASP = P_MASP;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Mã sản phẩm không tồn tại trong kho!');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Ma san pham khong ton tai trong kho!');
     END;
 
     -- Chống Nhân viên gõ nhầm số lượng lớn hơn số bánh đang có thật trên kệ
     IF V_SOLUONGTON < P_SOLUONGHUY THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH, 'Số lượng hủy vượt quá số lượng tồn kho hiện tại! (Tồn: ' || V_SOLUONGTON || ')');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH, 'So luong huy vuot qua so luong ton kho hien tai! (Ton: ' || V_SOLUONGTON || ')');
     END IF;
 
     -- 2. Lập chứng từ (INSERT INTO PHIEUXUATKHO)
@@ -240,7 +240,7 @@ EXCEPTION
         IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_BANH OR SQLCODE = PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI THEN
             RAISE;
         ELSE
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_XUAT_BANH, 'Lỗi hệ thống khi xuất hủy bánh: ' || SQLERRM);
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_XUAT_BANH, 'Loi he thong khi xuat huy banh: ' || SQLERRM);
         END IF;
 END;
 /

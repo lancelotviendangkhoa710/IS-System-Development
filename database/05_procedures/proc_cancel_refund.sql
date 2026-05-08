@@ -46,7 +46,7 @@ BEGIN
         BEGIN
             SELECT MACA INTO V_MACA FROM CALAMVIEC WHERE THOIGIANDONGCA IS NULL FETCH FIRST 1 ROW ONLY;
         EXCEPTION WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(-20001, 'Không tìm thấy ca làm việc đang mở để thực hiện hoàn tiền.');
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_CA_KHONG_TON_TAI, 'Khong tim thay ca lam viec dang mo de thuc hien hoan tien.');
         END;
 
         -- Lấy mã loại thu chi "Hủy đơn"

@@ -107,7 +107,7 @@
 
             <VBox spacing="12" maxWidth="Infinity">
                 <Button fx:id="btnLuu" text="Lưu thông tin" styleClass="btn-primary" maxWidth="Infinity" onAction="#onLuu"/>
-                <Button fx:id="btnVoHieuHoa" text="Vô hiệu hóa" styleClass="btn-danger" maxWidth="Infinity" onAction="#onVoHieuHoa"/>
+                <Button fx:id="btnChoThoiViec" text="Cho thôi việc" styleClass="btn-danger" maxWidth="Infinity" onAction="#onChoThoiViec"/>
             </VBox>
         </VBox>
     </HBox>

@@ -9,8 +9,8 @@ BEGIN
     IF UPDATING THEN
         IF :NEW.HANSUDUNG > :OLD.HANSUDUNG THEN
             RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_GIAN_LAN_HSD,
-                'CẢNH BÁO GIAN LẬN: Hạn sử dụng mới (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
-                ') không được phép lớn hơn hạn sử dụng cũ (' || TO_CHAR(:OLD.HANSUDUNG, 'DD/MM/YYYY') || ').');
+                'CANH BAO GIAN LAN: Han su dung moi (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
+                ') khong duoc phep lon hon han su dung cu (' || TO_CHAR(:OLD.HANSUDUNG, 'DD/MM/YYYY') || ').');
         END IF;
     END IF;
 
@@ -21,12 +21,12 @@ BEGIN
 
     IF TRUNC(:NEW.HANSUDUNG) - 10 <= TRUNC(V_NGAYNHAP) THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HSD_KHONG_HOPLE,
-            'LỖI NGHIỆP VỤ: Hạn sử dụng của lô này (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
-            ') và ngày nhập kho (' || TO_CHAR(V_NGAYNHAP, 'DD/MM/YYYY') || ') đã quá hạn hoặc gần hết hạn!.');
+            'LOI NGHIEP VU: Han su dung cua lo nay (' || TO_CHAR(:NEW.HANSUDUNG, 'DD/MM/YYYY') ||
+            ') va ngay nhap kho (' || TO_CHAR(V_NGAYNHAP, 'DD/MM/YYYY') || ') da qua han hoac gan het han!.');
     END IF;
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_CO_PHIEUNHAP, 'Lỗi: Không tìm thấy phiếu nhập kho.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_CO_PHIEUNHAP, 'Loi: Khong tim thay phieu nhap kho.');
 END;
 /

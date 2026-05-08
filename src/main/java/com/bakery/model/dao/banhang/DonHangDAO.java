@@ -90,6 +90,21 @@ public class DonHangDAO extends BaseDAO {
         }
     }
 
+    /** Hủy hóa đơn bán lẻ đã hoàn thành — hoàn kho, không hoàn tiền mặt. */
+    public void huyHoaDonBanLe(int maDon, String lyDoHuy, int maNvCapNhat) throws Exception {
+        String sql = "{CALL PROC_HUYHOADONBANLE(?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, maDon);
+            cstmt.setString(2, lyDoHuy);
+            cstmt.setInt(3, maNvCapNhat);
+            cstmt.execute();
+        } catch (SQLException e) {
+            handleException("huyHoaDonBanLe", e);
+            throw e;
+        }
+    }
+
     public boolean tonTaiDonHang(int maDon) throws Exception {
         String sql = "SELECT COUNT(*) AS TOTAL FROM DONDATHANG WHERE MADON = ?";
         try (Connection conn = moKetNoi()) {

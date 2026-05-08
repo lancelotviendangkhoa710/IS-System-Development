@@ -107,6 +107,11 @@ public class DonHangService {
         donHangService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvCapNhat, tenTrangThaiHienTai, refundAmount);
     }
 
+    /** Hủy hóa đơn bán lẻ đã hoàn thành — hoàn kho, không hoàn tiền mặt. */
+    public void huyHoaDonBanLe(int maDon, String lyDoHuy, int maNvCapNhat) throws Exception {
+        donHangService.huyHoaDonBanLe(maDon, lyDoHuy, maNvCapNhat);
+    }
+
     // =========================================================
     // 3. TRA CỨU SẢN PHẨM & KHÁCH HÀNG (Delegates to SanPham/KhachHang Service)
     // =========================================================

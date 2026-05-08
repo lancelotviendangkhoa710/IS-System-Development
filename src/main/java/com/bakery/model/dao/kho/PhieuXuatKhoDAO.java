@@ -60,4 +60,27 @@ public class PhieuXuatKhoDAO extends BaseDAO {
             throw e;
         }
     }
+
+    /**
+     * Xuất kho sản xuất qua PROC_XUATKHOSANXUAT.
+     * Procedure tự: kiểm tra đủ NL (Pessimistic Lock) → tạo phiếu → xuất FIFO theo lô.
+     * Trigger TRG_XUATSLNGUYENLIEU sẽ tự trừ tồn kho.
+     *
+     * @param maSP            mã sản phẩm cần làm
+     * @param soLuongSanXuat  số lượng bánh cần làm
+     * @param maNV            mã nhân viên (thợ bếp) thực hiện
+     */
+    public void xuatKhoSanXuat(int maSP, double soLuongSanXuat, int maNV) throws Exception {
+        String sql = "{CALL PROC_XUATKHOSANXUAT(?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, maSP);
+            cs.setDouble(2, soLuongSanXuat);
+            cs.setInt(3, maNV);
+            cs.execute();
+        } catch (SQLException e) {
+            handleException("xuatKhoSanXuat", e);
+            throw e;
+        }
+    }
 }

@@ -22,13 +22,13 @@ BEGIN
     WHERE MADON = V_MADON;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DONDATHANG_KHONG_TON_TAI, 'Lỗi: Không tìm thấy đơn hàng để cập nhật tổng tiền. Mã đơn = ' || V_MADON);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_DONDATHANG_KHONG_TON_TAI, 'Loi: Khong tim thay don hang de cap nhat tong tien. Ma don = ' || V_MADON);
     END IF;
 
 EXCEPTION
     WHEN OTHERS THEN
         IF SQLCODE = PKG_ERROR_CODES.ERR_DONDATHANG_KHONG_TON_TAI THEN RAISE;
         END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_CAPNHAT_TONGTIEN, 'Lỗi hệ thống khi cập nhật tổng tiền đơn hàng: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_CAPNHAT_TONGTIEN, 'Loi he thong khi cap nhat tong tien don hang: ' || SQLERRM);
 END;
 /

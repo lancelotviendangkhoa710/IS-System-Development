@@ -1,216 +1,248 @@
 -- ============================================================
 -- PACKAGE: PKG_ERROR_CODES
--- MỤC ĐÍCH: Chuẩn hóa toàn bộ mã lỗi hệ thống quản lý tiệm bánh
--- PHÂN VÙNG:
---   -20000 ~ -20099 : Hệ thống / Dùng chung
---   -20100 ~ -20199 : Nhân sự & Khách hàng & Hạng thành viên
---   -20200 ~ -20299 : Sản phẩm & Danh mục sản phẩm
---   -20300 ~ -20399 : Kho & Công thức
---   -20400 ~ -20499 : Đơn hàng
---   -20500 ~ -20599 : Tài chính
+-- Muc dich: Chuan hoa toan bo ma loi he thong quan ly tiem banh
+-- Phan vung:
+--   -20000 ~ -20099 : He thong / Dung chung
+--   -20100 ~ -20199 : Nhan su & Khach hang & Hang thanh vien
+--   -20200 ~ -20299 : San pham & Danh muc san pham
+--   -20300 ~ -20399 : Kho & Cong thuc
+--   -20400 ~ -20499 : Don hang
+--   -20500 ~ -20599 : Tai chinh
 -- ============================================================
 
 CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
 
     -- ========================
-    -- NHÓM 00: HỆ THỐNG / DÙNG CHUNG
+    -- NHOM 00: HE THONG / DUNG CHUNG
     -- ========================
 
-    -- Lỗi hệ thống khi khôi phục dữ liệu
+    -- Loi he thong khi khoi phuc du lieu
     ERR_HE_THONG_KHOIPHUC          CONSTANT NUMBER := -20001;
 
-    -- Lỗi hệ thống khi thanh toán giao dịch
+    -- Loi he thong khi thanh toan giao dich
     ERR_THANH_TOAN_GIAO_DICH        CONSTANT NUMBER := -20002;
 
-    -- Lỗi hệ thống giao dịch khi thực thi hủy đơn
+    -- Loi he thong giao dich khi thuc thi huy don
     ERR_HUY_DON_GIAO_DICH           CONSTANT NUMBER := -20003;
 
-    -- Lỗi hệ thống khi xuất kho sản xuất
+    -- Loi he thong khi xuat kho san xuat
     ERR_HUY_XUAT_KHO                CONSTANT NUMBER := -20004;
 
-    -- Lỗi hệ thống khi tạo đơn hàng
+    -- Loi he thong khi tao don hang
     ERR_HUY_TAO_DON                 CONSTANT NUMBER := -20005;
 
 
     -- ========================
-    -- NHÓM 01: NHÂN SỰ & KHÁCH HÀNG
+    -- NHOM 01: NHAN SU & KHACH HANG
     -- ========================
 
-    -- Ca làm việc không tồn tại hoặc đã đóng (dùng trong PROC_DONGCADOISOAT)
+    -- Ca lam viec khong ton tai hoac da dong (dung trong PROC_DONGCADOISOAT)
     ERR_CA_KHONG_TON_TAI            CONSTANT NUMBER := -20101;
     ERR_CA_MO_HE_THONG              CONSTANT NUMBER := -20102;
     ERR_CA_DONG_HE_THONG            CONSTANT NUMBER := -20103;
 
-    --Vai trò
+    -- Vai tro
     ERR_VAITRO_THEM_HE_THONG        CONSTANT NUMBER := -20104;
     ERR_VAITRO_KHONG_TON_TAI_CN     CONSTANT NUMBER := -20105;
     ERR_VAITRO_CAPNHAT_HE_THONG     CONSTANT NUMBER := -20106;
     ERR_VAITRO_KHONG_TON_TAI_XOA    CONSTANT NUMBER := -20107;
     ERR_VAITRO_XOA_HE_THONG         CONSTANT NUMBER := -20108;
-    --Nhân viên
+
+    -- Nhan vien
     ERR_NV_THEM_HE_THONG            CONSTANT NUMBER := -20109;
     ERR_NV_KHONG_TON_TAI_CN         CONSTANT NUMBER := -20110;
     ERR_NV_CAPNHAT_HE_THONG         CONSTANT NUMBER := -20111;
     ERR_NV_KHONG_TON_TAI_XOA        CONSTANT NUMBER := -20112;
     ERR_NV_XOA_HE_THONG             CONSTANT NUMBER := -20113;
-    -- Hạng thành viên
+
+    -- Hang thanh vien
     ERR_HANGTV_THEM_HE_THONG        CONSTANT NUMBER := -20114;
     ERR_HANGTV_KHONG_TON_TAI_CN     CONSTANT NUMBER := -20115;
     ERR_HANGTV_CAPNHAT_HE_THONG     CONSTANT NUMBER := -20116;
     ERR_HANGTV_KHONG_TON_TAI_XOA    CONSTANT NUMBER := -20117;
     ERR_HANGTV_XOA_HE_THONG         CONSTANT NUMBER := -20118;
-    --Khách Hàng
+
+    -- Khach Hang
     ERR_KH_THEM_HE_THONG            CONSTANT NUMBER := -20119;
     ERR_KH_KHONG_TON_TAI_CN         CONSTANT NUMBER := -20120;
     ERR_KH_CAPNHAT_HE_THONG         CONSTANT NUMBER := -20121;
     ERR_KH_KHONG_TON_TAI_XOA        CONSTANT NUMBER := -20122;
     ERR_KH_XOA_HE_THONG             CONSTANT NUMBER := -20123;
-    -- Nhân viên (bổ sung)
+
+    -- Nhan vien (bo sung)
     ERR_NV_SDT_TON_TAI              CONSTANT NUMBER := -20124;
     ERR_NV_TENDANGNHAP_TON_TAI      CONSTANT NUMBER := -20125;
 
+    -- Nhan vien: cap nhat & doi mat khau (ma loi chinh thuc thay the hardcode -20199/-20198/-20197)
+    ERR_NV_SUA_HE_THONG             CONSTANT NUMBER := -20126;
+    ERR_NV_KHONG_CO_TAIKHOAN        CONSTANT NUMBER := -20127;
+    ERR_NV_DOI_MATKHAU_HE_THONG     CONSTANT NUMBER := -20128;
 
 
     -- ========================
-    -- NHÓM 02: SẢN PHẨM
+    -- NHOM 02: SAN PHAM
     -- ========================
-    -- Số lượng bánh trong kho đã hết (dùng trong TRG_TRUKHO_DONHANG, TRG_TRUKHO_PHIEUXUATTP)
+
+    -- So luong banh trong kho da het (dung trong TRG_TRUKHO_DONHANG, TRG_TRUKHO_PHIEUXUATTP)
     ERR_SP_HET_HANG                 CONSTANT NUMBER := -20201;
 
-    -- Không tìm thấy sản phẩm trong hệ thống (dùng trong TRG_TRUKHO_DONHANG, TRG_TRUKHO_PHIEUXUATTP)
+    -- Khong tim thay san pham trong he thong (dung trong TRG_TRUKHO_DONHANG, TRG_TRUKHO_PHIEUXUATTP)
     ERR_SP_KHONG_TON_TAI            CONSTANT NUMBER := -20202;
 
-    -- Số lượng hủy vượt quá tồn kho hiện tại (dùng trong PROC_XUATHUYBANH)
+    -- So luong huy vuot qua ton kho hien tai (dung trong PROC_XUATHUYBANH)
     ERR_XUAT_HUY_BANH               CONSTANT NUMBER := -20203;
+
+    -- Danh muc san pham
     ERR_DM_THEM_HE_THONG            CONSTANT NUMBER := -20204;
     ERR_DM_KHONG_TON_TAI_CN         CONSTANT NUMBER := -20205;
     ERR_DM_CAPNHAT_HE_THONG         CONSTANT NUMBER := -20206;
     ERR_DM_KHONG_TON_TAI_XOA        CONSTANT NUMBER := -20207;
     ERR_DM_XOA_HE_THONG             CONSTANT NUMBER := -20208;
-    --Sản phẩm
+
+    -- San pham
     ERR_SANPHAM_THEM_HE_THONG       CONSTANT NUMBER := -20209;
     ERR_SANPHAM_KHONG_TON_TAI_CN    CONSTANT NUMBER := -20210;
     ERR_SANPHAM_CAPNHAT_HE_THONG    CONSTANT NUMBER := -20211;
     ERR_SANPHAM_KHONG_TON_TAI_XOA   CONSTANT NUMBER := -20212;
     ERR_SANPHAM_XOA_HE_THONG        CONSTANT NUMBER := -20213;
-    --Kích cở bánh
+
+    -- Kich co banh
     ERR_KICHCO_THEM_HE_THONG        CONSTANT NUMBER := -20214;
     ERR_KICHCO_KHONG_TON_TAI_CN     CONSTANT NUMBER := -20215;
     ERR_KICHCO_CAPNHAT_HE_THONG     CONSTANT NUMBER := -20216;
     ERR_KICHCO_KHONG_TON_TAI_XOA    CONSTANT NUMBER := -20217;
     ERR_KICHCO_XOA_HE_THONG         CONSTANT NUMBER := -20218;
-    --Cốt bánh
+
+    -- Cot banh
     ERR_COTBANH_THEM_HE_THONG       CONSTANT NUMBER := -20219;
     ERR_COTBANH_KHONG_TON_TAI_CN    CONSTANT NUMBER := -20220;
     ERR_COTBANH_CAPNHAT_HE_THONG    CONSTANT NUMBER := -20221;
     ERR_COTBANH_KHONG_TON_TAI_XOA   CONSTANT NUMBER := -20222;
     ERR_COTBANH_XOA_HE_THONG        CONSTANT NUMBER := -20223;
-    --Nhân bánh
+
+    -- Nhan banh
     ERR_NHANBANH_THEM_HE_THONG      CONSTANT NUMBER := -20224;
     ERR_NHANBANH_KHONG_TON_TAI_CN   CONSTANT NUMBER := -20225;
     ERR_NHANBANH_CAPNHAT_HE_THONG   CONSTANT NUMBER := -20226;
     ERR_NHANBANH_KHONG_TON_TAI_XOA  CONSTANT NUMBER := -20227;
     ERR_NHANBANH_XOA_HE_THONG       CONSTANT NUMBER := -20228;
-    -- Trang trí
+
+    -- Trang tri
     ERR_TRANGTRI_THEM_HE_THONG      CONSTANT NUMBER := -20229;
     ERR_TRANGTRI_KHONG_TON_TAI_CN   CONSTANT NUMBER := -20230;
     ERR_TRANGTRI_CAPNHAT_HE_THONG   CONSTANT NUMBER := -20231;
     ERR_TRANGTRI_KHONG_TON_TAI_XOA  CONSTANT NUMBER := -20232;
     ERR_TRANGTRI_XOA_HE_THONG       CONSTANT NUMBER := -20233;
 
+
     -- ========================
-    -- NHÓM 03: KHO & CÔNG THỨC
+    -- NHOM 03: KHO & CONG THUC
     -- ========================
-    -- Nguyên liệu không đạt chuẩn VSATTP (dùng trong TRG_KIEMTRAVSATTP)
+
+    -- Nguyen lieu khong dat chuan VSATTP (dung trong TRG_KIEMTRAVSATTP)
     ERR_NL_KHONG_DAT_VSATTP         CONSTANT NUMBER := -20301;
 
-    -- Phát hiện gian lận hạn sử dụng - HSD mới lớn hơn HSD cũ (dùng trong TRG_KIEMTRA_HSD)
-    ERR_GIAN_LAN_HSD             CONSTANT NUMBER := -20302;
-    ERR_HSD_KHONG_HOPLE          CONSTANT NUMBER := -20303;
-    ERR_KHONG_CO_PHIEUNHAP       CONSTANT NUMBER := -20304;
+    -- Phat hien gian lan han su dung (dung trong TRG_KIEMTRA_HSD)
+    ERR_GIAN_LAN_HSD                CONSTANT NUMBER := -20302;
+    ERR_HSD_KHONG_HOPLE             CONSTANT NUMBER := -20303;
+    ERR_KHONG_CO_PHIEUNHAP          CONSTANT NUMBER := -20304;
 
-    -- Không tìm thấy phiếu nhập kho (dùng trong TRG_TONGTIENNHAP)
+    -- Khong tim thay phieu nhap kho (dung trong TRG_TONGTIENNHAP)
     ERR_NL_KHONG_CO_PHIEUNHAP       CONSTANT NUMBER := -20305;
 
-    -- Không tìm thấy lô hàng trong kho (dùng trong TRG_XUATSLNGUYENLIEU)
+    -- Khong tim thay lo hang trong kho (dung trong TRG_XUATSLNGUYENLIEU)
     ERR_NL_KHONG_CO_LO_HANG         CONSTANT NUMBER := -20306;
 
-    -- Không tìm thấy nguyên liệu (dùng trong TRG_GIAVONTRUNGBINH_SOLUONGTONTONG)
+    -- Khong tim thay nguyen lieu (dung trong TRG_GIAVONTRUNGBINH_SOLUONGTONTONG)
     ERR_KHONG_CO_NGUYEN_LIEU        CONSTANT NUMBER := -20307;
 
-    -- Nguyên liệu đã được sử dụng, không thể hủy phiếu nhập (dùng trong PROC_HUYPHIEUNHAPKHO)
+    -- Nguyen lieu da duoc su dung, khong the huy phieu nhap (dung trong PROC_HUYPHIEUNHAPKHO)
     ERR_NL_KHONG_THE_HUY_PN         CONSTANT NUMBER := -20308;
 
-    -- Lỗi hệ thống khi thực thi Nhập kho (dùng trong PROC_NHAPKHO)
+    -- Loi he thong khi thuc thi Nhap kho (dung trong PROC_NHAPKHO)
     ERR_NHAP_KHO                    CONSTANT NUMBER := -20309;
-    -- Không đủ tồn kho nguyên liệu để xuất sản xuất (dùng trong PROC_XUATKHOSANXUAT)
+
+    -- Khong du ton kho nguyen lieu de xuat san xuat (dung trong PROC_XUATKHOSANXUAT)
     ERR_NL_KHONG_DU                 CONSTANT NUMBER := -20310;
 
-    -- Nguyên liệu
-    ERR_NL_THEM_MOI                 CONSTANT NUMBER := -20310;
+    -- Nguyen lieu
+    ERR_NL_THEM_MOI                 CONSTANT NUMBER := -20320;
     ERR_NL_KHONG_TON_TAI_CN         CONSTANT NUMBER := -20311;
     ERR_NL_CAPNHAT_HE_THONG         CONSTANT NUMBER := -20312;
     ERR_NL_KHONG_TON_TAI_XOA        CONSTANT NUMBER := -20313;
     ERR_NL_XOA_HE_THONG             CONSTANT NUMBER := -20314;
 
-    -- Nhà cung cấp
+    -- Nha cung cap
     ERR_NCC_THEM_HE_THONG           CONSTANT NUMBER := -20315;
     ERR_NCC_KHONG_TON_TAI_CN        CONSTANT NUMBER := -20316;
     ERR_NCC_CAPNHAT_HE_THONG        CONSTANT NUMBER := -20317;
     ERR_NCC_KHONG_TON_TAI_XOA       CONSTANT NUMBER := -20318;
     ERR_NCC_XOA_HE_THONG            CONSTANT NUMBER := -20319;
 
+
     -- ========================
-    -- NHÓM 04: ĐƠN HÀNG
+    -- NHOM 04: DON HANG
     -- ========================
 
-    -- Vượt công suất sản xuất trong ngày (dùng trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
+    -- Vuot cong suat san xuat trong ngay (dung trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
     ERR_DON_VUOT_CONG_SUAT          CONSTANT NUMBER := -20401;
 
-    -- Không tìm thấy giới hạn sản xuất trong ngày (dùng trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
+    -- Khong tim thay gioi han san xuat trong ngay (dung trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
     ERR_KHONG_GIOI_HAN_SX           CONSTANT NUMBER := -20402;
 
-    -- Lỗi khi chuyển trạng thái đơn hàng (dùng trong PROC_CHUYENTRANGTHAIDON)
+    -- Loi khi chuyen trang thai don hang (dung trong PROC_CHUYENTRANGTHAIDON)
     ERR_DON_CHUYEN_TRANGTHAI        CONSTANT NUMBER := -20403;
 
-    -- Không tìm thấy đơn hàng để cập nhật tổng tiền (dùng trong TRG_CAPNHAT_CTDONHANG)
+    -- Khong tim thay don hang de cap nhat tong tien (dung trong TRG_CAPNHAT_CTDONHANG)
     ERR_DONDATHANG_KHONG_TON_TAI    CONSTANT NUMBER := -20404;
 
-    -- Lỗi hệ thống khi cập nhật tổng tiền đơn hàng (dùng trong TRG_CAPNHAT_DONHANG)
+    -- Loi he thong khi cap nhat tong tien don hang (dung trong TRG_CAPNHAT_DONHANG)
     ERR_HUY_CAPNHAT_TONGTIEN        CONSTANT NUMBER := -20405;
 
+
     -- ========================
-    -- NHÓM 05: TÀI CHÍNH
+    -- NHOM 05: TAI CHINH
     -- ========================
-    -- Vi phạm kế toán: cấm xóa vật lý hóa đơn
+
+    -- Vi pham ke toan: cam xoa vat ly hoa don
     ERR_TC_CAM_XOA_HOADON           CONSTANT NUMBER := -20501;
-    -- Vi phạm kế toán: cấm xóa vật lý phiếu thu chi
+
+    -- Vi pham ke toan: cam xoa vat ly phieu thu chi
     ERR_TC_CAM_XOA_PHIEUTHUCHI      CONSTANT NUMBER := -20502;
-    --Lỗi thêm phương thức thanh toán
+
+    -- Loi them phuong thuc thanh toan
     ERR_PTTT_THEM_HE_THONG          CONSTANT NUMBER := -20503;
-    --Lỗi không tìm thấy phương thức thanh toán
+
+    -- Loi khong tim thay phuong thuc thanh toan
     ERR_PTTT_KHONG_TON_TAI          CONSTANT NUMBER := -20504;
-    --Lỗi không tìm thấy loại thi chi
+
+    -- Loi khong tim thay loai thu chi
     ERR_LOAITHUCHI_KHONG_TON_TAI    CONSTANT NUMBER := -20505;
-    --Lỗi thêm phiếu thu chi
+
+    -- Loi them phieu thu chi
     ERR_PHIEUTHUCHI_THEM_HE_THONG   CONSTANT NUMBER := -20506;
 
+    -- Cap nhat & xoa phuong thuc thanh toan
+    ERR_PTTT_CAPNHAT_HE_THONG       CONSTANT NUMBER := -20507;
+    ERR_PTTT_KHONG_TON_TAI_CN       CONSTANT NUMBER := -20508;
+    ERR_PTTT_KHONG_TON_TAI_XOA      CONSTANT NUMBER := -20509;
+    ERR_PTTT_XOA_HE_THONG           CONSTANT NUMBER := -20510;
 
-    -- Automatically added missing codes
-    ERR_LOAITHUCHI_CAPNHAT_HE_THONG CONSTANT NUMBER := -20900;
-    ERR_PTTT_CAPNHAT_HE_THONG CONSTANT NUMBER := -20901;
-    ERR_PHIEU_NHAP_KHO CONSTANT NUMBER := -20902;
-    ERR_NL_TON_AO CONSTANT NUMBER := -20903;
-    ERR_LOAITHUCHI_KHONG_TON_TAI_CN CONSTANT NUMBER := -20904;
-    ERR_PTTT_XOA_HE_THONG CONSTANT NUMBER := -20905;
-    ERR_PTTT_KHONG_TON_TAI_CN CONSTANT NUMBER := -20906;
-    ERR_HOAN_XUAT_BANH CONSTANT NUMBER := -20907;
-    ERR_PTTT_KHONG_TON_TAI_XOA CONSTANT NUMBER := -20908;
-    ERR_LOAITHUCHI_KHONG_TON_TAI_XOA CONSTANT NUMBER := -20909;
-    ERR_HOADON_THEM_HE_THONG CONSTANT NUMBER := -20910;
-    ERR_HOAN_PHIEU_NHAP_KHO CONSTANT NUMBER := -20911;
-    ERR_LOAITHUCHI_THEM_HE_THONG CONSTANT NUMBER := -20912;
-    ERR_LOAITHUCHI_XOA_HE_THONG CONSTANT NUMBER := -20913;
+    -- Loai thu chi
+    ERR_LOAITHUCHI_THEM_HE_THONG    CONSTANT NUMBER := -20511;
+    ERR_LOAITHUCHI_KHONG_TON_TAI_CN CONSTANT NUMBER := -20512;
+    ERR_LOAITHUCHI_CAPNHAT_HE_THONG CONSTANT NUMBER := -20513;
+    ERR_LOAITHUCHI_KHONG_TON_TAI_XOA CONSTANT NUMBER := -20514;
+    ERR_LOAITHUCHI_XOA_HE_THONG     CONSTANT NUMBER := -20515;
+
+    -- Hoa don
+    ERR_HOADON_THEM_HE_THONG        CONSTANT NUMBER := -20516;
+
+    -- Phieu nhap kho & xuat banh
+    ERR_PHIEU_NHAP_KHO              CONSTANT NUMBER := -20517;
+    ERR_HOAN_PHIEU_NHAP_KHO         CONSTANT NUMBER := -20518;
+    ERR_HOAN_XUAT_BANH              CONSTANT NUMBER := -20519;
+    ERR_NL_TON_AO                   CONSTANT NUMBER := -20520;
 
 END PKG_ERROR_CODES;
 /

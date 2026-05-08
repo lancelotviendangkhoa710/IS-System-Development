@@ -93,6 +93,12 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
 
     @Override
     public void navigateToLogin() {
-        // Not used inside modal
+        Platform.runLater(() -> {
+            try {
+                transitionTo(btnBatDau, "/fxml/DangNhapView.fxml", "H3K Bakery - Đăng nhập", 1366, 768);
+            } catch (Exception e) {
+                hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
+            }
+        });
     }
 }

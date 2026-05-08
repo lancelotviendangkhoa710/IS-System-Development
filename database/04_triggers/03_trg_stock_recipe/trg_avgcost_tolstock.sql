@@ -28,7 +28,7 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_CO_NGUYEN_LIEU, 'Lỗi: Không tìm thấy dữ liệu nguyên liệu.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_CO_NGUYEN_LIEU, 'Loi: Khong tim thay du lieu nguyen lieu.');
 END;
 /
 

@@ -284,7 +284,30 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
 
     @Override
     public void navigateToLogin() {
-        Platform.runLater(() -> dongDialog());
+        Platform.runLater(() -> {
+            // Lấy owner window (MainMenuView) trước khi đóng dialog
+            javafx.stage.Window owner = getStage().getOwner();
+            getStage().close();
+
+            // Chuyển owner về màn hình đăng nhập
+            if (owner instanceof Stage ownerStage) {
+                try {
+                    java.net.URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
+                    if (fxmlUrl == null) return;
+                    javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+                    javafx.scene.Parent root = loader.load();
+                    javafx.scene.Scene scene = new javafx.scene.Scene(root);
+                    URL css = getClass().getResource("/css/bakery.css");
+                    if (css != null) scene.getStylesheets().add(css.toExternalForm());
+                    ownerStage.setTitle("H3K Bakery - Đăng nhập");
+                    ownerStage.setScene(scene);
+                    ownerStage.setResizable(false);
+                    ownerStage.centerOnScreen();
+                } catch (Exception e) {
+                    System.err.println("[DoiSoatDongCa] Lỗi về màn hình đăng nhập: " + e.getMessage());
+                }
+            }
+        });
     }
 
     @Override

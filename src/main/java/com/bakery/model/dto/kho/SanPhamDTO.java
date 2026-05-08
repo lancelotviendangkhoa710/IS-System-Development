@@ -7,7 +7,8 @@ public class SanPhamDTO extends BaseDTO {
     private int maSP;
     private int maDM;
     private String tenSP;
-    private double giaCoBan;
+    private double giaVon;
+    private double giaBan;
     private String hinhAnh;
     private int choPhepTuyChinh;
     private int thoiGianBaoQuan;
@@ -17,13 +18,18 @@ public class SanPhamDTO extends BaseDTO {
     private int thoiGianChuanBi;
     private Integer maNX;
 
-    public SanPhamDTO() {}
+    public SanPhamDTO() {
+    }
 
-    public SanPhamDTO(int maSP, int maDM, String tenSP, double giaCoBan, String hinhAnh, int choPhepTuyChinh, int thoiGianBaoQuan, double soLuongTon, int phienBan, LocalDateTime thoiDiemXoa, int thoiGianChuanBi, Integer maNX) {
+    public SanPhamDTO(int maSP, int maDM, String tenSP, double giaVon, double giaBan,
+            String hinhAnh, int choPhepTuyChinh, int thoiGianBaoQuan,
+            double soLuongTon, int phienBan, LocalDateTime thoiDiemXoa,
+            int thoiGianChuanBi, Integer maNX) {
         this.maSP = maSP;
         this.maDM = maDM;
         this.tenSP = tenSP;
-        this.giaCoBan = giaCoBan;
+        this.giaVon = giaVon;
+        this.giaBan = giaBan;
         this.hinhAnh = hinhAnh;
         this.choPhepTuyChinh = choPhepTuyChinh;
         this.thoiGianBaoQuan = thoiGianBaoQuan;
@@ -34,39 +40,107 @@ public class SanPhamDTO extends BaseDTO {
         this.maNX = maNX;
     }
 
-    public int getMaSP() { return maSP; }
-    public void setMaSP(int maSP) { this.maSP = maSP; }
+    public int getMaSP() {
+        return maSP;
+    }
 
-    public int getMaDM() { return maDM; }
-    public void setMaDM(int maDM) { this.maDM = maDM; }
+    public void setMaSP(int maSP) {
+        this.maSP = maSP;
+    }
 
-    public String getTenSP() { return tenSP; }
-    public void setTenSP(String tenSP) { this.tenSP = tenSP; }
+    public int getMaDM() {
+        return maDM;
+    }
 
-    public double getGiaCoBan() { return giaCoBan; }
-    public void setGiaCoBan(double giaCoBan) { this.giaCoBan = giaCoBan; }
+    public void setMaDM(int maDM) {
+        this.maDM = maDM;
+    }
 
-    public String getHinhAnh() { return hinhAnh; }
-    public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+    public String getTenSP() {
+        return tenSP;
+    }
 
-    public int getChoPhepTuyChinh() { return choPhepTuyChinh; }
-    public void setChoPhepTuyChinh(int choPhepTuyChinh) { this.choPhepTuyChinh = choPhepTuyChinh; }
+    public void setTenSP(String tenSP) {
+        this.tenSP = tenSP;
+    }
 
-    public int getThoiGianBaoQuan() { return thoiGianBaoQuan; }
-    public void setThoiGianBaoQuan(int thoiGianBaoQuan) { this.thoiGianBaoQuan = thoiGianBaoQuan; }
+    public double getGiaVon() {
+        return giaVon;
+    }
 
-    public double getSoLuongTon() { return soLuongTon; }
-    public void setSoLuongTon(double soLuongTon) { this.soLuongTon = soLuongTon; }
+    public void setGiaVon(double giaVon) {
+        this.giaVon = giaVon;
+    }
 
-    public int getPhienBan() { return phienBan; }
-    public void setPhienBan(int phienBan) { this.phienBan = phienBan; }
+    public double getGiaBan() {
+        return giaBan;
+    }
 
-    public LocalDateTime getThoiDiemXoa() { return thoiDiemXoa; }
-    public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) { this.thoiDiemXoa = thoiDiemXoa; }
+    public void setGiaBan(double giaBan) {
+        this.giaBan = giaBan;
+    }
 
-    public int getThoiGianChuanBi() { return thoiGianChuanBi; }
-    public void setThoiGianChuanBi(int thoiGianChuanBi) { this.thoiGianChuanBi = thoiGianChuanBi; }
-    
-    public Integer getMaNX() { return maNX; }
-    public void setMaNX(Integer maNX) { this.maNX = maNX; }
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
+
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
+    }
+
+    public int getChoPhepTuyChinh() {
+        return choPhepTuyChinh;
+    }
+
+    public void setChoPhepTuyChinh(int choPhepTuyChinh) {
+        this.choPhepTuyChinh = choPhepTuyChinh;
+    }
+
+    public int getThoiGianBaoQuan() {
+        return thoiGianBaoQuan;
+    }
+
+    public void setThoiGianBaoQuan(int thoiGianBaoQuan) {
+        this.thoiGianBaoQuan = thoiGianBaoQuan;
+    }
+
+    public double getSoLuongTon() {
+        return soLuongTon;
+    }
+
+    public void setSoLuongTon(double soLuongTon) {
+        this.soLuongTon = soLuongTon;
+    }
+
+    public int getPhienBan() {
+        return phienBan;
+    }
+
+    public void setPhienBan(int phienBan) {
+        this.phienBan = phienBan;
+    }
+
+    public LocalDateTime getThoiDiemXoa() {
+        return thoiDiemXoa;
+    }
+
+    public void setThoiDiemXoa(LocalDateTime thoiDiemXoa) {
+        this.thoiDiemXoa = thoiDiemXoa;
+    }
+
+    public int getThoiGianChuanBi() {
+        return thoiGianChuanBi;
+    }
+
+    public void setThoiGianChuanBi(int thoiGianChuanBi) {
+        this.thoiGianChuanBi = thoiGianChuanBi;
+    }
+
+    public Integer getMaNX() {
+        return maNX;
+    }
+
+    public void setMaNX(Integer maNX) {
+        this.maNX = maNX;
+    }
 }

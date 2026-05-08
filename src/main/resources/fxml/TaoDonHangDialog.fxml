@@ -194,6 +194,10 @@
     <!-- Footer nút điều hướng -->
     <bottom>
         <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+            <Button fx:id="btnBack" text="← Quay lại"
+                    styleClass="btn-secondary"
+                    visible="false" disable="true"
+                    onAction="#onBack"/>
             <Button fx:id="btnNext" text="Tiếp theo →"
                     styleClass="btn-primary"
                     onAction="#onNext"/>

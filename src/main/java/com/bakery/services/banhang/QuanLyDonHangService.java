@@ -160,6 +160,26 @@ public class QuanLyDonHangService {
             throw new Exception("Hủy đơn thất bại: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Hủy hóa đơn bán lẻ đã hoàn thành.
+     * Hoàn kho tự động; tiền mặt đã trả cho khách được quản lý xử lý ngoài hệ thống.
+     * DB procedure sẽ chặn nếu đơn không ở trạng thái Hoàn thành.
+     */
+    public void huyHoaDonBanLe(int maDon, String lyDoHuy, int maNvCapNhat) throws Exception {
+        if (maDon <= 0)
+            throw new IllegalArgumentException("Mã đơn hủy sai định dạng.");
+        if (maNvCapNhat <= 0)
+            throw new IllegalArgumentException("Mã nhân viên không hợp lệ.");
+        if (lyDoHuy == null || lyDoHuy.trim().isEmpty())
+            throw new IllegalArgumentException("Lý do hủy hóa đơn chưa được nhập.");
+
+        try {
+            donHangDAO.huyHoaDonBanLe(maDon, lyDoHuy.trim(), maNvCapNhat);
+        } catch (SQLException e) {
+            throw new Exception("Hủy hóa đơn bán lẻ thất bại: " + e.getMessage(), e);
+        }
+    }
     
     // =========================================================
     // 4. TRA CỨU THÔNG TIN ĐƠN HÀNG

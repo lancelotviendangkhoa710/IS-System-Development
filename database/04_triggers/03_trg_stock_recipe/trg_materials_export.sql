@@ -32,6 +32,6 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_CO_LO_HANG, 'Lỗi: Không tìm thấy lô hàng trong kho.');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_CO_LO_HANG, 'Loi: Khong tim thay lo hang trong kho.');
 END;
 /

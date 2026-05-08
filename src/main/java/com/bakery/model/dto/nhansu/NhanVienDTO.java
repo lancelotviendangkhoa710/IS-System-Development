@@ -14,6 +14,8 @@ public class NhanVienDTO extends BaseDTO {
     private String tenDangNhap;
     private String matKhau;
     private int trangThaiLamViec;
+    private int trangThaiTK; // 1: Tài khoản hoạt động, 0: Bị khóa
+    private transient boolean canDoiMatKhau; // true nếu mật khẩu chưa được hash (lần đăng nhập đầu)
 
     public NhanVienDTO() {}
 
@@ -53,6 +55,12 @@ public class NhanVienDTO extends BaseDTO {
 
     public int getTrangThaiLamViec() { return trangThaiLamViec; }
     public void setTrangThaiLamViec(int trangThaiLamViec) { this.trangThaiLamViec = trangThaiLamViec; }
+
+    public int getTrangThaiTK() { return trangThaiTK; }
+    public void setTrangThaiTK(int trangThaiTK) { this.trangThaiTK = trangThaiTK; }
+
+    public boolean isCanDoiMatKhau() { return canDoiMatKhau; }
+    public void setCanDoiMatKhau(boolean canDoiMatKhau) { this.canDoiMatKhau = canDoiMatKhau; }
 
     /** Helper để lấy tên vai trò chính hoặc danh sách chuỗi */
     public String getTenVaiTroHienThi() {

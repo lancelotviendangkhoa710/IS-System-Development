@@ -77,7 +77,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
             return new SimpleStringProperty(tenDM);
         });
         colGiaBan.setCellValueFactory(
-                cellData -> new SimpleDoubleProperty(cellData.getValue().getGiaCoBan()).asObject());
+                cellData -> new SimpleDoubleProperty(cellData.getValue().getGiaBan()).asObject());
         colTonKho.setCellValueFactory(
                 cellData -> new SimpleDoubleProperty(cellData.getValue().getSoLuongTon()).asObject());
         tblSanPham.setItems(masterData);
@@ -118,7 +118,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
     public void hienThiChiTiet(SanPhamDTO sp) {
         if (sp == null) return;
         txtTenSP.setText(sp.getTenSP());
-        txtGiaBan.setText(String.valueOf(sp.getGiaCoBan()));
+        txtGiaBan.setText(String.valueOf(sp.getGiaBan()));
         txtTonKho.setText(String.valueOf(sp.getSoLuongTon()));
         txtTGBaoQuan.setText(String.valueOf(sp.getThoiGianBaoQuan()));
         txtTGChuanBi.setText(String.valueOf(sp.getThoiGianChuanBi()));
@@ -159,7 +159,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         SanPhamDTO sp = getSelectedSanPham();
         if (sp == null) sp = new SanPhamDTO();
         sp.setTenSP(txtTenSP.getText().trim());
-        try { sp.setGiaCoBan(Double.parseDouble(txtGiaBan.getText().trim())); } catch (NumberFormatException ignored) {}
+        try { sp.setGiaBan(Double.parseDouble(txtGiaBan.getText().trim())); } catch (NumberFormatException ignored) {}
         try { sp.setSoLuongTon(Double.parseDouble(txtTonKho.getText().trim())); } catch (NumberFormatException ignored) {}
         try { sp.setThoiGianBaoQuan(Integer.parseInt(txtTGBaoQuan.getText().trim())); } catch (NumberFormatException ignored) {}
         try { sp.setThoiGianChuanBi(Integer.parseInt(txtTGChuanBi.getText().trim())); } catch (NumberFormatException ignored) {}
@@ -246,8 +246,6 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
             imgSanPham.setFitWidth(120);
             imgSanPham.setFitHeight(120);
             imgSanPham.setPreserveRatio(true);
-            // Clip tròn nhẹ qua style
-            imgSanPham.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);");
         } catch (Exception e) {
             xoaAnhPreview();
             hienThiLoiLabel("Không thể tải ảnh: " + e.getMessage());

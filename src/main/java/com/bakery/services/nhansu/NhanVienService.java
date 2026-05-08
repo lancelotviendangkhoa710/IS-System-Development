@@ -34,7 +34,13 @@ public class NhanVienService extends BaseService {
         return nhanVienDAO.suaNhanVien(nv);
     }
 
-    public boolean xoaNhanVien(int maNV) throws Exception {
+    /** Cho thôi việc (soft): TRANGTHAILAMVIEC=0, TRANGTHAITK=0 — giữ lại toàn bộ lịch sử */
+    public boolean thoiViec(int maNV) throws Exception {
+        return nhanVienDAO.thoiViec(maNV);
+    }
+
+    /** Xóa cứng khỏi DB — chỉ dùng cho admin khi cần dọn dữ liệu thử nghiệm */
+    public boolean xoaHanNhanVien(int maNV) throws Exception {
         return nhanVienDAO.xoaNhanVien(maNV);
     }
 
@@ -55,3 +61,4 @@ public class NhanVienService extends BaseService {
         nhanVienDAO.capNhatVaiTroNhanVien(maNV, dsMaVT);
     }
 }
+

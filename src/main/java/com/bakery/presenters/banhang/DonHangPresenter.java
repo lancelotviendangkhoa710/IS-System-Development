@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.bakery.utils.UserSession;
 
 public class DonHangPresenter {
     private final IDonHangView view;
@@ -32,7 +33,6 @@ public class DonHangPresenter {
     private final Map<String, Integer> mapTrangThaiMoi = new HashMap<>();
     private final Map<Integer, String> mapDanhMuc = new HashMap<>();
     private double phanTramGiamGia = 0.0;
-    private static final int MOCK_CURRENT_USER_ID = 1;
 
     private String lastSearchMaDon = "";
     private String lastSearchTenKhach = "";
@@ -40,6 +40,13 @@ public class DonHangPresenter {
     private LocalTime lastSearchTu = null;
     private LocalTime lastSearchDen = null;
     private String lastSearchTrangThai = "ALL";
+
+    private int getCurrentUserId() {
+        if (UserSession.getCurrentUser() != null) {
+            return UserSession.getCurrentUser().getMaNV();
+        }
+        return 1; // Fallback an toàn
+    }
 
     private List<CTDonHangDTO> convertToCTDonHangList(List<YeuCauChiTietDonHangDTO> items) {
         List<CTDonHangDTO> list = new ArrayList<>();
@@ -114,7 +121,7 @@ public class DonHangPresenter {
             YeuCauChiTietDonHangDTO newItem = new YeuCauChiTietDonHangDTO();
             newItem.setMaSP(sp.getMaSP());
             newItem.setSoLuong(1);
-            newItem.setDonGia(sp.getGiaCoBan());
+            newItem.setDonGia(sp.getGiaBan());
             newItem.setCustom(false);
             gioHangItems.add(newItem);
         }
@@ -301,7 +308,7 @@ public class DonHangPresenter {
     private void xuLyThanhToanNgay(IDonHangDialogFactory.YeuCauDonHang req, double tongTien) throws Exception {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
         request.setMaKH(req.maKH());
-        request.setMaNVLap(MOCK_CURRENT_USER_ID);
+        request.setMaNVLap(getCurrentUserId());
         request.setTienDaCoc(tongTien);
         request.setHinhThucNhan(1); // Trực tiếp
         // Đặt thời gian nhận = ngay bây giờ + đệm 30s để tránh lỗi validation "quá khứ"
@@ -322,7 +329,7 @@ public class DonHangPresenter {
     private void xuLyDatTruoc(IDonHangDialogFactory.YeuCauDonHang req, double tongTien) throws Exception {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
         request.setMaKH(req.maKH());
-        request.setMaNVLap(MOCK_CURRENT_USER_ID);
+        request.setMaNVLap(getCurrentUserId());
         request.setTienDaCoc(req.tienCoc());
         request.setHinhThucNhan(2); // Đặt hàng
         request.setNgayGioNhanBanh(req.ngayGioNhan());
@@ -388,7 +395,7 @@ public class DonHangPresenter {
                 }
             }
 
-            hoaDonMoi = orderService.chuyenTrangThaiDon(maDon, maTtMoi, MOCK_CURRENT_USER_ID,
+            hoaDonMoi = orderService.chuyenTrangThaiDon(maDon, maTtMoi, getCurrentUserId(),
                     donHienTai.getHinhThucNhan(),
                     ttHienTai, ttMoi);
 
@@ -419,7 +426,7 @@ public class DonHangPresenter {
                             0.0,
                             tongTienHD, 0.0, false);
                 } catch (Exception ex) {
-                    view.showError("Không thể tải chi tiết đơn hàng để in hóa đơn.");
+                    view.hienThiLoi("Không thể tải chi tiết đơn hàng để in hóa đơn.");
                 }
             }
 
@@ -446,7 +453,7 @@ public class DonHangPresenter {
             if (!req.confirmed())
                 return;
 
-            orderService.huyDonVaHoanCoc(maDon, req.reason(), MOCK_CURRENT_USER_ID, don.getTenTrangThai(),
+            orderService.huyDonVaHoanCoc(maDon, req.reason(), getCurrentUserId(), don.getTenTrangThai(),
                     req.refundAmount());
 
             // Nếu có hoàn tiền, hiện thông báo thêm
@@ -459,6 +466,36 @@ public class DonHangPresenter {
             timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoiTraCuu("Lỗi hủy đơn: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Hủy hóa đơn bán lẻ đã hoàn thành.
+     * Chỉ dành cho Quản lý và Thu ngân có quyền — DB procedure tự kiểm tra điều kiện.
+     * Hoàn kho tự động; tiền mặt do quản lý xử lý ngoài hệ thống.
+     */
+    public void huyHoaDonBanLe(String maDonStr) {
+        try {
+            int maDon = Integer.parseInt(maDonStr.trim());
+
+            if (dialogFactory == null) {
+                view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
+                return;
+            }
+
+            // Hiển thị dialog nhập lý do hủy
+            IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, 0);
+            if (!req.confirmed())
+                return;
+
+            orderService.huyHoaDonBanLe(maDon, req.reason(), getCurrentUserId());
+
+            view.hienThiThongBaoTraCuu("Đã hủy hóa đơn bán lẻ #" + maDon + ". Kho hàng đã được hoàn trả.");
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+        } catch (NumberFormatException e) {
+            view.hienThiLoiTraCuu("Mã đơn không hợp lệ.");
+        } catch (Exception e) {
+            view.hienThiLoiTraCuu("Lỗi hủy hóa đơn: " + e.getMessage());
         }
     }
 

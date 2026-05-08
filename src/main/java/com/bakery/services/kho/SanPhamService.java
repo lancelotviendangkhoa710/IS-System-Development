@@ -2,6 +2,7 @@ package com.bakery.services.kho;
 import com.bakery.model.dto.banhang.YeuCauChiTietDonHangDTO;
 import com.bakery.services.BaseService;
 
+import com.bakery.model.dao.kho.CongThucDAO;
 import com.bakery.model.dao.kho.DanhMucSPDAO;
 import com.bakery.model.dao.kho.SanPhamDAO;
 import com.bakery.model.dto.kho.DanhMucSPDTO;
@@ -11,24 +12,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Service duy nhất chịu trách nhiệm về Sản phẩm và Danh mục
- * phục vụ màn hình POS bán hàng.
- * (SRP – Single Responsibility Principle)
- */
+/** Service quản lý Sản phẩm, Danh mục và tính giá vốn BOM. */
 public class SanPhamService extends BaseService {
 
     private final SanPhamDAO sanPhamDAO;
     private final DanhMucSPDAO danhMucSPDAO;
+    private final CongThucDAO congThucDAO;
 
     public SanPhamService() {
-        this.sanPhamDAO = new SanPhamDAO();
+        this.sanPhamDAO  = new SanPhamDAO();
         this.danhMucSPDAO = new DanhMucSPDAO();
+        this.congThucDAO  = new CongThucDAO();
     }
 
-    public SanPhamService(SanPhamDAO sanPhamDAO, DanhMucSPDAO danhMucSPDAO) {
-        this.sanPhamDAO = sanPhamDAO;
+    public SanPhamService(SanPhamDAO sanPhamDAO, DanhMucSPDAO danhMucSPDAO, CongThucDAO congThucDAO) {
+        this.sanPhamDAO   = sanPhamDAO;
         this.danhMucSPDAO = danhMucSPDAO;
+        this.congThucDAO  = congThucDAO;
     }
 
     /** Lấy tất cả sản phẩm đang được bán trên POS. */
@@ -93,6 +93,7 @@ public class SanPhamService extends BaseService {
 
     public int themSanPham(SanPhamDTO sp) throws Exception {
         validateSanPham(sp);
+        dieuChinhGia(sp);   // tính giaVon/giaBan nếu chưa có
         int maSPMoi = sanPhamDAO.themSanPham(sp);
         if (maSPMoi <= 0) {
             throw new Exception("Thêm sản phẩm thất bại do lỗi CSDL.");
@@ -102,6 +103,7 @@ public class SanPhamService extends BaseService {
 
     public void capNhatSanPham(SanPhamDTO sp) throws Exception {
         validateSanPham(sp);
+        dieuChinhGia(sp);   // tính lại giaVon/giaBan
         boolean success = sanPhamDAO.capNhatSanPham(sp);
         if (!success) {
             throw new Exception("Cập nhật sản phẩm thất bại do lỗi CSDL.");
@@ -123,14 +125,44 @@ public class SanPhamService extends BaseService {
         if (sp.getMaDM() <= 0) {
             throw new Exception("Vui lòng chọn danh mục hợp lệ.");
         }
-        if (sp.getGiaCoBan() < 0) {
-            throw new Exception("Giá cơ bản không được âm.");
+        if (sp.getGiaVon() < 0) {
+            throw new Exception("Giá vốn không được âm.");
         }
         if (sp.getThoiGianBaoQuan() < 0) {
             throw new Exception("Thời gian bảo quản không được âm.");
         }
         if (sp.getThoiGianChuanBi() < 0) {
             throw new Exception("Thời gian chuẩn bị không được âm.");
+        }
+    }
+
+    /**
+     * Tính giá vốn BOM từ công thức nguyên liệu.
+     * Java tính trước để hiển thị preview trên UI; DB trigger sẽ đồng bộ lại sau.
+     */
+    public double tinhGiaVonBOM(int maSP) throws Exception {
+        return congThucDAO.tinhTongGiaVon(maSP);
+    }
+
+    /** Công thức: giaBan = ROUND(giaVon × 2, -3) */
+    public long tinhGiaBan(double giaVon) {
+        return Math.round((giaVon * 2) / 1000.0) * 1000L;
+    }
+
+    /**
+     * Tự động điền giaVon/giaBan vào DTO nếu chưa có.
+     * Ưu tiên giá trị user nhập; fallback sang BOM calculation.
+     */
+    private void dieuChinhGia(SanPhamDTO sp) throws Exception {
+        if (sp.getGiaVon() <= 0 && sp.getMaSP() > 0) {
+            double giaVonBOM = tinhGiaVonBOM(sp.getMaSP());
+            sp.setGiaVon(giaVonBOM);
+        }
+        if (sp.getGiaBan() <= 0) {
+            sp.setGiaBan(tinhGiaBan(sp.getGiaVon()));
+        } else {
+            // Luôn làm tròn đến nghìn gần nhất dù user đã nhập
+            sp.setGiaBan(Math.round(sp.getGiaBan() / 1000.0) * 1000L);
         }
     }
 }
