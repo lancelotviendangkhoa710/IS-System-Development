@@ -135,74 +135,22 @@ public class CustomerFormPresenter {
     // === VALIDATION ===
 
     private boolean validateAddForm(CustomerAddView view, String hoTen, String sdt, String diaChi) {
-        boolean isValid = true;
-
-        // Validate họ tên
-        if (hoTen == null || hoTen.trim().isEmpty()) {
-            view.setFullNameError("Tên khách hàng không được để trống");
-            isValid = false;
-        } else if (hoTen.length() > 100) {
-            view.setFullNameError("Tên khách hàng tối đa 100 ký tự");
-            isValid = false;
-        } else {
-            view.setFullNameError(null);
-        }
-
-        // Validate SĐT
-        if (sdt == null || !sdt.matches("^\\d{10}$")) {
-            view.setPhoneError("SĐT phải là 10 chữ số");
-            isValid = false;
-        } else {
-            view.setPhoneError(null);
-        }
-
-        // Validate địa chỉ
-        if (diaChi == null || diaChi.trim().isEmpty()) {
-            view.setAddressError("Địa chỉ không được để trống");
-            isValid = false;
-        } else if (diaChi.length() > 255) {
-            view.setAddressError("Địa chỉ tối đa 255 ký tự");
-            isValid = false;
-        } else {
-            view.setAddressError(null);
-        }
-
-        return isValid;
+        java.util.Map<String, String> errors = customerService.validateCustomerData(hoTen, sdt, diaChi);
+        
+        view.setFullNameError(errors.get("fullName"));
+        view.setPhoneError(errors.get("phone"));
+        view.setAddressError(errors.get("address"));
+        
+        return errors.isEmpty();
     }
 
     private boolean validateUpdateForm(CustomerUpdateView view, String hoTen, String sdt, String diaChi) {
-        boolean isValid = true;
-
-        // Validate họ tên
-        if (hoTen == null || hoTen.trim().isEmpty()) {
-            view.setFullNameError("Tên khách hàng không được để trống");
-            isValid = false;
-        } else if (hoTen.length() > 100) {
-            view.setFullNameError("Tên khách hàng tối đa 100 ký tự");
-            isValid = false;
-        } else {
-            view.setFullNameError(null);
-        }
-
-        // Validate SĐT
-        if (sdt == null || !sdt.matches("^\\d{10}$")) {
-            view.setPhoneError("SĐT phải là 10 chữ số");
-            isValid = false;
-        } else {
-            view.setPhoneError(null);
-        }
-
-        // Validate địa chỉ
-        if (diaChi == null || diaChi.trim().isEmpty()) {
-            view.setAddressError("Địa chỉ không được để trống");
-            isValid = false;
-        } else if (diaChi.length() > 255) {
-            view.setAddressError("Địa chỉ tối đa 255 ký tự");
-            isValid = false;
-        } else {
-            view.setAddressError(null);
-        }
-
-        return isValid;
+        java.util.Map<String, String> errors = customerService.validateCustomerData(hoTen, sdt, diaChi);
+        
+        view.setFullNameError(errors.get("fullName"));
+        view.setPhoneError(errors.get("phone"));
+        view.setAddressError(errors.get("address"));
+        
+        return errors.isEmpty();
     }
 }
