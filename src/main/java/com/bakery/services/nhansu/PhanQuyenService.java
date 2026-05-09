@@ -6,12 +6,11 @@ import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.enums.SystemModule;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
 
 public class PhanQuyenService {
     private static final String ROLE_QUAN_LY = "QUAN LY";
@@ -36,64 +35,21 @@ public class PhanQuyenService {
         DANH_MUC_SAN_PHAM,
         NGUYEN_LIEU,
         CONG_THUC_SAN_XUAT,
+        THANH_PHAN_BANH,       // Quản lý thành phần bánh tùy chỉnh
         NHAN_SU,
         PHAN_QUYEN_TAI_KHOAN,
         PHAN_QUYEN_VAI_TRO,
         BAO_CAO_KINH_DOANH,
         NHAT_KY_HE_THONG,
-        KDS_MAN_HINH_BEP
+        KDS_MAN_HINH_BEP,
+        DON_HANG_BEP,           // Quản lý đơn hàng bếp (chỉ bánh tùy chỉnh)
+        CAU_HINH_GIOI_HAN_DON   // Cấu hình giới hạn nhận đơn
     }
 
+    /** Tính năng mặc định — mọi nhân viên đều có sau khi đăng nhập. */
     private static final EnumSet<TinhNangHeThong> TINH_NANG_MAC_DINH = EnumSet.of(
             TinhNangHeThong.TONG_QUAN,
             TinhNangHeThong.TAI_KHOAN_CA_NHAN
-    );
-
-    private static final EnumSet<TinhNangHeThong> TINH_NANG_QUAN_LY = EnumSet.of(
-            TinhNangHeThong.BAN_HANG_POS,
-            TinhNangHeThong.THEO_DOI_DON_HANG,
-            TinhNangHeThong.KHACH_HANG,
-            TinhNangHeThong.QUAN_LY_CA_LAM_VIEC,
-            TinhNangHeThong.THU_CHI,
-            TinhNangHeThong.KHO_TONG_QUAN,
-            TinhNangHeThong.NHAP_KHO,
-            TinhNangHeThong.XUAT_KHO,
-            TinhNangHeThong.KIEM_KE_KHO,
-            TinhNangHeThong.NHA_CUNG_CAP,
-            TinhNangHeThong.SAN_PHAM,
-            TinhNangHeThong.DANH_MUC_SAN_PHAM,
-            TinhNangHeThong.NGUYEN_LIEU,
-            TinhNangHeThong.CONG_THUC_SAN_XUAT,
-            TinhNangHeThong.NHAN_SU,
-            TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN,
-            TinhNangHeThong.PHAN_QUYEN_VAI_TRO,
-            TinhNangHeThong.BAO_CAO_KINH_DOANH,
-            TinhNangHeThong.NHAT_KY_HE_THONG,
-            TinhNangHeThong.KDS_MAN_HINH_BEP
-    );
-
-    private static final EnumSet<TinhNangHeThong> TINH_NANG_THU_NGAN = EnumSet.of(
-            TinhNangHeThong.BAN_HANG_POS,
-            TinhNangHeThong.THEO_DOI_DON_HANG,
-            TinhNangHeThong.KHACH_HANG,
-            TinhNangHeThong.QUAN_LY_CA_LAM_VIEC,
-            TinhNangHeThong.THU_CHI
-    );
-
-    private static final EnumSet<TinhNangHeThong> TINH_NANG_THU_KHO = EnumSet.of(
-            TinhNangHeThong.KHO_TONG_QUAN,
-            TinhNangHeThong.NHAP_KHO,
-            TinhNangHeThong.XUAT_KHO,
-            TinhNangHeThong.KIEM_KE_KHO,
-            TinhNangHeThong.NHA_CUNG_CAP,
-            TinhNangHeThong.NGUYEN_LIEU
-    );
-
-    private static final EnumSet<TinhNangHeThong> TINH_NANG_THO_BEP = EnumSet.of(
-            TinhNangHeThong.THEO_DOI_DON_HANG,
-            TinhNangHeThong.KDS_MAN_HINH_BEP,
-            TinhNangHeThong.XUAT_KHO,
-            TinhNangHeThong.KHO_TONG_QUAN
     );
 
     private final PhanQuyenDAO phanQuyenDAO;
@@ -131,48 +87,66 @@ public class PhanQuyenService {
         return laVaiTro(nhanVien, ROLE_THU_KHO);
     }
 
+    /**
+     * Tính năng được cấp dựa trên module từ CSDL (VAITRO_CHUCNANG).
+     * Mỗi SystemModule ánh xạ sang một tập TinhNangHeThong tương ứng.
+     */
     public Set<TinhNangHeThong> layTinhNangDuocCap(NhanVienDTO nhanVien) {
         EnumSet<TinhNangHeThong> tinhNang = EnumSet.copyOf(TINH_NANG_MAC_DINH);
-        if (nhanVien == null) {
-            return tinhNang;
-        }
+        if (nhanVien == null) return tinhNang;
 
-        Set<String> tapVaiTro = new LinkedHashSet<>();
-        if (nhanVien.getDanhSachTenVaiTro() != null) {
-            tapVaiTro.addAll(nhanVien.getDanhSachTenVaiTro());
-        }
-        if (nhanVien.getTenVaiTro() != null && !nhanVien.getTenVaiTro().isBlank()) {
-            tapVaiTro.add(nhanVien.getTenVaiTro());
-        }
+        // Nguồn sự thật từ DB — VAITRO_CHUCNANG → SystemModule
+        Set<SystemModule> modules = layModulesDuocCap(nhanVien);
 
-        List<String> dsVaiTroPhang = new ArrayList<>();
-        for (String vaiTro : tapVaiTro) {
-            if (vaiTro == null || vaiTro.isBlank()) {
-                continue;
-            }
-            String[] roleChunks = vaiTro.split("\\+");
-            for (String roleChunk : roleChunks) {
-                if (roleChunk != null && !roleChunk.isBlank()) {
-                    dsVaiTroPhang.add(roleChunk.trim());
-                }
-            }
+        if (modules.contains(SystemModule.BAN_HANG)) {
+            tinhNang.addAll(EnumSet.of(
+                    TinhNangHeThong.BAN_HANG_POS,
+                    TinhNangHeThong.THEO_DOI_DON_HANG,
+                    TinhNangHeThong.QUAN_LY_CA_LAM_VIEC,
+                    TinhNangHeThong.THU_CHI
+            ));
         }
-
-        for (String vaiTro : dsVaiTroPhang) {
-            String roleKey = chuanHoa(vaiTro);
-            if (ROLE_QUAN_LY.equals(roleKey)) {
-                tinhNang.addAll(TINH_NANG_QUAN_LY);
-            } else if (ROLE_THU_NGAN.equals(roleKey)) {
-                tinhNang.addAll(TINH_NANG_THU_NGAN);
-            } else if (ROLE_THU_KHO.equals(roleKey)) {
-                tinhNang.addAll(TINH_NANG_THU_KHO);
-            } else if (ROLE_THO_BEP.equals(roleKey)) {
-                tinhNang.addAll(TINH_NANG_THO_BEP);
-            }
+        if (modules.contains(SystemModule.KHACH_HANG)) {
+            tinhNang.add(TinhNangHeThong.KHACH_HANG);
         }
-
-        if (laAdmin(nhanVien)) {
-            tinhNang.addAll(TINH_NANG_QUAN_LY);
+        if (modules.contains(SystemModule.KHO)) {
+            tinhNang.addAll(EnumSet.of(
+                    TinhNangHeThong.KHO_TONG_QUAN,
+                    TinhNangHeThong.NHAP_KHO,
+                    TinhNangHeThong.XUAT_KHO,
+                    TinhNangHeThong.KIEM_KE_KHO,
+                    TinhNangHeThong.NHA_CUNG_CAP,
+                    TinhNangHeThong.SAN_PHAM,
+                    TinhNangHeThong.DANH_MUC_SAN_PHAM,
+                    TinhNangHeThong.NGUYEN_LIEU,
+                    TinhNangHeThong.CONG_THUC_SAN_XUAT,
+                    TinhNangHeThong.THANH_PHAN_BANH
+            ));
+        }
+        if (modules.contains(SystemModule.NHAN_SU)) {
+            tinhNang.addAll(EnumSet.of(
+                    TinhNangHeThong.NHAN_SU,
+                    TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN,
+                    TinhNangHeThong.PHAN_QUYEN_VAI_TRO
+            ));
+        }
+        if (modules.contains(SystemModule.BAO_CAO)) {
+            tinhNang.add(TinhNangHeThong.BAO_CAO_KINH_DOANH);
+        }
+        if (modules.contains(SystemModule.NHAT_KY)) {
+            tinhNang.add(TinhNangHeThong.NHAT_KY_HE_THONG);
+        }
+        if (modules.contains(SystemModule.NHA_BEP)) {
+            tinhNang.addAll(EnumSet.of(
+                    TinhNangHeThong.KDS_MAN_HINH_BEP,
+                    TinhNangHeThong.THEO_DOI_DON_HANG,
+                    TinhNangHeThong.XUAT_KHO,
+                    TinhNangHeThong.KHO_TONG_QUAN,
+                    TinhNangHeThong.DON_HANG_BEP
+            ));
+        }
+        if (modules.contains(SystemModule.BAO_CAO)) {
+            tinhNang.add(TinhNangHeThong.CAU_HINH_GIOI_HAN_DON);
         }
         return tinhNang;
     }
@@ -199,15 +173,15 @@ public class PhanQuyenService {
 
     public String layTieuDeTrangChu(NhanVienDTO nhanVien) {
         if (laThuNgan(nhanVien)) {
-            return "H3K Bakery - Thu ngan";
+            return "H3K Bakery - Thu Ngan";
         }
         if (laThoBep(nhanVien)) {
-            return "H3K Bakery - Tho bep";
+            return "H3K Bakery - Tho Bep";
         }
         if (laThuKho(nhanVien)) {
-            return "H3K Bakery - Thu kho";
+            return "H3K Bakery - Thu Kho";
         }
-        return "H3K Bakery - He thong quan ly";
+        return "H3K Bakery - He Thong Quan Ly";
     }
 
     public Set<SystemModule> layModulesDuocCap(NhanVienDTO nhanVien) {

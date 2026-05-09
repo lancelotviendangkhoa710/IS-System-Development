@@ -5,9 +5,9 @@
 <?import javafx.scene.layout.*?>
 
 <!--
-  KhoView.fxml — Trung tâm Quản lý Kho hàng.
-  Mỗi chức năng kho là 1 Tab độc lập, nhúng FXML riêng.
-  Controller: KhoViewFXMLController (chỉ xử lý header + tab selection).
+  KhoView.fxml — Trung tam Quan ly Kho hang.
+  3 Tab: Nha cung cap | Kiem ke kho (Nguyen lieu + Ton kho) | Nhap kho.
+  Controller: KhoViewFXMLController.
 -->
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -21,51 +21,40 @@
     <!-- Header chung -->
     <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 0 0 16 0;">
         <VBox spacing="4">
-            <Label text="QUẢN LÝ KHO HÀNG" styleClass="lbl-header"/>
-            <Label text="Nguyên liệu · Sản phẩm · Nhập · Xuất · Kiểm kê · Nhà cung cấp" styleClass="lbl-body-secondary"/>
+            <Label text="QUAN LY KHO HANG" styleClass="lbl-header"/>
+            <Label text="Nha cung cap · Kiem ke · Nguyen lieu · Nhap kho" styleClass="lbl-body-secondary"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
     </HBox>
 
-    <!-- TabPane chứa tất cả phân hệ kho -->
+    <!-- TabPane 3 tab chinh -->
     <TabPane fx:id="tabPaneKho" VBox.vgrow="ALWAYS"
              tabClosingPolicy="UNAVAILABLE"
              styleClass="tab-pane">
 
-        <!-- Tab 1: Kiểm kê tổng quan -->
-        <Tab text="📊  Kiểm kê" fx:id="tabKiemKe">
-            <fx:include source="KiemKeKhoView.fxml"/>
-        </Tab>
-
-        <!-- Tab 2: Nguyên liệu -->
-        <Tab text="🌾  Nguyên liệu" fx:id="tabNguyenLieu">
-            <fx:include source="NguyenLieuView.fxml"/>
-        </Tab>
-
-        <!-- Tab 3: Sản phẩm -->
-        <Tab text="🎂  Sản phẩm" fx:id="tabSanPham">
-            <fx:include source="SanPhamView.fxml"/>
-        </Tab>
-
-        <!-- Tab 4: Danh mục sản phẩm -->
-        <Tab text="📁  Danh mục" fx:id="tabDanhMuc">
-            <fx:include source="DanhMucSPView.fxml"/>
-        </Tab>
-
-        <!-- Tab 5: Nhập kho -->
-        <Tab text="📥  Nhập kho" fx:id="tabNhapKho">
-            <fx:include source="NhapKhoView.fxml"/>
-        </Tab>
-
-        <!-- Tab 6: Xuất kho -->
-        <Tab text="📤  Xuất kho" fx:id="tabXuatKho">
-            <fx:include source="XuatKhoView.fxml"/>
-        </Tab>
-
-        <!-- Tab 7: Nhà cung cấp -->
+        <!-- Tab 1: Nha cung cap -->
         <Tab text="🏭  Nhà cung cấp" fx:id="tabNhaCungCap">
             <fx:include source="QuanLyNhaCungCapView.fxml"/>
+        </Tab>
+
+        <!-- Tab 2: Kiem ke kho — gom Nguyen lieu + Ton kho -->
+        <Tab text="📊  Kiểm kê kho" fx:id="tabKiemKe">
+            <VBox spacing="0">
+                <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="tab-pane">
+                    <Tab text="🌾  Nguyên liệu">
+                        <fx:include source="NguyenLieuView.fxml"/>
+                    </Tab>
+                    <Tab text="📋  Tồn kho">
+                        <fx:include source="KiemKeKhoView.fxml"/>
+                    </Tab>
+                </TabPane>
+            </VBox>
+        </Tab>
+
+        <!-- Tab 3: Nhap kho -->
+        <Tab text="📥  Nhập kho" fx:id="tabNhapKho">
+            <fx:include source="NhapKhoView.fxml"/>
         </Tab>
 
     </TabPane>

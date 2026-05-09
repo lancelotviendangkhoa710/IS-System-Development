@@ -67,7 +67,7 @@
 
         <!-- Danh sách card đơn hàng -->
         <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane-transparent">
-            <VBox fx:id="panelChuaDon" spacing="15" style="-fx-background-color: transparent;"/>
+            <VBox fx:id="panelChuaDon" spacing="15" styleClass="scroll-content-transparent"/>
         </ScrollPane>
     </VBox>
 

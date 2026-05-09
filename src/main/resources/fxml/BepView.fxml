@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  BepView.fxml — Trung tâm Quản lý Bếp.
+  Mỗi chức năng bếp là 1 Tab độc lập, nhúng FXML riêng.
+  Controller: BepViewFXMLController (chỉ xử lý header + tab selection).
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.bep.BepViewFXMLController"
+      styleClass="bg-app" spacing="0">
+
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <!-- Header chung -->
+    <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 0 0 16 0;">
+        <VBox spacing="4">
+            <Label text="QUẢN LÝ BẾP" styleClass="lbl-header"/>
+            <Label text="Xuất kho · Đơn hàng bếp · Màn hình KDS" styleClass="lbl-body-secondary"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
+
+    <!-- TabPane chứa 3 phân hệ bếp -->
+    <TabPane fx:id="tabPaneBep" VBox.vgrow="ALWAYS"
+             tabClosingPolicy="UNAVAILABLE"
+             styleClass="tab-pane">
+
+        <!-- Tab 1: Lập phiếu xuất kho -->
+        <Tab text="📤  Lập phiếu xuất kho" fx:id="tabXuatKho">
+            <fx:include source="XuatKhoView.fxml"/>
+        </Tab>
+
+        <!-- Tab 2: Đơn hàng bếp -->
+        <Tab text="👨‍🍳  Đơn hàng bếp" fx:id="tabDonHangBep">
+            <fx:include source="TheoDoiDonHangView.fxml"/>
+        </Tab>
+
+        <!-- Tab 3: Màn hình bếp (KDS) -->
+        <Tab text="🖥  Màn hình bếp (KDS)" fx:id="tabKds">
+            <fx:include source="ThoBepDashboardView.fxml"/>
+        </Tab>
+
+    </TabPane>
+</VBox>

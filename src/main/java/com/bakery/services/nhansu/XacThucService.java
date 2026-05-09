@@ -92,7 +92,10 @@ public class XacThucService {
         int maTaiKhoan = nhanVienDAO.layMaTaiKhoan(nhanVien.getMaNV());
         accountTokenDAO.thuHoiToanBoTheoTaiKhoan(maTaiKhoan); // Dọn token cũ trước
         AccountTokenDTO tokenDTO = new AccountTokenDTO(maTaiKhoan, token, expiresAt);
-        accountTokenDAO.insertToken(tokenDTO);
+        boolean tokenSaved = accountTokenDAO.insertToken(tokenDTO);
+        if (!tokenSaved) {
+            throw new Exception("Không thể lưu token phiên đăng nhập. Vui lòng thử lại.");
+        }
         UserSession.setCurrentToken(token);  // Lưu vào memory để watchdog dùng
         UserSession.setCurrentUser(nhanVien);
 

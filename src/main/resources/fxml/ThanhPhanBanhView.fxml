@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="20" styleClass="bg-app" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.kho.ThanhPhanBanhController">
+<VBox spacing="20" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.kho.ThanhPhanBanhController">
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
     </padding>

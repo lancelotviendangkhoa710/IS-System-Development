@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **Clone** (2444 symbols, 7070 relationships, 207 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **IS-System-Development** (4921 symbols, 14707 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -24,10 +24,10 @@ This project is indexed by GitNexus as **Clone** (2444 symbols, 7070 relationshi
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/Clone/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/Clone/clusters` | All functional areas |
-| `gitnexus://repo/Clone/processes` | All execution flows |
-| `gitnexus://repo/Clone/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/IS-System-Development/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/IS-System-Development/clusters` | All functional areas |
+| `gitnexus://repo/IS-System-Development/processes` | All execution flows |
+| `gitnexus://repo/IS-System-Development/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 

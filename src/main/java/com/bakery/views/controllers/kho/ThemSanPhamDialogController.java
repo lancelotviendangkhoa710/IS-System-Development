@@ -1,0 +1,117 @@
+package com.bakery.views.controllers.kho;
+
+import com.bakery.model.dto.kho.SanPhamDTO;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
+
+import java.io.File;
+import java.util.Map;
+
+/**
+ * Controller dialog Thêm Sản Phẩm Mới.
+ * Trả kết quả qua getKetQua() sau khi Stage đóng.
+ */
+public class ThemSanPhamDialogController {
+
+    @FXML private TextField txtTenSP;
+    @FXML private ComboBox<Map.Entry<Integer, String>> cmbDanhMuc;
+    @FXML private TextField txtGiaBan;
+    @FXML private CheckBox chkTuyChinh;
+    @FXML private TextField txtTGBaoQuan;
+    @FXML private TextField txtTGChuanBi;
+    @FXML private ImageView imgPreview;
+    @FXML private Label lblLoi;
+
+    private String selectedImagePath = null;
+    private SanPhamDTO ketQua = null;
+
+    /** Inject danh mục từ controller cha trước khi show dialog. */
+    public void khoiTaoDanhMuc(Map<Integer, String> danhMucMap) {
+        cmbDanhMuc.setConverter(new StringConverter<>() {
+            @Override public String toString(Map.Entry<Integer, String> e) { return e != null ? e.getValue() : ""; }
+            @Override public Map.Entry<Integer, String> fromString(String s) { return null; }
+        });
+        if (danhMucMap != null && !danhMucMap.isEmpty()) {
+            cmbDanhMuc.setItems(FXCollections.observableArrayList(danhMucMap.entrySet()));
+        }
+    }
+
+    /** Kết quả sau khi người dùng nhấn "Thêm & Cấu hình công thức". Null nếu hủy. */
+    public SanPhamDTO getKetQua() {
+        return ketQua;
+    }
+
+    @FXML
+    private void onXacNhan() {
+        String ten = txtTenSP.getText().trim();
+        if (ten.isEmpty()) {
+            lblLoi.setText("⚠ Tên sản phẩm không được để trống.");
+            return;
+        }
+        if (cmbDanhMuc.getValue() == null) {
+            lblLoi.setText("⚠ Vui lòng chọn danh mục.");
+            return;
+        }
+
+        SanPhamDTO sp = new SanPhamDTO();
+        sp.setTenSP(ten);
+        sp.setMaDM(cmbDanhMuc.getValue().getKey());
+
+        try { sp.setGiaBan(Double.parseDouble(txtGiaBan.getText().trim())); }
+        catch (NumberFormatException ignored) { sp.setGiaBan(0); }
+
+        try { sp.setThoiGianBaoQuan(Integer.parseInt(txtTGBaoQuan.getText().trim())); }
+        catch (NumberFormatException ignored) {}
+
+        try { sp.setThoiGianChuanBi(Integer.parseInt(txtTGChuanBi.getText().trim())); }
+        catch (NumberFormatException ignored) {}
+
+        sp.setChoPhepTuyChinh(chkTuyChinh.isSelected() ? 1 : 0);
+        sp.setHinhAnh(selectedImagePath);
+
+        ketQua = sp;
+        dongDialog();
+    }
+
+    @FXML
+    private void onHuy() {
+        ketQua = null;
+        dongDialog();
+    }
+
+    @FXML
+    private void onChonAnh() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Chọn ảnh sản phẩm (PNG)");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Ảnh PNG (*.png)", "*.png"));
+
+        File chosen = fc.showOpenDialog(imgPreview.getScene().getWindow());
+        if (chosen != null) {
+            selectedImagePath = chosen.getAbsolutePath();
+            hienThiAnhPreview(selectedImagePath);
+        }
+    }
+
+    private void hienThiAnhPreview(String path) {
+        if (imgPreview == null || path == null) return;
+        try {
+            File f = new File(path);
+            if (f.exists()) {
+                imgPreview.setImage(new Image(f.toURI().toString(), true));
+            }
+        } catch (Exception e) {
+            imgPreview.setImage(null);
+        }
+    }
+
+    private void dongDialog() {
+        Stage stage = (Stage) txtTenSP.getScene().getWindow();
+        stage.close();
+    }
+}

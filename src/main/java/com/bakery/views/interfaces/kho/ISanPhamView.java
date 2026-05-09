@@ -14,4 +14,7 @@ public interface ISanPhamView {
     
     SanPhamDTO getSelectedSanPham();
     SanPhamDTO layDuLieuTuForm();
+
+    /** Gọi khi Presenter tạo SP mới xong — View tự navigate sang Tab Công thức với SP vừa tạo. */
+    void chuyenSangTabCongThuc(int maSP);
 }

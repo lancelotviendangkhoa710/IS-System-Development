@@ -199,20 +199,6 @@ public class QuanLyDonHangService {
         }
     }
     
-    /** Lấy tên trạng thái hiện tại của đơn hàng. */
-    public String theoDoiDonHang(int maDon) throws Exception {
-        if (maDon <= 0)
-            throw new IllegalArgumentException("Mã đơn theo dõi không hợp lệ.");
-        try {
-            String tenTrangThai = donHangDAO.layTenTrangThaiDon(maDon);
-            if (tenTrangThai == null || tenTrangThai.trim().isEmpty())
-                throw new Exception("Không tìm thấy đơn hàng với mã " + maDon + ".");
-            return tenTrangThai;
-        } catch (SQLException e) {
-            throw new Exception("Không thể theo dõi đơn hàng: " + e.getMessage(), e);
-        }
-    }
-    
     /** Lấy danh sách chi tiết sản phẩm của đơn hàng. */
     public List<CTDonHangDTO> layChiTietDonHang(int maDon) throws Exception {
         if (maDon <= 0) throw new IllegalArgumentException("Mã đơn không hợp lệ.");

@@ -1,49 +1,35 @@
 package com.bakery.presenters.kho;
-import com.bakery.presenters.BasePresenter;
 
+import com.bakery.presenters.BasePresenter;
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.services.kho.NguyenLieuService;
 import com.bakery.views.interfaces.kho.INguyenLieuView;
 
-
-
 /**
  * Presenter điều phối màn hình Quản lý Nguyên liệu.
  * Tuân thủ MVP: không chứa logic nghiệp vụ, không biết JavaFX.
- * Chỉ đóng vai Orchestrator: View → Presenter → Service → Presenter → View.
  */
 public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
 
     private final NguyenLieuService nguyenLieuService;
-
-    /**
-     * maNvHienTai dùng làm tham số P_MANV khi gọi Procedure Thêm/Xóa.
-     * Thay bằng SessionManager.getInstance().getCurrentUser().getMaNV()
-     * khi AuthService hoàn thiện.
-     */
     private final int maNvHienTai;
 
     public NguyenLieuPresenter(INguyenLieuView view, int maNvHienTai) {
         super(view);
         this.nguyenLieuService = new NguyenLieuService();
-        this.maNvHienTai       = maNvHienTai;
+        this.maNvHienTai = maNvHienTai;
     }
 
-    /** Constructor injection — dùng cho unit test. */
-    public NguyenLieuPresenter(INguyenLieuView view,
-                                NguyenLieuService nguyenLieuService,
-                                int maNvHienTai) {
+    public NguyenLieuPresenter(INguyenLieuView view, NguyenLieuService nguyenLieuService, int maNvHienTai) {
         super(view);
         this.nguyenLieuService = nguyenLieuService;
-        this.maNvHienTai       = maNvHienTai;
+        this.maNvHienTai = maNvHienTai;
     }
 
-    // =========================================================
-    // 1. KHỞI TẠO MÀN HÌNH
-    // =========================================================
+    // ── Khởi tạo ──────────────────────────────────────────────────────────────
 
-    /** Gọi khi View initialize(): nạp ComboBox DVT rồi tải bảng. */
+    /** Gọi khi initialize(): nạp ComboBox DVT rồi tải bảng. */
     public void khoiTao() {
         runTask(
             () -> nguyenLieuService.layDanhSachDonViTinh(),
@@ -54,11 +40,8 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         );
     }
 
-    // =========================================================
-    // 2. TẢI DANH SÁCH
-    // =========================================================
+    // ── Tải danh sách ─────────────────────────────────────────────────────────
 
-    /** Tải lại toàn bộ bảng nguyên liệu. */
     public void taiDanhSach() {
         runTask(
             () -> nguyenLieuService.layDanhSachNguyenLieu(),
@@ -66,32 +49,21 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         );
     }
 
-    // =========================================================
-    // 3. THÊM NGUYÊN LIỆU
-    // =========================================================
+    // ── Thêm ──────────────────────────────────────────────────────────────────
 
-    public void themNguyenLieu() {
-        DonViTinhDTO dvt = view.getDonViTinhSelected();
-        int maDVT = dvt != null ? dvt.getMaDVT() : 0;
-        
+    /** Overload: nhận tham số trực tiếp từ Dialog (không đọc qua form). */
+    public void themNguyenLieu(String tenNL, String xuatXu, double mucTon, int maDVT) {
         runTask(
-            () -> nguyenLieuService.themNguyenLieu(
-                    view.getTenNLInput(),
-                    view.getXuatXuInput(),
-                    view.getMucTonAnToanInput(),
-                    maDVT,
-                    maNvHienTai),
+            () -> nguyenLieuService.themNguyenLieu(tenNL, xuatXu, mucTon, maDVT, maNvHienTai),
             maMoi -> {
-                view.hienThiThanhCong("Thêm nguyên liệu thành công (Mã: " + maMoi + ").");
+                view.hienThiThanhCong("Thêm nguyên liệu '" + tenNL + "' thành công (Mã: " + maMoi + ").");
                 view.lamMoiForm();
                 taiDanhSach();
             }
         );
     }
 
-    // =========================================================
-    // 4. SỬA NGUYÊN LIỆU
-    // =========================================================
+    // ── Sửa ───────────────────────────────────────────────────────────────────
 
     public void suaNguyenLieu() {
         NguyenLieuDTO selected = view.getSelectedNguyenLieu();
@@ -101,7 +73,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         }
         DonViTinhDTO dvt = view.getDonViTinhSelected();
         int maDVT = dvt != null ? dvt.getMaDVT() : 0;
-        
+
         runTask(
             () -> nguyenLieuService.suaNguyenLieu(
                     selected.getMaNL(),
@@ -117,9 +89,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         );
     }
 
-    // =========================================================
-    // 5. XÓA NGUYÊN LIỆU
-    // =========================================================
+    // ── Xóa ───────────────────────────────────────────────────────────────────
 
     public void xoaNguyenLieu() {
         NguyenLieuDTO selected = view.getSelectedNguyenLieu();
@@ -127,7 +97,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
             view.hienThiLoi("Vui lòng chọn nguyên liệu cần xóa.");
             return;
         }
-        
+
         runTask(
             () -> nguyenLieuService.xoaNguyenLieu(selected.getMaNL(), maNvHienTai),
             () -> {
@@ -138,9 +108,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         );
     }
 
-    // =========================================================
-    // 6. TÌM KIẾM
-    // =========================================================
+    // ── Tìm kiếm ──────────────────────────────────────────────────────────────
 
     public void timKiem() {
         String keyword = view.getTuKhoaTimKiemInput();
@@ -153,9 +121,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         );
     }
 
-    // =========================================================
-    // 7. CHỌN HÀNG TABLEVIEW
-    // =========================================================
+    // ── Chọn hàng ─────────────────────────────────────────────────────────────
 
     public void onChonNguyenLieu(NguyenLieuDTO selected) {
         view.hienThiChiTiet(selected);

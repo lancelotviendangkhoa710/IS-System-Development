@@ -81,12 +81,25 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     @FXML
     private void onTimKiemDon() {
         if (presenter == null) return;
-        String maDon = txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim();
-        String tenKH = txtTimKhachHang.getText() == null ? "" : txtTimKhachHang.getText().trim();
-        LocalDate ngay = dpNgayTheoDoi.getValue();
-        LocalTime gioTu = parseGioTheoDoi(cbGioTu.getValue());
+        String maDonRaw = txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim();
+        // Validate mã đơn: nếu nhập thì phải là số nguyên dương
+        if (!maDonRaw.isEmpty()) {
+            try {
+                int ma = Integer.parseInt(maDonRaw);
+                if (ma <= 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                lblThongBao.getStyleClass().setAll("lbl-danger");
+                lblThongBao.setText("Mã đơn không hợp lệ — phải là số nguyên dương.");
+                return;
+            }
+        }
+        lblThongBao.getStyleClass().setAll("lbl-small-bold");
+        lblThongBao.setText("");
+        String tenKH  = txtTimKhachHang.getText() == null ? "" : txtTimKhachHang.getText().trim();
+        LocalDate ngay   = dpNgayTheoDoi.getValue();
+        LocalTime gioTu  = parseGioTheoDoi(cbGioTu.getValue());
         LocalTime gioDen = parseGioTheoDoi(cbGioDen.getValue());
-        presenter.timKiemDonTheoDoi(maDon, tenKH, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
+        presenter.timKiemDonTheoDoi(maDonRaw.isEmpty() ? null : maDonRaw, tenKH, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
     }
 
     @FXML

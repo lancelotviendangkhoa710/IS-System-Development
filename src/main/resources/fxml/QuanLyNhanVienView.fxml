@@ -87,7 +87,7 @@
                 </VBox>
 
                 <VBox spacing="8">
-                    <Label text="Mật khẩu mới:" styleClass="lbl-body-bold"/>
+                    <Label text="Mật khẩu (để trống = mặc định '1'):" styleClass="lbl-body-bold"/>
                     <HBox spacing="8" alignment="CENTER_LEFT">
                         <StackPane HBox.hgrow="ALWAYS">
                             <PasswordField fx:id="txtMatKhau" promptText="Để trống nếu không muốn đổi" styleClass="text-field" maxWidth="Infinity"/>

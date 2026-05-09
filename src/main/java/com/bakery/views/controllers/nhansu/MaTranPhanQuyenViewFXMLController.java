@@ -24,28 +24,43 @@ import java.util.*;
 /**
  * Controller cho MaTranPhanQuyenView.
  * Tab 1: Gán vai trò cho từng nhân viên (ma trận checkbox NV × VaiTro).
- * Tab 2: Chọn vai trò → xem/sửa quyền chi tiết CAN_VIEW/ADD/EDIT/DELETE/DOWNLOAD.
+ * Tab 2: Chọn vai trò → xem/sửa quyền chi tiết
+ * CAN_VIEW/ADD/EDIT/DELETE/DOWNLOAD.
  * Mọi dữ liệu đọc/ghi từ DB. Không có Mock Data.
  */
 public class MaTranPhanQuyenViewFXMLController extends BaseController {
 
     // ── Tab 1: Nhân viên & Vai trò ────────────────────────────────────────
-    @FXML private TabPane tabPane;
-    @FXML private ScrollPane scrollMatrix;
-    @FXML private TextField txtTimNhanVien;
-    @FXML private Label lblStatusVaiTro;
+    @FXML
+    private TabPane tabPane;
+    @FXML
+    private ScrollPane scrollMatrix;
+    @FXML
+    private TextField txtTimNhanVien;
+    @FXML
+    private Label lblStatusVaiTro;
 
     // ── Tab 2: Quyền chức năng ────────────────────────────────────────────
-    @FXML private ComboBox<VaiTroDTO> cbVaiTro;
-    @FXML private TableView<ChucNangRow> tblChucNang;
-    @FXML private TableColumn<ChucNangRow, String> colTenCN;
-    @FXML private TableColumn<ChucNangRow, String> colModule;
-    @FXML private TableColumn<ChucNangRow, Boolean> colView;
-    @FXML private TableColumn<ChucNangRow, Boolean> colAdd;
-    @FXML private TableColumn<ChucNangRow, Boolean> colEdit;
-    @FXML private TableColumn<ChucNangRow, Boolean> colDel;
-    @FXML private TableColumn<ChucNangRow, Boolean> colDown;
-    @FXML private Label lblStatusChucNang;
+    @FXML
+    private ComboBox<VaiTroDTO> cbVaiTro;
+    @FXML
+    private TableView<ChucNangRow> tblChucNang;
+    @FXML
+    private TableColumn<ChucNangRow, String> colTenCN;
+    @FXML
+    private TableColumn<ChucNangRow, String> colModule;
+    @FXML
+    private TableColumn<ChucNangRow, Boolean> colView;
+    @FXML
+    private TableColumn<ChucNangRow, Boolean> colAdd;
+    @FXML
+    private TableColumn<ChucNangRow, Boolean> colEdit;
+    @FXML
+    private TableColumn<ChucNangRow, Boolean> colDel;
+    @FXML
+    private TableColumn<ChucNangRow, Boolean> colDown;
+    @FXML
+    private Label lblStatusChucNang;
 
     // ── State ────────────────────────────────────────────────────────────
     private final NhanVienService nhanVienService = new NhanVienService();
@@ -70,9 +85,9 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
         ChucNangRow(ChucNangDTO dto) {
             this.dto = dto;
             this.canView = new SimpleBooleanProperty(dto.isCanView());
-            this.canAdd  = new SimpleBooleanProperty(dto.isCanAdd());
+            this.canAdd = new SimpleBooleanProperty(dto.isCanAdd());
             this.canEdit = new SimpleBooleanProperty(dto.isCanEdit());
-            this.canDel  = new SimpleBooleanProperty(dto.isCanDelete());
+            this.canDel = new SimpleBooleanProperty(dto.isCanDelete());
             this.canDown = new SimpleBooleanProperty(dto.isCanDownload());
         }
     }
@@ -104,19 +119,22 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
                     xayDungMatrixVaiTro(dsNV, dsVT);
                     // Tab 2: fill ComboBox
                     cbVaiTro.setCellFactory(lv -> new ListCell<>() {
-                        @Override protected void updateItem(VaiTroDTO item, boolean empty) {
+                        @Override
+                        protected void updateItem(VaiTroDTO item, boolean empty) {
                             super.updateItem(item, empty);
                             setText(empty || item == null ? null : item.getTenVaiTro());
                         }
                     });
                     cbVaiTro.setButtonCell(new ListCell<>() {
-                        @Override protected void updateItem(VaiTroDTO item, boolean empty) {
+                        @Override
+                        protected void updateItem(VaiTroDTO item, boolean empty) {
                             super.updateItem(item, empty);
                             setText(empty || item == null ? "-- Chọn vai trò --" : item.getTenVaiTro());
                         }
                     });
                     cbVaiTro.setItems(FXCollections.observableArrayList(dsVT));
-                    lblStatusVaiTro.setText("Đã tải " + dsNV.size() + " nhân viên · " + dsVT.size() + " vai trò từ DB.");
+                    lblStatusVaiTro
+                            .setText("Đã tải " + dsNV.size() + " nhân viên · " + dsVT.size() + " vai trò từ DB.");
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> lblStatusVaiTro.setText("Lỗi tải dữ liệu: " + e.getMessage()));
@@ -132,7 +150,8 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
         matrixMap.clear();
 
         GridPane grid = new GridPane();
-        grid.setHgap(24); grid.setVgap(12);
+        grid.setHgap(24);
+        grid.setVgap(12);
         grid.setPadding(new Insets(16));
         grid.setStyle("-fx-background-color: white;");
 
@@ -177,9 +196,9 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
         String kw = txtTimNhanVien.getText().trim().toLowerCase();
         List<NhanVienDTO> filtered = kw.isEmpty() ? cachedNhanVien
                 : cachedNhanVien.stream()
-                    .filter(nv -> (nv.getHoTen() != null && nv.getHoTen().toLowerCase().contains(kw))
-                            || (nv.getTenDangNhap() != null && nv.getTenDangNhap().toLowerCase().contains(kw)))
-                    .toList();
+                        .filter(nv -> (nv.getHoTen() != null && nv.getHoTen().toLowerCase().contains(kw))
+                                || (nv.getTenDangNhap() != null && nv.getTenDangNhap().toLowerCase().contains(kw)))
+                        .toList();
         xayDungMatrixVaiTro(filtered, cachedVaiTro);
         lblStatusVaiTro.setText("Hiển thị " + filtered.size() + " / " + cachedNhanVien.size() + " nhân viên.");
     }
@@ -192,7 +211,8 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
                 int count = 0;
                 for (NhanVienDTO nv : cachedNhanVien) {
                     List<CheckBox> cbs = matrixMap.get(nv.getMaNV());
-                    if (cbs == null) continue;
+                    if (cbs == null)
+                        continue;
                     List<Integer> selectedIds = new ArrayList<>();
                     for (int i = 0; i < cachedVaiTro.size(); i++) {
                         if (cbs.get(i).isSelected()) {
@@ -203,9 +223,10 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
                     count++;
                 }
                 final int saved = count;
-                Platform.runLater(() -> lblStatusVaiTro.setText("✅ Đã lưu phân vai trò cho " + saved + " nhân viên vào DB."));
+                Platform.runLater(
+                        () -> lblStatusVaiTro.setText(" Đã lưu phân vai trò cho " + saved + " nhân viên vào DB."));
             } catch (Exception e) {
-                Platform.runLater(() -> lblStatusVaiTro.setText("❌ Lỗi lưu: " + e.getMessage()));
+                Platform.runLater(() -> lblStatusVaiTro.setText("Lỗi lưu: " + e.getMessage()));
             }
         }, "phan-quyen-luu-vaitro");
         t.setDaemon(true);
@@ -256,8 +277,8 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
         lblStatusChucNang.setText("Đang tải quyền...");
         Thread t = new Thread(() -> {
             try {
-                PhanQuyenDAO.RolePermissionInfo info =
-                        phanQuyenDAO.layThongTinPhanQuyenTheoVaiTro(selected.getMaVaiTro());
+                PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO
+                        .layThongTinPhanQuyenTheoVaiTro(selected.getMaVaiTro());
 
                 // Lấy TOÀN BỘ chức năng, sau đó merge với quyền đã có
                 List<ChucNangDTO> tatCaCN = phanQuyenDAO.layToanBoChucNang();
@@ -290,8 +311,14 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
     @FXML
     private void onLuuQuyenChucNang() {
         VaiTroDTO selected = cbVaiTro.getValue();
-        if (selected == null) { lblStatusChucNang.setText("⚠ Chưa chọn vai trò."); return; }
-        if (chucNangRows.isEmpty()) { lblStatusChucNang.setText("⚠ Không có dữ liệu để lưu."); return; }
+        if (selected == null) {
+            lblStatusChucNang.setText("⚠ Chưa chọn vai trò.");
+            return;
+        }
+        if (chucNangRows.isEmpty()) {
+            lblStatusChucNang.setText("⚠ Không có dữ liệu để lưu.");
+            return;
+        }
 
         lblStatusChucNang.setText("Đang lưu quyền...");
         List<ChucNangRow> snapshot = new ArrayList<>(chucNangRows);
@@ -307,7 +334,7 @@ public class MaTranPhanQuyenViewFXMLController extends BaseController {
                 }
                 Platform.runLater(() -> lblStatusChucNang.setText(
                         "✅ Đã lưu quyền " + snapshot.size() + " chức năng cho vai trò "
-                        + selected.getTenVaiTro() + " vào DB."));
+                                + selected.getTenVaiTro() + " vào DB."));
             } catch (Exception e) {
                 Platform.runLater(() -> lblStatusChucNang.setText("❌ Lỗi lưu: " + e.getMessage()));
             }

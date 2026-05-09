@@ -163,10 +163,6 @@ public class DonHangService {
     // 5. THEO DÕI ĐƠN HÀNG (Delegates to TheoDoiDonService)
     // =========================================================
 
-    public String theoDoiDonHang(int maDon) throws Exception {
-        return donHangService.theoDoiDonHang(maDon);
-    }
-
     public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan,
             LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         List<DonDatHangDTO> list = theoDoiDonService.layDanhSachDonTheoDoi(

@@ -19,8 +19,10 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.logging.Logger;
 
 public abstract class BaseController {
+    private static final Logger LOGGER = Logger.getLogger(BaseController.class.getName());
     private final PhanQuyenService phanQuyenService = new PhanQuyenService();
 
     @FXML
@@ -110,7 +112,7 @@ public abstract class BaseController {
             stage.setScene(scene);
             stage.centerOnScreen();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warning("[BaseController] Loi dieu huong toi '" + title + "': " + e.getMessage());
             hienThiThongBaoLoi("Loi dieu huong", "Khong the chuyen sang man hinh " + title + ": " + e.getMessage());
         }
     }

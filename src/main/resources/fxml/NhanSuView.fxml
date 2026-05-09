@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    NhanSuView — Shell TabPane cho phân hệ Nhân sự.
+    Tab 1: Quản lý nhân viên (QuanLyNhanVienView loaded dynamically)
+    Tab 2: Phân quyền chức năng (MaTranPhanQuyenView loaded dynamically)
+    Mỗi tab content được load lazy bởi NhanSuViewFXMLController.
+-->
+<VBox xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.nhansu.NhanSuViewFXMLController"
+      spacing="0" styleClass="bg-app" VBox.vgrow="ALWAYS">
+
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tab-pane">
+
+        <Tab text="👤  Quản lý nhân viên" fx:id="tabNhanVien">
+            <StackPane fx:id="stackNhanVien" VBox.vgrow="ALWAYS"/>
+        </Tab>
+
+        <Tab text="🔐  Phân quyền chức năng" fx:id="tabPhanQuyen">
+            <StackPane fx:id="stackPhanQuyen" VBox.vgrow="ALWAYS"/>
+        </Tab>
+
+        <Tab text="🛡  Quyền vai trò" fx:id="tabVaiTro">
+            <StackPane fx:id="stackVaiTro" VBox.vgrow="ALWAYS"/>
+        </Tab>
+
+    </TabPane>
+
+</VBox>

@@ -1,6 +1,7 @@
 package com.bakery.services.khachhang;
 
 import com.bakery.model.dao.khachhang.KhachHangDAO;
+import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import java.sql.SQLException;
@@ -187,18 +188,6 @@ public class KhachHangService {
         }
     }
 
-    // Lay khach hang theo dia chi.
-    public KhachHangDTO getCustomerByAddress(String address) throws SQLException {
-        if (address == null || address.trim().isEmpty()) {
-            throw new SQLException("Dia chi khong hop le");
-        }
-        try {
-            return customerDAO.findActiveCustomerByAddress(address);
-        } catch (Exception e) {
-            throw taoLoiDichVu("Loi lay khach hang theo dia chi", e);
-        }
-    }
-
     // Lay danh sach khach hang dang hoat dong.
     public List<KhachHangDTO> getActiveCustomers() throws SQLException {
         try {
@@ -247,30 +236,6 @@ public class KhachHangService {
         }
     }
 
-    // Cap nhat diem tich luy.
-    public void updateCustomerPoints(int customerId, int newPoints) throws SQLException {
-        if (customerId <= 0 || newPoints < 0) {
-            throw new SQLException("Du lieu khong hop le");
-        }
-
-        try {
-            customerDAO.updateCustomerPoints(customerId, newPoints);
-
-            HangThanhVienService tierService = new HangThanhVienService();
-            com.bakery.model.dto.khachhang.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(newPoints);
-
-            if (appropriateTier != null) {
-                KhachHangDTO customer = customerDAO.findActiveCustomerById(customerId);
-                if (customer != null && customer.getMaHang() != appropriateTier.getMaHang()) {
-                    customer.setMaHang(appropriateTier.getMaHang());
-                    customerDAO.updateCustomer(customer);
-                }
-            }
-        } catch (Exception e) {
-            throw taoLoiDichVu("Loi cap nhat diem", e);
-        }
-    }
-
     // Compatibility methods cho cac luong cu.
     public KhachHangDTO timKhachHangTheoSoDienThoai(String sdt) throws Exception {
         return getCustomerByPhone(sdt);
@@ -286,6 +251,16 @@ public class KhachHangService {
     public boolean capNhatKhachHang(KhachHangDTO khachHang) throws Exception {
         updateCustomer(khachHang);
         return true;
+    }
+
+    /** Lấy lịch sử mua hàng của khách hàng theo mã. */
+    public List<DonDatHangDTO> layLichSuMuaHang(int maKH) throws Exception {
+        if (maKH <= 0) throw new IllegalArgumentException("Mã khách hàng không hợp lệ.");
+        try {
+            return customerDAO.layLichSuDonHang(maKH);
+        } catch (Exception e) {
+            throw taoLoiDichVu("Lỗi lấy lịch sử mua hàng", e);
+        }
     }
 
     private SQLException taoLoiDichVu(String thongDiep, Exception e) {

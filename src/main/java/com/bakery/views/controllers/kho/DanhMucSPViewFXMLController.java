@@ -19,7 +19,7 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
 
     @FXML private TextField txtTenDanhMuc;
     @FXML private TextField txtTimKiem;
-    
+
     @FXML private Button btnThemMoi;
     @FXML private Button btnLuuThayDoi;
     @FXML private Button btnXoa;
@@ -30,38 +30,26 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
     @FXML
     public void initialize() {
         setupTable();
-        
-        // Khởi tạo Presenter, tạm dùng mã NV = 1 cho đến khi tích hợp SessionManager
         presenter = new DanhMucSPPresenter(this, 1);
-        
         setupSelectionListener();
-        
-        // Mặc định ban đầu
         lamMoiForm();
         presenter.taiDanhSach();
     }
 
     private void setupTable() {
-        colMaDM.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getMaDM()).asObject());
-        colTenDM.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenDM()));
-        
+        colMaDM.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getMaDM()).asObject());
+        colTenDM.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenDM()));
         tblDanhMuc.setItems(masterData);
     }
 
     private void setupSelectionListener() {
-        tblDanhMuc.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (presenter != null) {
-                presenter.onChonDanhMuc(newSelection);
-            }
-        });
+        tblDanhMuc.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, newVal) -> presenter.onChonDanhMuc(newVal));
     }
 
-    // ─── Thực thi Interface IDanhMucSPView ──────────────────────────────
+    // ─── Thực thi IDanhMucSPView ────────────────────────────────────────
 
-    @Override
-    public void hienThiDanhSach(List<DanhMucSPDTO> ds) {
-        masterData.setAll(ds);
-    }
+    @Override public void hienThiDanhSach(List<DanhMucSPDTO> ds) { masterData.setAll(ds); }
 
     @Override
     public void hienThiChiTiet(DanhMucSPDTO dm) {
@@ -72,15 +60,8 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
         }
     }
 
-    @Override
-    public void hienThiLoi(String msg) {
-        hienThiLoiLabel(msg);
-    }
-
-    @Override
-    public void hienThiThanhCong(String msg) {
-        hienThiThanhCongLabel(msg);
-    }
+    @Override public void hienThiLoi(String msg) { hienThiLoiLabel(msg); }
+    @Override public void hienThiThanhCong(String msg) { hienThiThanhCongLabel(msg); }
 
     @Override
     public void lamMoiForm() {
@@ -91,42 +72,35 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
         lblThongBao.setText("");
     }
 
-    @Override
-    public DanhMucSPDTO getSelectedCategory() {
-        return tblDanhMuc.getSelectionModel().getSelectedItem();
-    }
+    @Override public DanhMucSPDTO getSelectedCategory() { return tblDanhMuc.getSelectionModel().getSelectedItem(); }
+    @Override public String getTenDanhMucInput() { return txtTenDanhMuc.getText().trim(); }
+    @Override public String getTuKhoaTimKiemInput() { return txtTimKiem.getText().trim(); }
 
-    @Override
-    public String getTenDanhMucInput() {
-        return txtTenDanhMuc.getText().trim();
-    }
-
-    @Override
-    public String getTuKhoaTimKiemInput() {
-        return txtTimKiem.getText().trim();
-    }
-
-    // ─── FXML Actions ───────────────────────────────────────────────────
+    // ─── FXML Actions ────────────────────────────────────────────────────
 
     @FXML
     private void onThemMoi() {
-        presenter.themDanhMuc();
+        // Mở dialog nhập tên thay vì đọc form trực tiếp
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Thêm danh mục mới");
+        dialog.setHeaderText("Nhập tên danh mục sản phẩm");
+        dialog.setContentText("Tên danh mục:");
+        try {
+            dialog.getDialogPane().getStylesheets()
+                    .add(getClass().getResource("/css/bakery.css").toExternalForm());
+        } catch (Exception ignored) {}
+        dialog.showAndWait().ifPresent(ten -> {
+            if (!ten.trim().isEmpty()) {
+                presenter.themDanhMuc(ten.trim());
+            } else {
+                hienThiLoiLabel("⚠ Tên danh mục không được để trống.");
+            }
+        });
     }
 
-    @FXML
-    private void onLuuThayDoi() {
-        presenter.suaDanhMuc();
-    }
-
-    @FXML
-    private void onXoa() {
-        presenter.xoaDanhMuc();
-    }
-
-    @FXML
-    private void onTimKiem() {
-        presenter.timKiem();
-    }
+    @FXML private void onLuuThayDoi() { presenter.suaDanhMuc(); }
+    @FXML private void onXoa() { presenter.xoaDanhMuc(); }
+    @FXML private void onTimKiem() { presenter.timKiem(); }
 
     @FXML
     private void onQuayLai() {

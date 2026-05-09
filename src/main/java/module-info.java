@@ -20,6 +20,7 @@ module BakeryManagementSystem {
     opens com.bakery.views.controllers.hethong to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.views.controllers.khachhang to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.views.controllers.kho to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.bep to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.views.controllers.nhansu to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.model.dto to javafx.base, javafx.fxml;
     opens com.bakery.model.dto.banhang to javafx.base, javafx.fxml;
@@ -60,6 +61,7 @@ module BakeryManagementSystem {
     exports com.bakery.views.controllers.hethong;
     exports com.bakery.views.controllers.khachhang;
     exports com.bakery.views.controllers.kho;
+    exports com.bakery.views.controllers.bep;
     exports com.bakery.views.controllers.nhansu;
     exports com.bakery.presenters;
     exports com.bakery.presenters.banhang;

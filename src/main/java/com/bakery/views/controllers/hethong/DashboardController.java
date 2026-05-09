@@ -2,13 +2,17 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.baocao.ThongKeService;
+import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Controller cho Dashboard (Trang chủ).
@@ -18,9 +22,26 @@ public class DashboardController {
     @FXML private Label lblBannerName;
     @FXML private Label lblThongBao;
     @FXML private FlowPane flowBestSellersMenu;
+    @FXML private Button btnTaoDonHang;
     @FXML private Button btnQuanLyCa;
+    @FXML private Button btnBanHangCard;
+    @FXML private Button btnKhoCard;
+    @FXML private Button btnNhanSuCard;
+    @FXML private Button btnBaoCaoCard;
+    @FXML private Button btnKdsCard;
+    @FXML private Button btnAuditLogsCard;
+
+    @FXML private VBox cardBanHang;
+    @FXML private VBox cardKho;
+    @FXML private VBox cardNhanSu;
+    @FXML private VBox cardBaoCao;
+    @FXML private VBox cardKds;
+    @FXML private VBox cardAuditLogs;
 
     private final ThongKeService thongKeService = new ThongKeService();
+    private final PhanQuyenService phanQuyenService = new PhanQuyenService();
+    private Set<PhanQuyenService.TinhNangHeThong> tinhNangDuocCap =
+            EnumSet.noneOf(PhanQuyenService.TinhNangHeThong.class);
 
     @FXML
     public void initialize() {
@@ -30,6 +51,8 @@ public class DashboardController {
         } else {
             lblBannerName.setText("Quản trị viên (Demo)");
         }
+        tinhNangDuocCap = phanQuyenService.layTinhNangDuocCap(currentUser);
+        apDungPhanQuyenManHinh();
         loadBestSellers();
     }
 
@@ -53,18 +76,17 @@ public class DashboardController {
                 card.setPrefWidth(200);
                 card.setMinWidth(180);
                 card.setAlignment(javafx.geometry.Pos.CENTER);
-                card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
 
                 Label lblIcon = new Label(getIconForProduct(entry.getKey()));
-                lblIcon.setStyle("-fx-font-size: 32px;");
+                lblIcon.getStyleClass().add("best-seller-icon");
 
                 Label lblName = new Label(entry.getKey());
-                lblName.setStyle("-fx-font-weight: bold; -fx-text-fill: #1F2937; -fx-font-size: 14px;");
+                lblName.getStyleClass().add("best-seller-name");
                 lblName.setWrapText(true);
                 lblName.setAlignment(javafx.geometry.Pos.CENTER);
 
                 Label lblQty = new Label(entry.getValue() + " đã bán");
-                lblQty.setStyle("-fx-text-fill: #92400E; -fx-font-weight: bold; -fx-font-size: 12px;");
+                lblQty.getStyleClass().add("best-seller-qty");
 
                 card.getChildren().addAll(lblIcon, lblName, lblQty);
                 flowBestSellersMenu.getChildren().add(card);
@@ -85,32 +107,44 @@ public class DashboardController {
 
     @FXML
     private void onMoBanHang() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "đặt hàng POS")) return;
         AppShellController.getInstance().loadView("/fxml/DonHangView.fxml");
     }
 
     @FXML
     private void onMoKho() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN, "kho")) return;
         AppShellController.getInstance().loadView("/fxml/KhoView.fxml");
     }
 
     @FXML
     private void onMoNhanSu() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "nhân sự")) return;
         AppShellController.getInstance().loadView("/fxml/QuanLyNhanVienView.fxml");
     }
 
     @FXML
     private void onMoBaoCao() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "báo cáo")) return;
         AppShellController.getInstance().loadView("/fxml/BaoCaoView.fxml");
     }
 
     @FXML
     private void onQuanLyCa() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quản lý ca")) return;
         AppShellController.getInstance().loadView("/fxml/DoiSoatDongCaView.fxml");
     }
 
     @FXML
     private void onMoLichSuHeThong() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG, "nhật ký hệ thống")) return;
         AppShellController.getInstance().loadView("/fxml/LichSuHeThongView.fxml");
+    }
+
+    @FXML
+    private void onMoKds() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP, "màn hình KDS")) return;
+        AppShellController.getInstance().loadView("/fxml/ThoBepDashboardView.fxml");
     }
 
     @FXML
@@ -118,5 +152,46 @@ public class DashboardController {
         if (lblThongBao != null) {
             lblThongBao.setText("Chức năng đang phát triển.");
         }
+    }
+
+    private void apDungPhanQuyenManHinh() {
+        capNhatTinhNang(null, coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS), btnTaoDonHang);
+        capNhatTinhNang(cardBanHang, coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS), btnBanHangCard);
+        capNhatTinhNang(cardKho, coQuyen(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN), btnKhoCard);
+        capNhatTinhNang(cardNhanSu, coQuyen(PhanQuyenService.TinhNangHeThong.NHAN_SU), btnNhanSuCard);
+        capNhatTinhNang(cardBaoCao, coQuyen(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH), btnBaoCaoCard);
+        capNhatTinhNang(cardKds, coQuyen(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP), btnKdsCard);
+        capNhatTinhNang(cardAuditLogs, coQuyen(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG), btnAuditLogsCard);
+        capNhatTinhNang(null, coQuyen(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC), btnQuanLyCa);
+    }
+
+    private void capNhatTinhNang(VBox card, boolean duocCapQuyen, Button... danhSachNut) {
+        if (card != null) {
+            card.setDisable(!duocCapQuyen);
+            card.setOpacity(duocCapQuyen ? 1.0 : 0.45);
+        }
+        if (danhSachNut == null) {
+            return;
+        }
+        for (Button nut : danhSachNut) {
+            if (nut != null) {
+                nut.setDisable(!duocCapQuyen);
+                nut.setOpacity(duocCapQuyen ? 1.0 : 0.45);
+            }
+        }
+    }
+
+    private boolean coQuyen(PhanQuyenService.TinhNangHeThong tinhNang) {
+        return tinhNangDuocCap != null && tinhNangDuocCap.contains(tinhNang);
+    }
+
+    private boolean yeuCauTruyCap(PhanQuyenService.TinhNangHeThong tinhNang, String tenTinhNang) {
+        if (coQuyen(tinhNang)) {
+            return true;
+        }
+        if (lblThongBao != null) {
+            lblThongBao.setText("Bạn không có quyền truy cập " + tenTinhNang + ".");
+        }
+        return false;
     }
 }

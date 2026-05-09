@@ -77,14 +77,14 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
     private void onHoanThanhDon() {
         DonDatHangDTO selected = tblDonBep.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            lblThongBao.setStyle("-fx-text-fill: red;");
-            lblThongBao.setText("Vui lòng chọn 1 đơn để hoàn thành!");
+            lblThongBao.getStyleClass().setAll("lbl-small-bold", "text-danger");
+            lblThongBao.setText("Vui long chon 1 don de hoan thanh!");
             return;
         }
-        selected.setTenTrangThai("Chờ giao");
+        selected.setTenTrangThai("Cho giao");
         tblDonBep.refresh();
-        lblThongBao.setStyle("-fx-text-fill: green;");
-        lblThongBao.setText("Đã cập nhật đơn #" + selected.getMaDon() + " sang Chờ giao.");
+        lblThongBao.getStyleClass().setAll("lbl-small-bold", "text-success");
+        lblThongBao.setText("Da cap nhat don #" + selected.getMaDon() + " sang Cho giao.");
     }
 
     public void khoiTaoDashboard(NhanVienDTO nhanVien) {
@@ -95,6 +95,11 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
         lblTenThoBep.setText(nhanVien.getHoTen());
         lblVaiTro.setText(nhanVien.getTenVaiTro());
         lblMoTa.setText("Uu tien don cho xu ly, cap nhat san xuat va phoi hop kho nguyen lieu.");
+    }
+
+    @FXML
+    private void onMoXuatKho() {
+        transitionTo(lblTenThoBep, "/fxml/XuatKhoView.fxml", "H3K Bakery - Lap phieu xuat kho", 1280, 720);
     }
 
     @FXML

@@ -1,5 +1,6 @@
 package com.bakery.views.interfaces.khachhang;
 
+import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import java.util.List;
@@ -25,4 +26,7 @@ public interface KhachHangView {
     void hienThiThongTin(String tieuDe, String noiDung);
 
     void capNhatCheDoThungRac(boolean cheDoThungRac);
+
+    /** Hiển thị dialog lịch sử mua hàng của khách. */
+    void hienThiLichSuMuaHang(KhachHangDTO kh, List<DonDatHangDTO> dsDon);
 }

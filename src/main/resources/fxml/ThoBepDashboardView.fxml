@@ -35,6 +35,12 @@
                     <Button text="Mo danh sach don" styleClass="btn-primary" onAction="#onMoTheoDoiDon"/>
                 </VBox>
                 <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <Label text="Lap phieu xuat kho" styleClass="dash-card-title"/>
+                    <Label text="Xuat nguyen lieu phuc vu san xuat banh, ghi nhan FEFO va cap nhat ton kho." styleClass="dash-card-desc" wrapText="true"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Lap phieu xuat" styleClass="btn-primary" onAction="#onMoXuatKho"/>
+                </VBox>
+                <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
                     <Label text="Cong thuc va thanh phan" styleClass="dash-card-title"/>
                     <Label text="Tra cuu thanh phan banh, cot, nhan va trang tri de chuan hoa san xuat." styleClass="dash-card-desc" wrapText="true"/>
                     <Region VBox.vgrow="ALWAYS"/>

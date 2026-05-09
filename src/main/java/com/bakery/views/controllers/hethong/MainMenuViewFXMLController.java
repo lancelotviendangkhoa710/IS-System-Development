@@ -2,7 +2,6 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.SessionWatchdogService;
-import com.bakery.services.baocao.ThongKeService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
@@ -31,75 +30,49 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controller cho giao diện chính (Main Menu) của ứng dụng.
- * Quản lý việc hiển thị thông tin người dùng, kiểm tra phân quyền và điều hướng
- * đến các phân hệ khác.
+ * Controller cho giao dien chinh (Main Menu).
+ * Quan ly hien thi thong tin nguoi dung, kiem tra phan quyen va dieu huong
+ * den cac phan he khac.
  */
 public class MainMenuViewFXMLController {
     private static final Logger LOGGER = Logger.getLogger(MainMenuViewFXMLController.class.getName());
-    @FXML
-    private Label lblTenNguoiDung;
-    @FXML
-    private Label lblVaiTro;
-    @FXML
-    private Label lblThongBao;
-    @FXML
-    private Label lblBannerName;
 
-    @FXML
-    private VBox vboxSidebar;
-    @FXML
-    private HBox hboxLogo;
-    @FXML
-    private Label lblLogoText;
-    @FXML
-    private ScrollPane scrollNav;
-    @FXML
-    private Button btnTongQuan;
-    @FXML
-    private Button btnInventory;
-    @FXML
-    private Button btnBanHang;
-    @FXML
-    private Button btnNhanSuSidebar;
-    @FXML
-    private Button btnKhachHang;
-    @FXML
-    private Button btnBaoCao;
-    @FXML
-    private Button btnTheoDoiDon;
-    @FXML
-    private Button btnKds;
-    @FXML
-    private Button btnAuditLogs;
-    @FXML
-    private Button btnNhaCungCap;
-    @FXML
-    private Button btnDanhMuc;
-    @FXML
-    private Button btnSanPham;
-    @FXML
-    private Button btnNguyenLieu;
-    @FXML
-    private Button btnNhapKho;
-    @FXML
-    private Button btnXuatKho;
-    @FXML
-    private Button btnKiemKe;
-    @FXML
-    private Button btnMaTranPhanQuyen;
-    @FXML
-    private Button btnPhanQuyenVaiTro;
-    @FXML
-    private Button btnCongThuc;
-    @FXML
-    private FlowPane flowBestSellersMenu;
-    @FXML
-    private StackPane contentArea;
+    // ─── Labels ──────────────────────────────────────────────────────────────
+    @FXML private Label lblTenNguoiDung;
+    @FXML private Label lblVaiTro;
+    @FXML private Label lblThongBao;
+    @FXML private Label lblBannerName;
 
-    public StackPane getContentArea() {
-        return contentArea;
-    }
+    // ─── Sidebar layout ───────────────────────────────────────────────────────
+    @FXML private VBox vboxSidebar;
+    @FXML private HBox hboxLogo;
+    @FXML private Label lblLogoText;
+    @FXML private ScrollPane scrollNav;
+
+    // ─── Sidebar buttons ──────────────────────────────────────────────────────
+    @FXML private Button btnTongQuan;
+    // BAN HANG
+    @FXML private Button btnBanHang;
+    @FXML private Button btnTheoDoiDon;
+    @FXML private Button btnKhachHang;
+    // SAN PHAM — 1 nut cha gom 4 module
+    @FXML private Button btnSanPham;
+    // KHO — 1 nut cha
+    @FXML private Button btnKho;
+    // BEP — 1 nut cha
+    @FXML private Button btnBep;
+    // NHAN SU — 1 nut cha
+    @FXML private Button btnNhanSu;
+    // BAO CAO
+    @FXML private Button btnBaoCao;
+    @FXML private Button btnAuditLogs;
+    @FXML private Button btnCauHinhGioiHan;
+
+    // ─── Misc ─────────────────────────────────────────────────────────────────
+    @FXML private FlowPane flowBestSellersMenu;
+    @FXML private StackPane contentArea;
+
+    public StackPane getContentArea() { return contentArea; }
 
     private boolean isSidebarCollapsed = false;
     private final java.util.Map<Button, String> buttonTextMap = new java.util.HashMap<>();
@@ -119,7 +92,7 @@ public class MainMenuViewFXMLController {
     public void khoiTaoThongTinDangNhap(NhanVienDTO nhanVien) {
         this.currentUser = nhanVien != null ? nhanVien : UserSession.getCurrentUser();
         if (this.currentUser == null) {
-            lblThongBao.setText("Không tìm thấy thông tin đăng nhập.");
+            lblThongBao.setText("Khong tim thay thong tin dang nhap.");
             return;
         }
 
@@ -133,42 +106,60 @@ public class MainMenuViewFXMLController {
             lblBannerName.setText(lblTenNguoiDung.getText());
         }
         lblVaiTro.setText(xayDungNhanQuyen(this.currentUser, laAdmin));
+
+        // Tong quan
         capNhatTrangThaiNut(btnTongQuan, coQuyen(PhanQuyenService.TinhNangHeThong.TONG_QUAN));
+
+        // Ban hang
         capNhatTrangThaiNut(btnBanHang, coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS));
         capNhatTrangThaiNut(btnTheoDoiDon, coQuyen(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG));
-        capNhatTrangThaiNut(btnKds, coQuyen(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP));
         capNhatTrangThaiNut(btnKhachHang, coQuyen(PhanQuyenService.TinhNangHeThong.KHACH_HANG));
 
-        capNhatTrangThaiNut(btnInventory, coQuyen(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN));
-        capNhatTrangThaiNut(btnNhapKho, coQuyen(PhanQuyenService.TinhNangHeThong.NHAP_KHO));
-        capNhatTrangThaiNut(btnXuatKho, coQuyen(PhanQuyenService.TinhNangHeThong.XUAT_KHO));
-        capNhatTrangThaiNut(btnKiemKe, coQuyen(PhanQuyenService.TinhNangHeThong.KIEM_KE_KHO));
-        capNhatTrangThaiNut(btnNhaCungCap, coQuyen(PhanQuyenService.TinhNangHeThong.NHA_CUNG_CAP));
+        // San pham — 1 nut gom 4 module
+        boolean coQuyenSP = coQuyen(PhanQuyenService.TinhNangHeThong.SAN_PHAM)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.DANH_MUC_SAN_PHAM)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.CONG_THUC_SAN_XUAT)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.THANH_PHAN_BANH);
+        capNhatTrangThaiNut(btnSanPham, coQuyenSP);
 
-        capNhatTrangThaiNut(btnSanPham, coQuyen(PhanQuyenService.TinhNangHeThong.SAN_PHAM));
-        capNhatTrangThaiNut(btnNguyenLieu, coQuyen(PhanQuyenService.TinhNangHeThong.NGUYEN_LIEU));
-        capNhatTrangThaiNut(btnDanhMuc, coQuyen(PhanQuyenService.TinhNangHeThong.DANH_MUC_SAN_PHAM));
-        capNhatTrangThaiNut(btnCongThuc, coQuyen(PhanQuyenService.TinhNangHeThong.CONG_THUC_SAN_XUAT));
+        // Nut cha KHO — mo neu co it nhat 1 quyen kho
+        boolean coQuyenKho = coQuyen(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.NHAP_KHO)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.KIEM_KE_KHO)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.NHA_CUNG_CAP)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.NGUYEN_LIEU);
+        capNhatTrangThaiNut(btnKho, coQuyenKho);
 
-        capNhatTrangThaiNut(btnNhanSuSidebar, coQuyen(PhanQuyenService.TinhNangHeThong.NHAN_SU));
-        capNhatTrangThaiNut(btnMaTranPhanQuyen, coQuyen(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN));
-        capNhatTrangThaiNut(btnPhanQuyenVaiTro, coQuyen(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_VAI_TRO));
+        // Nut cha BEP — mo neu co it nhat 1 quyen bep
+        boolean coQuyenBep = coQuyen(PhanQuyenService.TinhNangHeThong.XUAT_KHO)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.DON_HANG_BEP)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP);
+        capNhatTrangThaiNut(btnBep, coQuyenBep);
 
+        // Nhan su — hien nut cha neu co it nhat 1 quyen nhan su
+        boolean coQuyenNhanSu = coQuyen(PhanQuyenService.TinhNangHeThong.NHAN_SU)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_VAI_TRO);
+        capNhatTrangThaiNut(btnNhanSu, coQuyenNhanSu);
+
+        // Bao cao
         capNhatTrangThaiNut(btnBaoCao, coQuyen(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH));
         capNhatTrangThaiNut(btnAuditLogs, coQuyen(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG));
+        capNhatTrangThaiNut(btnCauHinhGioiHan, coQuyen(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON));
 
-        // Load dashboard mặc định nếu chưa có gì
+        // Load dashboard mac dinh
         if (contentArea != null && contentArea.getChildren().isEmpty()) {
             onMoDashboard();
         }
 
-        // Bắt đầu giám sát phiên đăng nhập qua DB token
         khoiDongWatchdog();
     }
 
+    // ─── Navigation handlers ──────────────────────────────────────────────────
+
     @FXML
     private void onMoDashboard() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.TONG_QUAN, "Tổng quan")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.TONG_QUAN, "Tong quan")) return;
         if (appShellController != null) {
             appShellController.loadView("/fxml/DashboardView.fxml");
         } else {
@@ -178,144 +169,92 @@ public class MainMenuViewFXMLController {
 
     @FXML
     private void onMoBanHang() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "Đặt hàng POS")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "Dat hang POS")) return;
         loadView("/fxml/DonHangView.fxml");
     }
 
     @FXML
-    private void onMoKho() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN, "Tồn kho")) return;
-        moKhoTab("kiemke");
-    }
-
-    @FXML
-    private void onMoSanPham() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.SAN_PHAM, "Quản lý sản phẩm")) return;
-        moKhoTab("sanpham");
-    }
-
-    @FXML
-    private void onMoNguyenLieu() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NGUYEN_LIEU, "Quản lý nguyên liệu")) return;
-        moKhoTab("nguyenlieu");
-    }
-
-    @FXML
-    private void onMoDanhMuc() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.DANH_MUC_SAN_PHAM, "Quản lý danh mục sản phẩm")) return;
-        moKhoTab("danhmuc");
-    }
-
-    @FXML
-    private void onMoNhapKho() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAP_KHO, "Nhập kho")) return;
-        moKhoTab("nhapkho");
-    }
-
-    @FXML
-    private void onMoXuatKho() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.XUAT_KHO, "Xuất kho")) return;
-        moKhoTab("xuatkho");
-    }
-
-    @FXML
-    private void onMoKiemKe() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KIEM_KE_KHO, "Kiểm kê kho")) return;
-        moKhoTab("kiemke");
-    }
-
-    @FXML
-    private void onMoNhaCungCap() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHA_CUNG_CAP, "Nhà cung cấp")) return;
-        moKhoTab("nhacungcap");
-    }
-
-    /**
-     * Tải KhoView.fxml (chỉ 1 lần) rồi chuyển sang tab tương ứng.
-     * Dùng FXMLLoaderUtil.getLoader() để lấy controller sau khi load.
-     */
-    private void moKhoTab(String tabKey) {
-        try {
-            javafx.fxml.FXMLLoader loader = com.bakery.utils.FXMLLoaderUtil.getLoader("/fxml/KhoView.fxml");
-            javafx.scene.Node view = loader.load();
-            com.bakery.views.controllers.kho.KhoViewFXMLController khoCtrl = loader.getController();
-            if (khoCtrl != null) khoCtrl.chuyenTab(tabKey);
-            if (contentArea != null) contentArea.getChildren().setAll(view);
-        } catch (Exception e) {
-            java.util.logging.Logger.getLogger(getClass().getName())
-                    .warning("Khong the mo KhoView: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void onMoNhanSu() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "Quản lý nhân sự")) return;
-        loadView("/fxml/QuanLyNhanVienView.fxml");
-    }
-
-    @FXML
-    private void onMoPhanQuyen() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN, "Phân quyền tài khoản")) return;
-        loadView("/fxml/MaTranPhanQuyenView.fxml");
-    }
-
-    @FXML
-    private void onMoPhanQuyenVaiTro() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_VAI_TRO, "Phân quyền vai trò")) return;
-        loadView("/fxml/PhanQuyenVaiTroView.fxml");
-    }
-
-    @FXML
-    private void onMoCongThuc() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.CONG_THUC_SAN_XUAT, "Công thức sản xuất")) return;
-        loadView("/fxml/ThanhPhanBanhView.fxml");
+    private void onMoTheoDoiDon() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG, "Theo doi don hang")) return;
+        loadView("/fxml/TheoDoiDonHangView.fxml");
     }
 
     @FXML
     private void onMoKhachHang() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHACH_HANG, "Khách hàng")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHACH_HANG, "Khach hang")) return;
         loadView("/fxml/KhachHangView.fxml");
     }
 
     @FXML
+    private void onMoSanPham() {
+        boolean coQuyen = coQuyen(PhanQuyenService.TinhNangHeThong.SAN_PHAM)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.DANH_MUC_SAN_PHAM)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.CONG_THUC_SAN_XUAT)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.THANH_PHAN_BANH);
+        if (!coQuyen) {
+            if (lblThongBao != null) lblThongBao.setText("Ban khong co quyen truy cap San pham.");
+            return;
+        }
+        loadView("/fxml/QuanLySanPhamView.fxml");
+    }
+
+    /** Mo man hinh KHO — tab mac dinh: Nha cung cap. */
+    @FXML
+    private void onMoKho() {
+        moKhoTab("nhacungcap");
+    }
+
+    /** Mo man hinh BEP — tab mac dinh: Lap phieu xuat kho. */
+    @FXML
+    private void onMoBep() {
+        moBepTab("xuatkho");
+    }
+
+    @FXML
+    private void onMoNhanSu() {
+        boolean coQuyen = coQuyen(PhanQuyenService.TinhNangHeThong.NHAN_SU)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.PHAN_QUYEN_VAI_TRO);
+        if (!coQuyen) {
+            if (lblThongBao != null) lblThongBao.setText("Ban khong co quyen truy cap Nhan su.");
+            return;
+        }
+        loadView("/fxml/NhanSuView.fxml");
+    }
+
+    @FXML
     private void onMoBaoCao() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "Báo cáo kinh doanh")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "Bao cao kinh doanh")) return;
         loadView("/fxml/BaoCaoView.fxml");
     }
 
     @FXML
     private void onMoLichSuHeThong() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG, "Nhật ký hệ thống")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG, "Nhat ky he thong")) return;
         loadView("/fxml/LichSuHeThongView.fxml");
     }
 
     @FXML
-    private void onMoTheoDoiDon() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG, "Theo dõi đơn hàng")) return;
-        loadView("/fxml/TheoDoiDonHangView.fxml");
+    private void onMoCauHinhGioiHan() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON, "Cau hinh gioi han nhan don")) return;
+        loadView("/fxml/CauHinhGioiHanDonView.fxml");
     }
 
-    @FXML
-    private void onMoKds() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP, "màn hình KDS")) return;
-        loadView("/fxml/ThoBepDashboardView.fxml");
-    }
+    // ─── Ca lam viec dialog ───────────────────────────────────────────────────
 
     @FXML
     private void onQuanLyCa() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quản lý ca làm việc")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quan ly ca lam viec")) return;
         try {
             boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
             String fxmlPath = caoDangMo ? "/fxml/DoiSoatDongCaView.fxml" : "/fxml/MoCaView.fxml";
-            String title = caoDangMo ? "H3K Bakery - Đóng ca" : "H3K Bakery - Mở ca";
+            String title = caoDangMo ? "H3K Bakery - Dong ca" : "H3K Bakery - Mo ca";
 
             URL fxmlUrl = getClass().getResource(fxmlPath);
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load());
-
             URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null)
-                scene.getStylesheets().add(cssUrl.toExternalForm());
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 
             Stage dialog = new Stage();
             dialog.setTitle(title);
@@ -325,49 +264,47 @@ public class MainMenuViewFXMLController {
             dialog.setResizable(false);
             dialog.showAndWait();
         } catch (Exception ex) {
-            lblThongBao.setText("Lỗi mở quản lý ca: " + ex.getMessage());
-            System.err.println("[MainMenu] Quản lý ca error: " + ex.getMessage());
+            lblThongBao.setText("Loi mo quan ly ca: " + ex.getMessage());
+            LOGGER.warning("[MainMenu] Quan ly ca error: " + ex.getMessage());
         }
     }
 
     @FXML
     private void onThemNhanVien() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "thêm nhân sự")) return;
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "them nhan su")) return;
         try {
             URL fxmlUrl = getClass().getResource("/fxml/ThemNhanVienDialog.fxml");
-            if (fxmlUrl == null)
-                throw new RuntimeException("Không tìm thấy ThemNhanVienDialog.fxml");
+            if (fxmlUrl == null) throw new RuntimeException("Khong tim thay ThemNhanVienDialog.fxml");
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load());
             URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null)
-                scene.getStylesheets().add(cssUrl.toExternalForm());
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
             Stage dialog = new Stage();
-            dialog.setTitle("H3K Bakery - Thêm Nhân Viên");
+            dialog.setTitle("H3K Bakery - Them Nhan Vien");
             dialog.setScene(scene);
-            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initOwner(lblTenNguoiDung.getScene().getWindow());
             dialog.setResizable(false);
             dialog.showAndWait();
         } catch (Exception ex) {
-            lblThongBao.setText("Lỗi mở dialog thêm nhân viên: " + ex.getMessage());
+            lblThongBao.setText("Loi mo dialog them nhan vien: " + ex.getMessage());
         }
     }
+
+    // ─── Sidebar toggle ───────────────────────────────────────────────────────
 
     @FXML
     private void onToggleSidebar() {
         if (buttonTextMap.isEmpty()) {
-            // Store original text
             Button[] navButtons = {
-                    btnTongQuan, btnBanHang, btnInventory, btnNhanSuSidebar, 
-                    btnKhachHang, btnBaoCao,
-                    btnTheoDoiDon, btnKds, btnAuditLogs, btnNhaCungCap,
-                    btnDanhMuc, btnSanPham, btnNguyenLieu,
-                    btnNhapKho, btnXuatKho, btnKiemKe, btnMaTranPhanQuyen, btnCongThuc
+                    btnTongQuan, btnBanHang, btnTheoDoiDon, btnKhachHang,
+                    btnSanPham,
+                    btnKho, btnBep,
+                    btnNhanSu,
+                    btnBaoCao, btnAuditLogs, btnCauHinhGioiHan
             };
             for (Button btn : navButtons) {
-                if (btn != null)
-                    buttonTextMap.put(btn, btn.getText());
+                if (btn != null) buttonTextMap.put(btn, btn.getText());
             }
         }
 
@@ -399,9 +336,7 @@ public class MainMenuViewFXMLController {
     private void onToggleFullScreen() {
         try {
             Stage stage = (Stage) vboxSidebar.getScene().getWindow();
-            if (stage != null) {
-                stage.setFullScreen(!stage.isFullScreen());
-            }
+            if (stage != null) stage.setFullScreen(!stage.isFullScreen());
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Khong the chuyen trang thai full screen", e);
             lblThongBao.setText("Khong the chuyen full screen.");
@@ -410,15 +345,16 @@ public class MainMenuViewFXMLController {
 
     @FXML
     private void onModuleChuaSanSang() {
-        lblThongBao.setText("Chức năng đang phát triển.");
+        lblThongBao.setText("Chuc nang dang phat trien.");
     }
+
+    // ─── Dang xuat ───────────────────────────────────────────────────────────
 
     @FXML
     private void onDangXuat() {
         dungWatchdog();
-        lblThongBao.setText("Đang đăng xuất...");
+        lblThongBao.setText("Dang dang xuat...");
 
-        // Revoke token trong DB trên background thread — KHÔNG block UI
         javafx.concurrent.Task<Void> taskDangXuat = new javafx.concurrent.Task<>() {
             @Override
             protected Void call() throws Exception {
@@ -429,7 +365,6 @@ public class MainMenuViewFXMLController {
 
         taskDangXuat.setOnSucceeded(evt -> javafx.application.Platform.runLater(this::chuyenVeDangNhap));
         taskDangXuat.setOnFailed(evt -> javafx.application.Platform.runLater(() -> {
-            // Dù DB lỗi vẫn xóa session local và về màn đăng nhập
             UserSession.clear();
             com.bakery.utils.SessionContext.clear();
             chuyenVeDangNhap();
@@ -440,39 +375,62 @@ public class MainMenuViewFXMLController {
         t.start();
     }
 
-    /** Điều hướng về màn đăng nhập — chỉ gọi từ FX thread. */
+    /** Dieu huong ve man dang nhap — chi goi tu FX thread. */
     private void chuyenVeDangNhap() {
         try {
             URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
-            if (fxmlUrl == null) {
-                throw new RuntimeException("Không tìm thấy /fxml/DangNhapView.fxml");
-            }
+            if (fxmlUrl == null) throw new RuntimeException("Khong tim thay /fxml/DangNhapView.fxml");
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
             Object controller = loader.getController();
             if (controller instanceof DangNhapViewFXMLController) {
-                ((DangNhapViewFXMLController) controller).setLoginInfo("Bạn đã đăng xuất thành công.");
+                ((DangNhapViewFXMLController) controller).setLoginInfo("Ban da dang xuat thanh cong.");
             }
 
             Scene scene = new Scene(root);
             URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) {
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            }
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 
             Stage stage = (Stage) lblTenNguoiDung.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Đăng nhập");
+            stage.setTitle("H3K Bakery - Dang nhap");
             stage.setScene(scene);
             stage.setResizable(false);
             stage.centerOnScreen();
         } catch (Exception ex) {
-            lblThongBao.setText("Lỗi đăng xuất: " + ex.getMessage());
-            System.err.println("[MainMenu] Đăng xuất error: " + ex.getMessage());
+            lblThongBao.setText("Loi dang xuat: " + ex.getMessage());
+            LOGGER.severe("[MainMenu] Dang xuat error: " + ex.getMessage());
         }
     }
 
+    // ─── Helpers load view ────────────────────────────────────────────────────
+
+    /** Tai KhoView roi chuyen sang tab tuong ung. */
+    private void moKhoTab(String tabKey) {
+        try {
+            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/KhoView.fxml");
+            Node view = loader.load();
+            com.bakery.views.controllers.kho.KhoViewFXMLController ctrl = loader.getController();
+            if (ctrl != null) ctrl.chuyenTab(tabKey);
+            if (contentArea != null) contentArea.getChildren().setAll(view);
+        } catch (Exception e) {
+            LOGGER.warning("Khong the mo KhoView: " + e.getMessage());
+        }
+    }
+
+    /** Tai BepView roi chuyen sang tab tuong ung. */
+    private void moBepTab(String tabKey) {
+        try {
+            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/BepView.fxml");
+            Node view = loader.load();
+            com.bakery.views.controllers.bep.BepViewFXMLController ctrl = loader.getController();
+            if (ctrl != null) ctrl.chuyenTab(tabKey);
+            if (contentArea != null) contentArea.getChildren().setAll(view);
+        } catch (Exception e) {
+            LOGGER.warning("Khong the mo BepView: " + e.getMessage());
+        }
+    }
 
     private void loadView(String fxmlPath) {
         if (contentArea == null) {
@@ -480,10 +438,10 @@ public class MainMenuViewFXMLController {
             return;
         }
         Node view = FXMLLoaderUtil.loadFXML(fxmlPath);
-        if (view != null) {
-            contentArea.getChildren().setAll(view);
-        }
+        if (view != null) contentArea.getChildren().setAll(view);
     }
+
+    // ─── Quyen ───────────────────────────────────────────────────────────────
 
     private void capNhatTrangThaiNut(Button button, boolean duocCapQuyen) {
         if (button == null) return;
@@ -496,11 +454,9 @@ public class MainMenuViewFXMLController {
     }
 
     private boolean yeuCauTruyCap(PhanQuyenService.TinhNangHeThong tinhNang, String tenTinhNang) {
-        if (coQuyen(tinhNang)) {
-            return true;
-        }
+        if (coQuyen(tinhNang)) return true;
         if (lblThongBao != null) {
-            lblThongBao.setText("Bạn không có quyền truy cập " + tenTinhNang + ".");
+            lblThongBao.setText("Ban khong co quyen truy cap " + tenTinhNang + ".");
         }
         return false;
     }
@@ -514,13 +470,13 @@ public class MainMenuViewFXMLController {
         return laAdmin ? "Admin Access" : "Role Access";
     }
 
-    // ─── Watchdog helpers ────────────────────────────────────────────────────
+    // ─── Watchdog ─────────────────────────────────────────────────────────────
 
     private void khoiDongWatchdog() {
         sessionWatchdog = new SessionWatchdogService();
         sessionWatchdog.setOnSessionInvalid(this::xuLyPhienHetHan);
         sessionWatchdog.start();
-        LOGGER.info("[Watchdog] Bắt đầu giám sát phiên token.");
+        LOGGER.info("[Watchdog] Bat dau giam sat phien token.");
     }
 
     private void dungWatchdog() {
@@ -529,16 +485,13 @@ public class MainMenuViewFXMLController {
         }
     }
 
-    /**
-     * Gọi khi watchdog phát hiện token không còn tồn tại trong DB.
-     * Thông báo user và chuyển về màn hình đăng nhập.
-     */
+    /** Goi khi watchdog phat hien token khong con ton tai trong DB. */
     private void xuLyPhienHetHan() {
         javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                 javafx.scene.control.Alert.AlertType.WARNING);
-        alert.setTitle("Hết phiên đăng nhập");
+        alert.setTitle("Het phien dang nhap");
         alert.setHeaderText(null);
-        alert.setContentText("Phân quyền của bạn đã bị thu hồi hoặc phiên đăng nhập đã kết thúc.\nVui lòng đăng nhập lại.");
+        alert.setContentText("Phan quyen cua ban da bi thu hoi hoac phien dang nhap da ket thuc.\nVui long dang nhap lai.");
         alert.showAndWait();
         try {
             java.net.URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
@@ -549,12 +502,12 @@ public class MainMenuViewFXMLController {
             java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
             javafx.stage.Stage stage = (javafx.stage.Stage) lblTenNguoiDung.getScene().getWindow();
-            stage.setTitle("H3K Bakery - Đăng nhập");
+            stage.setTitle("H3K Bakery - Dang nhap");
             stage.setScene(scene);
             stage.setResizable(false);
             stage.centerOnScreen();
         } catch (Exception ex) {
-            LOGGER.severe("[Watchdog] Lỗi chuyển về trang đăng nhập: " + ex.getMessage());
+            LOGGER.severe("[Watchdog] Loi chuyen ve trang dang nhap: " + ex.getMessage());
         }
     }
 }

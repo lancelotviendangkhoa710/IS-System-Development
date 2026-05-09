@@ -23,7 +23,7 @@ public enum SystemModule {
         return switch (upper) {
             case "POS", "BAN_HANG", "BAN HANG" -> BAN_HANG;
             case "INVENTORY", "KHO" -> KHO;
-            case "STAFF", "NHAN_SU", "NHAN SU" -> NHAN_SU;
+            case "STAFF", "HR", "NHAN_SU", "NHAN SU" -> NHAN_SU;
             case "REPORTS", "BAO_CAO", "BAO CAO" -> BAO_CAO;
             case "CRM", "KHACH_HANG", "KHACH HANG" -> KHACH_HANG;
             case "KDS", "NHA_BEP", "NHA BEP" -> NHA_BEP;

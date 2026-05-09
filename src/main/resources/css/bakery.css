@@ -808,6 +808,21 @@
     border-width: 1 0 0 0;
 }
 
+/* Banner gợi ý trong dialog */
+.info-banner {
+    -fx-background-color: #FFFBEB;
+    background-color: #FFFBEB;
+    -fx-border-color: #FDE68A;
+    border-color: #FDE68A;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 8px;
+    border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 14px;
+    padding: 10px 14px;
+}
+
 /* ─── RECEIPT ─── */
 .receipt-panel {
     -fx-background-color: white;
@@ -1156,11 +1171,36 @@
 }
 
 /* Main Content Area */
+.dash-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
 .dash-main-content {
     -fx-padding: 24px;
     padding: 24px;
     -fx-max-width: 1600px;
     max-width: 1600px;
+}
+
+.dash-status-label {
+    -fx-text-fill: #DC2626;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+.dash-best-seller-section {
+    -fx-padding: 0 0 40 0;
+    padding: 0 0 40 0;
+}
+
+.dash-best-seller-title {
+    -fx-font-size: 20px;
+    font-size: 20px;
+    -fx-font-weight: 800;
+    font-weight: 800;
+    -fx-text-fill: #111827;
 }
 
 /* Banner */
@@ -1921,3 +1961,17 @@
 .form-group {
     -fx-spacing: 4;
 }
+
+/* === SCROLL PANE TRANSPARENT ===
+.scroll-pane-transparent {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+.scroll-pane-transparent > .viewport {
+    -fx-background-color: transparent;
+}
+.scroll-content-transparent {
+    -fx-background-color: transparent;
+}
+

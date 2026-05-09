@@ -87,6 +87,18 @@ public class DanhMucSPPresenter {
         }
     }
 
+    /** Overload: nhận tên trực tiếp từ Dialog (không đọc qua form). */
+    public void themDanhMuc(String tenNhap) {
+        try {
+            int maMoi = danhMucSPService.themDanhMuc(tenNhap);
+            view.hienThiThanhCong("Thêm danh mục thành công (Mã: " + maMoi + ").");
+            view.lamMoiForm();
+            taiDanhSach();
+        } catch (Exception e) {
+            view.hienThiLoi(e.getMessage());
+        }
+    }
+
     /**
      * Xử lý sự kiện Tìm kiếm.
      */

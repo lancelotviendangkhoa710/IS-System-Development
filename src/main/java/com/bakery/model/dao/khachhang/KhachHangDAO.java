@@ -1,6 +1,7 @@
 package com.bakery.model.dao.khachhang;
 import com.bakery.model.dao.BaseDAO;
 
+import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import java.sql.CallableStatement;
@@ -14,88 +15,6 @@ import java.util.List;
 
 public class KhachHangDAO extends BaseDAO {
 
-    public KhachHangDTO timKhachHangBangSDT(String sdt) throws Exception {
-        String sql = "SELECT * FROM KHACHHANG WHERE SDT = ? AND THOIDIEMXOA IS NULL";
-
-        try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, sdt);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    KhachHangDTO kh = new KhachHangDTO();
-                    kh.setMaKH(rs.getInt("MaKH"));
-                    kh.setHoTen(rs.getString("HOTEN"));
-                    kh.setSdt(rs.getString("SDT"));
-                    kh.setDiaChi(rs.getString("DIACHI"));
-                    if (rs.getDate("NGAYDANGKY") != null) {
-                        kh.setNgayDangKy(rs.getDate("NGAYDANGKY").toLocalDate());
-                    }
-                    kh.setDiemTichLuy(rs.getInt("DIEMTICHLUY"));
-                    kh.setMaHang(rs.getInt("MAHANG"));
-                    return kh;
-                }
-            }
-        } catch (SQLException e) {
-            handleException("timKhachHangBangSDT", e);
-        }
-        return null;
-    }
-
-    public int themKhachHangMoi(KhachHangDTO kh) throws Exception {
-        String sql = "INSERT INTO KHACHHANG (HOTEN, SDT, DIACHI) VALUES (?, ?, ?)";
-
-        try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql, new String[] { "MAKH" })) {
-
-            pstmt.setString(1, kh.getHoTen());
-            pstmt.setString(2, kh.getSdt());
-            pstmt.setString(3, kh.getDiaChi());
-
-            if (pstmt.executeUpdate() > 0) {
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        return rs.getInt(1);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            handleException("themKhachHangMoi", e);
-        }
-        return -1;
-    }
-
-    public boolean capNhatKhachHang(KhachHangDTO kh) throws Exception {
-        String sql = "UPDATE KHACHHANG SET HOTEN = ?, SDT = ?, DIACHI = ? WHERE MAKH = ?";
-        try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, kh.getHoTen());
-            pstmt.setString(2, kh.getSdt());
-            pstmt.setString(3, kh.getDiaChi());
-            pstmt.setInt(4, kh.getMaKH());
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            handleException("capNhatKhachHang", e);
-        }
-        return false;
-    }
-
-    public boolean capNhatDiemTichLuy(int maKH, int diemMoi) throws Exception {
-        String sql = "UPDATE KHACHHANG SET DIEMTICHLUY = ? WHERE MaKH = ?";
-
-        try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, diemMoi);
-            pstmt.setInt(2, maKH);
-
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            handleException("capNhatDiemTichLuy", e);
-        }
-        return false;
-    }
 
     private static final String CUSTOMER_SELECT_SQL = "SELECT KH.*, HTV.TENHANG AS TENHANG, NV.HOTEN AS TENNX FROM KHACHHANG KH LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG LEFT JOIN NHANVIEN NV ON KH.MANX = NV.MANV";
 
@@ -127,22 +46,6 @@ public class KhachHangDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             handleException("findActiveCustomerById", e);
-        }
-        return null;
-    }
-
-    public KhachHangDTO findActiveCustomerByAddress(String address) throws Exception {
-        String sql = CUSTOMER_SELECT_SQL + " WHERE KH.DIACHI = ? AND KH.THOIDIEMXOA IS NULL";
-        try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, address);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapRowToCustomer(rs);
-                }
-            }
-        } catch (SQLException e) {
-            handleException("findActiveCustomerByAddress", e);
         }
         return null;
     }
@@ -277,21 +180,6 @@ public class KhachHangDAO extends BaseDAO {
         }
     }
 
-    public void updateCustomerPoints(int customerId, int newPoints) throws Exception {
-        String sql = "UPDATE KHACHHANG SET DIEMTICHLUY = ? WHERE MAKH = ?";
-        try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, newPoints);
-            pstmt.setInt(2, customerId);
-            int rowsUpdated = pstmt.executeUpdate();
-            if (rowsUpdated == 0) {
-                throw new Exception("Khong tim thay khach hang de cap nhat diem");
-            }
-        } catch (SQLException e) {
-            handleException("updateCustomerPoints", e);
-        }
-    }
-
     public void syncAllCustomerTiers() throws Exception {
         String sql = "UPDATE KHACHHANG KH SET MAHANG = (SELECT MAHANG FROM HANGTHANHVIEN HTV WHERE HTV.DIEMTOITHIEU <= KH.DIEMTICHLUY AND HTV.THOIDIEMXOA IS NULL ORDER BY HTV.DIEMTOITHIEU DESC FETCH FIRST 1 ROW ONLY)";
         try (Connection conn = moKetNoi();
@@ -346,6 +234,40 @@ public class KhachHangDAO extends BaseDAO {
             handleException("getAllDeletedCustomers", e);
         }
         return customers;
+    }
+
+    /** Lấy lịch sử đơn hàng của một khách hàng, sắp xếp mới nhất trước. */
+    public List<DonDatHangDTO> layLichSuDonHang(int maKH) throws Exception {
+        String sql = "SELECT MADON, MAKH, MATRANGTHAI, TENTRANGTHAI, NGAYGIONHANBANH, " +
+                     "TONGTIENHDBAN, TIENDACOC, HINHTHUCNHAN " +
+                     "FROM VW_DanhSachDonHang " +
+                     "WHERE MAKH = ? " +
+                     "ORDER BY NGAYGIONHANBANH DESC";
+        List<DonDatHangDTO> list = new ArrayList<>();
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maKH);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    DonDatHangDTO dto = new DonDatHangDTO();
+                    dto.setMaDon(rs.getInt("MADON"));
+                    dto.setMaKH(maKH);
+                    dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
+                    dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
+                    if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
+                        dto.setNgayGioNhanBanh(rs.getTimestamp("NGAYGIONHANBANH").toLocalDateTime());
+                    }
+                    dto.setTongTienHDBan(rs.getBigDecimal("TONGTIENHDBAN"));
+                    dto.setTienDaCoc(rs.getBigDecimal("TIENDACOC"));
+                    int hinhThuc = rs.getInt("HINHTHUCNHAN");
+                    if (!rs.wasNull()) dto.setHinhThucNhan(hinhThuc);
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layLichSuDonHang", e);
+        }
+        return list;
     }
 
     private KhachHangDTO mapRowToCustomer(ResultSet rs) throws SQLException {

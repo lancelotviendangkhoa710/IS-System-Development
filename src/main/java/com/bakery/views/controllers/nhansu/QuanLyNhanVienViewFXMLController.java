@@ -14,6 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -63,6 +65,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         setupFilters();
         loadData();
         setupPasswordToggle();
+        setupAutoComplete();
 
         tblNhanVien.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) hienThiChiTiet(newVal);
@@ -151,6 +154,49 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         });
     }
 
+    /** Auto-complete: gợi ý tần, mã khi user gõ vào txtTimKiem. */
+    private void setupAutoComplete() {
+        ContextMenu popup = new ContextMenu();
+        popup.setMaxHeight(200);
+
+        txtTimKiem.textProperty().addListener((obs, old, val) -> {
+            String keyword = val == null ? "" : val.trim().toLowerCase();
+            if (keyword.isBlank() || masterData.isEmpty()) {
+                popup.hide();
+                return;
+            }
+
+            // Lọc tối đa 8 gợi ý khớp theo tần hoặc mã
+            popup.getItems().clear();
+            masterData.stream()
+                    .filter(nv -> nv.getHoTen().toLowerCase().contains(keyword)
+                            || nv.getTenDangNhap().toLowerCase().contains(keyword)
+                            || nv.getSdt().contains(keyword))
+                    .limit(8)
+                    .forEach(nv -> {
+                        MenuItem item = new MenuItem(nv.getHoTen() + " — " + nv.getTenDangNhap());
+                        item.setOnAction(e -> {
+                            txtTimKiem.setText(nv.getHoTen());
+                            popup.hide();
+                            hienThiChiTiet(nv);
+                            tblNhanVien.getSelectionModel().select(nv);
+                        });
+                        popup.getItems().add(item);
+                    });
+
+            if (!popup.getItems().isEmpty()) {
+                popup.show(txtTimKiem, javafx.geometry.Side.BOTTOM, 0, 0);
+            } else {
+                popup.hide();
+            }
+        });
+
+        // Ẩn popup khi mất focus
+        txtTimKiem.focusedProperty().addListener((obs, old, focused) -> {
+            if (!focused) popup.hide();
+        });
+    }
+
     private void hienThiChiTiet(NhanVienDTO nv) {
         selectedNhanVien = nv;
         txtHoTen.setText(nv.getHoTen());
@@ -208,11 +254,11 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
             nv.setTrangThaiLamViec(chkHoatDong.isSelected() ? 1 : 0);
 
             if (selectedNhanVien == null) {
-                // Tạo mới — mật khẩu bắt buộc
-                if (matKhau.isBlank()) { lblThongBao.setText("Mật khẩu không được để trống khi tạo mới."); return; }
-                nv.setMatKhau(PasswordUtils.hash(matKhau));
+                // Tạo mới — mật khẩu mặc định "1" (plaintext), hệ thống sẽ kêu đổi khi đăng nhập lần đầu
+                String matKhauLuu = matKhau.isBlank() ? "1" : PasswordUtils.hash(matKhau);
+                nv.setMatKhau(matKhauLuu);
                 int newId = nhanVienService.themNhanVien(nv);
-                lblThongBao.setText("✅ Tạo nhân viên thành công. Mã NV: " + newId);
+                lblThongBao.setText("✅ Tạo nhân viên thành công. Mã NV: " + newId + ". Mật khẩu mặc định: 1");
             } else {
                 // Cập nhật — mật khẩu để trống = giữ nguyên
                 nv.setMatKhau(matKhau.isBlank() ? selectedNhanVien.getMatKhau() : PasswordUtils.hash(matKhau));

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="0" styleClass="bg-app"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.QuanLySanPhamViewFXMLController">
+
+    <!-- HEADER -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <padding><Insets top="24" right="32" bottom="12" left="32"/></padding>
+        <VBox spacing="4">
+            <Label text="🍰 Quản lý Sản phẩm" styleClass="lbl-title-screen"/>
+            <Label text="Quản lý sản phẩm, danh mục, công thức nguyên liệu và thành phần bánh tùy chỉnh"
+                   styleClass="lbl-body"/>
+        </VBox>
+    </HBox>
+
+    <!-- TAB PANE — chiếm toàn bộ không gian còn lại -->
+    <TabPane fx:id="tabPaneChinh" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS"
+             styleClass="modern-tab-pane">
+        <padding><Insets left="20" right="20" bottom="16"/></padding>
+        <tabs>
+
+            <!-- TAB 1: QUẢN LÝ SẢN PHẨM -->
+            <Tab text="🍞 Sản phẩm" fx:id="tabSanPham">
+                <content>
+                    <fx:include fx:id="sanPhamContent" source="SanPhamView.fxml"/>
+                </content>
+            </Tab>
+
+            <!-- TAB 2: QUẢN LÝ DANH MỤC -->
+            <Tab text="📂 Danh mục" fx:id="tabDanhMuc">
+                <content>
+                    <fx:include fx:id="danhMucContent" source="DanhMucSPView.fxml"/>
+                </content>
+            </Tab>
+
+            <!-- TAB 3: QUẢN LÝ CÔNG THỨC -->
+            <Tab text="📜 Công thức" fx:id="tabCongThuc">
+                <content>
+                    <fx:include fx:id="congThucContent" source="CongThucView.fxml"/>
+                </content>
+            </Tab>
+
+            <!-- TAB 4: THÀNH PHẦN BÁNH TÙY CHỈNH -->
+            <Tab text="🎂 Thành phần tùy chỉnh" fx:id="tabThanhPhan">
+                <content>
+                    <fx:include fx:id="thanhPhanContent" source="ThanhPhanBanhView.fxml"/>
+                </content>
+            </Tab>
+
+        </tabs>
+    </TabPane>
+
+    <!-- FOOTER STATUS -->
+    <HBox>
+        <padding><Insets top="4" right="32" bottom="8" left="32"/></padding>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
+
+</VBox>

@@ -178,6 +178,8 @@ BEGIN
             PHIENBAN = PHIENBAN + 1
         WHERE MASP = P_MASP;
     ELSE
+        -- Xóa công thức nguyên liệu liên quan trước để tránh vi phạm FK
+        DELETE FROM CONGTHUC WHERE MASP = P_MASP;
         -- Nếu chưa từng phát sinh doanh số, cho phép XÓA CỨNG
         DELETE FROM SANPHAM WHERE MASP = P_MASP;
     END IF;
@@ -480,5 +482,58 @@ EXCEPTION
         ROLLBACK;
         IF SQLCODE = PKG_ERROR_CODES.ERR_TRANGTRI_KHONG_TON_TAI_XOA THEN RAISE; END IF;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_TRANGTRI_XOA_HE_THONG, 'Loi he thong khi xoa Kieu trang tri: ' || SQLERRM);
+END;
+/
+
+-- ==============================================================
+-- MODULE CONG THUC NGUYEN LIEU (Bill of Materials)
+-- ==============================================================
+
+-- Procedure Thêm/Sửa một dòng công thức (UPSERT theo PK composite)
+CREATE OR REPLACE PROCEDURE PROC_UPSERT_CONGTHUC (
+    P_MASP           IN CONGTHUC.MASP%type,
+    P_MANL           IN CONGTHUC.MANL%type,
+    P_SOLUONGTIEUHAO IN CONGTHUC.SOLUONGTIEUHAO%type
+)
+IS
+BEGIN
+    -- MERGE xử lý cả INSERT lẫn UPDATE
+    MERGE INTO CONGTHUC CT
+    USING (SELECT P_MASP AS MASP, P_MANL AS MANL FROM DUAL) SRC
+    ON (CT.MASP = SRC.MASP AND CT.MANL = SRC.MANL)
+    WHEN MATCHED THEN
+        UPDATE SET CT.SOLUONGTIEUHAO = P_SOLUONGTIEUHAO
+    WHEN NOT MATCHED THEN
+        INSERT (MASP, MANL, SOLUONGTIEUHAO)
+        VALUES (P_MASP, P_MANL, P_SOLUONGTIEUHAO);
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20801, 'Lỗi hệ thống khi lưu công thức: ' || SQLERRM);
+END;
+/
+
+-- Procedure Xóa một dòng nguyên liệu khỏi công thức sản phẩm
+CREATE OR REPLACE PROCEDURE PROC_XOA_CONGTHUC (
+    P_MASP IN CONGTHUC.MASP%type,
+    P_MANL IN CONGTHUC.MANL%type
+)
+IS
+BEGIN
+    DELETE FROM CONGTHUC
+    WHERE MASP = P_MASP AND MANL = P_MANL;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20802, 'Lỗi: Không tìm thấy dòng công thức cần xóa.');
+    END IF;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = -20802 THEN RAISE; END IF;
+        RAISE_APPLICATION_ERROR(-20803, 'Lỗi hệ thống khi xóa công thức: ' || SQLERRM);
 END;
 /

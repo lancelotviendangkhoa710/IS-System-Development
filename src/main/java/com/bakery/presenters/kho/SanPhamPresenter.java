@@ -6,6 +6,7 @@ import com.bakery.views.interfaces.kho.ISanPhamView;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntConsumer;
 
 public class SanPhamPresenter {
     private final ISanPhamView view;
@@ -48,16 +49,22 @@ public class SanPhamPresenter {
         }
     }
 
-    public void themSanPham() {
-        SanPhamDTO sp = view.layDuLieuTuForm();
+    /**
+     * Thêm sản phẩm từ DTO (nhận từ Dialog). Gọi callback onThemXong(maMoi) sau khi thành công
+     * để View tự navigate sang Tab Công thức.
+     *
+     * @param sp       DTO từ ThemSanPhamDialog
+     * @param onThemXong callback nhận maSP mới (int), null nếu không cần navigate
+     */
+    public void themSanPham(SanPhamDTO sp, IntConsumer onThemXong) {
         if (sp == null) return;
-        
         sp.setMaNX(maNhanVien);
         try {
             int maMoi = sanPhamService.themSanPham(sp);
-            view.hienThiThanhCong("Thêm sản phẩm thành công (Mã: " + maMoi + ")");
+            view.hienThiThanhCong("Thêm sản phẩm '" + sp.getTenSP() + "' thành công (Mã: " + maMoi + ").");
             view.lamMoiForm();
             taiDanhSachSanPham();
+            if (onThemXong != null) onThemXong.accept(maMoi);
         } catch (Exception e) {
             view.hienThiLoi(e.getMessage());
         }
@@ -71,8 +78,9 @@ public class SanPhamPresenter {
         }
 
         SanPhamDTO sp = view.layDuLieuTuForm();
-        if (sp == null) return;
-        
+        if (sp == null)
+            return;
+
         sp.setMaSP(selected.getMaSP());
         try {
             sanPhamService.capNhatSanPham(sp);

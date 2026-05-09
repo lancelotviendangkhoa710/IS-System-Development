@@ -1,5 +1,6 @@
 package com.bakery.presenters.khachhang;
 
+import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.services.khachhang.KhachHangService;
 import com.bakery.views.interfaces.khachhang.KhachHangView;
@@ -208,6 +209,33 @@ public class KhachHangPresenter {
         Thread thread = new Thread(task, "khach-hang-xoa");
         thread.setDaemon(true);
         thread.start();
+    }
+
+    /** Xác định xem lịch sử mua hàng của khách — tải dữ liệu rồi gọi view hiển thị. */
+    public void xemLichSuMuaHang(KhachHangDTO kh) {
+        if (kh == null) {
+            view.hienThiLoi("Lỗi", "Chưa chọn khách hàng.");
+            return;
+        }
+        view.batTatTrangThaiBan(true);
+        Task<java.util.List<DonDatHangDTO>> task = new Task<>() {
+            @Override
+            protected java.util.List<DonDatHangDTO> call() throws Exception {
+                return KhachHangService.layLichSuMuaHang(kh.getMaKH());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            view.batTatTrangThaiBan(false);
+            view.hienThiLichSuMuaHang(kh, task.getValue());
+        });
+        task.setOnFailed(e -> {
+            view.batTatTrangThaiBan(false);
+            String msg = task.getException() != null ? task.getException().getMessage() : "Lỗi không xác định.";
+            view.hienThiLoi("Lỗi", "Không tải được lịch sử: " + msg);
+        });
+        Thread t = new Thread(task, "khach-hang-lich-su");
+        t.setDaemon(true);
+        t.start();
     }
 
     public void khoiPhucKhachHang(int maKhachHang) {

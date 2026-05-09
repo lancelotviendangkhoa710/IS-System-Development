@@ -29,6 +29,8 @@
                             <HBox alignment="CENTER_LEFT" spacing="10">
                                 <Label styleClass="lbl-title-card" text="Danh sách sản phẩm" />
                                 <Region HBox.hgrow="ALWAYS" />
+                                <TextField fx:id="txtTimKiem" promptText="🔍 Tìm theo tên hoặc mã SP..."
+                                           prefWidth="240" onKeyReleased="#onTimKiem" styleClass="text-field"/>
                                 <Button onAction="#onLamMoi" styleClass="btn-secondary" text="↺ Làm mới" />
                                 <Button fx:id="btnThemMoi" onAction="#onThemMoi" styleClass="btn-primary" text="➕ Thêm mới" />
                             </HBox>

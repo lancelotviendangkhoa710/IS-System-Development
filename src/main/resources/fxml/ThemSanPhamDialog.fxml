@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.ThemSanPhamDialogController"
+      spacing="0" prefWidth="580">
+
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="➕ Thêm sản phẩm mới" styleClass="dialog-header-title"/>
+    </HBox>
+
+    <!-- Body -->
+    <VBox styleClass="dialog-body" spacing="16" VBox.vgrow="ALWAYS">
+
+        <!-- Ảnh + tên + danh mục -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox alignment="CENTER" minWidth="110" spacing="8">
+                <ImageView fx:id="imgPreview" fitWidth="100" fitHeight="100" preserveRatio="true" styleClass="image-view"/>
+                <Button text="Chọn ảnh" onAction="#onChonAnh" styleClass="btn-secondary"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="12">
+                <VBox spacing="6">
+                    <Label text="Tên sản phẩm: *" styleClass="lbl-body-bold"/>
+                    <TextField fx:id="txtTenSP" promptText="VD: Bánh kem sinh nhật" styleClass="text-field"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Danh mục: *" styleClass="lbl-body-bold"/>
+                    <ComboBox fx:id="cmbDanhMuc" maxWidth="Infinity" promptText="Chọn danh mục..." styleClass="combo-box"/>
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <!-- Giá + tùy chỉnh -->
+        <HBox spacing="20">
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Giá bán cơ bản (đ):" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtGiaBan" promptText="VD: 150000" styleClass="text-field"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="6" alignment="BOTTOM_LEFT">
+                <CheckBox fx:id="chkTuyChinh" text="Cho phép tùy chỉnh" styleClass="check-box"/>
+            </VBox>
+        </HBox>
+
+        <!-- Thời gian -->
+        <HBox spacing="20">
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="T.Gian bảo quản (Ngày):" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtTGBaoQuan" promptText="VD: 3" styleClass="text-field"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="T.Gian chuẩn bị (Phút):" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtTGChuanBi" promptText="VD: 30" styleClass="text-field"/>
+            </VBox>
+        </HBox>
+
+        <!-- Gợi ý công thức -->
+        <HBox styleClass="info-banner" spacing="10" alignment="CENTER_LEFT">
+            <Label text="ℹ️" styleClass="lbl-body"/>
+            <Label text="Sau khi thêm, hệ thống sẽ tự chuyển sang Tab Công thức để bạn thiết lập nguyên liệu và tính giá vốn."
+                   styleClass="lbl-body" wrapText="true" HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- Error label -->
+        <Label fx:id="lblLoi" text="" styleClass="lbl-danger" wrapText="true"/>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Hủy" styleClass="btn-secondary" onAction="#onHuy"/>
+        <Button text="✅ Thêm &amp; Cấu hình công thức" styleClass="btn-primary" onAction="#onXacNhan"/>
+    </HBox>
+
+</VBox>
