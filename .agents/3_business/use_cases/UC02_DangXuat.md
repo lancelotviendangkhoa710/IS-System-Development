@@ -15,15 +15,15 @@
 | Bước | Actor | Hành động |
 |:-----|:------|:----------|
 | 1 | Nhân viên | Bấm nút **Đăng xuất** trên sidebar |
-| 2 | Hệ thống (FX Thread) | `MainMenuViewFXMLController.onDangXuat()` dừng `SessionWatchdogService` ngay lập tức |
-| 3 | Hệ thống (FX Thread) | `lblThongBao = "Đang đăng xuất..."` — hiển thị trạng thái loading |
-| 4 | Hệ thống (FX Thread) | Tạo `Task<Void>` và khởi chạy trên background thread |
-| 5 | Hệ thống (Background Thread) | `XacThucService.dangXuat()` lấy `token` từ `UserSession.getCurrentToken()` |
-| 6 | Hệ thống (Background Thread) | `AccountTokenDAO.revokeToken(token)` → `UPDATE ACCOUNT_TOKEN SET IS_REVOKED = 'Y' WHERE TOKEN_VALUE = ?` |
-| 7 | Hệ thống (Background Thread) | `UserSession.clear()` + `SessionContext.clear()` — xóa toàn bộ phiên in-memory |
-| 8 | Hệ thống (FX Thread) | `Platform.runLater()` → `chuyenVeDangNhap()` |
-| 9 | Hệ thống (FX Thread) | Load `DangNhapView.fxml`, gọi `setLoginInfo("Bạn đã đăng xuất thành công.")` |
-| 10 | Hệ thống (FX Thread) | `Stage` chuyển cảnh về màn hình đăng nhập |
+| 2 | Hệ thống | `MainMenuViewFXMLController xử lý` dừng `SessionWatchdogService` ngay lập tức |
+| 3 | Hệ thống | `lblThongBao = "Đang đăng xuất..."` — hiển thị trạng thái loading |
+| 4 | Hệ thống | Tạo `Task<Void>` và khởi chạy trên background thread |
+| 5 | Hệ thống | `XacThucService xử lý` lấy `token` từ `UserSession xử lý` |
+| 6 | Hệ thống | `AccountTokenDAO xử lý` → `UPDATE ACCOUNT_TOKEN SET IS_REVOKED = 'Y' WHERE TOKEN_VALUE = ?` |
+| 7 | Hệ thống | `UserSession xử lý` + `SessionContext xử lý` — xóa toàn bộ phiên in-memory |
+| 8 | Hệ thống | `Platform xử lý` → `chuyenVeDangNhap()` |
+| 9 | Hệ thống | Load `DangNhapView.fxml`, gọi `setLoginInfo("Bạn đã đăng xuất thành công.")` |
+| 10 | Hệ thống | `Stage` chuyển cảnh về màn hình đăng nhập |
 
 ---
 
@@ -33,8 +33,8 @@
 
 | Bước | Hành động |
 |:-----|:----------|
-| 2a.1 | `SessionWatchdogService` check mỗi 30s → `AccountTokenDAO.timTheoGiaTri(token)` trả về `IS_REVOKED = 'Y'` hoặc `null` |
-| 2a.2 | `succeeded()` callback: `Platform.runLater()` → `SessionContext.clear()` + `UserSession.clear()` |
+| 2a.1 | `SessionWatchdogService` check mỗi 30s → `AccountTokenDAO xử lý` trả về `IS_REVOKED = 'Y'` hoặc `null` |
+| 2a.2 | `succeeded()` callback: `Platform xử lý` → `SessionContext xử lý` + `UserSession xử lý` |
 | 2a.3 | Hiện `Alert.WARNING` — "Phiên đăng nhập đã bị thu hồi..." |
 | 2a.4 | Watchdog tự hủy (`cancel()`), load `DangNhapView.fxml` |
 
@@ -44,8 +44,8 @@
 
 | Bước lỗi | Mô tả | Xử lý |
 |:---------|:------|:------|
-| 6 (DB lỗi) | `AccountTokenDAO.revokeToken()` ném exception (mất kết nối) | `taskDangXuat.setOnFailed()` vẫn gọi `UserSession.clear()` + `SessionContext.clear()` + `chuyenVeDangNhap()` (**fail-safe**) |
-| 5 (token null) | `UserSession.getCurrentToken()` = null (session lỗi) | `XacThucService.dangXuat()` bỏ qua bước revoke DB, vẫn xóa session local |
+| 6 (DB lỗi) | `AccountTokenDAO xử lý` ném exception (mất kết nối) | `taskDangXuat xử lý` vẫn gọi `UserSession xử lý` + `SessionContext xử lý` + `chuyenVeDangNhap()` (**fail-safe**) |
+| 5 (token null) | `UserSession xử lý` = null (session lỗi) | `XacThucService xử lý` bỏ qua bước revoke DB, vẫn xóa session local |
 | 9 (FXML lỗi) | Không tìm thấy `DangNhapView.fxml` | `lblThongBao` hiện thông báo lỗi, ứng dụng không treo |
 
 ---
@@ -58,7 +58,7 @@ flowchart TD
         A([Bấm Đăng xuất])
     end
 
-    subgraph FX_Thread["Hệ thống — FX Thread"]
+    subgraph FX_Thread["Hệ thống"]
         B[Dừng SessionWatchdog]
         C[lblThongBao = Đang đăng xuất...]
         D[Tạo Task background]
@@ -70,7 +70,7 @@ flowchart TD
         Q([lblThongBao = Lỗi đăng xuất])
     end
 
-    subgraph BG_Thread["Hệ thống — Background Thread"]
+    subgraph BG_Thread["Hệ thống"]
         E[XacThucService.dangXuat]
         F{Token khác null?}
         G[AccountTokenDAO.revokeToken]
@@ -93,19 +93,4 @@ flowchart TD
 
 ---
 
-## Mapping kỹ thuật
 
-| Thành phần | Vai trò trong UC02 |
-|:-----------|:-------------------|
-| `MainMenuViewFXMLController.onDangXuat()` | Entry point — dừng watchdog, hiển thị loading, spawn Task |
-| `MainMenuViewFXMLController.chuyenVeDangNhap()` | Điều hướng về màn đăng nhập, chỉ gọi trên FX Thread |
-| `XacThucService.dangXuat()` | Orchestrate: revoke DB token → clear memory session |
-| `AccountTokenDAO.revokeToken(token)` | `UPDATE ACCOUNT_TOKEN SET IS_REVOKED='Y'` — JDBC auto-commit |
-| `UserSession.clear()` | Xóa `currentUser` + `currentToken` khỏi static singleton |
-| `SessionContext.clear()` | Xóa `AuthSession` + reset `maCa` + `caoDangMo = false` |
-| `SessionWatchdogService` | Tự hủy khi nhân viên chủ động đăng xuất (`dungWatchdog()`) |
-| `DangNhapViewFXMLController.setLoginInfo()` | Hiển thị thông báo "Đăng xuất thành công" trên màn đăng nhập |
-
----
-
-> **Ghi chú bảo mật:** `IS_REVOKED = 'Y'` được ghi vào DB ngay cả khi nhân viên đăng xuất chủ động, đảm bảo mọi thiết bị đang giám sát token (Watchdog) sẽ phát hiện phiên đã kết thúc trong tối đa 30 giây.

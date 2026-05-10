@@ -18,7 +18,7 @@
 | 2 | Quản lý | Bấm **Cho thôi việc** |
 | 3 | Hệ thống | Hiển thị `Alert CONFIRMATION` — "Cho nhân viên X thôi việc? Tài khoản sẽ bị khóa nhưng lịch sử được giữ lại." |
 | 4 | Quản lý | Bấm **Có** xác nhận |
-| 5 | Hệ thống (Service) | `NhanVienService.thoiViec(maNV)` |
+| 5 | Hệ thống (Service) | `NhanVienService xử lý` |
 | 6 | CSDL | `PROC_THOIVIEC_NHANVIEN(MANV)` → `UPDATE NHANVIEN SET TRANGTHAILAMVIEC=0`, `UPDATE TAIKHOAN SET TRANGTHAITK=0` |
 | 7 | Hệ thống | `lblThongBao = "✅ Đã cho nhân viên thôi việc thành công."` |
 | 8 | Hệ thống | `loadData()` làm mới, `onThemMoi()` reset form |
@@ -55,7 +55,7 @@ flowchart TD
         C{Xác nhận Alert?}
     end
 
-    subgraph He_Thong["Hệ thống — FX Thread"]
+    subgraph He_Thong["Hệ thống"]
         D{Đã chọn NV\nvà còn làm việc?}
         E[lblThongBao = Lỗi tiền điều kiện]
         F[Hiện Alert CONFIRMATION]
@@ -79,14 +79,4 @@ flowchart TD
 
 ---
 
-## Mapping kỹ thuật
 
-| Thành phần | Chi tiết |
-|:-----------|:---------|
-| View | `QuanLyNhanVienViewFXMLController.onChoThoiViec()` |
-| Service | `NhanVienService.thoiViec(int maNV)` |
-| DAO | `NhanVienDAO.thoiViec()` → `PROC_THOIVIEC_NHANVIEN` |
-| Soft-delete | `TRANGTHAILAMVIEC = 0` (NHANVIEN) + `TRANGTHAITK = 0` (TAIKHOAN) — không xóa vật lý |
-| Kích hoạt lại | Qua UC05 — checkbox `chkHoatDong = true` → `suaNhanVien()` ghi `TRANGTHAILAMVIEC = 1` |
-
-> **Lưu ý bảo mật:** Sau khi cho thôi việc, nếu nhân viên đang có token active trong `ACCOUNT_TOKEN`, Watchdog sẽ phát hiện `TRANGTHAITK = 0` khi validate lần đăng nhập tiếp theo và từ chối. Token cũ sẽ vô hiệu hóa trong vòng 30 giây nhờ `SessionWatchdogService`.

@@ -13,16 +13,16 @@
 ## Luồng sự kiện chính — Đăng nhập
 
 1. Nhân viên nhập tên đăng nhập và mật khẩu → bấm **Đăng nhập**.
-2. `DangNhapViewFXMLController.onDangNhap()` tạo `Task<NhanVienDTO>` chạy background.
-3. `XacThucService.dangNhap()` kiểm tra:
+2. `DangNhapViewFXMLController xử lý` tạo `Task<NhanVienDTO>` chạy background.
+3. `XacThucService xử lý` kiểm tra:
    - Tên đăng nhập & mật khẩu không rỗng.
    - `NHANVIEN.TRANGTHAILAMVIEC = 1` và `TAIKHOAN.TRANGTHAITK = 1`.
    - bcrypt verify mật khẩu.
    - Lấy phân quyền hợp nhất qua `PhanQuyenDAO`.
 4. Tạo `SessionContext.AuthSession` (in-memory).
-5. Resolve `MATAIKHOAN` từ `NhanVienDAO.layMaTaiKhoan()`.
-6. `AccountTokenDAO.thuHoiToanBoTheoTaiKhoan()` — dọn token cũ.
-7. `AccountTokenDAO.insertToken()` — tạo `ACCOUNT_TOKEN` mới, hết hạn +1 ngày (≥12h ca dài nhất).
+5. Resolve `MATAIKHOAN` từ `NhanVienDAO xử lý`.
+6. `AccountTokenDAO xử lý` — dọn token cũ.
+7. `AccountTokenDAO xử lý` — tạo `ACCOUNT_TOKEN` mới, hết hạn +1 ngày (≥12h ca dài nhất).
 8. Lưu `token` vào `UserSession.currentToken` và `NhanVienDTO` vào `UserSession.currentUser`.
 9. UI chuyển về `MainMenuView` (hoặc `MoCaView` nếu là Thu ngân chưa mở ca).
 10. `SessionWatchdogService` bắt đầu giám sát mỗi 30 giây.
@@ -30,14 +30,14 @@
 ## Luồng sự kiện chính — Đăng xuất
 
 1. Nhân viên bấm **Đăng xuất** trên sidebar.
-2. `MainMenuViewFXMLController.onDangXuat()`:
+2. `MainMenuViewFXMLController xử lý`:
    - Dừng Watchdog ngay lập tức.
    - Hiển thị loading `lblThongBao = "Đang đăng xuất..."`.
-   - Tạo `Task<Void>` chạy background → `XacThucService.dangXuat()`.
-3. `XacThucService.dangXuat()`:
-   - `AccountTokenDAO.revokeToken(token)` → `UPDATE ACCOUNT_TOKEN SET IS_REVOKED='Y' WHERE TOKEN_VALUE=?`
-   - `UserSession.clear()` + `SessionContext.clear()`.
-4. `Platform.runLater()` → `chuyenVeDangNhap()` load lại `DangNhapView.fxml`.
+   - Tạo `Task<Void>` chạy background → `XacThucService xử lý`.
+3. `XacThucService xử lý`:
+   - `AccountTokenDAO xử lý` → `UPDATE ACCOUNT_TOKEN SET IS_REVOKED='Y' WHERE TOKEN_VALUE=?`
+   - `UserSession xử lý` + `SessionContext xử lý`.
+4. `Platform xử lý` → `chuyenVeDangNhap()` load lại `DangNhapView.fxml`.
 
 ## Luồng lỗi
 
@@ -50,8 +50,8 @@
 
 ## Luồng Watchdog
 
-- Mỗi 30s: `AccountTokenDAO.timTheoGiaTri(token)` → check `IS_REVOKED = 'N'` và `EXPIRES_AT >= SYSDATE`.
-- Nếu token bị revoke từ ngoài hoặc hết hạn: `SessionContext.clear()` + `UserSession.clear()` + Alert + về màn đăng nhập.
+- Mỗi 30s: `AccountTokenDAO xử lý` → check `IS_REVOKED = 'N'` và `EXPIRES_AT >= SYSDATE`.
+- Nếu token bị revoke từ ngoài hoặc hết hạn: `SessionContext xử lý` + `UserSession xử lý` + Alert + về màn đăng nhập.
 
 ```mermaid
 flowchart TD
@@ -88,14 +88,4 @@ flowchart TD
     end
 ```
 
-## Ghi chú kỹ thuật
 
-| Thành phần | Vai trò |
-|:---|:---|
-| `AccountTokenDTO` | DTO ánh xạ `ACCOUNT_TOKEN`, dùng `LocalDate` (cột DATE) |
-| `AccountTokenDAO` | `insertToken()`, `revokeToken()`, `timTheoGiaTri()`, `thuHoiToanBoTheoTaiKhoan()` |
-| `XacThucService` | Orchestrate login/logout, dùng `accountTokenDAO` thay `sessionDAO` |
-| `SessionWatchdogService` | Check `accountTokenDAO.timTheoGiaTri()` mỗi 30s |
-| `UserSession` | Singleton in-memory, giữ `currentToken` + `currentUser` |
-| `SessionContext` | Singleton in-memory, giữ `AuthSession` (quyền + vai trò) |
-| `NhanVienDAO.layMaTaiKhoan()` | Resolve `MATAIKHOAN` từ `MANV` để tạo FK đúng |

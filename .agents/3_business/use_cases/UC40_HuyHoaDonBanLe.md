@@ -14,11 +14,11 @@
 ## Luồng kỹ thuật
 
 ```
-Presenter.huyHoaDonBanLe(maDonStr)
-  → dialogFactory.showCancelOrderDialog() — nhập lý do
-  → DonHangService.huyHoaDonBanLe(maDon, lyDo, maNV)
-    → QuanLyDonHangService.huyHoaDonBanLe() — validate input
-      → DonHangDAO.huyHoaDonBanLe()
+Presenter xử lý
+  → dialogFactory xử lý — nhập lý do
+  → DonHangService xử lý
+    → QuanLyDonHangService xử lý — validate input
+      → DonHangDAO xử lý
         → PROC_HUYHOADONBANLE(maDon, lyDo, maNV)
           → Kiểm tra HINHTHUCNHAN = 1
           → Kiểm tra TRANGTHAIDON = Hoàn thành

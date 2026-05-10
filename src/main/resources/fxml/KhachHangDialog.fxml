@@ -1,38 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.bakery.views.controllers.banhang.KhachHangDialogViewFXMLController"
-      styleClass="dialog-container" prefWidth="520">
+      spacing="0" prefWidth="480">
 
-    <Label fx:id="lblTitle" text="Thêm Khách Hàng" styleClass="dialog-header-title"/>
-    <Separator style="-fx-opacity: 0.3;"/>
-
-    <GridPane styleClass="dialog-grid">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="35"/>
-            <ColumnConstraints percentWidth="65"/>
-        </columnConstraints>
-
-        <Label text="Họ tên *" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <TextField fx:id="txtHoTen" promptText="Nhập tên khách hàng" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="text-field"/>
-
-        <Label text="SĐT *" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <TextField fx:id="txtSDT" promptText="VD: 0901234567" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field"/>
-
-        <Label text="Địa chỉ" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <TextField fx:id="txtDiaChi" promptText="Nhập địa chỉ" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field"/>
-    </GridPane>
-
-    <Label fx:id="lblError" text="" styleClass="dialog-error" wrapText="true"/>
-
-    <HBox spacing="16" alignment="CENTER_RIGHT">
-        <Button text="Hủy" onAction="#onHuy" styleClass="dialog-button-cancel"/>
-        <Button fx:id="btnLuu" text="Lưu khách hàng" onAction="#onLuu" styleClass="dialog-button-save"/>
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="👤" style="-fx-font-size: 20px;"/>
+        <VBox spacing="2">
+            <Label fx:id="lblTitle" text="Thêm khách hàng mới" styleClass="dialog-header-title"/>
+            <Label text="Điền đầy đủ thông tin bên dưới" styleClass="lbl-small"/>
+        </VBox>
     </HBox>
-</VBox>
 
+    <!-- Body -->
+    <VBox styleClass="dialog-body" spacing="18">
+
+        <!-- Họ tên -->
+        <VBox spacing="6">
+            <Label text="Họ và tên khách hàng *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtHoTen"
+                       promptText="VD: Nguyễn Văn A"
+                       styleClass="text-field"/>
+        </VBox>
+
+        <!-- SĐT -->
+        <VBox spacing="6">
+            <Label text="Số điện thoại *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtSDT"
+                       promptText="VD: 0901234567 (10 chữ số)"
+                       styleClass="text-field"/>
+        </VBox>
+
+        <!-- Địa chỉ -->
+        <VBox spacing="6">
+            <Label text="Địa chỉ" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtDiaChi"
+                       promptText="VD: 123 Lê Lợi, Q.1, TP.HCM"
+                       styleClass="text-field"/>
+        </VBox>
+
+        <!-- Info banner -->
+        <HBox styleClass="info-banner" spacing="10" alignment="CENTER_LEFT">
+            <Label text="ℹ️" styleClass="lbl-body"/>
+            <Label text="Khách hàng mới sẽ được xếp hạng thành viên tự động dựa trên điểm tích lũy."
+                   styleClass="lbl-body" wrapText="true" HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- Error label -->
+        <Label fx:id="lblError" text="" styleClass="lbl-danger" wrapText="true"/>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="12">
+        <Button text="Hủy" onAction="#onHuy" styleClass="btn-secondary"/>
+        <Button fx:id="btnLuu" text="✅ Lưu khách hàng" onAction="#onLuu" styleClass="btn-primary"/>
+    </HBox>
+
+</VBox>

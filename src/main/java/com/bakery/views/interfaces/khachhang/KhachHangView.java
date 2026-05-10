@@ -1,6 +1,7 @@
 package com.bakery.views.interfaces.khachhang;
 
 import com.bakery.model.dto.banhang.DonDatHangDTO;
+import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 
 import java.util.List;
@@ -29,4 +30,7 @@ public interface KhachHangView {
 
     /** Hiển thị dialog lịch sử mua hàng của khách. */
     void hienThiLichSuMuaHang(KhachHangDTO kh, List<DonDatHangDTO> dsDon);
+
+    /** Nạp danh sách hạng thành viên để tính điểm thăng hạng và điền ComboBox lọc. */
+    default void hienThiDanhSachHang(List<HangThanhVienDTO> dsHang) {}
 }

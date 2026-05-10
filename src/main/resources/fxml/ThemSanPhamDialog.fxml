@@ -36,16 +36,8 @@
             </VBox>
         </HBox>
 
-        <!-- Giá + tùy chỉnh -->
-        <HBox spacing="20">
-            <VBox HBox.hgrow="ALWAYS" spacing="6">
-                <Label text="Giá bán cơ bản (đ):" styleClass="lbl-body-bold"/>
-                <TextField fx:id="txtGiaBan" promptText="VD: 150000" styleClass="text-field"/>
-            </VBox>
-            <VBox HBox.hgrow="ALWAYS" spacing="6" alignment="BOTTOM_LEFT">
-                <CheckBox fx:id="chkTuyChinh" text="Cho phép tùy chỉnh" styleClass="check-box"/>
-            </VBox>
-        </HBox>
+        <!-- Tùy chỉnh -->
+        <CheckBox fx:id="chkTuyChinh" text="Cho phép tùy chỉnh theo yêu cầu khách" styleClass="check-box"/>
 
         <!-- Thời gian -->
         <HBox spacing="20">

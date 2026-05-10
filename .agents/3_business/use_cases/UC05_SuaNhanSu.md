@@ -19,7 +19,7 @@
 | 3 | Quản lý | Thay đổi các trường cần sửa (Họ tên, SĐT, Vai trò, Mật khẩu — để trống = giữ nguyên) |
 | 4 | Quản lý | Bấm **Lưu** |
 | 5 | Hệ thống (View) | Validate: Họ tên không trống, Tên đăng nhập không trống |
-| 6 | Hệ thống (Service) | `NhanVienService.suaNhanVien(NhanVienDTO)` |
+| 6 | Hệ thống (Service) | `NhanVienService xử lý` |
 | 7 | CSDL | `PROC_SUA_NHANVIEN(MANV, HoTen, NgaySinh, SDT, TenDangNhap, MatKhau, TrangThai)` |
 | 8 | CSDL | `DELETE FROM NHANVIEN_VAITRO WHERE MANV = ?` → `PROC_GAN_VAITRO_NHANVIEN` batch (vai trò mới) |
 | 9 | Hệ thống | `lblThongBao = "✅ Cập nhật nhân viên thành công."` |
@@ -30,10 +30,10 @@
 ## Luồng sự kiện phụ
 
 **3a — Không đổi mật khẩu:**
-- Trường mật khẩu để trống → hệ thống giữ nguyên hash cũ (`selectedNhanVien.getMatKhau()`).
+- Trường mật khẩu để trống → hệ thống giữ nguyên hash cũ (`selectedNhanVien xử lý`).
 
 **3b — Đổi mật khẩu:**
-- Nhập mật khẩu mới → `PasswordUtils.hash(matKhauMoi)` ghi đè lên `MATKHAU` trong `TAIKHOAN`.
+- Nhập mật khẩu mới → `PasswordUtils xử lý` ghi đè lên `MATKHAU` trong `TAIKHOAN`.
 
 ---
 
@@ -58,7 +58,7 @@ flowchart TD
         D([Bấm Lưu])
     end
 
-    subgraph He_Thong["Hệ thống — FX Thread"]
+    subgraph He_Thong["Hệ thống"]
         B[hienThiChiTiet\nđiền dữ liệu hiện tại vào form]
         E{Validate đầu vào}
         F[lblThongBao = Lỗi]
@@ -82,12 +82,4 @@ flowchart TD
 
 ---
 
-## Mapping kỹ thuật
 
-| Thành phần | Chi tiết |
-|:-----------|:---------|
-| View | `QuanLyNhanVienViewFXMLController.hienThiChiTiet()` + `onLuu()` nhánh `selectedNhanVien != null` |
-| Service | `NhanVienService.suaNhanVien(NhanVienDTO)` |
-| DAO | `NhanVienDAO.suaNhanVien()` → `PROC_SUA_NHANVIEN` + xóa + insert lại `NHANVIEN_VAITRO` |
-| Mật khẩu | Để trống = giữ `selectedNhanVien.getMatKhau()`; có nhập = `PasswordUtils.hash()` |
-| Vai trò | Xóa toàn bộ `NHANVIEN_VAITRO` cũ rồi insert batch mới theo CheckBox được tích |

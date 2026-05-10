@@ -48,12 +48,4 @@ flowchart TD
 
 ---
 
-## Ghi chú kỹ thuật
 
-| Tầng | Class | Method |
-|---|---|---|
-| View | `KhachHangViewFXMLController` | `hienThiLichSuMuaHang(kh, dsDon)` |
-| Presenter | `KhachHangPresenter` | `xemLichSuMuaHang(kh)` |
-| Service | `KhachHangService` | `layLichSuMuaHang(maKH)` |
-| DAO | `KhachHangDAO` | `layLichSuDonHang(maKH)` |
-| DB | `VW_DanhSachDonHang` | Filter `WHERE MAKH = ?` |

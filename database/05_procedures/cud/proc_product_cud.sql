@@ -83,20 +83,22 @@ IS
     V_GIAVON NUMBER := NVL(P_GIAVON, 0);
     V_GIABAN NUMBER;
 BEGIN
-    -- 1. Tạo bản ghi sản phẩm
+    -- 1. Tạo bản ghi sản phẩm; GIAVON/GIABAN = 0 hợp lệ khi chưa có BOM
     INSERT INTO SANPHAM (MADM, TENSP, HINHANH, CHOPHEPTUYCHINH, THOIGIANBAOQUAN, THOIGIANCHUANBI, GIAVON, GIABAN)
     VALUES (P_MADM, P_TENSP, P_HINHANH, P_CHOPHEPTUYCHINH, P_THOIGIANBAOQUAN, P_THOIGIANCHUANBI, V_GIAVON, 0)
     RETURNING MASP INTO P_MASP_OUT;
 
-    -- 2. Nếu giá bán được truyền rõ ràng thì dùng, ngược lại tự tính
+    -- 2. Tính giá bán: ưu tiên P_GIABAN, fallback tính từ giá vốn; bỏ qua nếu chưa có
     IF NVL(P_GIABAN, 0) > 0 THEN
         V_GIABAN := ROUND(P_GIABAN, -3);
-    ELSE
+    ELSIF V_GIAVON > 0 THEN
         V_GIABAN := ROUND(V_GIAVON * 2, -3);
     END IF;
 
-    -- 3. Cập nhật giá bán đã tính
-    UPDATE SANPHAM SET GIABAN = V_GIABAN WHERE MASP = P_MASP_OUT;
+    -- 3. Cập nhật giá bán chỉ khi đã tính được
+    IF V_GIABAN IS NOT NULL THEN
+        UPDATE SANPHAM SET GIABAN = V_GIABAN WHERE MASP = P_MASP_OUT;
+    END IF;
 
     -- 4. Ghi log hoạt động
     IF P_MANV_LAP IS NOT NULL THEN

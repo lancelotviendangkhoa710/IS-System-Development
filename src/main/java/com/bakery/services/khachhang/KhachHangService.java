@@ -93,8 +93,12 @@ public class KhachHangService {
                 throw new SQLException("SDT da ton tai trong thung rac. Hay khoi phuc khach hang cu thay vi tao moi.");
             }
 
+            // Khách mới không set diemTichLuy → default 0 tránh NPE khi unbox
+            int diemHienTai = customer.getDiemTichLuy() != null ? customer.getDiemTichLuy() : 0;
+            customer.setDiemTichLuy(diemHienTai);
+
             HangThanhVienService tierService = new HangThanhVienService();
-            com.bakery.model.dto.khachhang.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(customer.getDiemTichLuy());
+            com.bakery.model.dto.khachhang.HangThanhVienDTO appropriateTier = tierService.getTierByPoints(diemHienTai);
             if (appropriateTier != null) {
                 customer.setMaHang(appropriateTier.getMaHang());
             }

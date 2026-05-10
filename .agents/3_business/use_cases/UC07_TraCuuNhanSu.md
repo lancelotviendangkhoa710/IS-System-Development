@@ -14,9 +14,9 @@
 
 | Bước | Actor | Hành động |
 |:-----|:------|:----------|
-| 1 | Hệ thống | `initialize()` → `loadData()` → `NhanVienService.layTatCaNhanVien()` → load toàn bộ `NHANVIEN` vào `masterData` |
+| 1 | Hệ thống | `initialize()` → `loadData()` → `NhanVienService xử lý` → load toàn bộ `NHANVIEN` vào `masterData` |
 | 2 | Quản lý | Nhập từ khóa vào `txtTimKiem` (tên / SĐT / tên đăng nhập) |
-| 3 | Hệ thống | `applyFilter()` tự động trigger qua `textProperty().addListener()` — lọc `FilteredList` theo keyword |
+| 3 | Hệ thống | `applyFilter()` tự động trigger qua `textProperty() xử lý` — lọc `FilteredList` theo keyword |
 | 4 | Quản lý | Chọn giá trị `cmbLocTrangThai`: "Tất cả" / "Đang làm việc" / "Đã thôi việc" |
 | 5 | Hệ thống | `applyFilter()` trigger lại — kết hợp cả keyword và trạng thái |
 | 6 | Quản lý | Bấm chọn một dòng trên bảng |
@@ -30,7 +30,7 @@
 - `FilteredList` trả về rỗng → bảng hiển thị "No content in table" (JavaFX mặc định).
 
 **1a — Lỗi tải dữ liệu ban đầu:**
-- Exception → `masterData.clear()` + `lblThongBao = "Lỗi tải dữ liệu: ..."`.
+- Exception → `masterData xử lý` + `lblThongBao = "Lỗi tải dữ liệu: ..."`.
 
 **7a — Làm mới danh sách:**
 - Quản lý bấm **Làm mới** → `onLamMoi()` → `loadData()` + reset form.
@@ -57,7 +57,7 @@ flowchart TD
         D([Chọn dòng trên bảng])
     end
 
-    subgraph He_Thong["Hệ thống — FX Thread"]
+    subgraph He_Thong["Hệ thống"]
         E[loadData\nNhanVienService.layTatCaNhanVien]
         F[masterData.setAll — tải vào ObservableList]
         G[FilteredList.setPredicate\ntìm theo keyword + trạng thái]
@@ -79,13 +79,4 @@ flowchart TD
 
 ---
 
-## Mapping kỹ thuật
 
-| Thành phần | Chi tiết |
-|:-----------|:---------|
-| View | `QuanLyNhanVienViewFXMLController.loadData()`, `applyFilter()`, `hienThiChiTiet()` |
-| Service | `NhanVienService.layTatCaNhanVien()` |
-| DAO | `NhanVienDAO.layTatCaNhanVien()` → JOIN `NHANVIEN`, `TAIKHOAN`, `NHANVIEN_VAITRO` |
-| Tìm kiếm | Client-side `FilteredList` — không gọi thêm DB mỗi lần gõ phím |
-| Hiển thị | `colTrangThai` dùng lambda format: `TRANGTHAILAMVIEC = 1` → "Đang làm việc" |
-| Làm mới | `onLamMoi()` → `loadData()` + `onThemMoi()` reset form |

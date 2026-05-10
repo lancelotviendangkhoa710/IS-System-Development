@@ -94,6 +94,21 @@ public class KhachHangPresenter {
         thread.start();
     }
 
+    /** Tải danh sách hạng thành viên vào View để tính điểm thăng hạng và ComboBox lọc. */
+    public void taiDanhSachHangThanhVien() {
+        Task<java.util.List<com.bakery.model.dto.khachhang.HangThanhVienDTO>> task = new Task<>() {
+            @Override
+            protected java.util.List<com.bakery.model.dto.khachhang.HangThanhVienDTO> call() throws Exception {
+                return new com.bakery.services.khachhang.HangThanhVienService().getAllTiers();
+            }
+        };
+        task.setOnSucceeded(e -> view.hienThiDanhSachHang(task.getValue()));
+        task.setOnFailed(e -> { /* ComboBox vẫn hoạt động không có tier */ });
+        Thread t = new Thread(task, "khach-hang-tai-hang");
+        t.setDaemon(true);
+        t.start();
+    }
+
     public void timKiem(String tuKhoa) {
         this.tuKhoa = tuKhoa == null ? "" : tuKhoa.trim();
         this.trangHienTai = 1;

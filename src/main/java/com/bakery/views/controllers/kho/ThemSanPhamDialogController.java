@@ -21,7 +21,6 @@ public class ThemSanPhamDialogController {
 
     @FXML private TextField txtTenSP;
     @FXML private ComboBox<Map.Entry<Integer, String>> cmbDanhMuc;
-    @FXML private TextField txtGiaBan;
     @FXML private CheckBox chkTuyChinh;
     @FXML private TextField txtTGBaoQuan;
     @FXML private TextField txtTGChuanBi;
@@ -59,19 +58,32 @@ public class ThemSanPhamDialogController {
             return;
         }
 
+        // Validate Thời gian bảo quản (CK_SP_BAOQUAN: > 0)
+        int tgBaoQuan;
+        try {
+            tgBaoQuan = Integer.parseInt(txtTGBaoQuan.getText().trim());
+            if (tgBaoQuan <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            lblLoi.setText("⚠ Thời gian bảo quản phải là số nguyên > 0.");
+            return;
+        }
+
+        // Validate Thời gian chuẩn bị (CK_SP_CHUANBI: >= 0)
+        int tgChuanBi;
+        try {
+            tgChuanBi = Integer.parseInt(txtTGChuanBi.getText().trim());
+            if (tgChuanBi < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            lblLoi.setText("⚠ Thời gian chuẩn bị phải là số nguyên >= 0.");
+            return;
+        }
+
         SanPhamDTO sp = new SanPhamDTO();
         sp.setTenSP(ten);
         sp.setMaDM(cmbDanhMuc.getValue().getKey());
-
-        try { sp.setGiaBan(Double.parseDouble(txtGiaBan.getText().trim())); }
-        catch (NumberFormatException ignored) { sp.setGiaBan(0); }
-
-        try { sp.setThoiGianBaoQuan(Integer.parseInt(txtTGBaoQuan.getText().trim())); }
-        catch (NumberFormatException ignored) {}
-
-        try { sp.setThoiGianChuanBi(Integer.parseInt(txtTGChuanBi.getText().trim())); }
-        catch (NumberFormatException ignored) {}
-
+        sp.setGiaBan(0);    // tính lại sau khi cấu hình BOM
+        sp.setThoiGianBaoQuan(tgBaoQuan);
+        sp.setThoiGianChuanBi(tgChuanBi);
         sp.setChoPhepTuyChinh(chkTuyChinh.isSelected() ? 1 : 0);
         sp.setHinhAnh(selectedImagePath);
 

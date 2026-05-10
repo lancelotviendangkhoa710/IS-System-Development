@@ -19,7 +19,7 @@
         <Region HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <TabPane styleClass="modern-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+    <TabPane fx:id="tabPaneKhachHang" styleClass="modern-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <tabs>
             <Tab text="👥 Khách hàng">
                 <content>
@@ -40,38 +40,25 @@
 
                         <!-- TOOLBAR -->
                         <HBox alignment="CENTER_LEFT" spacing="12">
-                            <HBox alignment="CENTER_LEFT" spacing="8" HBox.hgrow="ALWAYS">
-                                <TextField fx:id="searchField" prefHeight="35" prefWidth="350" promptText="🔍 Tìm theo tên, SĐT, mã KH..." styleClass="text-field" />
-                                <Button fx:id="btnToggleFilter" onAction="#onToggleFilterClicked" styleClass="btn-secondary" text="Lọc nâng cao" />
-                            </HBox>
-                            <Button fx:id="btnRefresh" onAction="#onRefreshClicked" styleClass="btn-secondary" text="↻" />
-                            <Button fx:id="btnCheDoThungRac" onAction="#onDeletedViewClicked" styleClass="btn-secondary" text="🗑 Thùng rác" />
-                            <Button onAction="#onExportExcelClicked" styleClass="btn-secondary" text="📥 Xuất Excel" />
-                            <Button onAction="#onAddCustomerClicked" styleClass="btn-primary" text="➕ Thêm khách hàng" />
+                            <TextField fx:id="searchField" prefHeight="35" prefWidth="300"
+                                       promptText="🔍 Tìm theo tên, SĐT, mã KH..."
+                                       styleClass="text-field" onKeyReleased="#onSearch"/>
+                            <ComboBox fx:id="cbTierFilter" prefHeight="35" prefWidth="180"
+                                      promptText="🎖 Tất cả hạng"
+                                      onAction="#onTierFilterChanged"
+                                      styleClass="combo-box"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="btnRefresh" onAction="#onRefreshClicked"
+                                    styleClass="btn-secondary" text="↻"/>
+                            <Button fx:id="btnCheDoThungRac" onAction="#onDeletedViewClicked"
+                                    styleClass="btn-secondary" text="🗑 Thùng rác"/>
+                            <Button onAction="#onExportExcelClicked"
+                                    styleClass="btn-secondary" text="📥 Xuất Excel"/>
+                            <Button onAction="#onAddCustomerClicked"
+                                    styleClass="btn-primary" text="➕ Thêm khách hàng"/>
                         </HBox>
 
-                        <!-- FILTER PANEL -->
-                        <HBox fx:id="filterPanel" alignment="CENTER_LEFT" spacing="15" managed="false" visible="false" styleClass="card">
-                            <VBox spacing="5">
-                                <Label text="Từ ngày" styleClass="lbl-small-bold" />
-                                <DatePicker fx:id="dpFromDate" prefWidth="150" />
-                            </VBox>
-                            <VBox spacing="5">
-                                <Label text="Đến ngày" styleClass="lbl-small-bold" />
-                                <DatePicker fx:id="dpToDate" prefWidth="150" />
-                            </VBox>
-                            <VBox spacing="5">
-                                <Label text="Hạng hội viên" styleClass="lbl-small-bold" />
-                                <ComboBox fx:id="cbTierFilter" prefWidth="150" promptText="Tất cả" />
-                            </VBox>
-                            <Region HBox.hgrow="ALWAYS" />
-                            <VBox alignment="BOTTOM_CENTER" spacing="8">
-                                <HBox spacing="10">
-                                    <Button onAction="#onApplyFilterClicked" styleClass="btn-primary" text="Áp dụng" />
-                                    <Button onAction="#onClearFilterClicked" styleClass="btn-secondary" text="Xóa" />
-                                </HBox>
-                            </VBox>
-                        </HBox>
+
 
                         <!-- TABLE CONTAINER -->
                         <VBox styleClass="card" VBox.vgrow="ALWAYS" spacing="10">
@@ -98,7 +85,7 @@
                     </VBox>
                 </content>
             </Tab>
-            <Tab text="🏅 Hạng thành viên">
+            <Tab fx:id="tabHangThanhVien" text="🏅 Hạng thành viên">
                 <content>
                     <fx:include source="HangThanhVienView.fxml" />
                 </content>

@@ -133,11 +133,9 @@ public class PhanQuyenService {
         if (modules.contains(SystemModule.BAO_CAO)) {
             tinhNang.add(TinhNangHeThong.BAO_CAO_KINH_DOANH);
         }
-        // Cấu hình giới hạn đơn — chỉ dành cho Quản lý
-        if (laQuanLy(nhanVien)) {
+        // Cấu hình giới hạn đơn + Lịch sử hệ thống — chỉ dành cho Quản lý
+        if (laQuanLy(nhanVien) || laAdmin(nhanVien)) {
             tinhNang.add(TinhNangHeThong.CAU_HINH_GIOI_HAN_DON);
-        }
-        if (modules.contains(SystemModule.NHAT_KY)) {
             tinhNang.add(TinhNangHeThong.NHAT_KY_HE_THONG);
         }
         if (modules.contains(SystemModule.NHA_BEP)) {
@@ -149,9 +147,8 @@ public class PhanQuyenService {
                     TinhNangHeThong.DON_HANG_BEP
             ));
         }
-        if (modules.contains(SystemModule.BAO_CAO)) {
-            tinhNang.add(TinhNangHeThong.CAU_HINH_GIOI_HAN_DON);
-        }
+        // BAO_CAO không tự cấp CAU_HINH_GIOI_HAN_DON — đã handle ở block laQuanLy
+
         return tinhNang;
     }
 

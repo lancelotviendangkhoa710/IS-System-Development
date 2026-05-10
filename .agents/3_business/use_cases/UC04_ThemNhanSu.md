@@ -19,7 +19,7 @@
 | 3 | Quản lý | Điền: Họ tên, SĐT, Tên đăng nhập, Mật khẩu; tích chọn ≥ 1 vai trò |
 | 4 | Quản lý | Bấm **Lưu** |
 | 5 | Hệ thống (View) | Validate: Họ tên không trống, Tên đăng nhập không trống, Mật khẩu không trống |
-| 6 | Hệ thống (Service) | `NhanVienService.themNhanVien()` → `NhanVienDAO.themNhanVien()` |
+| 6 | Hệ thống (Service) | `NhanVienService xử lý` → `NhanVienDAO xử lý` |
 | 7 | CSDL | `PROC_THEM_NHANVIEN(HoTen, NgaySinh, SDT, TenDangNhap, MatKhau, TrangThai) → MANV_OUT` |
 | 8 | CSDL | `PROC_GAN_VAITRO_NHANVIEN(MANV, MAVAITRO)` cho từng vai trò đã chọn (batch) |
 | 9 | Hệ thống | Hiển thị `lblThongBao = "✅ Tạo nhân viên thành công. Mã NV: X"` |
@@ -49,7 +49,7 @@ flowchart TD
         D([Bấm Lưu])
     end
 
-    subgraph He_Thong["Hệ thống — FX Thread"]
+    subgraph He_Thong["Hệ thống"]
         B[Reset form trống]
         E{Validate đầu vào}
         F[lblThongBao = Lỗi validate]
@@ -73,12 +73,4 @@ flowchart TD
 
 ---
 
-## Mapping kỹ thuật
 
-| Thành phần | Chi tiết |
-|:-----------|:---------|
-| View | `QuanLyNhanVienViewFXMLController.onThemMoi()` + `onLuu()` |
-| Service | `NhanVienService.themNhanVien(NhanVienDTO)` |
-| DAO | `NhanVienDAO.themNhanVien()` → `PROC_THEM_NHANVIEN` + `PROC_GAN_VAITRO_NHANVIEN` |
-| Mật khẩu | `PasswordUtils.hash(matKhau)` — bcrypt trước khi lưu |
-| Vai trò | Multi-select bằng `CheckBox` trong `FlowPane`; gán batch bằng `CallableStatement.addBatch()` |

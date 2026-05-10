@@ -5,111 +5,105 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="20" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bakery.views.controllers.kho.SanPhamViewFXMLController">
+<VBox spacing="20" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.SanPhamViewFXMLController">
     <padding>
         <Insets bottom="16" left="24" right="24" top="16" />
     </padding>
 
-    <!-- Header Section (Shared) -->
+    <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="15">
         <VBox spacing="5">
-            <Label styleClass="lbl-title-screen" text="Quản lý Sản phẩm &amp; Thành phần" />
-            <Label styleClass="lbl-body" text="Thiết lập danh mục sản phẩm, tồn kho và các thành phần tùy chỉnh bánh" />
+            <Label styleClass="lbl-title-screen" text="Quản lý Sản phẩm" />
+            <Label styleClass="lbl-body" text="Thiết lập danh mục, giá bán và tồn kho sản phẩm" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <TabPane styleClass="modern-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-        <tabs>
-            <Tab text="🍞 Sản phẩm">
-                <content>
-                    <HBox spacing="30" style="-fx-padding: 20 0 0 0;">
-                        <!-- Left: TableView -->
-                        <VBox spacing="10" HBox.hgrow="ALWAYS">
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label styleClass="lbl-title-card" text="Danh sách sản phẩm" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <TextField fx:id="txtTimKiem" promptText="🔍 Tìm theo tên hoặc mã SP..."
-                                           prefWidth="240" onKeyReleased="#onTimKiem" styleClass="text-field"/>
-                                <Button onAction="#onLamMoi" styleClass="btn-secondary" text="↺ Làm mới" />
-                                <Button fx:id="btnThemMoi" onAction="#onThemMoi" styleClass="btn-primary" text="➕ Thêm mới" />
-                            </HBox>
-                            <TableView fx:id="tblSanPham" styleClass="table-view" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn fx:id="colMaSP" prefWidth="60" text="Mã SP" />
-                                    <TableColumn fx:id="colTenSP" prefWidth="250" text="Tên sản phẩm" />
-                                    <TableColumn fx:id="colDanhMuc" prefWidth="150" text="Danh mục" />
-                                    <TableColumn fx:id="colGiaBan" prefWidth="120" text="Giá cơ bản" />
-                                    <TableColumn fx:id="colTonKho" prefWidth="80" text="Tồn kho" />
-                                </columns>
-                                <columnResizePolicy>
-                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                </columnResizePolicy>
-                            </TableView>
-                        </VBox>
+    <!-- Content: bảng trái + form phải -->
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
 
-                        <!-- Right: Input Form -->
-                        <VBox alignment="TOP_CENTER" prefWidth="450" spacing="20" styleClass="card">
-                            <VBox alignment="TOP_LEFT" maxWidth="Infinity" spacing="15">
-                                <Label styleClass="lbl-title-card" text="Chi tiết sản phẩm" />
-                                
-                                <HBox alignment="CENTER_LEFT" spacing="15">
-                                    <VBox alignment="CENTER" minWidth="120" spacing="10">
-                                        <ImageView fx:id="imgSanPham" fitHeight="120" fitWidth="120" preserveRatio="true" styleClass="image-view" />
-                                        <Button onAction="#onChonAnh" styleClass="btn-secondary" text="Chọn ảnh" />
-                                    </VBox>
-                                    <VBox HBox.hgrow="ALWAYS" spacing="8">
-                                        <Label styleClass="lbl-body-bold" text="Tên sản phẩm:" />
-                                        <TextField fx:id="txtTenSP" promptText="Nhập tên sản phẩm" styleClass="text-field" />
-                                        <Label styleClass="lbl-body-bold" text="Danh mục:" />
-                                        <ComboBox fx:id="cmbDanhMuc" maxWidth="Infinity" promptText="Chọn danh mục" styleClass="combo-box" />
-                                    </VBox>
-                                </HBox>
+        <!-- Left: TableView -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label styleClass="lbl-title-card" text="Danh sách sản phẩm" />
+                <Region HBox.hgrow="ALWAYS" />
+                <TextField fx:id="txtTimKiem" promptText="🔍 Tìm theo tên hoặc mã SP..."
+                           prefWidth="240" onKeyReleased="#onTimKiem" styleClass="text-field"/>
+                <Button onAction="#onLamMoi" styleClass="btn-secondary" text="↺ Làm mới" />
+                <Button fx:id="btnThemMoi" onAction="#onThemMoi" styleClass="btn-primary" text="➕ Thêm mới" />
+            </HBox>
+            <TableView fx:id="tblSanPham" styleClass="table-view" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colMaSP"    prefWidth="60"  text="Mã SP" />
+                    <TableColumn fx:id="colTenSP"   prefWidth="250" text="Tên sản phẩm" />
+                    <TableColumn fx:id="colDanhMuc" prefWidth="150" text="Danh mục" />
+                    <TableColumn fx:id="colGiaBan"  prefWidth="120" text="Giá cơ bản" />
+                    <TableColumn fx:id="colTonKho"  prefWidth="80"  text="Tồn kho" />
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
 
-                                <HBox spacing="20">
-                                    <VBox HBox.hgrow="ALWAYS" spacing="8">
-                                        <Label styleClass="lbl-body-bold" text="Giá bán cơ bản:" />
-                                        <TextField fx:id="txtGiaBan" promptText="0.0" styleClass="text-field" />
-                                    </VBox>
-                                    <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" spacing="8">
-                                        <Label styleClass="lbl-body-bold" text="Tính năng:" />
-                                        <CheckBox fx:id="chkTuyChinh" styleClass="check-box" text="Cho phép tùy chỉnh" />
-                                    </VBox>
-                                </HBox>
+        <!-- Right: Input Form -->
+        <VBox alignment="TOP_CENTER" prefWidth="450" spacing="20" styleClass="card">
+            <VBox alignment="TOP_LEFT" maxWidth="Infinity" spacing="15">
+                <Label styleClass="lbl-title-card" text="Chi tiết sản phẩm" />
 
-                                <HBox spacing="20">
-                                    <VBox HBox.hgrow="ALWAYS" spacing="8">
-                                        <Label styleClass="lbl-body-bold" text="T.Gian bảo quản (Ngày):" />
-                                        <TextField fx:id="txtTGBaoQuan" promptText="VD: 3" styleClass="text-field" />
-                                    </VBox>
-                                    <VBox HBox.hgrow="ALWAYS" spacing="8">
-                                        <Label styleClass="lbl-body-bold" text="Số lượng tồn kho:" />
-                                        <TextField fx:id="txtTonKho" promptText="0.0" styleClass="text-field" />
-                                    </VBox>
-                                </HBox>
-                                
-                                <VBox spacing="8">
-                                    <Label styleClass="lbl-body-bold" text="T.Gian chuẩn bị (Phút):" />
-                                    <TextField fx:id="txtTGChuanBi" promptText="VD: 30" styleClass="text-field" />
-                                </VBox>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox alignment="CENTER" minWidth="120" spacing="10">
+                        <ImageView fx:id="imgSanPham" fitHeight="120" fitWidth="120"
+                                   preserveRatio="true" styleClass="image-view" />
+                        <Button onAction="#onChonAnh" styleClass="btn-secondary" text="Chọn ảnh" />
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8">
+                        <Label styleClass="lbl-body-bold" text="Tên sản phẩm:" />
+                        <TextField fx:id="txtTenSP" promptText="Nhập tên sản phẩm" styleClass="text-field" />
+                        <Label styleClass="lbl-body-bold" text="Danh mục:" />
+                        <ComboBox fx:id="cmbDanhMuc" maxWidth="Infinity" promptText="Chọn danh mục" styleClass="combo-box" />
+                    </VBox>
+                </HBox>
 
-                            </VBox>
-                            <Region VBox.vgrow="ALWAYS" />
-                            <VBox maxWidth="Infinity" spacing="12">
-                                <Button fx:id="btnLuuThayDoi" maxWidth="Infinity" onAction="#onLuuThayDoi" styleClass="btn-primary" text="💾 Lưu thay đổi" />
-                                <Button fx:id="btnXoa" maxWidth="Infinity" onAction="#onXoa" styleClass="btn-danger" text="🗑 Xóa sản phẩm" />
-                            </VBox>
-                        </VBox>
-                    </HBox>
-                </content>
-            </Tab>
-            <Tab text="🎂 Thành phần bánh (Tùy chỉnh)">
-                <content>
-                    <fx:include source="ThanhPhanBanhView.fxml" />
-                </content>
-            </Tab>
-        </tabs>
-    </TabPane>
+                <HBox spacing="20">
+                    <VBox HBox.hgrow="ALWAYS" spacing="8">
+                        <Label styleClass="lbl-body-bold" text="Giá bán cơ bản:" />
+                        <TextField fx:id="txtGiaBan" promptText="0.0" styleClass="text-field" />
+                    </VBox>
+                    <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" spacing="8">
+                        <Label styleClass="lbl-body-bold" text="Tính năng:" />
+                        <CheckBox fx:id="chkTuyChinh" styleClass="check-box" text="Cho phép tùy chỉnh" />
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="20">
+                    <VBox HBox.hgrow="ALWAYS" spacing="8">
+                        <Label styleClass="lbl-body-bold" text="T.Gian bảo quản (Ngày):" />
+                        <TextField fx:id="txtTGBaoQuan" promptText="VD: 3" styleClass="text-field" />
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8">
+                        <Label styleClass="lbl-body-bold" text="Số lượng tồn kho:" />
+                        <TextField fx:id="txtTonKho" promptText="0.0" styleClass="text-field" />
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="8">
+                    <Label styleClass="lbl-body-bold" text="T.Gian chuẩn bị (Phút):" />
+                    <TextField fx:id="txtTGChuanBi" promptText="VD: 30" styleClass="text-field" />
+                </VBox>
+
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <VBox maxWidth="Infinity" spacing="12">
+                <Button fx:id="btnLuuThayDoi" maxWidth="Infinity" onAction="#onLuuThayDoi"
+                        styleClass="btn-primary" text="💾 Lưu thay đổi" />
+                <Button fx:id="btnXoa" maxWidth="Infinity" onAction="#onXoa"
+                        styleClass="btn-danger" text="🗑 Xóa sản phẩm" />
+            </VBox>
+        </VBox>
+
+    </HBox>
 
     <!-- Footer Status -->
     <HBox>

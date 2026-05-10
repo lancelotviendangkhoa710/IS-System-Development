@@ -9,7 +9,7 @@
 | **Hậu điều kiện** | Dialog lịch sử hiển thị đầy đủ thông tin đơn hàng; nếu xuất file thì file Excel/PDF được lưu tại vị trí người dùng chọn |
 | **Luồng sự kiện chính** | 1. Nhân viên nhấn nút **📋 Lịch sử** trên dòng khách hàng trong bảng danh sách <br>2. Hệ thống gọi Presenter → Service → DAO truy vấn `VW_DanhSachDonHang` theo `MAKH` <br>3. Dialog `LichSuMuaHangDialog` mở ra (900×560, modal) hiển thị: <br>&nbsp;&nbsp;- Thẻ thống kê: Tổng đơn, Tổng chi tiêu, Đã cọc <br>&nbsp;&nbsp;- Bảng 7 cột: Mã đơn, Ngày nhận, Trạng thái, Hình thức, Tổng tiền, Đã cọc, Còn lại <br>4a. Nhân viên nhấn **📥 Xuất Excel** → Hộp thoại lưu file → lưu `.xlsx` <br>4b. Nhân viên nhấn **📄 Xuất PDF** → Hộp thoại lưu file → lưu `.pdf` <br>5. Nhân viên nhấn **✕ Đóng** |
 | **Luồng sự kiện phụ** | 2a. Khách hàng chưa có đơn nào → bảng hiển thị placeholder "Khách hàng chưa có lịch sử giao dịch." <br>4a-1. Người dùng hủy hộp thoại lưu → không thực hiện xuất |
-| **Luồng sự kiện lỗi hoặc ngoại lệ** | 2b. Lỗi kết nối DB → Presenter bắt exception, gọi `view.hienThiLoi()`, label `lblThongBao` hiển thị thông báo đỏ <br>4c. Lỗi ghi file (quyền, đĩa đầy) → label `lblThongBao` trong dialog hiển thị "❌ Lỗi xuất file: ..." |
+| **Luồng sự kiện lỗi hoặc ngoại lệ** | 2b. Lỗi kết nối DB → Presenter bắt exception, gọi `view xử lý`, label `lblThongBao` hiển thị thông báo đỏ <br>4c. Lỗi ghi file (quyền, đĩa đầy) → label `lblThongBao` trong dialog hiển thị "❌ Lỗi xuất file: ..." |
 
 ---
 

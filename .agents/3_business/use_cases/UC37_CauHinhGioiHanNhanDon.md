@@ -47,13 +47,4 @@ flowchart TD
 
 ---
 
-## Ghi chú kỹ thuật
 
-| Tầng | Class | Method |
-|---|---|---|
-| View | `CauHinhGioiHanDonViewFXMLController` | `onLuuCauHinh()` |
-| Presenter | `CauHinhGioiHanPresenter` | `luuCauHinhTuyChinh(str)` |
-| Service | `CauHinhGioiHanService` | `luuCauHinh(ngay, gioiHan)` |
-| DAO | `CauHinhGioiHanDAO` | `luuCauHinh(ngay, gioiHan)` |
-| DB | `NANGLUCSANXUAT` | `MERGE INTO` (upsert) |
-| DB Trigger | `TRG_KIEMSOAT_CONGSUAT_DONHANG` | Auto-enforce khi INSERT CTDONHANG |
