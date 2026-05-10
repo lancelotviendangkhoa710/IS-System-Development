@@ -3,9 +3,13 @@ import com.bakery.services.BaseService;
 
 import com.bakery.model.dao.kho.DonViTinhDAO;
 import com.bakery.model.dao.kho.NguyenLieuDAO;
+import com.bakery.model.dao.kho.NhaCungCapDAO;
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.NhaCungCapDTO;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -21,17 +25,20 @@ public class NguyenLieuService extends BaseService {
 
     private final NguyenLieuDAO nguyenLieuDAO;
     private final DonViTinhDAO donViTinhDAO;
+    private final NhaCungCapDAO nhaCungCapDAO;
 
     /** Constructor production. */
     public NguyenLieuService() {
         this.nguyenLieuDAO = new NguyenLieuDAO();
         this.donViTinhDAO = new DonViTinhDAO();
+        this.nhaCungCapDAO = new NhaCungCapDAO();
     }
 
     /** Constructor injection — dùng cho unit test. */
-    public NguyenLieuService(NguyenLieuDAO nguyenLieuDAO, DonViTinhDAO donViTinhDAO) {
+    public NguyenLieuService(NguyenLieuDAO nguyenLieuDAO, DonViTinhDAO donViTinhDAO, NhaCungCapDAO nhaCungCapDAO) {
         this.nguyenLieuDAO = nguyenLieuDAO;
         this.donViTinhDAO = donViTinhDAO;
+        this.nhaCungCapDAO = nhaCungCapDAO;
     }
 
     // =========================================================
@@ -46,6 +53,11 @@ public class NguyenLieuService extends BaseService {
     /** Lấy danh sách đơn vị tính để nạp vào ComboBox. */
     public List<DonViTinhDTO> layDanhSachDonViTinh() throws Exception {
         return donViTinhDAO.layTatCaDonViTinh();
+    }
+
+    /** Lấy danh sách nhà cung cấp để nạp vào ComboBox dialog. */
+    public List<NhaCungCapDTO> layDanhSachNhaCungCap() throws Exception {
+        return nhaCungCapDAO.layDanhSachNhaCungCap();
     }
 
     /**
@@ -96,6 +108,41 @@ public class NguyenLieuService extends BaseService {
             throw new Exception("Lỗi hệ thống: không thể thêm nguyên liệu. Vui lòng thử lại.");
         }
         return maMoi;
+    }
+
+    // =========================================================
+    // 2b. THÊM NGUYÊN LIỆU + NHẬP KHO LẦN ĐẦU (ATOMIC)
+    // =========================================================
+
+    /**
+     * Thêm nguyên liệu mới đồng thời tạo phiếu nhập đầu tiên.
+     * Đảm bảo GIAVONTRUNGBINH được tính ngay sau khi tạo.
+     */
+    public int[] themNguyenLieuVaNhapKho(
+            String tenNL, String xuatXu, double mucTonAnToan, int maDVT,
+            int maNCC, int maNV,
+            double soLuong, double donGia,
+            LocalDate ngaySanXuat, LocalDate hanSuDung) throws Exception {
+
+        String tenChuan = validateTen(tenNL);
+        validateDVT(maDVT);
+        if (maNCC <= 0) throw new Exception("Vui lòng chọn nhà cung cấp.");
+        if (soLuong <= 0) throw new Exception("Số lượng nhập phải lớn hơn 0.");
+        if (donGia <= 0) throw new Exception("Đơn giá phải lớn hơn 0.");
+        kiemTraTrungTenKhiThem(tenChuan);
+
+        NguyenLieuDTO dto = new NguyenLieuDTO();
+        dto.setTenNL(tenChuan);
+        dto.setXuatXu(xuatXu == null ? "" : xuatXu.trim());
+        dto.setMucTonAnToan(Math.max(0, mucTonAnToan));
+        dto.setMaDVT(maDVT);
+
+        Date sqlNSX = ngaySanXuat != null ? Date.valueOf(ngaySanXuat) : null;
+        Date sqlHSD = hanSuDung  != null ? Date.valueOf(hanSuDung)  : null;
+
+        int[] result = nguyenLieuDAO.themNguyenLieuVaNhapKho(dto, maNCC, maNV, soLuong, donGia, sqlNSX, sqlHSD);
+        if (result[0] < 1) throw new Exception("Lỗi hệ thống: không thể tạo nguyên liệu. Vui lòng thử lại.");
+        return result;
     }
 
     // =========================================================

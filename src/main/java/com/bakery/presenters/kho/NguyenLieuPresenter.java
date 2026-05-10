@@ -3,8 +3,11 @@ package com.bakery.presenters.kho;
 import com.bakery.presenters.BasePresenter;
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.services.kho.NguyenLieuService;
 import com.bakery.views.interfaces.kho.INguyenLieuView;
+
+import java.time.LocalDate;
 
 /**
  * Presenter điều phối màn hình Quản lý Nguyên liệu.
@@ -29,13 +32,19 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
 
     // ── Khởi tạo ──────────────────────────────────────────────────────────────
 
-    /** Gọi khi initialize(): nạp ComboBox DVT rồi tải bảng. */
+    /** Gọi khi initialize(): nạp ComboBox DVT + NCC rồi tải bảng. */
     public void khoiTao() {
         runTask(
             () -> nguyenLieuService.layDanhSachDonViTinh(),
             dsDVT -> {
                 view.napDanhSachDonViTinh(dsDVT);
-                taiDanhSach();
+                runTask(
+                    () -> nguyenLieuService.layDanhSachNhaCungCap(),
+                    dsNCC -> {
+                        view.napDanhSachNhaCungCap(dsNCC);
+                        taiDanhSach();
+                    }
+                );
             }
         );
     }
@@ -51,12 +60,18 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
 
     // ── Thêm ──────────────────────────────────────────────────────────────────
 
-    /** Overload: nhận tham số trực tiếp từ Dialog (không đọc qua form). */
-    public void themNguyenLieu(String tenNL, String xuatXu, double mucTon, int maDVT) {
+    /** Thêm nguyên liệu kèm nhập kho lần đầu (atomic). */
+    public void themNguyenLieuVaNhapKho(
+            String tenNL, String xuatXu, double mucTon, int maDVT,
+            int maNCC, double soLuong, double donGia,
+            LocalDate ngaySanXuat, LocalDate hanSuDung) {
         runTask(
-            () -> nguyenLieuService.themNguyenLieu(tenNL, xuatXu, mucTon, maDVT, maNvHienTai),
-            maMoi -> {
-                view.hienThiThanhCong("Thêm nguyên liệu '" + tenNL + "' thành công (Mã: " + maMoi + ").");
+            () -> nguyenLieuService.themNguyenLieuVaNhapKho(
+                    tenNL, xuatXu, mucTon, maDVT, maNCC, maNvHienTai,
+                    soLuong, donGia, ngaySanXuat, hanSuDung),
+            result -> {
+                view.hienThiThanhCong("Thêm nguyên liệu '" + tenNL + "' thành công (Mã NL: "
+                        + result[0] + ", Phiếu nhập: #" + result[1] + ").");
                 view.lamMoiForm();
                 taiDanhSach();
             }

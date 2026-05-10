@@ -83,7 +83,7 @@ public class NguyenLieuDAO extends BaseDAO {
      * @return mã nguyên liệu vừa tạo (>= 1), hoặc -1 nếu lỗi
      */
     public int themNguyenLieu(NguyenLieuDTO dto, int maNv) throws Exception {
-        String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
 
@@ -91,11 +91,10 @@ public class NguyenLieuDAO extends BaseDAO {
             cstmt.setString(2, dto.getXuatXu());
             cstmt.setDouble(3, dto.getMucTonAnToan());
             cstmt.setInt(4, dto.getMaDVT());
-            cstmt.setInt(5, maNv);
-            cstmt.registerOutParameter(6, Types.NUMERIC);
+            cstmt.registerOutParameter(5, Types.NUMERIC);
 
             cstmt.execute();
-            return cstmt.getInt(6);
+            return cstmt.getInt(5);
         } catch (SQLException e) {
             handleException("themNguyenLieu", e);
         }
@@ -144,6 +143,36 @@ public class NguyenLieuDAO extends BaseDAO {
             handleException("xoaNguyenLieu", e);
         }
         return false;
+    }
+
+    /**
+     * Thêm nguyên liệu + phiếu nhập đầu tiên trong 1 transaction.
+     * @return int[]{maNL, maPN}
+     */
+    public int[] themNguyenLieuVaNhapKho(NguyenLieuDTO dto, int maNCC, int maNV,
+                                          double soLuong, double donGia,
+                                          java.sql.Date ngaySanXuat, java.sql.Date hanSuDung) throws Exception {
+        String sql = "{CALL PROC_THEM_NGUYENLIEU_VA_NHAP_KHO(?,?,?,?,?,?,?,?,?,?,?,?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setString(1, dto.getTenNL());
+            cs.setString(2, dto.getXuatXu());
+            cs.setDouble(3, dto.getMucTonAnToan());
+            cs.setInt(4, dto.getMaDVT());
+            cs.setInt(5, maNCC);
+            cs.setInt(6, maNV);
+            cs.setDouble(7, soLuong);
+            cs.setDouble(8, donGia);
+            if (ngaySanXuat != null) cs.setDate(9, ngaySanXuat); else cs.setNull(9, Types.DATE);
+            if (hanSuDung != null) cs.setDate(10, hanSuDung); else cs.setNull(10, Types.DATE);
+            cs.registerOutParameter(11, Types.NUMERIC);
+            cs.registerOutParameter(12, Types.NUMERIC);
+            cs.execute();
+            return new int[]{cs.getInt(11), cs.getInt(12)};
+        } catch (SQLException e) {
+            handleException("themNguyenLieuVaNhapKho", e);
+        }
+        return new int[]{-1, -1};
     }
 
     private NguyenLieuDTO mapNguyenLieu(ResultSet rs) throws SQLException {

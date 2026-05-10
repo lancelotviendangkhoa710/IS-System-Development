@@ -58,7 +58,7 @@
         </VBox>
 
         <!-- Right: Form -->
-        <VBox spacing="20" styleClass="card" prefWidth="400" alignment="TOP_CENTER">
+        <VBox fx:id="vboxChiTiet" spacing="20" styleClass="card" prefWidth="400" alignment="TOP_CENTER" visible="false" managed="false">
             <Label text="Chi tiết nguyên liệu" styleClass="lbl-title-card"/>
 
             <VBox spacing="8">

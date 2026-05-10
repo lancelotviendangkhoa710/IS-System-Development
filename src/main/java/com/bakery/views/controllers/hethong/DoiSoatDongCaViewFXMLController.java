@@ -194,14 +194,16 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
     }
 
     @Override
-    public void chuyenSangSauKiemTra(boolean khop, String tienHienThi) {
+    public void chuyenSangSauKiemTra(BigDecimal chenhLech, String tienHienThi) {
         Platform.runLater(() -> {
             tfHienThi.setText(tienHienThi);
-            setVisible(boxCanhBao, !khop);
-            setVisible(boxThanhCong, khop);
-            setVisible(vboxLyDo, !khop);
+            // Âm: thiếu tiền → cảnh báo + yêu cầu lý do; dương/0 → thành công ngay
+            boolean amTien = chenhLech.compareTo(BigDecimal.ZERO) < 0;
+            setVisible(boxCanhBao, amTien);
+            setVisible(boxThanhCong, !amTien);
+            setVisible(vboxLyDo, amTien);
 
-            if (!khop) {
+            if (amTien) {
                 taLyDo.clear();
                 taLyDo.textProperty().addListener((obs, oldV, newV) -> presenter.onLyDoChanged(newV));
             }

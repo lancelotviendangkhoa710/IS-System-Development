@@ -70,15 +70,16 @@ public class DoiSoatService extends BaseService {
     public void dongCaDoiSoat(int maCa, BigDecimal tienThucTeDem, String lyDo) throws Exception {
         BigDecimal chenhLech = tinhChenhLech(tienThucTeDem);
 
-        boolean coChenh = chenhLech.compareTo(BigDecimal.ZERO) != 0;
+        boolean amTien = chenhLech.compareTo(BigDecimal.ZERO) < 0;
         boolean thieulLyDo = lyDo == null || lyDo.isBlank();
 
-        if (coChenh && thieulLyDo) {
+        // Chỉ bắt buộc lý do khi thiếu tiền; thừa tiền không cần giải trình
+        if (amTien && thieulLyDo) {
             throw new Exception(
-                    "Có chênh lệch " + chenhLech + "đ — vui lòng nhập lý do trước khi đóng ca.");
+                    "Tiền thực tế thiếu " + chenhLech.abs() + "đ — vui lòng nhập lý do trước khi đóng ca.");
         }
 
-        doiSoatDAO.dongCaDoiSoat(maCa, tienThucTeDem, chenhLech, coChenh ? lyDo : null);
+        doiSoatDAO.dongCaDoiSoat(maCa, tienThucTeDem, chenhLech, amTien ? lyDo : null);
         caLamViecDAO.dongCa(maCa);
         SessionContext.getInstance().dongCa();
 

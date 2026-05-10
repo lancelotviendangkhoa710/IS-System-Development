@@ -261,10 +261,10 @@ public class DangNhapViewFXMLController extends BaseController {
 
         // Field mật khẩu mới với toggle hiện/ẩn
         PasswordField txtMoiMatKhau = new PasswordField();
-        txtMoiMatKhau.setPromptText("Mật khẩu mới (tối thiểu 6 ký tự)");
+        txtMoiMatKhau.setPromptText("Nhập mật khẩu mới");
         txtMoiMatKhau.getStyleClass().add("text-field");
         TextField txtMoiMatKhauVisible = new TextField();
-        txtMoiMatKhauVisible.setPromptText("Mật khẩu mới (tối thiểu 6 ký tự)");
+        txtMoiMatKhauVisible.setPromptText("Nhập mật khẩu mới");
         txtMoiMatKhauVisible.getStyleClass().add("text-field");
         Button btnToggleMoi = new Button("Hiện");
         btnToggleMoi.getStyleClass().add("btn-secondary");
@@ -314,8 +314,8 @@ public class DangNhapViewFXMLController extends BaseController {
             e.consume(); // Luôn consume — tự điều khiển việc đóng
             String mk1 = getFieldText(txtMoiMatKhau, txtMoiMatKhauVisible);
             String mk2 = getFieldText(txtXacNhan, txtXacNhanVisible);
-            if (mk1.isBlank() || mk1.length() < 6) {
-                lblLoi.setText("Mật khẩu phải từ 6 ký tự trở lên.");
+            if (mk1.isBlank()) {
+                lblLoi.setText("Mật khẩu mới không được để trống.");
                 return;
             }
             if (!mk1.equals(mk2)) {

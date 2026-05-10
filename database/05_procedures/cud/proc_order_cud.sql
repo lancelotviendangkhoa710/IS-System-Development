@@ -39,7 +39,7 @@ BEGIN
         WHERE LOWER(NVL(J.IS_CUSTOM, 'false')) = 'false'
     ) LOOP
         -- Lock dòng SANPHAM để ngăn concurrent oversell
-        SELECT TONKHO, TENSP
+        SELECT SOLUONGTON, TENSP
         INTO V_TONKHO, V_TENSP
         FROM SANPHAM
         WHERE MASP = r.MASP
@@ -73,7 +73,7 @@ BEGIN
 
     -- Trừ tồn kho ngay sau khi insert
     UPDATE SANPHAM SP
-    SET TONKHO = TONKHO - (
+    SET SOLUONGTON = SOLUONGTON - (
         SELECT J.SOLUONG
         FROM JSON_TABLE(P_JSONCHITIET, '$[*]'
             COLUMNS (
@@ -118,6 +118,10 @@ BEGIN
     -- 6. Ghi nhận lịch sử tạo đơn
     INSERT INTO LICHSUDONHANG (MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT)
     VALUES (P_MADON_OUT, NULL, P_MATRANGTHAI, CURRENT_TIMESTAMP, P_MANV_LAP);
+
+    -- 7. Ghi log hoạt động nhân viên
+    INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+    VALUES (P_MANV_LAP, 'DON_HANG', 'Tao don hang moi #' || P_MADON_OUT, P_MADON_OUT);
 
     COMMIT;
 

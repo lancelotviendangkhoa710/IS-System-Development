@@ -56,16 +56,11 @@ public class DoiSoatDongCaPresenter extends BasePresenter<IDoiSoatDongCaView> {
         }
 
         chenhLech = service.tinhChenhLech(tienThucTeDem);
-        boolean khop = chenhLech.compareTo(BigDecimal.ZERO) == 0;
+        // Âm: thiếu tiền → bắt buộc nhập lý do. Dương/bằng 0: cho khóa sổ ngay.
+        boolean amTien = chenhLech.compareTo(BigDecimal.ZERO) < 0;
 
-        view.chuyenSangSauKiemTra(khop, tienThucTeDem.toPlainString());
-
-        if (!khop) {
-            view.setNutKhoaSoEnabled(false);
-        } else {
-            view.setNutKhoaSoEnabled(true);
-        }
-
+        view.chuyenSangSauKiemTra(chenhLech, tienThucTeDem.toPlainString());
+        view.setNutKhoaSoEnabled(!amTien);
         view.resizeDialog();
     }
 
@@ -79,7 +74,9 @@ public class DoiSoatDongCaPresenter extends BasePresenter<IDoiSoatDongCaView> {
     }
 
     public void onKhoaSoClicked(String lyDoInput) {
-        String lyDo = (chenhLech.compareTo(BigDecimal.ZERO) != 0) ? lyDoInput : null;
+        // Chỉ gắn lý do khi chênh lệch âm (thiếu tiền)
+        boolean amTien = chenhLech.compareTo(BigDecimal.ZERO) < 0;
+        String lyDo = amTien ? lyDoInput : null;
         int maCa = SessionContext.getInstance().getMaCa();
 
         runTask(

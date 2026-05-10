@@ -12,7 +12,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -20,20 +19,11 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 
 public class KhachHangViewFXMLController extends BaseController implements KhachHangView {
 
-    private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
-
-    static {
-        FMT_TIEN.setMaximumFractionDigits(0);
-    }
 
     @FXML private TableView<KhachHangDTO>          customerTable;
     @FXML private TableColumn<KhachHangDTO, Integer>   colId;
@@ -115,83 +105,33 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     public void capNhatCheDoThungRac(boolean cheDoThungRac) {}
 
     /**
-     * Mở dialog lịch sử mua hàng của khách — hiển thị TableView đơn giản.
-     * Logic UI thuần không có nghiệp vụ, hợp lệ để giữ trong Controller.
+     * Mở dialog lịch sử mua hàng dựa trên FXML — kế thừa stylesheet từ Scene gốc.
      */
     @Override
     public void hienThiLichSuMuaHang(KhachHangDTO kh, List<DonDatHangDTO> dsDon) {
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Lịch sử mua hàng — " + kh.getHoTen());
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/LichSuMuaHangDialog.fxml"));
+            Parent root = loader.load();
+            LichSuMuaHangDialogViewFXMLController ctrl = loader.getController();
+            ctrl.khoiTao(kh, dsDon);
 
-        // --- TableView ---
-        TableView<DonDatHangDTO> tbl = new TableView<>();
-        tbl.getStyleClass().add("table-view");
-        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Lịch sử mua hàng — " + kh.getHoTen());
+            stage.setResizable(true);
 
-        TableColumn<DonDatHangDTO, Integer> colMaDon = new TableColumn<>("Mã đơn");
-        colMaDon.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getMaDon()).asObject());
-
-        TableColumn<DonDatHangDTO, String> colNgay = new TableColumn<>("Ngày nhận");
-        colNgay.setCellValueFactory(c -> {
-            String val = c.getValue().getNgayGioNhanBanh() != null
-                    ? c.getValue().getNgayGioNhanBanh().format(FMT_NGAY_GIO) : "N/A";
-            return new SimpleStringProperty(val);
-        });
-
-        TableColumn<DonDatHangDTO, String> colTrangThai = new TableColumn<>("Trạng thái");
-        colTrangThai.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenTrangThai()));
-
-        TableColumn<DonDatHangDTO, String> colTong = new TableColumn<>("Tổng tiền");
-        colTong.setCellValueFactory(c -> {
-            String val = c.getValue().getTongTienHDBan() != null
-                    ? FMT_TIEN.format(c.getValue().getTongTienHDBan()) + " đ" : "0 đ";
-            return new SimpleStringProperty(val);
-        });
-
-        TableColumn<DonDatHangDTO, String> colCoc = new TableColumn<>("Đã cọc");
-        colCoc.setCellValueFactory(c -> {
-            String val = c.getValue().getTienDaCoc() != null
-                    ? FMT_TIEN.format(c.getValue().getTienDaCoc()) + " đ" : "0 đ";
-            return new SimpleStringProperty(val);
-        });
-
-        tbl.getColumns().addAll(colMaDon, colNgay, colTrangThai, colTong, colCoc);
-
-        if (dsDon == null || dsDon.isEmpty()) {
-            tbl.setPlaceholder(new Label("Khách hàng chưa có lịch sử giao dịch."));
-        } else {
-            tbl.setItems(FXCollections.observableArrayList(dsDon));
+            Scene scene = new Scene(root, 900, 560);
+            // Kế thừa stylesheet từ Scene chính
+            if (customerTable.getScene() != null
+                    && !customerTable.getScene().getStylesheets().isEmpty()) {
+                scene.getStylesheets().addAll(customerTable.getScene().getStylesheets());
+            }
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể mở lịch sử: " + e.getMessage());
         }
-
-        // --- Layout ---
-        javafx.scene.layout.VBox root = new javafx.scene.layout.VBox(12);
-        root.getStyleClass().add("bg-app");
-        root.setPadding(new javafx.geometry.Insets(20, 24, 20, 24));
-
-        Label lblTieuDe = new Label("Lịch sử mua hàng: " + kh.getHoTen());
-        lblTieuDe.getStyleClass().add("lbl-title-card");
-
-        Label lblSoLuong = new Label("Tổng số đơn: " + (dsDon != null ? dsDon.size() : 0));
-        lblSoLuong.getStyleClass().add("lbl-body");
-
-        Button btnDong = new Button("✕ Đóng");
-        btnDong.getStyleClass().add("btn-secondary");
-        btnDong.setOnAction(e -> stage.close());
-
-        HBox footer = new HBox(btnDong);
-        footer.setAlignment(Pos.CENTER_RIGHT);
-
-        javafx.scene.layout.VBox.setVgrow(tbl, javafx.scene.layout.Priority.ALWAYS);
-        root.getChildren().addAll(lblTieuDe, lblSoLuong, tbl, footer);
-
-        Scene scene = new Scene(root, 720, 480);
-        // Kế thừa stylesheet từ Scene gốc (nếu có)
-        if (customerTable.getScene() != null && !customerTable.getScene().getStylesheets().isEmpty()) {
-            scene.getStylesheets().addAll(customerTable.getScene().getStylesheets());
-        }
-        stage.setScene(scene);
-        stage.show();
     }
 
     // ── FXML handlers ────────────────────────────────────────────────────

@@ -9,6 +9,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -21,7 +23,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -215,14 +220,31 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     @FXML
     private void onThemMoi() {
-        selectedNhanVien = null;
-        tblNhanVien.getSelectionModel().clearSelection();
-        txtHoTen.clear(); txtSdt.clear(); txtTenDangNhap.clear();
-        txtMatKhau.clear();
-        if (txtMatKhauVisible != null) txtMatKhauVisible.clear();
-        chkHoatDong.setSelected(true);
-        flowVaiTro.getChildren().forEach(n -> { if (n instanceof CheckBox c) c.setSelected(false); });
-        lblThongBao.setText("Điền thông tin nhân viên mới và nhấn Lưu.");
+        try {
+            URL fxmlUrl = getClass().getResource("/fxml/ThemNhanVienDialog.fxml");
+            if (fxmlUrl == null) throw new RuntimeException("Khong tim thay ThemNhanVienDialog.fxml");
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Scene scene = new Scene(loader.load());
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
+            ThemNhanVienDialogController ctrl = loader.getController();
+            // Callback: reload table sau khi thêm thành công
+            ctrl.setOnThemThanhCong(() -> {
+                loadData();
+                lblThongBao.setText("✅ Đã thêm nhân viên mới thành công.");
+            });
+
+            Stage dialog = new Stage();
+            dialog.setTitle("H3K Bakery - Thêm nhân viên");
+            dialog.setScene(scene);
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(tblNhanVien.getScene().getWindow());
+            dialog.setResizable(false);
+            dialog.showAndWait();
+        } catch (Exception e) {
+            lblThongBao.setText("❌ Lỗi mở dialog: " + e.getMessage());
+        }
     }
 
     @FXML

@@ -77,8 +77,8 @@ public abstract class BaseController {
                 sourceNode,
                 App.APP_SHELL_VIEW,
                 phanQuyenService.layTieuDeTrangChu(UserSession.getCurrentUser()),
-                1400,
-                900);
+                1280,
+                720);
     }
 
     protected void transitionTo(Node sourceNode, String fxmlPath, String title, int width, int height) {
@@ -110,6 +110,7 @@ public abstract class BaseController {
             Stage stage = (Stage) sourceNode.getScene().getWindow();
             stage.setTitle(title);
             stage.setScene(scene);
+            stage.setResizable(true);
             stage.centerOnScreen();
         } catch (Exception e) {
             LOGGER.warning("[BaseController] Loi dieu huong toi '" + title + "': " + e.getMessage());

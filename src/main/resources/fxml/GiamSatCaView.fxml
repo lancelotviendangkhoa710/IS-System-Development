@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.hethong.GiamSatCaViewFXMLController"
+      styleClass="view-root" spacing="0">
+
+    <!-- Header -->
+    <HBox styleClass="view-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="💰 Giám sát tiền mặt đóng ca" styleClass="view-header-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="Chỉ xem — không chỉnh sửa" styleClass="lbl-small" style="-fx-text-fill: #6B7280;"/>
+        <Button text="🔄 Làm mới" styleClass="btn-secondary" onAction="#onRefresh"/>
+    </HBox>
+
+    <!-- Content -->
+    <StackPane VBox.vgrow="ALWAYS">
+
+        <!-- Loading overlay -->
+        <StackPane fx:id="paneLoading" styleClass="loading-overlay">
+            <ProgressIndicator styleClass="progress-indicator"/>
+        </StackPane>
+
+        <!-- Table -->
+        <TableView fx:id="tblCa" styleClass="table-view" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colMaCa"      text="Mã ca"        prefWidth="100"/>
+                <TableColumn fx:id="colNhanVien"  text="Nhân viên"    prefWidth="150"/>
+                <TableColumn fx:id="colMayPOS"    text="Máy POS"      prefWidth="90"/>
+                <TableColumn fx:id="colMoCa"      text="Mở ca"        prefWidth="130"/>
+                <TableColumn fx:id="colDongCa"    text="Đóng ca"      prefWidth="130"/>
+                <TableColumn fx:id="colTrangThai" text="Trạng thái"   prefWidth="100"/>
+                <TableColumn fx:id="colTienDau"   text="Tiền đầu ca"  prefWidth="120"/>
+                <TableColumn fx:id="colHeThong"   text="Tính hệ thống"      prefWidth="120"/>
+                <TableColumn fx:id="colThucTe"    text="Thực tế đếm"  prefWidth="120"/>
+                <TableColumn fx:id="colChenhLech" text="Chênh lệch"   prefWidth="120"/>
+                <TableColumn fx:id="colLyDo"      text="Lý do"        prefWidth="220"/>
+            </columns>
+            <placeholder>
+                <Label text="Chưa có dữ liệu ca làm việc." styleClass="lbl-body"/>
+            </placeholder>
+        </TableView>
+
+    </StackPane>
+
+</VBox>

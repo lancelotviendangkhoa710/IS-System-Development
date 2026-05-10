@@ -296,8 +296,11 @@
 
 .text-field:focused,
 .combo-box:focused {
-    -fx-border-color: #FCD34D;
-    border-color: #FCD34D;
+    -fx-border-color: #F59E0B;
+    border-color: #F59E0B;
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.25), 6, 0, 0, 0);
+    -fx-background-color: #FFFFFF;
+    background-color: #FFFFFF;
 }
 
 .text-area {
@@ -423,23 +426,38 @@
     -fx-text-fill: #6B7280;
 }
 
+/* ── STATUS TEXT COLORS ── */
 .lbl-success {
-    -fx-text-fill: #16A34A;
+    -fx-text-fill: #15803D;
     -fx-font-weight: bold;
     font-weight: bold;
 }
 
 .lbl-danger {
-    -fx-text-fill: #DC2626;
+    -fx-text-fill: #B91C1C;
     -fx-font-weight: bold;
     font-weight: bold;
 }
 
 .lbl-info {
-    -fx-text-fill: #2563EB;
+    -fx-text-fill: #1D4ED8;
     -fx-font-weight: bold;
     font-weight: bold;
 }
+
+.lbl-warning {
+    -fx-text-fill: #B45309;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+/* Utility: text color only */
+.text-success  { -fx-text-fill: #15803D; }
+.text-danger   { -fx-text-fill: #B91C1C; }
+.text-info     { -fx-text-fill: #1D4ED8; }
+.text-warning  { -fx-text-fill: #B45309; }
+.text-muted    { -fx-text-fill: #6B7280; }
+.text-primary  { -fx-text-fill: #92400E; }
 
 .lbl-tien-thua-success {
     -fx-text-fill: #16A34A;
@@ -634,17 +652,21 @@
 }
 
 .table-view .column-header {
-    -fx-background-color: #FEF3C7;
+    -fx-background-color: linear-gradient(to bottom, #FEF9E7, #FEF3C7);
     background-color: #FEF3C7;
     -fx-text-fill: #78350F;
     -fx-font-weight: bold;
     font-weight: bold;
     -fx-font-size: 12px;
     font-size: 12px;
+    -fx-border-color: transparent transparent #FCD34D transparent;
+    border-color: transparent transparent #FCD34D transparent;
+    -fx-border-width: 0 0 1 0;
+    border-width: 0 0 1 0;
 }
 
 .table-view .column-header-background {
-    -fx-background-color: #FEF3C7;
+    -fx-background-color: linear-gradient(to bottom, #FEF9E7, #FEF3C7);
     background-color: #FEF3C7;
 }
 
@@ -665,6 +687,55 @@
     background-color: #FFFBEB;
 }
 
+/* ── TABLE ROW STATUS HIGHLIGHTS ── */
+.table-row-cell.row-done {
+    -fx-background-color: #F0FDF4;
+    background-color: #F0FDF4;
+}
+.table-row-cell.row-done:selected {
+    -fx-background-color: #DCFCE7;
+    background-color: #DCFCE7;
+    -fx-text-fill: #14532D;
+}
+.table-row-cell.row-done .table-cell {
+    -fx-text-fill: #15803D;
+}
+
+.table-row-cell.row-cancelled {
+    -fx-background-color: #FFF5F5;
+    background-color: #FFF5F5;
+}
+.table-row-cell.row-cancelled:selected {
+    -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
+    -fx-text-fill: #7F1D1D;
+}
+.table-row-cell.row-cancelled .table-cell {
+    -fx-text-fill: #B91C1C;
+    -fx-opacity: 0.85;
+    opacity: 0.85;
+}
+
+.table-row-cell.row-processing {
+    -fx-background-color: #EFF6FF;
+    background-color: #EFF6FF;
+}
+.table-row-cell.row-processing:selected {
+    -fx-background-color: #DBEAFE;
+    background-color: #DBEAFE;
+    -fx-text-fill: #1E3A8A;
+}
+
+.table-row-cell.row-warning {
+    -fx-background-color: #FFFBEB;
+    background-color: #FFFBEB;
+}
+.table-row-cell.row-warning:selected {
+    -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+}
+
 /* ─── TAB PANE (Amber Style) ─── */
 .modern-tab-pane {
     -fx-tab-min-height: 40px;
@@ -673,31 +744,42 @@
 
 .modern-tab-pane .tab-header-area {
     -fx-padding: 0 0 5 0;
+    padding: 0 0 5 0;
     -fx-background-color: transparent;
+    background-color: transparent;
 }
 
 .modern-tab-pane .tab-header-background {
     -fx-background-color: transparent;
+    background-color: transparent;
 }
 
 .modern-tab-pane .tab {
     -fx-background-color: transparent;
+    background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-padding: 0 24;
+    padding: 0 24px;
     -fx-cursor: hand;
+    cursor: hand;
 }
 
 .modern-tab-pane .tab:selected {
     -fx-background-color: transparent;
+    background-color: transparent;
     -fx-border-color: #92400E;
+    border-color: #92400E;
     -fx-border-width: 0 0 3 0;
+    border-width: 0 0 3px 0;
 }
 
 .modern-tab-pane .tab .tab-label {
     -fx-text-fill: #6B7280;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-font-size: 14px;
+    font-size: 14px;
 }
 
 .modern-tab-pane .tab:selected .tab-label {
@@ -707,10 +789,14 @@
 /* ─── DASHBOARD CARDS ─── */
 .dash-card {
     -fx-background-color: white;
+    background-color: white;
     -fx-background-radius: 16px;
     -fx-border-color: #FDE68A;
+    border-color: #FDE68A;
     -fx-border-width: 1px;
+    border-width: 1px;
     -fx-border-radius: 16px;
+    border-radius: 16px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 2);
 }
 
@@ -726,46 +812,92 @@
     font-weight: bold;
 }
 
+/* Mới / Đặt cọc — Vàng cam */
 .badge-new {
     -fx-background-color: #FEF3C7;
     background-color: #FEF3C7;
-    -fx-text-fill: #D97706;
+    -fx-text-fill: #B45309;
 }
 
 .badge-deposited {
-    -fx-background-color: #FEF3C7;
-    background-color: #FEF3C7;
-    -fx-text-fill: #D97706;
+    -fx-background-color: #FEF9C3;
+    background-color: #FEF9C3;
+    -fx-text-fill: #A16207;
 }
 
+/* Đang xử lý — Xanh dương */
 .badge-processing {
     -fx-background-color: #DBEAFE;
     background-color: #DBEAFE;
     -fx-text-fill: #1D4ED8;
 }
 
+/* Đang giao — Tím */
 .badge-shipping {
     -fx-background-color: #EDE9FE;
     background-color: #EDE9FE;
     -fx-text-fill: #6D28D9;
 }
 
+/* Chờ lấy hàng — Tím nhạt */
 .badge-pickup {
-    -fx-background-color: #EDE9FE;
-    background-color: #EDE9FE;
-    -fx-text-fill: #6D28D9;
+    -fx-background-color: #F3E8FF;
+    background-color: #F3E8FF;
+    -fx-text-fill: #7E22CE;
 }
 
+/* Hoàn thành — Xanh lá đậm */
 .badge-done {
     -fx-background-color: #DCFCE7;
     background-color: #DCFCE7;
     -fx-text-fill: #15803D;
+    -fx-border-color: #BBF7D0;
+    border-color: #BBF7D0;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 6px;
+    border-radius: 6px;
 }
 
+/* Đã hủy — Đỏ rõ ràng */
 .badge-cancelled {
-    -fx-background-color: #F3F4F6;
-    background-color: #F3F4F6;
-    -fx-text-fill: #6B7280;
+    -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
+    -fx-text-fill: #B91C1C;
+    -fx-border-color: #FECACA;
+    border-color: #FECACA;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 6px;
+    border-radius: 6px;
+}
+
+/* Cảnh báo — Cam nhạt */
+.badge-warning {
+    -fx-background-color: #FFEDD5;
+    background-color: #FFEDD5;
+    -fx-text-fill: #C2410C;
+    -fx-background-radius: 6px;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+}
+
+/* Thông tin — Xanh ngọc */
+.badge-info {
+    -fx-background-color: #CCFBF1;
+    background-color: #CCFBF1;
+    -fx-text-fill: #0F766E;
+    -fx-background-radius: 6px;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
 }
 
 /* ─── DIALOG ─── */
@@ -1053,20 +1185,32 @@
 }
 
 .dash-nav-active {
-    -fx-background-color: rgba(146, 64, 14, 0.1);
-    background-color: rgba(146, 64, 14, 0.1);
+    -fx-background-color: rgba(146, 64, 14, 0.12);
+    background-color: rgba(146, 64, 14, 0.12);
     -fx-text-fill: #92400E;
     -fx-font-weight: bold;
     font-weight: bold;
+    -fx-border-color: #92400E transparent transparent transparent;
+    border-color: #92400E transparent transparent transparent;
+    -fx-border-width: 0 0 0 3;
+    border-width: 0 0 0 3px;
+    -fx-border-radius: 0 8px 8px 0;
+    border-radius: 0 8px 8px 0;
+    -fx-effect: dropshadow(gaussian, rgba(146, 64, 14, 0.08), 6, 0, 2, 0);
 }
 
 .nav-category-label {
     -fx-text-fill: #A8A29E;
     -fx-font-size: 10px;
+    font-size: 10px;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-padding: 24px 0 8px 16px;
+    padding: 24px 0 8px 16px;
     -fx-letter-spacing: 0.5px;
+    letter-spacing: 0.5px;
     -fx-opacity: 0.8;
+    opacity: 0.8;
 }
 
 /* Header */
@@ -1700,6 +1844,7 @@
 
 .btn-pill:hover {
     -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
 }
 
 .btn-pill-active {
@@ -1721,38 +1866,50 @@
 
 .btn-pill-active:hover {
     -fx-background-color: #78350F;
+    background-color: #78350F;
 }
 
 /* Nút X đóng Dialog — hình tròn */
 .btn-close {
     -fx-background-color: #F3F4F6;
+    background-color: #F3F4F6;
     -fx-text-fill: #6B7280;
     -fx-background-radius: 999px;
     -fx-padding: 4;
+    padding: 4px;
     -fx-pref-width: 32px;
     -fx-pref-height: 32px;
     -fx-border-width: 0;
+    border-width: 0;
 }
 
 .btn-close:hover {
     -fx-background-color: #E5E7EB;
+    background-color: #E5E7EB;
     -fx-text-fill: #1C0A00;
 }
 
 /* Nút thành công (Success) — đã missing trong bakery.css */
 .btn-success {
     -fx-background-color: #16A34A;
+    background-color: #16A34A;
     -fx-text-fill: white;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-font-family: "Segoe UI";
+    font-family: "Segoe UI";
     -fx-background-radius: 10px;
     -fx-padding: 10 20 10 20;
+    padding: 10px 20px;
     -fx-border-width: 0;
+    border-width: 0;
     -fx-cursor: hand;
+    cursor: hand;
 }
 
 .btn-success:hover {
     -fx-background-color: #15803D;
+    background-color: #15803D;
 }
 
 .btn-success:pressed {
@@ -1760,32 +1917,27 @@
     background-color: #166534;
 }
 
-/* Nút trắng trên nền amber — dùng trong card đóng ca */
 .btn-on-amber {
     -fx-background-color: white;
+    background-color: white;
     -fx-background-radius: 10px;
+    background-radius: 10px;
     -fx-text-fill: #92400E;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-font-size: 13px;
+    font-size: 13px;
     -fx-padding: 10 20;
-    padding: 10 20;
+    padding: 10px 20px;
     -fx-cursor: hand;
+    cursor: hand;
     -fx-border-width: 0;
+    border-width: 0;
 }
 
 .btn-on-amber:hover {
     -fx-background-color: #FEF3C7;
-}
-
-/* ─── OVERLAY & LOADING ─── */
-.overlay-bg {
-    -fx-background-color: rgba(0, 0, 0, 0.45);
-    background-color: rgba(0, 0, 0, 0.45);
-}
-
-.loading-box {
-    -fx-background-color: white;
-    -fx-background-radius: 14px;
+    background-color: #FEF3C7;
     -fx-padding: 24 32;
     -fx-pref-width: 220px;
     -fx-pref-height: 100px;
@@ -1801,80 +1953,133 @@
     -fx-padding: 12 16 12 16;
 }
 
-/* HBox bọc prefix "đ" + TextField — trông như 1 ô nhập */
 .prefix-field-box {
     -fx-background-color: #F9FAFB;
+    background-color: #F9FAFB;
     -fx-border-color: #FDE68A;
+    border-color: #FDE68A;
     -fx-border-width: 2;
+    border-width: 2px;
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
+    border-radius: 10px;
     -fx-padding: 0 10 0 10;
+    padding: 0 10px;
     -fx-spacing: 4;
     -fx-pref-height: 40px;
 }
 
-/* Ký hiệu tiền tệ bên trái */
 .prefix-label {
     -fx-text-fill: #92400E;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-font-size: 14px;
+    font-size: 14px;
 }
 
-/* TextField bên trong prefix-field-box — bỏ nền/viền riêng */
 .prefix-input {
     -fx-background-color: transparent;
+    background-color: transparent;
     -fx-border-width: 0;
+    border-width: 0;
     -fx-padding: 8 4 8 0;
+    padding: 8px 4px 8px 0;
 }
 
 .prefix-input:focused {
     -fx-background-color: transparent;
+    background-color: transparent;
 }
 
 /* ─── ĐỐI SOÁT ĐÓNG CA ─── */
 
-/* Header của dialog đối soát */
 .doisoat-header {
     -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
     -fx-border-color: transparent transparent #FDE68A transparent;
+    border-color: transparent transparent #FDE68A transparent;
     -fx-border-width: 0 0 1 0;
+    border-width: 0 0 1px 0;
     -fx-padding: 14 20 14 20;
+    padding: 14px 20px;
 }
 
-/* Hộp cảnh báo — nền vàng cam nhạt */
 .alert-box-warning {
     -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
     -fx-background-radius: 8px;
     -fx-padding: 10 14 10 14;
+    padding: 10px 14px;
 }
 
-/* Hộp thành công — nền xanh lá nhạt */
+/* Hộp thành công — Xanh lá */
 .alert-box-success {
     -fx-background-color: #DCFCE7;
+    background-color: #DCFCE7;
+    -fx-border-color: #BBF7D0;
+    border-color: #BBF7D0;
+    -fx-border-width: 1;
+    border-width: 1px;
+    -fx-border-radius: 8px;
+    border-radius: 8px;
     -fx-background-radius: 8px;
     -fx-padding: 10 14 10 14;
+    padding: 10px 14px;
 }
 
-/* Khung kết quả đối soát cuối ca */
+.alert-box-danger {
+    -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
+    -fx-border-color: #FECACA;
+    border-color: #FECACA;
+    -fx-border-width: 1;
+    border-width: 1px;
+    -fx-border-radius: 8px;
+    border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10 14 10 14;
+    padding: 10px 14px;
+}
+
+.alert-box-info {
+    -fx-background-color: #DBEAFE;
+    background-color: #DBEAFE;
+    -fx-border-color: #BFDBFE;
+    border-color: #BFDBFE;
+    -fx-border-width: 1;
+    border-width: 1px;
+    -fx-border-radius: 8px;
+    border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10 14 10 14;
+    padding: 10px 14px;
+}
+
 .result-box {
     -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
     -fx-background-radius: 8px;
     -fx-border-color: #FDE68A;
+    border-color: #FDE68A;
     -fx-border-radius: 8px;
+    border-radius: 8px;
     -fx-border-width: 1;
+    border-width: 1px;
     -fx-padding: 14 16 14 16;
+    padding: 14px 16px;
 }
 
-/* Card đóng ca — nền amber đậm */
 .card-dong-ca {
     -fx-background-color: #92400E;
+    background-color: #92400E;
     -fx-background-radius: 14px;
     -fx-padding: 32;
+    padding: 32px;
 }
 
-/* ─── KDS — Kitchen Display System ─── */
 .kds-root {
     -fx-background-color: #F3F4F6;
+    background-color: #F3F4F6;
 }
 
 .login-hero {
@@ -1891,52 +2096,74 @@
 
 .kds-card {
     -fx-background-color: white;
+    background-color: white;
     -fx-background-radius: 16px;
     -fx-padding: 16;
+    padding: 16px;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 8, 0, 0, 3);
 }
 
 .kds-card-normal {
     -fx-border-color: #F59E0B transparent transparent transparent;
+    border-color: #F59E0B transparent transparent transparent;
     -fx-border-width: 8 0 0 0;
+    border-width: 8px 0 0 0;
     -fx-border-radius: 16px 16px 0 0;
+    border-radius: 16px 16px 0 0;
 }
 
 .kds-card-urgent {
     -fx-border-color: #EF4444 transparent transparent transparent;
+    border-color: #EF4444 transparent transparent transparent;
     -fx-border-width: 8 0 0 0;
+    border-width: 8px 0 0 0;
     -fx-border-radius: 16px 16px 0 0;
+    border-radius: 16px 16px 0 0;
 }
 
 .kds-btn-start {
     -fx-background-color: #2563EB;
+    background-color: #2563EB;
     -fx-text-fill: white;
     -fx-font-size: 14px;
+    font-size: 14px;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-background-radius: 8px;
     -fx-pref-height: 44px;
     -fx-max-width: infinity;
+    max-width: 999999px;
     -fx-cursor: hand;
+    cursor: hand;
 }
 
 .kds-btn-done {
     -fx-background-color: #16A34A;
+    background-color: #16A34A;
     -fx-text-fill: white;
     -fx-font-size: 14px;
+    font-size: 14px;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-background-radius: 8px;
     -fx-pref-height: 44px;
     -fx-max-width: infinity;
+    max-width: 999999px;
     -fx-cursor: hand;
+    cursor: hand;
 }
 
 .kds-badge-urgent {
     -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
     -fx-text-fill: #DC2626;
     -fx-font-size: 12px;
+    font-size: 12px;
     -fx-font-weight: bold;
+    font-weight: bold;
     -fx-background-radius: 6px;
     -fx-padding: 3 10;
+    padding: 3px 10px;
 }
 
 /* ─── UTILITY ─── */
@@ -1950,16 +2177,86 @@
 
 .invisible {
     -fx-opacity: 0;
+    opacity: 0;
 }
 
 .divider {
     -fx-background-color: #FDE68A;
+    background-color: #FDE68A;
     -fx-pref-height: 1px;
     -fx-max-height: 1px;
+    max-height: 1px;
 }
 
 .form-group {
     -fx-spacing: 4;
+}
+
+/* ─── STATUS DOT INDICATORS ─── */
+/* Dùng: <Label styleClass="status-dot dot-success"/> */
+.status-dot {
+    -fx-pref-width: 10px;
+    -fx-pref-height: 10px;
+    -fx-min-width: 10px;
+    min-width: 10px;
+    -fx-min-height: 10px;
+    min-height: 10px;
+    -fx-background-radius: 999px;
+}
+
+.dot-success  { -fx-background-color: #16A34A; background-color: #16A34A; }
+.dot-danger   { -fx-background-color: #DC2626; background-color: #DC2626; }
+.dot-warning  { -fx-background-color: #D97706; background-color: #D97706; }
+.dot-info     { -fx-background-color: #2563EB; background-color: #2563EB; }
+.dot-muted    { -fx-background-color: #9CA3AF; background-color: #9CA3AF; }
+.dot-purple   { -fx-background-color: #7C3AED; background-color: #7C3AED; }
+
+/* ─── BACKGROUND STATUS UTILITIES ─── */
+.bg-success { -fx-background-color: #DCFCE7; background-color: #DCFCE7; }
+.bg-danger  { -fx-background-color: #FEE2E2; background-color: #FEE2E2; }
+.bg-info    { -fx-background-color: #DBEAFE; background-color: #DBEAFE; }
+.bg-warning { -fx-background-color: #FEF3C7; background-color: #FEF3C7; }
+
+/* ─── CHIP / INLINE STATUS ─── */
+/* compact badge: dùng cho cột trạng thái nhỏ */
+.chip {
+    -fx-padding: 2px 8px;
+    padding: 2px 8px;
+    -fx-background-radius: 999px;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+.chip-success {
+    -fx-background-color: #16A34A;
+    background-color: #16A34A;
+    -fx-text-fill: white;
+}
+
+.chip-danger {
+    -fx-background-color: #DC2626;
+    background-color: #DC2626;
+    -fx-text-fill: white;
+}
+
+.chip-info {
+    -fx-background-color: #2563EB;
+    background-color: #2563EB;
+    -fx-text-fill: white;
+}
+
+.chip-warning {
+    -fx-background-color: #D97706;
+    background-color: #D97706;
+    -fx-text-fill: white;
+}
+
+.chip-muted {
+    -fx-background-color: #6B7280;
+    background-color: #6B7280;
+    -fx-text-fill: white;
 }
 
 /* === SCROLL PANE TRANSPARENT ===
@@ -1974,4 +2271,219 @@
 .scroll-content-transparent {
     -fx-background-color: transparent;
 }
+*/
 
+/* ═══════════════════════════════════════════════════════════
+ * VISUAL ENHANCEMENT — chống đơn điệu, tăng depth cho UI
+ * ═══════════════════════════════════════════════════════════ */
+
+/* ── CARD VARIANTS (LEFT ACCENT BAR) ── */
+/* Dùng: styleClass="card card-accent-green" */
+.card-accent-green {
+    -fx-border-color: #16A34A #E5E7EB #E5E7EB #E5E7EB;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 0 14px 14px 0;
+    -fx-background-radius: 0 14px 14px 0;
+}
+
+.card-accent-blue {
+    -fx-border-color: #2563EB #E5E7EB #E5E7EB #E5E7EB;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 0 14px 14px 0;
+    -fx-background-radius: 0 14px 14px 0;
+}
+
+.card-accent-red {
+    -fx-border-color: #DC2626 #E5E7EB #E5E7EB #E5E7EB;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 0 14px 14px 0;
+    -fx-background-radius: 0 14px 14px 0;
+}
+
+.card-accent-amber {
+    -fx-border-color: #D97706 #E5E7EB #E5E7EB #E5E7EB;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 0 14px 14px 0;
+    -fx-background-radius: 0 14px 14px 0;
+}
+
+.card-accent-purple {
+    -fx-border-color: #7C3AED #E5E7EB #E5E7EB #E5E7EB;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 0 14px 14px 0;
+    -fx-background-radius: 0 14px 14px 0;
+}
+
+/* ── COLORED CARD BACKGROUNDS ── */
+.card-success {
+    -fx-background-color: #F0FDF4;
+    background-color: #F0FDF4;
+    -fx-border-color: #86EFAC;
+    border-color: #86EFAC;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+}
+
+.card-danger {
+    -fx-background-color: #FFF5F5;
+    background-color: #FFF5F5;
+    -fx-border-color: #FCA5A5;
+    border-color: #FCA5A5;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+}
+
+.card-info {
+    -fx-background-color: #EFF6FF;
+    background-color: #EFF6FF;
+    -fx-border-color: #93C5FD;
+    border-color: #93C5FD;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+}
+
+.card-warning {
+    -fx-background-color: #FFFBEB;
+    background-color: #FFFBEB;
+    -fx-border-color: #FCD34D;
+    border-color: #FCD34D;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+}
+
+/* ── SECTION HEADER ── */
+/* Dùng: <Label styleClass="section-header" text="Danh sách"/> */
+.section-header {
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: #78350F;
+    -fx-background-color: linear-gradient(to right, #FEF3C7, transparent);
+    -fx-padding: 6px 12px;
+    -fx-background-radius: 6px;
+    -fx-border-color: #FCD34D transparent transparent transparent;
+    -fx-border-width: 0 0 0 3;
+    -fx-max-width: infinity;
+}
+
+/* ── STAT HIGHLIGHT CARD (Dashboard KPI) ── */
+.kpi-card-green {
+    -fx-background-color: linear-gradient(to bottom right, #16A34A, #15803D);
+    background-color: #16A34A;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px 24px;
+    padding: 20px 24px;
+    -fx-effect: dropshadow(gaussian, rgba(22, 163, 74, 0.3), 12, 0, 0, 4);
+}
+
+.kpi-card-blue {
+    -fx-background-color: linear-gradient(to bottom right, #2563EB, #1D4ED8);
+    background-color: #2563EB;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px 24px;
+    padding: 20px 24px;
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 12, 0, 0, 4);
+}
+
+.kpi-card-amber {
+    -fx-background-color: linear-gradient(to bottom right, #D97706, #92400E);
+    background-color: #D97706;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px 24px;
+    padding: 20px 24px;
+    -fx-effect: dropshadow(gaussian, rgba(217, 119, 6, 0.3), 12, 0, 0, 4);
+}
+
+.kpi-card-red {
+    -fx-background-color: linear-gradient(to bottom right, #DC2626, #B91C1C);
+    background-color: #DC2626;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px 24px;
+    padding: 20px 24px;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.3), 12, 0, 0, 4);
+}
+
+.kpi-card-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+.kpi-card-sub {
+    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-font-size: 12px;
+    font-size: 12px;
+}
+
+.divider-labeled {
+    -fx-background-color: #FDE68A;
+    background-color: #FDE68A;
+    -fx-pref-height: 1px;
+    -fx-max-height: 1px;
+    max-height: 1px;
+    -fx-max-width: infinity;
+    max-width: 999999px;
+}
+
+/* ── COLORED SEPARATOR ── */
+.sep-green { -fx-background-color: #16A34A; background-color: #16A34A; -fx-pref-height: 2px; -fx-max-height: 2px; max-height: 2px; }
+.sep-blue  { -fx-background-color: #2563EB; background-color: #2563EB; -fx-pref-height: 2px; -fx-max-height: 2px; max-height: 2px; }
+.sep-red   { -fx-background-color: #DC2626; background-color: #DC2626; -fx-pref-height: 2px; -fx-max-height: 2px; max-height: 2px; }
+.sep-amber { -fx-background-color: #D97706; background-color: #D97706; -fx-pref-height: 2px; -fx-max-height: 2px; max-height: 2px; }
+
+.strip-success {
+    -fx-background-color: #DCFCE7;
+    background-color: #DCFCE7;
+    -fx-padding: 8px 16px;
+    padding: 8px 16px;
+    -fx-border-color: #16A34A transparent transparent transparent;
+    border-color: #16A34A transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+    border-width: 3px 0 0 0;
+    -fx-background-radius: 8px;
+}
+
+.strip-danger {
+    -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
+    -fx-padding: 8px 16px;
+    padding: 8px 16px;
+    -fx-border-color: #DC2626 transparent transparent transparent;
+    border-color: #DC2626 transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+    border-width: 3px 0 0 0;
+    -fx-background-radius: 8px;
+}
+
+.strip-info {
+    -fx-background-color: #DBEAFE;
+    background-color: #DBEAFE;
+    -fx-padding: 8px 16px;
+    padding: 8px 16px;
+    -fx-border-color: #2563EB transparent transparent transparent;
+    border-color: #2563EB transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+    border-width: 3px 0 0 0;
+    -fx-background-radius: 8px;
+}
+
+.strip-warning {
+    -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
+    -fx-padding: 8px 16px;
+    padding: 8px 16px;
+    -fx-border-color: #D97706 transparent transparent transparent;
+    border-color: #D97706 transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+    border-width: 3px 0 0 0;
+    -fx-background-radius: 8px;
+}

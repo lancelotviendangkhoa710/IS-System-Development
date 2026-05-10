@@ -1,0 +1,52 @@
+[
+  {
+    "maNL": 0,
+    "tenNL": "Bột mì số 8",
+    "xuatXu": "Việt Nam",
+    "maDVT": 1,
+    "soLuong": 50.0,
+    "donGia": 25000,
+    "ngaySanXuat": "2025-03-01",
+    "hanSuDung": "2027-03-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Đường cát trắng",
+    "xuatXu": "Việt Nam",
+    "maDVT": 1,
+    "soLuong": 30.0,
+    "donGia": 18000,
+    "ngaySanXuat": "2025-04-01",
+    "hanSuDung": "2027-04-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Bơ lạt Anchor",
+    "xuatXu": "New Zealand",
+    "maDVT": 1,
+    "soLuong": 10.0,
+    "donGia": 95000,
+    "ngaySanXuat": "2025-01-15",
+    "hanSuDung": "2027-01-15"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Sữa tươi không đường",
+    "xuatXu": "Việt Nam",
+    "maDVT": 2,
+    "soLuong": 20.0,
+    "donGia": 35000,
+    "ngaySanXuat": "2026-05-01",
+    "hanSuDung": "2026-07-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Trứng gà tươi",
+    "xuatXu": "Việt Nam",
+    "maDVT": 3,
+    "soLuong": 100.0,
+    "donGia": 4500,
+    "ngaySanXuat": "",
+    "hanSuDung": "2026-06-01"
+  }
+]

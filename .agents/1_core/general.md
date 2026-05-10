@@ -34,3 +34,4 @@ Tư duy lập trình của AI trong dự án này là "Tự động hóa, Trực
 5. **Clean As You Go:** Chạm vào file nào, tiện tay dọn dẹp file đó.
 6. **Luôn đọc từ database rồi mới đọc đến codebase java**
 7.**commnet ngắn gọn** nhìn vào người đọc code biết đây là gì, tránh commnet quá chi tiết **đặc biệt là các hàm get, set**
+8. code như 1 con người viết, không rác, logic ngắn gọn, dễ hiểu, dễ bảo trì. 

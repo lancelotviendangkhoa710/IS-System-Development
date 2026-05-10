@@ -133,6 +133,10 @@ public class PhanQuyenService {
         if (modules.contains(SystemModule.BAO_CAO)) {
             tinhNang.add(TinhNangHeThong.BAO_CAO_KINH_DOANH);
         }
+        // Cấu hình giới hạn đơn — chỉ dành cho Quản lý
+        if (laQuanLy(nhanVien)) {
+            tinhNang.add(TinhNangHeThong.CAU_HINH_GIOI_HAN_DON);
+        }
         if (modules.contains(SystemModule.NHAT_KY)) {
             tinhNang.add(TinhNangHeThong.NHAT_KY_HE_THONG);
         }

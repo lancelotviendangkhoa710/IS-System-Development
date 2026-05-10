@@ -2,6 +2,7 @@ package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.presenters.kho.NguyenLieuPresenter;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.interfaces.kho.INguyenLieuView;
@@ -15,6 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -35,11 +37,12 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @FXML private TextField txtXuatXu;
     @FXML private TextField txtMucTonAnToan;
     @FXML private ComboBox<DonViTinhDTO> cmbDonViTinh;
+    @FXML private VBox vboxChiTiet;
 
     private final ObservableList<NguyenLieuDTO> masterData = FXCollections.observableArrayList();
     private NguyenLieuPresenter presenter;
-    /** Cache DVT để inject vào Dialog khi thêm mới. */
     private List<DonViTinhDTO> cachedDsDVT = new ArrayList<>();
+    private List<NhaCungCapDTO> cachedDsNCC = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -74,7 +77,7 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @Override
     public void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT) {
         if (dsDVT == null || dsDVT.isEmpty()) return;
-        cachedDsDVT = dsDVT; // cache để dùng cho Dialog
+        cachedDsDVT = dsDVT;
         cmbDonViTinh.setConverter(new javafx.util.StringConverter<>() {
             @Override public String toString(DonViTinhDTO d) { return d != null ? d.getTenDVT() : ""; }
             @Override public DonViTinhDTO fromString(String s) { return null; }
@@ -83,8 +86,16 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     }
 
     @Override
+    public void napDanhSachNhaCungCap(List<NhaCungCapDTO> dsNCC) {
+        if (dsNCC != null) cachedDsNCC = dsNCC;
+    }
+
+    @Override
     public void hienThiChiTiet(NguyenLieuDTO nl) {
         if (nl == null) return;
+        // Hiện panel chi tiết khi có record được chọn
+        vboxChiTiet.setVisible(true);
+        vboxChiTiet.setManaged(true);
         txtTenNL.setText(nl.getTenNL());
         txtXuatXu.setText(nl.getXuatXu() != null ? nl.getXuatXu() : "");
         txtMucTonAnToan.setText(String.valueOf(nl.getMucTonAnToan()));
@@ -97,10 +108,10 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         }
     }
 
-    @Override public void hienThiLoi(String msg)      { hienThiLoiLabel(msg); }
-    @Override public void hienThiThanhCong(String msg) { hienThiThanhCongLabel(msg); }
-    @Override public void xoaLoi()                     { if (lblThongBao != null) lblThongBao.setText(""); }
-    @Override public void setLoading(boolean l)        { tblNguyenLieu.setDisable(l); }
+    @Override public void hienThiLoi(String msg)       { hienThiLoiLabel(msg); }
+    @Override public void hienThiThanhCong(String msg)  { hienThiThanhCongLabel(msg); }
+    @Override public void xoaLoi()                      { if (lblThongBao != null) lblThongBao.setText(""); }
+    @Override public void setLoading(boolean l)         { tblNguyenLieu.setDisable(l); }
 
     @Override
     public void lamMoiForm() {
@@ -109,13 +120,16 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         txtMucTonAnToan.clear();
         cmbDonViTinh.setValue(null);
         tblNguyenLieu.getSelectionModel().clearSelection();
+        // Ẩn panel chi tiết sau khi reset
+        vboxChiTiet.setVisible(false);
+        vboxChiTiet.setManaged(false);
     }
 
     @Override public NguyenLieuDTO getSelectedNguyenLieu() { return tblNguyenLieu.getSelectionModel().getSelectedItem(); }
-    @Override public String getTenNLInput()               { return txtTenNL.getText().trim(); }
-    @Override public String getXuatXuInput()              { return txtXuatXu.getText().trim(); }
-    @Override public DonViTinhDTO getDonViTinhSelected()  { return cmbDonViTinh.getValue(); }
-    @Override public String getTuKhoaTimKiemInput()       { return txtTimKiem.getText().trim(); }
+    @Override public String getTenNLInput()                { return txtTenNL.getText().trim(); }
+    @Override public String getXuatXuInput()               { return txtXuatXu.getText().trim(); }
+    @Override public DonViTinhDTO getDonViTinhSelected()   { return cmbDonViTinh.getValue(); }
+    @Override public String getTuKhoaTimKiemInput()        { return txtTimKiem.getText().trim(); }
 
     @Override
     public double getMucTonAnToanInput() {
@@ -134,7 +148,7 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
             Parent root = loader.load();
 
             ThemNguyenLieuDialogController dialogCtrl = loader.getController();
-            dialogCtrl.khoiTaoDanhSachDVT(cachedDsDVT);
+            dialogCtrl.khoiTao(cachedDsDVT, cachedDsNCC);
 
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Thêm nguyên liệu mới");
@@ -148,12 +162,16 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
             dialogStage.showAndWait();
 
             if (dialogCtrl.isConfirmed()) {
-                DonViTinhDTO dvt = dialogCtrl.getDonViTinh();
-                presenter.themNguyenLieu(
+                presenter.themNguyenLieuVaNhapKho(
                         dialogCtrl.getTenNL(),
                         dialogCtrl.getXuatXu(),
                         dialogCtrl.getMucTon(),
-                        dvt != null ? dvt.getMaDVT() : 0);
+                        dialogCtrl.getDonViTinh() != null ? dialogCtrl.getDonViTinh().getMaDVT() : 0,
+                        dialogCtrl.getNhaCungCap() != null ? dialogCtrl.getNhaCungCap().getMaNCC() : 0,
+                        dialogCtrl.getSoLuong(),
+                        dialogCtrl.getDonGia(),
+                        dialogCtrl.getNgaySanXuat(),
+                        dialogCtrl.getHanSuDung());
             }
         } catch (Exception e) {
             hienThiLoiLabel("Không thể mở dialog thêm nguyên liệu: " + e.getMessage());

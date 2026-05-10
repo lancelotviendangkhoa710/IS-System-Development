@@ -2,6 +2,7 @@ package com.bakery.views.interfaces.kho;
 
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.views.interfaces.IBaseView;
 
 import java.util.List;
@@ -25,6 +26,9 @@ public interface INguyenLieuView extends IBaseView {
      * Nạp danh sách đơn vị tính (DVT) vào ComboBox cho người dùng chọn.
      */
     void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT);
+
+    /** Nạp danh sách nhà cung cấp vào cache của View để inject vào dialog. */
+    void napDanhSachNhaCungCap(List<NhaCungCapDTO> dsNCC);
 
     // ——— FORM CHI TIẾT ———
 

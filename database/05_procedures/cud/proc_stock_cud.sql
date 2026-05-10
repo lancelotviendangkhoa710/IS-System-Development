@@ -33,8 +33,8 @@ BEGIN
         ) J
     )
     LOOP
-        -- Kiểm tra nếu MaNL bị rỗng (Thêm nguyên liệu mới)
-        IF ROW_DATA.MANL IS NULL THEN
+        -- Kiểm tra nếu MaNL = 0 hoặc NULL → nguyên liệu mới, cần INSERT trước
+        IF ROW_DATA.MANL IS NULL OR ROW_DATA.MANL = 0 THEN
             INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT)
             VALUES (ROW_DATA.TENNL, ROW_DATA.XUATXU, ROW_DATA.MADVT)
             RETURNING MANL INTO V_CURRENT_MANL;
@@ -57,6 +57,10 @@ BEGIN
             CASE WHEN ROW_DATA.HANSUDUNG IS NOT NULL THEN TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD') ELSE NULL END
         );
     END LOOP;
+
+    -- Ghi log hoạt động nhân viên
+    INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+    VALUES (P_MANV, 'KHO', 'Nhap kho phieu #' || V_MAPN, V_MAPN);
 
     COMMIT;
 

@@ -76,7 +76,8 @@ CREATE OR REPLACE PROCEDURE PROC_THEM_SANPHAM (
     P_THOIGIANCHUANBI   IN NUMBER,
     P_GIAVON            IN NUMBER,
     P_GIABAN            IN NUMBER,
-    P_MASP_OUT          OUT NUMBER
+    P_MASP_OUT          OUT NUMBER,
+    P_MANV_LAP          IN NUMBER DEFAULT NULL
 )
 IS
     V_GIAVON NUMBER := NVL(P_GIAVON, 0);
@@ -96,6 +97,12 @@ BEGIN
 
     -- 3. Cập nhật giá bán đã tính
     UPDATE SANPHAM SET GIABAN = V_GIABAN WHERE MASP = P_MASP_OUT;
+
+    -- 4. Ghi log hoạt động
+    IF P_MANV_LAP IS NOT NULL THEN
+        INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+        VALUES (P_MANV_LAP, 'SAN_PHAM', 'Them SP: ' || P_TENSP || ' (#' || P_MASP_OUT || ')', P_MASP_OUT);
+    END IF;
 
     COMMIT;
 EXCEPTION
@@ -168,25 +175,26 @@ CREATE OR REPLACE PROCEDURE PROC_XOA_SANPHAM (
 IS
     V_ORDER_COUNT NUMBER := 0;
 BEGIN
-    -- Kiểm tra nếu Bánh đã từng được đặt thì mới XÓA MỀM
     SELECT COUNT(*) INTO V_ORDER_COUNT FROM CTDONHANG WHERE MASP = P_MASP;
 
     IF V_ORDER_COUNT > 0 THEN
-        UPDATE SANPHAM 
-        SET THOIDIEMXOA = SYSDATE, 
+        UPDATE SANPHAM
+        SET THOIDIEMXOA = SYSDATE,
             MANX = P_MANX,
             PHIENBAN = PHIENBAN + 1
         WHERE MASP = P_MASP;
     ELSE
-        -- Xóa công thức nguyên liệu liên quan trước để tránh vi phạm FK
         DELETE FROM CONGTHUC WHERE MASP = P_MASP;
-        -- Nếu chưa từng phát sinh doanh số, cho phép XÓA CỨNG
         DELETE FROM SANPHAM WHERE MASP = P_MASP;
     END IF;
 
     IF SQL%ROWCOUNT = 0 THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SANPHAM_KHONG_TON_TAI_XOA, 'Loi: Khong tim thay San pham de xoa.');
     END IF;
+
+    INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+    VALUES (P_MANX, 'SAN_PHAM', 'Xoa SP #' || P_MASP, P_MASP);
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN

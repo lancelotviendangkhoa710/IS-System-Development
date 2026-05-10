@@ -197,8 +197,7 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     ERR_DONDATHANG_KHONG_TON_TAI    CONSTANT NUMBER := -20404;
 
     -- Loi he thong khi cap nhat tong tien don hang (dung trong TRG_CAPNHAT_DONHANG)
-    ERR_HUY_CAPNHAT_TONGTIEN        CONSTANT NUMBER := -20405;
-
+    ERR_HUY_CAPNHAT_TONGTIEN        CONSTANT NUMBER  := - 20406;
 
     -- ========================
     -- NHOM 05: TAI CHINH

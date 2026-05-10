@@ -26,7 +26,6 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -66,6 +65,7 @@ public class MainMenuViewFXMLController {
     // BAO CAO
     @FXML private Button btnBaoCao;
     @FXML private Button btnAuditLogs;
+    @FXML private Button btnGiamSatCa;
     @FXML private Button btnCauHinhGioiHan;
 
     // ─── Misc ─────────────────────────────────────────────────────────────────
@@ -145,7 +145,12 @@ public class MainMenuViewFXMLController {
         // Bao cao
         capNhatTrangThaiNut(btnBaoCao, coQuyen(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH));
         capNhatTrangThaiNut(btnAuditLogs, coQuyen(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG));
-        capNhatTrangThaiNut(btnCauHinhGioiHan, coQuyen(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON));
+        // Giam sat tien mat dong ca — chi Quan ly
+        capNhatTrangThaiNut(btnGiamSatCa, laAdmin || authorizationService.laQuanLy(currentUser));
+        // Cấu hình giới hạn đơn — chỉ Quản lý (Service đã lọc, View double-check)
+        boolean coQuyenCauHinh = coQuyen(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON)
+                && (laAdmin || authorizationService.laQuanLy(currentUser));
+        capNhatTrangThaiNut(btnCauHinhGioiHan, coQuyenCauHinh);
 
         // Load dashboard mac dinh
         if (contentArea != null && contentArea.getChildren().isEmpty()) {
@@ -240,6 +245,15 @@ public class MainMenuViewFXMLController {
         loadView("/fxml/CauHinhGioiHanDonView.fxml");
     }
 
+    @FXML
+    private void onMoGiamSatCa() {
+        if (!authorizationService.laQuanLy(currentUser) && !authorizationService.laAdmin(currentUser)) {
+            lblThongBao.setText("⚠️ Chuc nang nay chi danh cho Quan ly.");
+            return;
+        }
+        loadView("/fxml/GiamSatCaView.fxml");
+    }
+
     // ─── Ca lam viec dialog ───────────────────────────────────────────────────
 
     @FXML
@@ -269,28 +283,6 @@ public class MainMenuViewFXMLController {
         }
     }
 
-    @FXML
-    private void onThemNhanVien() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "them nhan su")) return;
-        try {
-            URL fxmlUrl = getClass().getResource("/fxml/ThemNhanVienDialog.fxml");
-            if (fxmlUrl == null) throw new RuntimeException("Khong tim thay ThemNhanVienDialog.fxml");
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
-            Scene scene = new Scene(loader.load());
-            URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            Stage dialog = new Stage();
-            dialog.setTitle("H3K Bakery - Them Nhan Vien");
-            dialog.setScene(scene);
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(lblTenNguoiDung.getScene().getWindow());
-            dialog.setResizable(false);
-            dialog.showAndWait();
-        } catch (Exception ex) {
-            lblThongBao.setText("Loi mo dialog them nhan vien: " + ex.getMessage());
-        }
-    }
-
     // ─── Sidebar toggle ───────────────────────────────────────────────────────
 
     @FXML
@@ -301,7 +293,7 @@ public class MainMenuViewFXMLController {
                     btnSanPham,
                     btnKho, btnBep,
                     btnNhanSu,
-                    btnBaoCao, btnAuditLogs, btnCauHinhGioiHan
+                    btnBaoCao, btnAuditLogs, btnGiamSatCa, btnCauHinhGioiHan
             };
             for (Button btn : navButtons) {
                 if (btn != null) buttonTextMap.put(btn, btn.getText());
@@ -332,16 +324,6 @@ public class MainMenuViewFXMLController {
         }
     }
 
-    @FXML
-    private void onToggleFullScreen() {
-        try {
-            Stage stage = (Stage) vboxSidebar.getScene().getWindow();
-            if (stage != null) stage.setFullScreen(!stage.isFullScreen());
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Khong the chuyen trang thai full screen", e);
-            lblThongBao.setText("Khong the chuyen full screen.");
-        }
-    }
 
     @FXML
     private void onModuleChuaSanSang() {
@@ -352,6 +334,22 @@ public class MainMenuViewFXMLController {
 
     @FXML
     private void onDangXuat() {
+        // Thu ngân phải đóng ca trước khi đăng xuất
+        if (currentUser != null && authorizationService.laThuNgan(currentUser)
+                && com.bakery.utils.SessionContext.getInstance().isCaoDangMo()) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.WARNING);
+            alert.setTitle("Không thể đăng xuất");
+            alert.setHeaderText("Ca làm việc đang mở");
+            alert.setContentText(
+                    "Bạn cần đóng ca làm việc trước khi đăng xuất.\n" +
+                    "Vui lòng vào mục \"Quản lý ca\" → \"Đóng ca\" rồi thử lại.");
+            alert.initOwner(lblTenNguoiDung.getScene().getWindow());
+            alert.showAndWait();
+            if (lblThongBao != null) lblThongBao.setText("⚠️ Vui lòng đóng ca trước khi đăng xuất.");
+            return;
+        }
+
         dungWatchdog();
         lblThongBao.setText("Dang dang xuat...");
 

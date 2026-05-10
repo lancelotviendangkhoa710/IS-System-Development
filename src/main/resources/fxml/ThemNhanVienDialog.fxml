@@ -1,46 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
+<VBox xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.bakery.views.controllers.ThemNhanVienDialogViewFXMLController"
-      styleClass="dialog-container" prefWidth="550">
+      fx:controller="com.bakery.views.controllers.nhansu.ThemNhanVienDialogController"
+      spacing="0" prefWidth="500">
 
-    <Label text="Thêm Nhân Viên Mới" styleClass="dialog-header-title"/>
-    <Separator style="-fx-opacity: 0.3;"/>
-
-    <GridPane styleClass="dialog-grid">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="35"/>
-            <ColumnConstraints percentWidth="65"/>
-        </columnConstraints>
-
-        <Label text="Họ tên *" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <TextField fx:id="txtHoTen" promptText="Nhập họ tên nhân viên" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="text-field"/>
-
-        <Label text="Số điện thoại *" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <TextField fx:id="txtSDT" promptText="VD: 0901234567" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field"/>
-
-        <Label text="Ngày sinh" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <DatePicker fx:id="dpNgaySinh" promptText="Chọn ngày sinh" GridPane.rowIndex="2" GridPane.columnIndex="1" maxWidth="Infinity" styleClass="date-picker"/>
-
-        <Label text="Tên đăng nhập *" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <TextField fx:id="txtTenDangNhap" promptText="Nhập username" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="text-field"/>
-
-        <Label text="Mật khẩu *" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <PasswordField fx:id="txtMatKhau" promptText="Nhập mật khẩu" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field"/>
-
-        <Label text="Vai trò *" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="dialog-label"/>
-        <ComboBox fx:id="cbVaiTro" promptText="Chọn vai trò" GridPane.rowIndex="5" GridPane.columnIndex="1" maxWidth="Infinity" styleClass="combo-box"/>
-    </GridPane>
-
-    <Label fx:id="lblError" text="" styleClass="dialog-error" wrapText="true"/>
-
-    <HBox spacing="16" alignment="CENTER_RIGHT">
-        <Button text="Hủy" onAction="#onHuy" styleClass="dialog-button-cancel"/>
-        <Button text="Lưu nhân viên" onAction="#onLuu" styleClass="dialog-button-save"/>
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="➕ Thêm Nhân Viên Mới" styleClass="dialog-header-title"/>
     </HBox>
+
+    <!-- Body -->
+    <VBox styleClass="dialog-body" spacing="16">
+
+        <!-- Họ tên -->
+        <VBox spacing="6">
+            <Label text="Họ tên *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtHoTen" promptText="Nhập họ tên đầy đủ" styleClass="text-field"/>
+        </VBox>
+
+        <!-- Số điện thoại -->
+        <VBox spacing="6">
+            <Label text="Số điện thoại *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtSdt" promptText="VD: 0901234567" styleClass="text-field"/>
+        </VBox>
+
+        <!-- Ngày sinh -->
+        <VBox spacing="6">
+            <Label text="Ngày sinh" styleClass="lbl-body-bold"/>
+            <DatePicker fx:id="dpNgaySinh" promptText="Chọn ngày sinh" maxWidth="Infinity" styleClass="text-field"/>
+        </VBox>
+
+        <Separator/>
+
+        <!-- Tên đăng nhập -->
+        <VBox spacing="6">
+            <Label text="Tên đăng nhập *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtTenDangNhap" promptText="Nhập username (không dấu, không khoảng trắng)" styleClass="text-field"/>
+        </VBox>
+
+        <!-- Mật khẩu -->
+        <VBox spacing="6">
+            <Label text="Mật khẩu (để trống = mặc định '1')" styleClass="lbl-body-bold"/>
+            <PasswordField fx:id="txtMatKhau" promptText="Để trống nếu dùng mặc định" styleClass="text-field"/>
+        </VBox>
+
+        <Separator/>
+
+        <!-- Vai trò -->
+        <VBox spacing="8">
+            <Label text="Vai trò hệ thống" styleClass="lbl-body-bold"/>
+            <ScrollPane prefHeight="90" fitToWidth="true" styleClass="scroll-pane-transparent">
+                <FlowPane fx:id="flowVaiTro" hgap="10" vgap="8">
+                    <padding><Insets top="4" right="4" bottom="4" left="4"/></padding>
+                </FlowPane>
+            </ScrollPane>
+        </VBox>
+
+        <!-- Lỗi -->
+        <Label fx:id="lblError" text="" styleClass="lbl-small-bold" wrapText="true"
+               style="-fx-text-fill: #791F1F;"/>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Hủy" styleClass="btn-secondary" onAction="#onHuy"/>
+        <Button text="💾 Lưu nhân viên" styleClass="btn-primary" onAction="#onXacNhan"/>
+    </HBox>
+
 </VBox>

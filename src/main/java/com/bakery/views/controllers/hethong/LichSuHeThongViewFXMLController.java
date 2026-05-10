@@ -1,87 +1,179 @@
 package com.bakery.views.controllers.hethong;
 
+import com.bakery.model.dto.hethong.HoatDongNhanVienDTO;
+import com.bakery.presenters.hethong.LichSuHeThongPresenter;
+import com.bakery.utils.SessionContext;
 import com.bakery.views.controllers.BaseController;
+import com.bakery.views.interfaces.hethong.LichSuHeThongView;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import java.util.ArrayList;
+
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class LichSuHeThongViewFXMLController extends BaseController {
+/**
+ * Controller màn hình Lịch sử hệ thống.
+ * CHỈ QUẢN LÝ được xem — kiểm tra vai trò ngay khi initialize().
+ */
+public class LichSuHeThongViewFXMLController extends BaseController implements LichSuHeThongView {
 
-    @FXML private TableView<AuditLogEntry> tblAuditLog;
-    @FXML private TableColumn<AuditLogEntry, String> colThoiGian;
-    @FXML private TableColumn<AuditLogEntry, String> colNguoiDung;
-    @FXML private TableColumn<AuditLogEntry, String> colHanhDong;
-    @FXML private TableColumn<AuditLogEntry, String> colChiTiet;
-    @FXML private TableColumn<AuditLogEntry, String> colTrangThai;
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    @FXML private TextField txtTimKiem;
-    @FXML private ComboBox<String> cbBoLoc;
+    // Mapping tên hiển thị cho cột NHOM
+    private static final java.util.Map<String, String> NHOM_LABEL = java.util.Map.of(
+        "DON_HANG",   "Đơn hàng",
+        "KHACH_HANG", "Khách hàng",
+        "KHO",        "Kho",
+        "SAN_PHAM",   "Sản phẩm"
+    );
 
-    private final ObservableList<AuditLogEntry> masterData = FXCollections.observableArrayList();
+    @FXML private TableView<HoatDongNhanVienDTO>           tblAuditLog;
+    @FXML private TableColumn<HoatDongNhanVienDTO, String> colThoiGian;
+    @FXML private TableColumn<HoatDongNhanVienDTO, String> colNguoiDung;
+    @FXML private TableColumn<HoatDongNhanVienDTO, String> colHanhDong;
+    @FXML private TableColumn<HoatDongNhanVienDTO, String> colChiTiet;
+    @FXML private TableColumn<HoatDongNhanVienDTO, String> colTrangThai;
 
-    public static class AuditLogEntry {
-        private String thoiGian; private String nguoiDung; private String hanhDong; private String chiTiet; private String trangThai;
-        public AuditLogEntry(String tg, String nd, String hd, String ct, String tt) {
-            thoiGian = tg; nguoiDung = nd; hanhDong = hd; chiTiet = ct; trangThai = tt;
-        }
-        public String getThoiGian() { return thoiGian; }
-        public String getNguoiDung() { return nguoiDung; }
-        public String getHanhDong() { return hanhDong; }
-        public String getChiTiet() { return chiTiet; }
-        public String getTrangThai() { return trangThai; }
-    }
+    @FXML private TextField          txtTimKiem;
+    @FXML private ComboBox<String>   cbBoLoc;
+
+    private final LichSuHeThongPresenter presenter = new LichSuHeThongPresenter(this);
 
     @FXML
     public void initialize() {
-        setupTable();
-        setupFilters();
-        // Chưa có bảng AUDIT_LOG trong DB. Hiển thị bảng trống.
-        tblAuditLog.setItems(masterData);
+        // Kiểm tra quyền — chỉ Quản lý được xem
+        if (!kiemTraQuyenQuanLy()) return;
+
+        khoiTaoBoLoc();
+        khoiTaoBang();
+        presenter.taiDuLieu();
     }
 
-    private void setupTable() {
-        colThoiGian.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getThoiGian()));
-        colNguoiDung.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getNguoiDung()));
-        colHanhDong.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getHanhDong()));
-        colChiTiet.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getChiTiet()));
-        colTrangThai.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTrangThai()));
+    // ── LichSuHeThongView interface ──────────────────────────────────────
+
+    @Override
+    public void hienThiDanhSachHoatDong(List<HoatDongNhanVienDTO> danhSach) {
+        if (danhSach == null || danhSach.isEmpty()) {
+            tblAuditLog.setItems(FXCollections.observableArrayList());
+            tblAuditLog.setPlaceholder(new Label("Không có dữ liệu hoạt động."));
+            return;
+        }
+        tblAuditLog.setItems(FXCollections.observableArrayList(danhSach));
     }
 
-    private void setupFilters() {
-        cbBoLoc.setItems(FXCollections.observableArrayList("Tất cả", "HỆ THỐNG", "BÁN HÀNG", "KHO HÀNG", "NHÂN SỰ"));
-        cbBoLoc.getSelectionModel().selectFirst();
-        cbBoLoc.valueProperty().addListener((obs, oldVal, newVal) -> onTimKiem());
+    @Override
+    public void batTatTrangThaiDangTai(boolean dangTai) {
+        tblAuditLog.setDisable(dangTai);
+        if (dangTai) tblAuditLog.setPlaceholder(new Label("⏳ Đang tải..."));
     }
+
+    @Override
+    public void hienThiLoi(String msg) {
+        hienThiLoiLabel(msg);
+    }
+
+    @Override
+    public void hienThiThanhCong(String msg) {
+        hienThiThanhCongLabel(msg);
+    }
+
+    @Override
+    public void xoaLoi() {
+        hienThiLoiLabel("");
+    }
+
+    @Override
+    public void setLoading(boolean loading) {
+        batTatTrangThaiDangTai(loading);
+    }
+
+    // ── FXML handlers ────────────────────────────────────────────────────
 
     @FXML
     private void onTaiLai() {
         txtTimKiem.clear();
         cbBoLoc.getSelectionModel().selectFirst();
-        masterData.clear();
-        tblAuditLog.setItems(masterData);
+        locDuLieu();
     }
 
     @FXML
     private void onTimKiem() {
-        String keyword = txtTimKiem.getText() == null ? "" : txtTimKiem.getText().toLowerCase();
-        String filter = cbBoLoc.getValue();
-        List<AuditLogEntry> filteredList = new ArrayList<>();
-
-        for (AuditLogEntry entry : masterData) {
-            boolean matchKey = entry.getChiTiet().toLowerCase().contains(keyword) || 
-                               entry.getNguoiDung().toLowerCase().contains(keyword);
-            boolean matchFilter = "Tất cả".equals(filter) || entry.getHanhDong().contains(filter);
-            
-            if (matchKey && matchFilter) {
-                filteredList.add(entry);
-            }
-        }
-        tblAuditLog.setItems(FXCollections.observableArrayList(filteredList));
+        locDuLieu();
     }
 
-}
+    // ── private helpers ──────────────────────────────────────────────────
 
+    private void khoiTaoBang() {
+        colThoiGian.setCellValueFactory(c -> {
+            String val = c.getValue().getThoiGian() != null
+                    ? c.getValue().getThoiGian().format(FMT) : "—";
+            return new SimpleStringProperty(val);
+        });
+        colNguoiDung.setCellValueFactory(c -> {
+            HoatDongNhanVienDTO d = c.getValue();
+            String ten = d.getTenNhanVien() != null ? d.getTenNhanVien() : "NV#" + d.getMaNV();
+            String cv  = d.getChucVu() != null ? " (" + d.getChucVu() + ")" : "";
+            return new SimpleStringProperty(ten + cv);
+        });
+        colHanhDong.setCellValueFactory(c ->
+                new SimpleStringProperty(NHOM_LABEL.getOrDefault(c.getValue().getNhom(), c.getValue().getNhom())));
+        colChiTiet.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getHanhDong()));
+        colTrangThai.setCellValueFactory(c -> {
+            String entityStr = c.getValue().getEntityId() != null
+                    ? "ID: " + c.getValue().getEntityId() : "—";
+            return new SimpleStringProperty(entityStr);
+        });
+    }
+
+    private void khoiTaoBoLoc() {
+        cbBoLoc.setItems(FXCollections.observableArrayList(
+                "Tất cả", "Đơn hàng", "Khách hàng", "Kho", "Sản phẩm"));
+        cbBoLoc.getSelectionModel().selectFirst();
+        cbBoLoc.valueProperty().addListener((obs, o, n) -> locDuLieu());
+    }
+
+    private void locDuLieu() {
+        String tuKhoa  = txtTimKiem.getText();
+        String nhom    = mapNhom(cbBoLoc.getValue());
+        presenter.loc(nhom, tuKhoa, null, null);
+    }
+
+    private String mapNhom(String tenHienThi) {
+        return switch (tenHienThi == null ? "" : tenHienThi) {
+            case "Đơn hàng"   -> "DON_HANG";
+            case "Khách hàng" -> "KHACH_HANG";
+            case "Kho"        -> "KHO";
+            case "Sản phẩm"   -> "SAN_PHAM";
+            default           -> null; // "Tất cả" → không lọc
+        };
+    }
+
+    /**
+     * Kiểm tra người dùng hiện tại có vai trò Quản lý không.
+     * Nếu không, hiển thị thông báo từ chối và trả false.
+     */
+    private boolean kiemTraQuyenQuanLy() {
+        SessionContext.AuthSession session = SessionContext.getCurrentSession();
+        if (session == null) {
+            hienThiLoiLabel("Phiên làm việc hết hạn, vui lòng đăng nhập lại.");
+            return false;
+        }
+        String tenVaiTro = session.getTenVaiTro();
+        // Cho phép nếu vai trò chứa "quan ly" hoặc "quản lý" (case insensitive, không dấu)
+        if (tenVaiTro != null &&
+                (tenVaiTro.toLowerCase().contains("quan ly") ||
+                 tenVaiTro.toLowerCase().contains("quản lý") ||
+                 tenVaiTro.toLowerCase().contains("admin"))) {
+            return true;
+        }
+        tblAuditLog.setPlaceholder(new Label("🔒 Chỉ Quản lý mới có quyền xem lịch sử hệ thống."));
+        tblAuditLog.setDisable(true);
+        if (txtTimKiem != null) txtTimKiem.setDisable(true);
+        if (cbBoLoc != null) cbBoLoc.setDisable(true);
+        hienThiLoiLabel("Bạn không có quyền truy cập chức năng này.");
+        return false;
+    }
+}

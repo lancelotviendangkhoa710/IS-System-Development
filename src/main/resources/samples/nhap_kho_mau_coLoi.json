@@ -1,0 +1,42 @@
+[
+  {
+    "maNL": 0,
+    "tenNL": "",
+    "xuatXu": "Việt Nam",
+    "maDVT": 1,
+    "soLuong": 20.0,
+    "donGia": 15000,
+    "ngaySanXuat": "",
+    "hanSuDung": "2026-12-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Dầu thực vật",
+    "xuatXu": "",
+    "maDVT": 2,
+    "soLuong": 0,
+    "donGia": 42000,
+    "ngaySanXuat": "",
+    "hanSuDung": "2027-01-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Sô cô la đen",
+    "xuatXu": "Pháp",
+    "maDVT": 1,
+    "soLuong": 5.0,
+    "donGia": -500,
+    "ngaySanXuat": "2025-01-01",
+    "hanSuDung": "2026-06-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Kem tươi",
+    "xuatXu": "Úc",
+    "maDVT": 2,
+    "soLuong": 10.0,
+    "donGia": 0,
+    "ngaySanXuat": "2026-04-01",
+    "hanSuDung": "2024-01-01"
+  }
+]

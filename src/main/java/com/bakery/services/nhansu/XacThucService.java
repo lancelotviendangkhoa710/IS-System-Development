@@ -263,10 +263,6 @@ public class XacThucService {
             throw new NgoaiLeXacThuc(MaLoiXacThuc.MAT_KHAU_KHONG_HOP_LE, fieldName + " không được để trống.");
         }
 
-        if (password.length() < 6 || password.length() > 100) {
-            throw new NgoaiLeXacThuc(MaLoiXacThuc.MAT_KHAU_KHONG_HOP_LE, fieldName + " phải từ 6 đến 100 ký tự.");
-        }
-
         for (int i = 0; i < password.length(); i++) {
             if (Character.isISOControl(password.charAt(i))) {
                 throw new NgoaiLeXacThuc(MaLoiXacThuc.MAT_KHAU_KHONG_HOP_LE,

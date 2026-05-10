@@ -132,7 +132,30 @@ public class DashboardController {
     @FXML
     private void onQuanLyCa() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quản lý ca")) return;
-        AppShellController.getInstance().loadView("/fxml/DoiSoatDongCaView.fxml");
+        try {
+            boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
+            String fxmlPath = caoDangMo ? "/fxml/DoiSoatDongCaView.fxml" : "/fxml/MoCaView.fxml";
+            String title    = caoDangMo ? "H3K Bakery - Dong ca" : "H3K Bakery - Mo ca";
+
+            java.net.URL fxmlUrl = getClass().getResource(fxmlPath);
+            if (fxmlUrl == null) { lblThongBao.setText("Khong tim thay FXML: " + fxmlPath); return; }
+
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
+            javafx.stage.Stage dialog = new javafx.stage.Stage();
+            dialog.setTitle(title);
+            dialog.setScene(scene);
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            if (lblThongBao.getScene() != null)
+                dialog.initOwner(lblThongBao.getScene().getWindow());
+            dialog.setResizable(false);
+            dialog.showAndWait();
+        } catch (Exception ex) {
+            lblThongBao.setText("Loi mo quan ly ca: " + ex.getMessage());
+        }
     }
 
     @FXML

@@ -10,6 +10,7 @@
     <HBox alignment="CENTER_LEFT" spacing="20">
         <Label fx:id="lblTitle" text="QUẢN LÝ NHẬP KHO" styleClass="lbl-header"/>
         <Region HBox.hgrow="ALWAYS" />
+        <Button text="📂 Nhập từ File" onAction="#onNhapTuFile" styleClass="btn-secondary"/>
         <Button text="+ Tạo phiếu nhập" onAction="#onAction" styleClass="btn-primary"/>
     </HBox>
 

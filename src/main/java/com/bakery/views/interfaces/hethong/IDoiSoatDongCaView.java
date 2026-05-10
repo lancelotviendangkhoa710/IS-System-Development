@@ -15,7 +15,7 @@ public interface IDoiSoatDongCaView extends IBaseView {
 
     void hienThiLoiNhapSaiDinhDang();
 
-    void chuyenSangSauKiemTra(boolean khop, String tienHienThi);
+    void chuyenSangSauKiemTra(BigDecimal chenhLech, String tienHienThi);
 
     void setNutKhoaSoEnabled(boolean enabled);
 
