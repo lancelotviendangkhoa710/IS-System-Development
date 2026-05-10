@@ -32,6 +32,18 @@ src/main/resources/application.properties
 .vscode
 Thumbs.db
 application.properties
-
+acc.md
+task1.md
+task2.md 
+task_fix_ui
+gitnexus_stderr.txt
+gn_stderr.txt 
+gn_stdout.txt
+pw_err.txt
+pw_out.txt 
+check_ucs.py
+.ai/mcp
+.claude/skills/gitnexus
+.gitnexus   
 
 
