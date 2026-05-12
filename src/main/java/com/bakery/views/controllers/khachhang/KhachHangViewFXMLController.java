@@ -136,7 +136,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     public void hienThiLichSuMuaHang(KhachHangDTO kh, List<DonDatHangDTO> dsDon) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/LichSuMuaHangDialog.fxml"));
+                    getClass().getResource("/fxml/khachhang/LichSuMuaHangDialog.fxml"));
             Parent root = loader.load();
             LichSuMuaHangDialogViewFXMLController ctrl = loader.getController();
             ctrl.khoiTao(kh, dsDon);
@@ -286,7 +286,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
 
     private void moDialogKhachHang(KhachHangDTO kh) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KhachHangDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/khachhang/KhachHangDialog.fxml"));
             Parent root = loader.load();
             KhachHangDialogViewFXMLController controller = loader.getController();
             if (kh != null) controller.khoiTaoChinhSua(kh);

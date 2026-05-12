@@ -15,60 +15,40 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
-import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
 public class SanPhamViewFXMLController extends BaseController implements ISanPhamView {
 
-    /** Đường dẫn ảnh đang được chọn trong form (chưa lưu). */
-    private String selectedImagePath = null;
-
-    @FXML
-    private TableView<SanPhamDTO> tblSanPham;
-    @FXML
-    private TableColumn<SanPhamDTO, Integer> colMaSP;
-    @FXML
-    private TableColumn<SanPhamDTO, String> colTenSP;
-    @FXML
-    private TableColumn<SanPhamDTO, String> colDanhMuc;
-    @FXML
-    private TableColumn<SanPhamDTO, Double> colGiaBan;
-    @FXML
-    private TableColumn<SanPhamDTO, Double> colTonKho;
-
-    @FXML
-    private ComboBox<Map.Entry<Integer, String>> cmbDanhMuc;
-    @FXML
-    private TextField txtTenSP;
-    @FXML
-    private TextField txtGiaBan;
-    @FXML
-    private CheckBox chkTuyChinh;
-    @FXML
-    private TextField txtTGBaoQuan;
-    @FXML
-    private TextField txtTGChuanBi;
-    @FXML
-    private TextField txtTonKho;
-    @FXML
-    private ImageView imgSanPham;
+    @FXML private TableView<SanPhamDTO> tblSanPham;
+    @FXML private TableColumn<SanPhamDTO, Integer> colMaSP;
+    @FXML private TableColumn<SanPhamDTO, String>  colTenSP;
+    @FXML private TableColumn<SanPhamDTO, String>  colDanhMuc;
+    @FXML private TableColumn<SanPhamDTO, Double>  colGiaVon;
+    @FXML private TableColumn<SanPhamDTO, Double>  colGiaBan;
+    @FXML private TableColumn<SanPhamDTO, Double>  colTonKho;
+    @FXML private TextField txtTimKiem;
+    @FXML private Button btnSua;
+    @FXML private Button btnXoa;
 
     private final ObservableList<SanPhamDTO> masterData = FXCollections.observableArrayList();
     private FilteredList<SanPhamDTO> filteredData;
     private SanPhamPresenter presenter;
     private Map<Integer, String> currentDanhMucMap;
 
-    @FXML
-    private TextField txtTimKiem;
+    /** DTO nhận từ dialog Sửa — dùng cho layDuLieuTuForm(). */
+    private SanPhamDTO dtoDialogKetQua = null;
+
+    /** Ref sang CongThucController — nhận từ QuanLySanPhamViewFXMLController sau initialize. */
+    private CongThucViewFXMLController congThucController;
+
+    public void setCongThucController(CongThucViewFXMLController ctrl) {
+        this.congThucController = ctrl;
+    }
 
     @FXML
     public void initialize() {
@@ -77,18 +57,16 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         presenter = new SanPhamPresenter(this, maNV);
         tblSanPham.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, newVal) -> presenter.onChonSanPham(newVal));
-        txtTonKho.setEditable(false);
         presenter.taiDuLieuBanDau();
     }
 
-    /** Lọc bảng theo từ khóa (tên hoặc mã SP). Gọi từ onTimKiem. */
+    /** Lọc bảng theo từ khóa (tên hoặc mã SP). */
     @FXML
     private void onTimKiem() {
         String keyword = txtTimKiem != null ? txtTimKiem.getText().trim().toLowerCase() : "";
         if (filteredData != null) {
             filteredData.setPredicate(sp -> {
-                if (keyword.isEmpty())
-                    return true;
+                if (keyword.isEmpty()) return true;
                 return sp.getTenSP().toLowerCase().contains(keyword)
                         || String.valueOf(sp.getMaSP()).contains(keyword);
             });
@@ -96,93 +74,66 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
     }
 
     private void setupTable() {
-        colMaSP.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getMaSP()).asObject());
-        colTenSP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenSP()));
-        colDanhMuc.setCellValueFactory(cellData -> {
-            String tenDM = currentDanhMucMap != null ? currentDanhMucMap.get(cellData.getValue().getMaDM()) : "";
-            return new SimpleStringProperty(tenDM != null ? tenDM : "");
+        colMaSP.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getMaSP()).asObject());
+        colTenSP.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenSP()));
+        colDanhMuc.setCellValueFactory(c -> {
+            String ten = currentDanhMucMap != null ? currentDanhMucMap.get(c.getValue().getMaDM()) : "";
+            return new SimpleStringProperty(ten != null ? ten : "");
         });
-        colGiaBan.setCellValueFactory(
-                cellData -> new SimpleDoubleProperty(cellData.getValue().getGiaBan()).asObject());
-        colTonKho.setCellValueFactory(
-                cellData -> new SimpleDoubleProperty(cellData.getValue().getSoLuongTon()).asObject());
-        // FilteredList wrap masterData để hỗ trợ AutoComplete search
+        colGiaVon.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getGiaVon()).asObject());
+        colGiaVon.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Double val, boolean empty) {
+                super.updateItem(val, empty);
+                setText(empty || val == null ? null
+                        : java.text.NumberFormat.getNumberInstance(new java.util.Locale("vi", "VN")).format(val) + " đ");
+            }
+        });
+        colGiaBan.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getGiaBan()).asObject());
+        colGiaBan.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Double val, boolean empty) {
+                super.updateItem(val, empty);
+                setText(empty || val == null ? null
+                        : java.text.NumberFormat.getNumberInstance(new java.util.Locale("vi", "VN")).format(val) + " đ");
+            }
+        });
+        colTonKho.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getSoLuongTon()).asObject());
+
         filteredData = new FilteredList<>(masterData, sp -> true);
         tblSanPham.setItems(filteredData);
-
-        cmbDanhMuc.setConverter(new StringConverter<Map.Entry<Integer, String>>() {
-            @Override
-            public String toString(Map.Entry<Integer, String> object) {
-                return object != null ? object.getValue() : "";
-            }
-
-            @Override
-            public Map.Entry<Integer, String> fromString(String string) {
-                return null;
-            }
-        });
     }
+
+    // ── ISanPhamView ──────────────────────────────────────────────────────────
 
     @Override
     public void hienThiDanhSachSanPham(List<SanPhamDTO> ds) {
-        if (ds == null || ds.isEmpty()) {
-            masterData.clear();
-            hienThiLoi("Không có dữ liệu sản phẩm.");
-            return;
-        }
-        masterData.setAll(ds);
+        masterData.setAll(ds != null ? ds : List.of());
+        if (ds == null || ds.isEmpty()) hienThiLoi("Không có dữ liệu sản phẩm.");
     }
 
     @Override
     public void hienThiDanhSachDanhMuc(Map<Integer, String> danhMucMap) {
-        if (danhMucMap == null || danhMucMap.isEmpty()) {
-            return;
-        }
-        this.currentDanhMucMap = danhMucMap;
-        cmbDanhMuc.setItems(FXCollections.observableArrayList(danhMucMap.entrySet()));
+        if (danhMucMap != null) this.currentDanhMucMap = danhMucMap;
     }
 
     @Override
     public void hienThiChiTiet(SanPhamDTO sp) {
-        if (sp == null)
-            return;
-        txtTenSP.setText(sp.getTenSP());
-        txtGiaBan.setText(String.valueOf(sp.getGiaBan()));
-        txtTonKho.setText(String.valueOf(sp.getSoLuongTon()));
-        txtTGBaoQuan.setText(String.valueOf(sp.getThoiGianBaoQuan()));
-        txtTGChuanBi.setText(String.valueOf(sp.getThoiGianChuanBi()));
-        chkTuyChinh.setSelected(sp.getChoPhepTuyChinh() == 1);
-        // Bug fix: đồng bộ ComboBox danh mục theo sản phẩm đang chọn
-        if (cmbDanhMuc.getItems() != null) {
-            cmbDanhMuc.getItems().stream()
-                    .filter(e -> e.getKey() == sp.getMaDM())
-                    .findFirst()
-                    .ifPresent(cmbDanhMuc::setValue);
-        }
-        // Hiển thị ảnh sản phẩm
-        selectedImagePath = sp.getHinhAnh();
-        hienThiAnh(selectedImagePath);
+        // Kích hoạt nút Sửa / Xóa khi có SP được chọn
+        btnSua.setDisable(sp == null);
+        btnXoa.setDisable(sp == null);
     }
 
     @Override
-    public void hienThiLoi(String msg) {
-        hienThiLoiLabel(msg);
-    }
+    public void hienThiLoi(String msg) { hienThiLoiLabel(msg); }
 
     @Override
-    public void hienThiThanhCong(String msg) {
-        hienThiThanhCongLabel(msg);
-    }
+    public void hienThiThanhCong(String msg) { hienThiThanhCongLabel(msg); }
 
     @Override
     public void lamMoiForm() {
-        txtTenSP.clear();
-        txtGiaBan.clear();
-        txtTonKho.clear();
-        txtTGBaoQuan.clear();
-        txtTGChuanBi.clear();
-        selectedImagePath = null;
-        xoaAnhPreview();
+        // Vô hiệu hóa nút Sửa / Xóa khi bỏ chọn
+        btnSua.setDisable(true);
+        btnXoa.setDisable(true);
+        dtoDialogKetQua = null;
     }
 
     @Override
@@ -190,194 +141,122 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         return tblSanPham.getSelectionModel().getSelectedItem();
     }
 
-    /** Xóa filter tìm kiếm và hiển thị lại toàn bộ dữ liệu. */
-    private void xoaFilter() {
-        if (filteredData != null)
-            filteredData.setPredicate(sp -> true);
-        if (txtTimKiem != null)
-            txtTimKiem.clear();
-    }
-
+    /** Trả về DTO đã được user chỉnh sửa qua dialog. */
     @Override
     public SanPhamDTO layDuLieuTuForm() {
-        SanPhamDTO selected = getSelectedSanPham();
-        // Bug fix: tạo DTO mới, KHÔNG mutate item đang có trong ObservableList
-        SanPhamDTO sp = new SanPhamDTO();
-        if (selected != null) {
-            sp.setMaSP(selected.getMaSP());
-            sp.setGiaVon(selected.getGiaVon()); // giữ giaVon để service tái sử dụng
-            sp.setSoLuongTon(selected.getSoLuongTon()); // tồn kho không sửa được ở đây
-        }
-        sp.setTenSP(txtTenSP.getText().trim());
-        try {
-            sp.setGiaBan(Double.parseDouble(txtGiaBan.getText().trim()));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            sp.setThoiGianBaoQuan(Integer.parseInt(txtTGBaoQuan.getText().trim()));
-        } catch (NumberFormatException ignored) {
-        }
-        try {
-            sp.setThoiGianChuanBi(Integer.parseInt(txtTGChuanBi.getText().trim()));
-        } catch (NumberFormatException ignored) {
-        }
-        sp.setChoPhepTuyChinh(chkTuyChinh.isSelected() ? 1 : 0);
-        if (cmbDanhMuc.getValue() != null) {
-            sp.setMaDM(cmbDanhMuc.getValue().getKey());
-        } else if (selected != null) {
-            sp.setMaDM(selected.getMaDM()); // fallback nếu user không đổi danh mục
-        }
-        // Giữ ảnh cũ nếu user chưa chọn ảnh mới
-        sp.setHinhAnh(selectedImagePath != null ? selectedImagePath
-                : (selected != null ? selected.getHinhAnh() : null));
-        return sp;
+        return dtoDialogKetQua;
     }
 
+    // ── Event Handlers ────────────────────────────────────────────────────────
+
+    /** Mở dialog Thêm sản phẩm mới. */
     @FXML
     private void onThemMoi() {
         if (presenter == null) return;
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/ThemSanPhamDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/kho/ThemSanPhamDialog.fxml"));
             Parent root = loader.load();
 
             ThemSanPhamDialogController dialogCtrl = loader.getController();
             dialogCtrl.khoiTaoDanhMuc(currentDanhMucMap);
 
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Thêm sản phẩm mới");
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-            dialogStage.initOwner(tblSanPham.getScene().getWindow());
-
+            Stage stage = new Stage();
+            stage.setTitle("Thêm sản phẩm mới");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(tblSanPham.getScene().getWindow());
             Scene scene = new Scene(root);
             URL cssUrl = getClass().getResource("/css/bakery.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-            dialogStage.setScene(scene);
-            dialogStage.showAndWait();
+            stage.setScene(scene);
+            stage.showAndWait();
 
             SanPhamDTO ketQua = dialogCtrl.getKetQua();
-            if (ketQua != null) {
-                presenter.themSanPham(ketQua, this::chuyenSangTabCongThuc);
-            }
+            if (ketQua != null) presenter.themSanPham(ketQua, this::chuyenSangTabCongThuc);
         } catch (Exception e) {
             hienThiLoiLabel("Không thể mở dialog thêm sản phẩm: " + e.getMessage());
         }
     }
 
+    /** Mở dialog Sửa sản phẩm. Kết quả được lưu vào dtoDialogKetQua rồi gọi presenter. */
     @FXML
-    private void onLuuThayDoi() {
-        if (presenter != null)
-            presenter.suaSanPham();
+    private void onSuaSanPham() {
+        SanPhamDTO selected = getSelectedSanPham();
+        if (selected == null) {
+            hienThiLoiLabel("Vui lòng chọn một sản phẩm để sửa.");
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/kho/SuaSanPhamDialog.fxml"));
+            Parent root = loader.load();
+
+            SuaSanPhamDialogController dialogCtrl = loader.getController();
+            dialogCtrl.khoiTao(selected, currentDanhMucMap);
+
+            Stage stage = new Stage();
+            stage.setTitle("Sửa sản phẩm");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(tblSanPham.getScene().getWindow());
+            Scene scene = new Scene(root);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            dtoDialogKetQua = dialogCtrl.getKetQua();
+            if (dtoDialogKetQua != null) presenter.suaSanPham();
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể mở dialog sửa sản phẩm: " + e.getMessage());
+        }
     }
 
     @FXML
     private void onXoa() {
-        if (presenter != null)
-            presenter.xoaSanPham();
+        if (presenter != null) presenter.xoaSanPham();
     }
 
     @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tblSanPham);
-    }
+    private void onQuayLai() { quayLaiMenuChinh(tblSanPham); }
 
     @FXML
     private void onLamMoi() {
         xoaFilter();
-        if (presenter != null)
-            presenter.taiDanhSachSanPham();
+        if (presenter != null) presenter.taiDanhSachSanPham();
     }
 
-    @FXML
-    private void onChonAnh() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Chọn ảnh sản phẩm (PNG)");
-        fc.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Ảnh PNG (*.png)", "*.png"));
-        // Mở từ thư mục cuối cùng hoặc home
-        if (selectedImagePath != null) {
-            File lastDir = new File(selectedImagePath).getParentFile();
-            if (lastDir != null && lastDir.exists())
-                fc.setInitialDirectory(lastDir);
-        }
-
-        File chosen = fc.showOpenDialog(
-                imgSanPham != null ? imgSanPham.getScene().getWindow() : null);
-
-        if (chosen != null) {
-            selectedImagePath = chosen.getAbsolutePath();
-            hienThiAnh(selectedImagePath);
-            hienThiThanhCongLabel("Đã chọn ảnh: " + chosen.getName());
-        }
+    private void xoaFilter() {
+        if (filteredData != null) filteredData.setPredicate(sp -> true);
+        if (txtTimKiem != null) txtTimKiem.clear();
     }
 
-    // ── Helpers ảnh ───────────────────────────────────────────────────────
-
-    /**
-     * Load và hiển thị ảnh vào ImageView từ đường dẫn file tuyệt đối.
-     * Hỗ trợ cả file:// và classpath resource.
-     */
-    private void hienThiAnh(String path) {
-        if (imgSanPham == null)
-            return;
-        if (path == null || path.isBlank()) {
-            xoaAnhPreview();
-            return;
-        }
-        try {
-            Image img;
-            File f = new File(path);
-            if (f.exists()) {
-                img = new Image(f.toURI().toString(), true); // background loading
-            } else {
-                // Thử classpath (VD: /images/sanpham/banhkem.png)
-                var res = getClass().getResourceAsStream(path);
-                if (res == null) {
-                    xoaAnhPreview();
-                    return;
-                }
-                img = new Image(res); // InputStream variant không hỗ trợ backgroundLoading
-            }
-            imgSanPham.setImage(img);
-            imgSanPham.setFitWidth(120);
-            imgSanPham.setFitHeight(120);
-            imgSanPham.setPreserveRatio(true);
-        } catch (Exception e) {
-            xoaAnhPreview();
-            hienThiLoiLabel("Không thể tải ảnh: " + e.getMessage());
-        }
+    /** Reload danh sách SP — gọi từ QuanLySanPhamViewFXMLController khi switch về tab này để giá vốn luôn fresh. */
+    public void lamMoiDanhSach() {
+        if (presenter != null) presenter.taiDanhSachSanPham();
     }
 
-    private void xoaAnhPreview() {
-        if (imgSanPham != null)
-            imgSanPham.setImage(null);
-    }
+    // ── chuyenSangTabCongThuc ─────────────────────────────────────────────────
 
-    /**
-     * Implement ISanPhamView: chuyển sang Tab Công thức sau khi tạo SP mới.
-     * Tìm TabPane cha (QuanLySanPhamView) qua scene graph và select tabCongThuc.
-     */
     @Override
     public void chuyenSangTabCongThuc(int maSP) {
         javafx.application.Platform.runLater(() -> {
-            // Tìm TabPane cha trong scene graph
-            javafx.scene.Node node = tblSanPham;
-            while (node != null && !(node instanceof TabPane)) {
-                // leo lên cha 2 cấp: VBox (tab content) → Tab → TabPane
-                node = node.getParent();
-            }
-            if (node instanceof TabPane tabPane) {
-                // Tự chọn SP mới trong bảng để Tab Công thức nhận đúng SP
-                masterData.stream()
-                        .filter(sp -> sp.getMaSP() == maSP)
-                        .findFirst()
-                        .ifPresent(sp -> tblSanPham.getSelectionModel().select(sp));
+            // 1. Tìm và select SP mới trong bảng
+            masterData.stream().filter(sp -> sp.getMaSP() == maSP).findFirst()
+                    .ifPresent(sp -> tblSanPham.getSelectionModel().select(sp));
 
-                // Chuyển sang tab "tabCongThuc" (index 2 trong QuanLySanPhamView)
+            // 2. Navigate sang Tab Công thức
+            javafx.scene.Node node = tblSanPham;
+            while (node != null && !(node instanceof TabPane)) node = node.getParent();
+            if (node instanceof TabPane tabPane) {
                 tabPane.getTabs().stream()
                         .filter(t -> "tabCongThuc".equals(t.getId()))
                         .findFirst()
                         .ifPresent(t -> tabPane.getSelectionModel().select(t));
+            }
+
+            // 3. Gọi thẳng vào CongThucController để tránh race condition với tab-listener
+            if (congThucController != null) {
+                SanPhamDTO sp = masterData.stream()
+                        .filter(s -> s.getMaSP() == maSP).findFirst().orElse(null);
+                congThucController.capNhatSanPhamDangChon(sp);
             }
         });
     }

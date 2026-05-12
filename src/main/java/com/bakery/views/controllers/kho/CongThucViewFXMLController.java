@@ -27,20 +27,23 @@ import java.util.Locale;
 /** Controller Tab Công thức — Quản lý BOM nguyên liệu. */
 public class CongThucViewFXMLController extends BaseController implements ICongThucView {
 
-    @FXML private TableView<CongThucDTO> tblCongThuc;
-    @FXML private TableColumn<CongThucDTO, String> colTenNguyenLieu;
-    @FXML private TableColumn<CongThucDTO, Double> colDinhMuc;
-    @FXML private TableColumn<CongThucDTO, Double> colDonGia;
-    @FXML private TableColumn<CongThucDTO, Double> colThanhTien;
+    @FXML private TableView<CongThucDTO>            tblCongThuc;
+    @FXML private TableColumn<CongThucDTO, String>  colTenNguyenLieu;
+    @FXML private TableColumn<CongThucDTO, Double>  colDinhMuc;
+    @FXML private TableColumn<CongThucDTO, Double>  colDonGia;
+    @FXML private TableColumn<CongThucDTO, Double>  colThanhTien;
 
-    @FXML private ComboBox<NguyenLieuDTO> cmbNguyenLieu;
-    @FXML private TextField txtDinhMuc;
-    @FXML private Label lblTenSPDangChon;
-    @FXML private Label lblTongGiaVon;
+    @FXML private ComboBox<SanPhamDTO>    cmbChonSanPham;  // autocomplete chọn SP
+    @FXML private ComboBox<NguyenLieuDTO> cmbNguyenLieu;   // chọn NL khi sửa định mức
+    @FXML private TextField               txtDinhMuc;
+    @FXML private Label                   lblTongGiaVon;
+    @FXML private Label                   lblSanPhamDangCauHinh; // hiện tên SP đang cấu hình
 
     private final ObservableList<CongThucDTO> dsCongThuc = FXCollections.observableArrayList();
     private CongThucPresenter presenter;
-    /** Cache danh sách nguyên liệu để inject vào Dialog "Thêm". */
+
+    /** Danh sách gốc — giữ để reset filter autocomplete. */
+    private List<SanPhamDTO>    dsSanPhamGoc    = new ArrayList<>();
     private List<NguyenLieuDTO> cachedDsNguyenLieu = new ArrayList<>();
 
     private static final NumberFormat NF = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
@@ -48,9 +51,11 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @FXML
     public void initialize() {
         setupTable();
-        setupComboBox();
+        setupComboNguyenLieu();
         presenter = new CongThucPresenter(this);
         presenter.khoiTao();
+        // Autocomplete setup sau khi presenter tạo xong (dữ liệu load async)
+        setupComboChonSanPham();
     }
 
     // ── Setup ─────────────────────────────────────────────────────────────────
@@ -74,15 +79,51 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
         });
 
         tblCongThuc.setItems(dsCongThuc);
-        // Chọn dòng trong bảng → điền vào form bên phải để sửa định mức
         tblCongThuc.getSelectionModel().selectedItemProperty()
                 .addListener((obs, o, n) -> presenter.chonCongThuc(n));
     }
 
-    private void setupComboBox() {
+    /** ComboBox nguyên liệu — hiện "Tên NL (DVT)" để user biết đơn vị khi nhập định mức. */
+    private void setupComboNguyenLieu() {
         cmbNguyenLieu.setConverter(new StringConverter<>() {
-            @Override public String toString(NguyenLieuDTO nl) { return nl != null ? nl.getTenNL() : ""; }
+            @Override public String toString(NguyenLieuDTO nl) {
+                if (nl == null) return "";
+                String dvt = nl.getTenDVT();
+                return dvt.isEmpty() ? nl.getTenNL() : nl.getTenNL() + " (" + dvt + ")";
+            }
             @Override public NguyenLieuDTO fromString(String s) { return null; }
+        });
+    }
+
+    /**
+     * ComboBox chọn sản phẩm ở header — hỗ trợ autocomplete.
+     * Khi user gõ: filter danh sách theo tên. Khi chọn: load công thức.
+     */
+    private void setupComboChonSanPham() {
+        cmbChonSanPham.setConverter(new StringConverter<>() {
+            @Override public String toString(SanPhamDTO sp) {
+                return sp != null ? sp.getTenSP() + " (Mã: " + sp.getMaSP() + ")" : "";
+            }
+            @Override public SanPhamDTO fromString(String s) { return null; }
+        });
+
+        // Autocomplete: lọc khi gõ
+        cmbChonSanPham.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
+            SanPhamDTO selected = cmbChonSanPham.getValue();
+            // Bỏ qua nếu text thay đổi do việc chọn item (không phải user gõ)
+            if (selected != null && cmbChonSanPham.getConverter().toString(selected).equals(newVal)) return;
+
+            String filter = newVal == null ? "" : newVal.trim().toLowerCase();
+            List<SanPhamDTO> filtered = dsSanPhamGoc.stream()
+                    .filter(sp -> sp.getTenSP().toLowerCase().contains(filter))
+                    .toList();
+            cmbChonSanPham.setItems(FXCollections.observableArrayList(filtered));
+            if (!filtered.isEmpty() && !filter.isEmpty()) cmbChonSanPham.show();
+        });
+
+        // Khi user chọn sản phẩm → load công thức
+        cmbChonSanPham.valueProperty().addListener((obs, oldSP, newSP) -> {
+            if (newSP != null) presenter.chonSanPham(newSP.getMaSP());
         });
     }
 
@@ -96,14 +137,18 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @Override
     public void hienThiDanhSachNguyenLieu(List<NguyenLieuDTO> dsNL) {
         cachedDsNguyenLieu = dsNL != null ? dsNL : new ArrayList<>();
-        // Nạp vào ComboBox form bên phải (dùng khi sửa định mức)
         cmbNguyenLieu.setItems(FXCollections.observableArrayList(cachedDsNguyenLieu));
+    }
+
+    @Override
+    public void hienThiDanhSachSanPham(List<SanPhamDTO> dsSP) {
+        dsSanPhamGoc = dsSP != null ? dsSP : new ArrayList<>();
+        cmbChonSanPham.setItems(FXCollections.observableArrayList(dsSanPhamGoc));
     }
 
     @Override
     public void hienThiChiTiet(CongThucDTO ct) {
         if (ct == null) return;
-        // Điền form bên phải để user sửa định mức
         cmbNguyenLieu.getItems().stream()
                 .filter(nl -> nl.getMaNL() == ct.getMaNL())
                 .findFirst()
@@ -111,7 +156,7 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
         txtDinhMuc.setText(String.valueOf(ct.getSoLuongTieuHao()));
     }
 
-    @Override public void hienThiLoi(String thongBao)      { hienThiLoiLabel(thongBao); }
+    @Override public void hienThiLoi(String thongBao)     { hienThiLoiLabel(thongBao); }
 
     @Override
     public void hienThiThanhCong(String thongBao) {
@@ -135,34 +180,43 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
         return tblCongThuc.getSelectionModel().getSelectedItem();
     }
 
-    // ── API cho QuanLySanPhamViewFXMLController ───────────────────────────────
+    // ── API cho QuanLySanPhamViewFXMLController (backward-compat) ─────────────
 
-    /** Được gọi khi user chọn sản phẩm ở Tab Sản phẩm — tự động load công thức. */
+    /**
+     * Được gọi khi user chọn sản phẩm ở Tab Sản phẩm.
+     * Đồng bộ luôn ComboBox và cập nhật label tên SP đang cấu hình.
+     */
     public void capNhatSanPhamDangChon(SanPhamDTO sp) {
         if (sp == null) {
-            if (lblTenSPDangChon != null)
-                lblTenSPDangChon.setText("(Chưa chọn — hãy chọn sản phẩm ở Tab Sản phẩm)");
+            cmbChonSanPham.setValue(null);
+            if (lblSanPhamDangCauHinh != null) lblSanPhamDangCauHinh.setText("");
             presenter.chonSanPham(-1);
         } else {
-            if (lblTenSPDangChon != null)
-                lblTenSPDangChon.setText(sp.getTenSP() + " (Mã: " + sp.getMaSP() + ")");
+            dsSanPhamGoc.stream()
+                    .filter(s -> s.getMaSP() == sp.getMaSP())
+                    .findFirst()
+                    .ifPresent(found -> {
+                        cmbChonSanPham.setItems(FXCollections.observableArrayList(dsSanPhamGoc));
+                        cmbChonSanPham.setValue(found);
+                    });
+            if (lblSanPhamDangCauHinh != null)
+                lblSanPhamDangCauHinh.setText("→ Đang cấu hình: " + sp.getTenSP());
             presenter.chonSanPham(sp.getMaSP());
         }
     }
 
     // ── FXML Events ───────────────────────────────────────────────────────────
 
-    /** Nút "➕ Thêm nguyên liệu" → mở Dialog chọn NL + nhập định mức. */
     @FXML
     private void onThemCongThuc() {
         if (presenter == null) return;
         if (presenter.getMaSPDangChon() <= 0) {
-            hienThiLoiLabel("Vui lòng chọn sản phẩm ở Tab Sản phẩm trước.");
+            hienThiLoiLabel("Vui lòng chọn sản phẩm từ ComboBox trước.");
             return;
         }
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/ThemCongThucDialog.fxml"));
+                    getClass().getResource("/fxml/kho/ThemCongThucDialog.fxml"));
             Parent root = loader.load();
 
             ThemCongThucDialogController dialogCtrl = loader.getController();
@@ -187,7 +241,6 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
         }
     }
 
-    /** Nút "💾 Lưu thay đổi" — sửa định mức dòng đang chọn trong bảng. */
     @FXML
     private void onLuuCongThuc() {
         NguyenLieuDTO nlChon = cmbNguyenLieu.getValue();

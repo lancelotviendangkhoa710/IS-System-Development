@@ -17,7 +17,7 @@ public class HoaDonDAO extends BaseDAO {
 
     public List<HoaDonDTO> layDanhSachHoaDon() throws Exception {
         List<HoaDonDTO> ds = new ArrayList<>();
-        String sql = "SELECT * FROM HOADON";
+        String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TIENHANGGOC, TONGTIENTHANHTOAN, MAPTTT, LOAIHD, TRANGTHAI FROM HOADON";
         try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -30,7 +30,8 @@ public class HoaDonDAO extends BaseDAO {
                 if (rs.getTimestamp("NGAYXUATHD") != null)
                     hd.setNgayXuatHd(rs.getTimestamp("NGAYXUATHD").toLocalDateTime());
                 hd.setThueVAT(rs.getDouble("THUEVAT"));
-                hd.setTongTienThanhToan(BigDecimal.valueOf(rs.getDouble("TONGTIENTHANHTOAN")));
+                hd.setTienHangGoc(rs.getBigDecimal("TIENHANGGOC"));
+                hd.setTongTienThanhToan(rs.getBigDecimal("TONGTIENTHANHTOAN"));
                 hd.setMaPTTT(rs.getInt("MAPTTT"));
                 hd.setLoaiHD(rs.getString("LOAIHD"));
                 String tt = rs.getString("TRANGTHAI");
@@ -67,15 +68,16 @@ public class HoaDonDAO extends BaseDAO {
     }
 
     private int themHoaDonMoiWithConn(Connection conn, HoaDonDTO hd) throws SQLException {
-        String sql = "INSERT INTO HOADON (MADON, MACA, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO HOADON (MADON, MACA, THUEVAT, TIENHANGGOC, TONGTIENTHANHTOAN, MAPTTT, LOAIHD) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"MAHD"})) {
             if (hd.getMaDon() != null) pstmt.setInt(1, hd.getMaDon()); else pstmt.setNull(1, Types.NUMERIC);
             pstmt.setInt(2, hd.getMaCa());
-            pstmt.setDouble(3, hd.getThueVAT());
-            pstmt.setBigDecimal(4, hd.getTongTienThanhToan());
-            pstmt.setInt(5, hd.getMaPTTT());
-            pstmt.setString(6, hd.getLoaiHD());
+            pstmt.setDouble(3, hd.getThueVAT() != null ? hd.getThueVAT() : 0);
+            pstmt.setBigDecimal(4, hd.getTienHangGoc() != null ? hd.getTienHangGoc() : java.math.BigDecimal.ZERO);
+            pstmt.setBigDecimal(5, hd.getTongTienThanhToan());
+            pstmt.setInt(6, hd.getMaPTTT());
+            pstmt.setString(7, hd.getLoaiHD());
             if (pstmt.executeUpdate() > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) return rs.getInt(1);
@@ -90,7 +92,7 @@ public class HoaDonDAO extends BaseDAO {
     // ---------------------------------------------------------
 
     public HoaDonDTO layHoaDonTheoMa(int maHD) throws Exception {
-        String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD "
+        String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TIENHANGGOC, TONGTIENTHANHTOAN, MAPTTT, LOAIHD "
                 + "FROM HOADON WHERE MAHD = ?";
         try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -106,7 +108,7 @@ public class HoaDonDAO extends BaseDAO {
 
     /** Dùng trong Distributed Transaction — dùng conn đã có sẵn. */
     public HoaDonDTO layHoaDonTheoMa(Connection conn, int maHD) throws Exception {
-        String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TONGTIENTHANHTOAN, MAPTTT, LOAIHD "
+        String sql = "SELECT MAHD, MADON, MACA, NGAYXUATHD, THUEVAT, TIENHANGGOC, TONGTIENTHANHTOAN, MAPTTT, LOAIHD "
                 + "FROM HOADON WHERE MAHD = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, maHD);
@@ -128,6 +130,7 @@ public class HoaDonDAO extends BaseDAO {
         if (rs.getTimestamp("NGAYXUATHD") != null)
             hd.setNgayXuatHd(rs.getTimestamp("NGAYXUATHD").toLocalDateTime());
         hd.setThueVAT(rs.getDouble("THUEVAT"));
+        hd.setTienHangGoc(rs.getBigDecimal("TIENHANGGOC"));
         hd.setTongTienThanhToan(rs.getBigDecimal("TONGTIENTHANHTOAN"));
         hd.setMaPTTT(rs.getInt("MAPTTT"));
         hd.setLoaiHD(rs.getString("LOAIHD"));
@@ -151,16 +154,17 @@ public class HoaDonDAO extends BaseDAO {
     }
 
     public boolean capNhatHoaDon(HoaDonDTO hd) throws Exception {
-        String sql = "UPDATE HOADON SET MADON = ?, MACA = ?, THUEVAT = ?, TONGTIENTHANHTOAN = ?, MAPTTT = ?, LOAIHD = ? WHERE MAHD = ?";
+        String sql = "UPDATE HOADON SET MADON = ?, MACA = ?, THUEVAT = ?, TIENHANGGOC = ?, TONGTIENTHANHTOAN = ?, MAPTTT = ?, LOAIHD = ? WHERE MAHD = ?";
         try (Connection conn = moKetNoi();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             if (hd.getMaDon() != null) pstmt.setInt(1, hd.getMaDon()); else pstmt.setNull(1, Types.NUMERIC);
             pstmt.setInt(2, hd.getMaCa());
-            pstmt.setDouble(3, hd.getThueVAT());
-            pstmt.setBigDecimal(4, hd.getTongTienThanhToan());
-            pstmt.setInt(5, hd.getMaPTTT());
-            pstmt.setString(6, hd.getLoaiHD());
-            pstmt.setInt(7, hd.getMaHD());
+            pstmt.setDouble(3, hd.getThueVAT() != null ? hd.getThueVAT() : 0);
+            pstmt.setBigDecimal(4, hd.getTienHangGoc() != null ? hd.getTienHangGoc() : java.math.BigDecimal.ZERO);
+            pstmt.setBigDecimal(5, hd.getTongTienThanhToan());
+            pstmt.setInt(6, hd.getMaPTTT());
+            pstmt.setString(7, hd.getLoaiHD());
+            pstmt.setInt(8, hd.getMaHD());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             handleException("capNhatHoaDon", e);

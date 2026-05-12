@@ -110,22 +110,22 @@ public class ThuNganViewFXMLController {
 
     @FXML
     private void handleNavPOS() {
-        moScene(btnMenuPOS, "/fxml/DonHangView.fxml", "H3K Bakery - Ban hang POS", 1280, 720);
+        moScene(btnMenuPOS, "/fxml/banhang/DonHangView.fxml", "H3K Bakery - Ban hang POS", 1280, 720);
     }
 
     @FXML
     private void handleNavCustomOrders() {
-        moScene(btnMenuCustomOrders, "/fxml/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
+        moScene(btnMenuCustomOrders, "/fxml/banhang/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
     }
 
     @FXML
     private void handleNavCustomers() {
-        moScene(btnMenuCustomers, "/fxml/KhachHangView.fxml", "H3K Bakery - Khach hang", 1280, 720);
+        moScene(btnMenuCustomers, "/fxml/khachhang/KhachHangView.fxml", "H3K Bakery - Khach hang", 1280, 720);
     }
 
     @FXML
     private void handleNavHistory() {
-        moScene(btnMenuHistory, "/fxml/BaoCaoView.fxml", "H3K Bakery - Bao cao giao dich", 1280, 720);
+        moScene(btnMenuHistory, "/fxml/baocao/BaoCaoView.fxml", "H3K Bakery - Bao cao giao dich", 1280, 720);
     }
 
     private void navigateToModule(Button activeBtn, String title, String placeholderMsg) {

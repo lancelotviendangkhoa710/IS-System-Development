@@ -31,23 +31,23 @@ public class ThuKhoDashboardViewFXMLController extends BaseController {
 
     @FXML
     private void onMoKho() {
-        transitionTo(lblTenThuKho, "/fxml/KhoView.fxml", "H3K Bakery - Kho tong", 1280, 720);
+        transitionTo(lblTenThuKho, "/fxml/kho/KhoView.fxml", "H3K Bakery - Kho tong", 1280, 720);
     }
 
     @FXML
     private void onMoNguyenLieu() {
-        transitionTo(lblTenThuKho, "/fxml/NguyenLieuView.fxml", "H3K Bakery - Nguyen lieu", 1280, 720);
+        transitionTo(lblTenThuKho, "/fxml/kho/NguyenLieuView.fxml", "H3K Bakery - Nguyen lieu", 1280, 720);
     }
 
     @FXML
     private void onMoNhaCungCap() {
-        transitionTo(lblTenThuKho, "/fxml/QuanLyNhaCungCapView.fxml", "H3K Bakery - Nha cung cap", 1280, 720);
+        transitionTo(lblTenThuKho, "/fxml/kho/QuanLyNhaCungCapView.fxml", "H3K Bakery - Nha cung cap", 1280, 720);
     }
 
     @FXML
     private void onDangXuat() {
         xacThucService.dangXuat();
         UserSession.clear();
-        transitionTo(lblTenThuKho, "/fxml/DangNhapView.fxml", "H3K Bakery - Dang nhap", 1280, 720);
+        transitionTo(lblTenThuKho, "/fxml/hethong/DangNhapView.fxml", "H3K Bakery - Dang nhap", 1280, 720);
     }
 }

@@ -1,7 +1,9 @@
 package com.bakery.views.controllers.kho;
 
+import com.bakery.model.dao.kho.NguyenLieuDAO;
 import com.bakery.model.dao.kho.PhieuXuatKhoDAO;
 import com.bakery.model.dao.kho.SanPhamDAO;
+import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.PhieuXuatKhoDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.utils.SessionContext;
@@ -11,16 +13,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
  * Controller Quản lý Xuất Kho.
- * Hiển thị lịch sử phiếu xuất và dialog xuất hủy thành phẩm.
- * Gọi PROC_XUATHUYBANH qua PhieuXuatKhoDAO.
+ * Hỗ trợ 3 lý do xuất: Làm bánh / Nguyên liệu hỏng / Sản phẩm hỏng.
+ * Mỗi lý do gọi đúng Procedure DB tương ứng, LYDOXUAT khớp constraint CK_PX_LYDO.
  */
 public class XuatKhoViewFXMLController extends BaseController {
 
@@ -33,8 +37,15 @@ public class XuatKhoViewFXMLController extends BaseController {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final PhieuXuatKhoDAO xuatKhoDAO = new PhieuXuatKhoDAO();
-    private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
+    // Hằng số lý do xuất — khớp chính xác constraint CK_PX_LYDO
+    private static final String LYDO_LAM_BANH = "Lam banh";
+    private static final String LYDO_NL_HONG  = "Nguyen lieu hong";
+    private static final String LYDO_SP_HONG  = "San pham hong";
+
+    private final PhieuXuatKhoDAO xuatKhoDAO    = new PhieuXuatKhoDAO();
+    private final SanPhamDAO      sanPhamDAO     = new SanPhamDAO();
+    private final NguyenLieuDAO   nguyenLieuDAO  = new NguyenLieuDAO();
+
     private final ObservableList<PhieuXuatKhoDTO> danhSach = FXCollections.observableArrayList();
 
     @FXML
@@ -46,7 +57,8 @@ public class XuatKhoViewFXMLController extends BaseController {
 
     private void setupTable() {
         colDate.setCellValueFactory(c -> {
-            String text = c.getValue().getNgayXuat() != null ? c.getValue().getNgayXuat().format(FMT) : "—";
+            String text = c.getValue().getNgayXuat() != null
+                    ? c.getValue().getNgayXuat().format(FMT) : "—";
             return new SimpleStringProperty(text);
         });
         colUser.setCellValueFactory(c ->
@@ -75,7 +87,7 @@ public class XuatKhoViewFXMLController extends BaseController {
 
     @FXML
     private void onAction() {
-        moDialogXuatHuy();
+        moDialogChonLyDo();
     }
 
     @FXML
@@ -83,94 +95,229 @@ public class XuatKhoViewFXMLController extends BaseController {
         quayLaiMenuChinh(lblTitle);
     }
 
-    // ── Dialog xuất hủy thành phẩm ────────────────────────────────────
+    // ── Bước 1: Dialog chọn lý do xuất ────────────────────────────────
 
-    private void moDialogXuatHuy() {
-        List<SanPhamDTO> dsSP;
-        try {
-            dsSP = sanPhamDAO.layTatCaSanPhamQuanLy();
-        } catch (Exception e) {
-            hienThiLoiLabel("Không thể tải danh sách sản phẩm: " + e.getMessage());
-            return;
-        }
-        if (dsSP.isEmpty()) {
-            hienThiLoiLabel("Chưa có sản phẩm nào trong hệ thống.");
-            return;
-        }
+    private void moDialogChonLyDo() {
+        ButtonType btnTiepTuc = new ButtonType("Tiếp tục →", ButtonBar.ButtonData.OK_DONE);
 
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Xuất Hủy Thành Phẩm");
-        dialog.setHeaderText("Chọn sản phẩm cần hủy và nhập số lượng");
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.setTitle("Tạo Phiếu Xuất Kho");
+        dialog.setHeaderText("Chọn lý do xuất kho");
+        dialog.getDialogPane().getButtonTypes().addAll(btnTiepTuc, ButtonType.CANCEL);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(12); grid.setVgap(10);
-        grid.setPadding(new Insets(20));
+        RadioButton rdoLamBanh = new RadioButton("Xuất để làm bánh");
+        RadioButton rdoNLHong  = new RadioButton("Xuất vì nguyên liệu hỏng");
+        RadioButton rdoSPHong  = new RadioButton("Xuất vì bánh bảo quản hỏng");
 
-        // Combo sản phẩm
-        ComboBox<SanPhamDTO> cbSP = new ComboBox<>(FXCollections.observableArrayList(dsSP));
-        cbSP.setCellFactory(lv -> new ListCell<>() {
-            @Override protected void updateItem(SanPhamDTO item, boolean empty) {
+        ToggleGroup group = new ToggleGroup();
+        rdoLamBanh.setToggleGroup(group);
+        rdoNLHong.setToggleGroup(group);
+        rdoSPHong.setToggleGroup(group);
+        rdoLamBanh.setSelected(true);
+
+        VBox box = new VBox(14, rdoLamBanh, rdoNLHong, rdoSPHong);
+        box.setPadding(new Insets(20));
+        dialog.getDialogPane().setContent(box);
+        dialog.getDialogPane().setPrefWidth(380);
+
+        dialog.showAndWait().ifPresent(result -> {
+            if (!result.getButtonData().isDefaultButton()) return;
+            if (rdoLamBanh.isSelected())    moDialogLamBanh();
+            else if (rdoNLHong.isSelected()) moDialogNguyenLieuHong();
+            else if (rdoSPHong.isSelected()) moDialogSanPhamHong();
+        });
+    }
+
+    // ── Lý do 1: Xuất để làm bánh → PROC_XUATKHOSANXUAT ──────────────
+
+    private void moDialogLamBanh() {
+        List<SanPhamDTO> dsSP = loadSanPham();
+        if (dsSP == null) return;
+
+        Dialog<ButtonType> dialog = buildDialog(
+                "Xuất Kho — Làm Bánh",
+                "Xuất nguyên liệu theo công thức để sản xuất bánh\n(Lý do: " + LYDO_LAM_BANH + ")");
+
+        ComboBox<SanPhamDTO> cbSP = buildCbSanPham(dsSP);
+        TextField txtSL = new TextField("1");
+        dialog.getDialogPane().setContent(buildGrid("Sản phẩm:", cbSP, "Số lượng cần làm:", txtSL));
+
+        dialog.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK) return;
+            SanPhamDTO sp = cbSP.getValue();
+            if (sp == null) { hienThiLoiLabel("Vui lòng chọn sản phẩm."); return; }
+            double sl = parsePositive(txtSL.getText());
+            if (sl < 0) return;
+            int maNV = SessionContext.getInstance().getMaNV();
+            runAsync(() -> xuatKhoDAO.xuatKhoSanXuat(sp.getMaSP(), sl, maNV),
+                    "Đã xuất nguyên liệu làm " + (int) sl + " " + sp.getTenSP() + ".",
+                    "Lỗi xuất làm bánh", "xuat-lam-banh");
+        });
+    }
+
+    // ── Lý do 2: Xuất nguyên liệu hỏng → PROC_XUATNGUYENLIEUHO NG ────
+
+    private void moDialogNguyenLieuHong() {
+        List<NguyenLieuDTO> dsNL;
+        try {
+            dsNL = nguyenLieuDAO.layTatCaNguyenLieu();
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể tải danh sách nguyên liệu: " + e.getMessage());
+            return;
+        }
+        if (dsNL.isEmpty()) { hienThiLoiLabel("Chưa có nguyên liệu nào trong kho."); return; }
+
+        Dialog<ButtonType> dialog = buildDialog(
+                "Xuất Kho — Nguyên Liệu Hỏng",
+                "Xác nhận xuất hủy nguyên liệu không đạt chất lượng\n(Lý do: " + LYDO_NL_HONG + ")");
+
+        ComboBox<NguyenLieuDTO> cbNL = new ComboBox<>(FXCollections.observableArrayList(dsNL));
+        cbNL.setCellFactory(lv -> new ListCell<>() {
+            @Override protected void updateItem(NguyenLieuDTO item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getTenSP() + " (Tồn: " + (int)item.getSoLuongTon() + ")");
+                setText(empty || item == null ? null
+                        : item.getTenNL() + " (Tồn: " + String.format("%.2f", item.getSoLuongTonTong()) + ")");
             }
         });
-        cbSP.setButtonCell(new ListCell<>() {
+        cbNL.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(NguyenLieuDTO item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "— Chọn nguyên liệu —" : item.getTenNL());
+            }
+        });
+        cbNL.getSelectionModel().selectFirst();
+        cbNL.setMaxWidth(Double.MAX_VALUE);
+
+        TextField txtSL = new TextField("1");
+        dialog.getDialogPane().setContent(buildGrid("Nguyên liệu:", cbNL, "Số lượng hủy:", txtSL));
+
+        dialog.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK) return;
+            NguyenLieuDTO nl = cbNL.getValue();
+            if (nl == null) { hienThiLoiLabel("Vui lòng chọn nguyên liệu."); return; }
+            double sl = parsePositive(txtSL.getText());
+            if (sl < 0) return;
+            int maNV = SessionContext.getInstance().getMaNV();
+            runAsync(() -> xuatKhoDAO.xuatHuyNguyenLieu(nl.getMaNL(), sl, maNV),
+                    "Đã xuất hủy " + String.format("%.2f", sl) + " " + nl.getTenNL() + " (hỏng).",
+                    "Lỗi xuất hủy nguyên liệu", "xuat-huy-nguyen-lieu");
+        });
+    }
+
+    // ── Lý do 3: Xuất bánh bảo quản hỏng → PROC_XUATHUYBANH ──────────
+
+    private void moDialogSanPhamHong() {
+        List<SanPhamDTO> dsSP = loadSanPham();
+        if (dsSP == null) return;
+
+        Dialog<ButtonType> dialog = buildDialog(
+                "Xuất Kho — Bánh Bảo Quản Hỏng",
+                "Xác nhận xuất hủy bánh không đạt tiêu chuẩn bảo quản\n(Lý do: " + LYDO_SP_HONG + ")");
+
+        ComboBox<SanPhamDTO> cbSP = buildCbSanPham(dsSP);
+        TextField txtSL = new TextField("1");
+        dialog.getDialogPane().setContent(buildGrid("Sản phẩm:", cbSP, "Số lượng hủy:", txtSL));
+
+        dialog.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK) return;
+            SanPhamDTO sp = cbSP.getValue();
+            if (sp == null) { hienThiLoiLabel("Vui lòng chọn sản phẩm."); return; }
+            double sl = parsePositive(txtSL.getText());
+            if (sl < 0) return;
+            int maNV = SessionContext.getInstance().getMaNV();
+            runAsync(() -> xuatKhoDAO.xuatHuyBanh(sp.getMaSP(), sl, LYDO_SP_HONG, maNV),
+                    "Đã xuất hủy " + (int) sl + " " + sp.getTenSP() + " (hỏng bảo quản).",
+                    "Lỗi xuất hủy bánh", "xuat-huy-banh");
+        });
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────
+
+    private List<SanPhamDTO> loadSanPham() {
+        try {
+            List<SanPhamDTO> ds = sanPhamDAO.layTatCaSanPhamQuanLy();
+            if (ds.isEmpty()) { hienThiLoiLabel("Chưa có sản phẩm nào trong hệ thống."); return null; }
+            return ds;
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể tải danh sách sản phẩm: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Dialog<ButtonType> buildDialog(String title, String header) {
+        Dialog<ButtonType> d = new Dialog<>();
+        d.setTitle(title);
+        d.setHeaderText(header);
+        d.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        d.getDialogPane().setPrefWidth(480);
+        return d;
+    }
+
+    private ComboBox<SanPhamDTO> buildCbSanPham(List<SanPhamDTO> list) {
+        ComboBox<SanPhamDTO> cb = new ComboBox<>(FXCollections.observableArrayList(list));
+        cb.setCellFactory(lv -> new ListCell<>() {
+            @Override protected void updateItem(SanPhamDTO item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null
+                        : item.getTenSP() + " (Tồn: " + (int) item.getSoLuongTon() + ")");
+            }
+        });
+        cb.setButtonCell(new ListCell<>() {
             @Override protected void updateItem(SanPhamDTO item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? "— Chọn sản phẩm —" : item.getTenSP());
             }
         });
-        cbSP.getSelectionModel().selectFirst();
-        cbSP.setMaxWidth(Double.MAX_VALUE);
+        cb.getSelectionModel().selectFirst();
+        cb.setMaxWidth(Double.MAX_VALUE);
+        return cb;
+    }
 
-        TextField txtSoLuong = new TextField("1");
-        TextField txtLyDo = new TextField("Hủy hàng hỏng");
-        txtLyDo.setMaxWidth(Double.MAX_VALUE);
+    /** Tạo GridPane 2-cột từ cặp (label, control) xen kẽ. */
+    private GridPane buildGrid(Object... pairs) {
+        GridPane g = new GridPane();
+        g.setHgap(12); g.setVgap(10);
+        g.setPadding(new Insets(20));
+        for (int i = 0; i < pairs.length; i += 2) {
+            g.add(new Label((String) pairs[i]), 0, i / 2);
+            g.add((Node) pairs[i + 1], 1, i / 2);
+        }
+        return g;
+    }
 
-        grid.add(new Label("Sản phẩm:"), 0, 0);
-        grid.add(cbSP, 1, 0);
-        grid.add(new Label("Số lượng hủy:"), 0, 1);
-        grid.add(txtSoLuong, 1, 1);
-        grid.add(new Label("Lý do:"), 0, 2);
-        grid.add(txtLyDo, 1, 2);
+    /** Parse số dương; trả -1 và hiện lỗi nếu không hợp lệ. */
+    private double parsePositive(String text) {
+        try {
+            double v = Double.parseDouble(text.trim());
+            if (v <= 0) throw new NumberFormatException();
+            return v;
+        } catch (NumberFormatException e) {
+            hienThiLoiLabel("Số lượng không hợp lệ (phải là số > 0).");
+            return -1;
+        }
+    }
 
-        dialog.getDialogPane().setContent(grid);
-        dialog.getDialogPane().setPrefWidth(480);
-
-        dialog.showAndWait().ifPresent(result -> {
-            if (result == ButtonType.OK) {
-                SanPhamDTO sp = cbSP.getValue();
-                if (sp == null) { hienThiLoiLabel("Vui lòng chọn sản phẩm."); return; }
-                double soLuong;
-                try {
-                    soLuong = Double.parseDouble(txtSoLuong.getText().trim());
-                    if (soLuong <= 0) throw new NumberFormatException();
-                } catch (NumberFormatException e) {
-                    hienThiLoiLabel("Số lượng không hợp lệ."); return;
-                }
-                String lyDo = txtLyDo.getText().trim();
-                if (lyDo.isEmpty()) lyDo = "Xuất hủy";
-                int maNV = SessionContext.getInstance().getMaNV();
-                final String lyDoFinal = lyDo;
-                final double slFinal = soLuong;
-
-                Thread t = new Thread(() -> {
-                    try {
-                        xuatKhoDAO.xuatHuyBanh(sp.getMaSP(), slFinal, lyDoFinal, maNV);
-                        javafx.application.Platform.runLater(() -> {
-                            hienThiThanhCongLabel("Đã xuất hủy " + (int)slFinal + " " + sp.getTenSP() + ".");
-                            taiDuLieu();
-                        });
-                    } catch (Exception e) {
-                        javafx.application.Platform.runLater(() ->
-                                hienThiLoiLabel("Lỗi xuất hủy: " + e.getMessage()));
-                    }
-                }, "xuat-huy-banh");
-                t.setDaemon(true);
-                t.start();
+    /** Chạy tác vụ nặng trên thread phụ, update UI trên Platform thread. */
+    private void runAsync(ThrowingRunnable task, String successMsg, String errPrefix, String threadName) {
+        Thread t = new Thread(() -> {
+            try {
+                task.run();
+                javafx.application.Platform.runLater(() -> {
+                    hienThiThanhCongLabel(successMsg);
+                    taiDuLieu();
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        hienThiLoiLabel(errPrefix + ": " + e.getMessage()));
             }
-        });
+        }, threadName);
+        t.setDaemon(true);
+        t.start();
+    }
+
+    @FunctionalInterface
+    private interface ThrowingRunnable {
+        void run() throws Exception;
     }
 
     private static String nvl(String s) { return s != null ? s : "—"; }

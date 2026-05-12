@@ -144,7 +144,7 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         if (presenter == null) return;
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/fxml/ThemNguyenLieuDialog.fxml"));
+                    getClass().getResource("/fxml/kho/ThemNguyenLieuDialog.fxml"));
             Parent root = loader.load();
 
             ThemNguyenLieuDialogController dialogCtrl = loader.getController();

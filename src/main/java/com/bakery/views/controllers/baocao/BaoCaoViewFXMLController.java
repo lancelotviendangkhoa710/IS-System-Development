@@ -234,12 +234,12 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     @FXML
     private void onMoPOS() {
-        transitionTo(lblAdminName, "/fxml/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
+        transitionTo(lblAdminName, "/fxml/banhang/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
     }
 
     @FXML
     private void onMoInventory() {
-        transitionTo(lblAdminName, "/fxml/KhoView.fxml", "H3K Bakery - Inventory", 1366, 768);
+        transitionTo(lblAdminName, "/fxml/kho/KhoView.fxml", "H3K Bakery - Inventory", 1366, 768);
     }
 
     /**

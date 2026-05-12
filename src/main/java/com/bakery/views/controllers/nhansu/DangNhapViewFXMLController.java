@@ -140,7 +140,7 @@ public class DangNhapViewFXMLController extends BaseController {
                         return;
                     }
 
-                    transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                    transitionTo(txtTenDangNhap, "/fxml/hethong/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
                     return;
                 }
 
@@ -346,7 +346,7 @@ public class DangNhapViewFXMLController extends BaseController {
                             quayLaiMenuChinh(txtTenDangNhap);
                             return;
                         }
-                        transitionTo(txtTenDangNhap, "/fxml/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                        transitionTo(txtTenDangNhap, "/fxml/hethong/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
                         return;
                     }
                     quayLaiMenuChinh(txtTenDangNhap);

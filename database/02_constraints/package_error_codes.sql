@@ -172,6 +172,9 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     ERR_NL_KHONG_TON_TAI_XOA        CONSTANT NUMBER := -20313;
     ERR_NL_XOA_HE_THONG             CONSTANT NUMBER := -20314;
 
+    -- Xuat huy nguyen lieu hong (dung trong PROC_XUATNGUYENLIEUHO NG)
+    ERR_XUAT_HUY_NL                 CONSTANT NUMBER := -20321;
+
     -- Nha cung cap
     ERR_NCC_THEM_HE_THONG           CONSTANT NUMBER := -20315;
     ERR_NCC_KHONG_TON_TAI_CN        CONSTANT NUMBER := -20316;
@@ -184,10 +187,10 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- NHOM 04: DON HANG
     -- ========================
 
-    -- Vuot cong suat san xuat trong ngay (dung trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
+    -- Vuot cong suat san xuat trong ngay (dung trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH)
     ERR_DON_VUOT_CONG_SUAT          CONSTANT NUMBER := -20401;
 
-    -- Khong tim thay gioi han san xuat trong ngay (dung trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH, TRG_KIEMSOAT_CONGSUAT_DONHANG)
+    -- Khong tim thay gioi han san xuat trong ngay (dung trong TRG_KIEMSOAT_CONGSUAT_TUYCHINH)
     ERR_KHONG_GIOI_HAN_SX           CONSTANT NUMBER := -20402;
 
     -- Loi khi chuyen trang thai don hang (dung trong PROC_CHUYENTRANGTHAIDON)

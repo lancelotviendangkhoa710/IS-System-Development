@@ -11,6 +11,40 @@ import java.util.List;
 public class CongThucDAO extends BaseDAO {
 
     /**
+     * Lấy công thức sản phẩm kèm tồn kho và đơn vị tính — dùng cho kế hoạch sản xuất.
+     * JOIN NGUYENLIEU + DONVITINH để có đủ dữ liệu hiển thị và tính trạng thái thiếu kho.
+     */
+    public List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> layCongThucVaTonKho(int maSP) throws Exception {
+        List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> list = new ArrayList<>();
+        String sql = "SELECT CT.MANL, NL.TENNL, NVL(DVT.TENKYVIET, DVT.TENDONVI) AS DONVITINH, " +
+                     "NVL(NL.SOLUONGTONTON, 0) AS TONKHO, CT.SOLUONGTIEUHAO " +
+                     "FROM CONGTHUC CT " +
+                     "JOIN NGUYENLIEU NL ON CT.MANL = NL.MANL " +
+                     "LEFT JOIN DONVITINH DVT ON NL.MADONVITINH = DVT.MADONVITINH " +
+                     "WHERE CT.MASP = ? " +
+                     "ORDER BY NL.TENNL";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maSP);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    com.bakery.model.dto.kho.KeHoachXuatKhoDTO dto =
+                            new com.bakery.model.dto.kho.KeHoachXuatKhoDTO();
+                    dto.setMaNL(rs.getInt("MANL"));
+                    dto.setTenNguyenLieu(rs.getString("TENNL"));
+                    dto.setDonViTinh(rs.getString("DONVITINH"));
+                    dto.setSoLuongTonKho(rs.getDouble("TONKHO"));
+                    dto.setSoLuongTieuHao(rs.getDouble("SOLUONGTIEUHAO"));
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layCongThucVaTonKho", e);
+        }
+        return list;
+    }
+
+    /**
      * Lấy danh sách công thức của một sản phẩm, JOIN với NGUYENLIEU để lấy tên và giá.
      */
     public List<CongThucDTO> layCongThucTheoSP(int maSP) throws Exception {
@@ -81,7 +115,7 @@ public class CongThucDAO extends BaseDAO {
      * @return tổng giá vốn (VND), hoặc 0 nếu chưa có công thức / lỗi
      */
     public double tinhTongGiaVon(int maSP) throws Exception {
-        String sql = "{ ? = CALL FUNC_TONGGIAVON(?) }";
+        String sql = "{ ? = call FUNC_TONGGIAVON(?) }";
         try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.registerOutParameter(1, Types.NUMERIC);
@@ -117,7 +151,7 @@ public class CongThucDAO extends BaseDAO {
      * Gọi FUNC_SOLUONGKHADUNG — DB tìm nguyên liệu thắt cổ chai (MIN logic).
      */
     public double tinhSoLuongKhaDung(int maSP) throws Exception {
-        String sql = "{ ? = CALL FUNC_SOLUONGKHADUNG(?) }";
+        String sql = "{ ? = call FUNC_SOLUONGKHADUNG(?) }";
         try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.registerOutParameter(1, Types.NUMERIC);

@@ -9,19 +9,23 @@ public class HoaDonDTO {
     private int maCa;
     private LocalDateTime ngayXuatHd;
     private Double thueVAT;
-    private BigDecimal tongTienThanhToan;
+    private BigDecimal tienHangGoc;      // Tiền hàng trước thuế (dùng tính doanh thu & lợi nhuận)
+    private BigDecimal tongTienThanhToan; // Tổng tiền đã gồm thuế
     private int maPTTT;
     private String loaiHD;
     private String trangThai;
 
     public HoaDonDTO() {}
 
-    public HoaDonDTO(int maHD, Integer maDon, int maCa, LocalDateTime ngayXuatHd, Double thueVAT, BigDecimal tongTienThanhToan, int maPTTT, String loaiHD) {
+    public HoaDonDTO(int maHD, Integer maDon, int maCa, LocalDateTime ngayXuatHd,
+                     Double thueVAT, BigDecimal tienHangGoc, BigDecimal tongTienThanhToan,
+                     int maPTTT, String loaiHD) {
         this.maHD = maHD;
         this.maDon = maDon;
         this.maCa = maCa;
         this.ngayXuatHd = ngayXuatHd;
         this.thueVAT = thueVAT;
+        this.tienHangGoc = tienHangGoc;
         this.tongTienThanhToan = tongTienThanhToan;
         this.maPTTT = maPTTT;
         this.loaiHD = loaiHD;
@@ -43,6 +47,9 @@ public class HoaDonDTO {
     public Double getThueVAT() { return thueVAT; }
     public void setThueVAT(Double thueVAT) { this.thueVAT = thueVAT; }
 
+    public BigDecimal getTienHangGoc() { return tienHangGoc; }
+    public void setTienHangGoc(BigDecimal tienHangGoc) { this.tienHangGoc = tienHangGoc; }
+
     public BigDecimal getTongTienThanhToan() { return tongTienThanhToan; }
     public void setTongTienThanhToan(BigDecimal tongTienThanhToan) { this.tongTienThanhToan = tongTienThanhToan; }
 
@@ -56,4 +63,10 @@ public class HoaDonDTO {
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
     public boolean isCancelled() { return "cancelled".equals(trangThai); }
+
+    /** Tiền thuế thực thu = tongTienThanhToan - tienHangGoc */
+    public BigDecimal getTienThueThucThu() {
+        if (tongTienThanhToan == null || tienHangGoc == null) return BigDecimal.ZERO;
+        return tongTienThanhToan.subtract(tienHangGoc);
+    }
 }

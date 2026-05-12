@@ -11,9 +11,10 @@
 
     <!-- HEADER INFO + CHỌN SẢN PHẨM -->
     <HBox alignment="CENTER_LEFT" spacing="12">
-        <Label text="Sản phẩm đang xem:" styleClass="lbl-body-bold"/>
-        <Label fx:id="lblTenSPDangChon" text="(Chưa chọn — hãy chọn sản phẩm ở Tab Sản phẩm)"
-               styleClass="lbl-body"/>
+        <Label text="Xem công thức:" styleClass="lbl-body-bold"/>
+        <ComboBox fx:id="cmbChonSanPham" promptText="🔍 Tìm hoặc chọn sản phẩm..."
+                  editable="true" prefWidth="320" styleClass="combo-box"/>
+        <Label fx:id="lblSanPhamDangCauHinh" text="" styleClass="lbl-body" wrapText="false"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="↺ Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
         <Button text="➕ Thêm nguyên liệu" styleClass="btn-primary" onAction="#onThemCongThuc"/>

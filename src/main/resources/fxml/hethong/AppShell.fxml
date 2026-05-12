@@ -5,8 +5,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" 
             xmlns:fx="http://javafx.com/fxml/1" 
             fx:controller="com.bakery.views.controllers.hethong.AppShellController"
-            styleClass="app-shell-root"
-            stylesheets="@../css/bakery.css">
+            styleClass="app-shell-root">
     
     <center>
         <fx:include fx:id="mainMenu" source="MainMenuView.fxml" />

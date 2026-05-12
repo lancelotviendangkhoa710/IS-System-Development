@@ -83,4 +83,27 @@ public class PhieuXuatKhoDAO extends BaseDAO {
             throw e;
         }
     }
+
+    /**
+     * Xuất hủy nguyên liệu hỏng qua PROC_XUATNGUYENLIEUHO NG.
+     * Procedure tự: kiểm tra tồn kho (Pessimistic Lock) → tạo phiếu xuất
+     * → rút lô FIFO → trigger TRG_XUATSLNGUYENLIEU trừ tồn tự động.
+     *
+     * @param maNL       mã nguyên liệu cần hủy
+     * @param soLuongHuy số lượng hủy
+     * @param maNV       mã nhân viên thực hiện
+     */
+    public void xuatHuyNguyenLieu(int maNL, double soLuongHuy, int maNV) throws Exception {
+        String sql = "{CALL PROC_XUATNGUYENLIEUHO NG(?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, maNL);
+            cs.setDouble(2, soLuongHuy);
+            cs.setInt(3, maNV);
+            cs.execute();
+        } catch (SQLException e) {
+            handleException("xuatHuyNguyenLieu", e);
+            throw e;
+        }
+    }
 }

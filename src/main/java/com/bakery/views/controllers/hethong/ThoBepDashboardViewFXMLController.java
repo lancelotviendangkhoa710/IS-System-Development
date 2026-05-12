@@ -99,28 +99,33 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
 
     @FXML
     private void onMoXuatKho() {
-        transitionTo(lblTenThoBep, "/fxml/XuatKhoView.fxml", "H3K Bakery - Lap phieu xuat kho", 1280, 720);
+        transitionTo(lblTenThoBep, "/fxml/kho/XuatKhoView.fxml", "H3K Bakery - Lap phieu xuat kho", 1280, 720);
+    }
+
+    @FXML
+    private void onMoSanXuat() {
+        transitionTo(lblTenThoBep, "/fxml/kho/SanXuatView.fxml", "H3K Bakery - Ke hoach san xuat", 1280, 720);
     }
 
     @FXML
     private void onMoTheoDoiDon() {
-        transitionTo(lblTenThoBep, "/fxml/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
+        transitionTo(lblTenThoBep, "/fxml/banhang/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
     }
 
     @FXML
     private void onMoThanhPhanBanh() {
-        transitionTo(lblTenThoBep, "/fxml/ThanhPhanBanhView.fxml", "H3K Bakery - Cong thuc va thanh phan", 1366, 768);
+        transitionTo(lblTenThoBep, "/fxml/kho/ThanhPhanBanhView.fxml", "H3K Bakery - Cong thuc va thanh phan", 1366, 768);
     }
 
     @FXML
     private void onMoKho() {
-        transitionTo(lblTenThoBep, "/fxml/KhoView.fxml", "H3K Bakery - Kho va nguyen lieu", 1280, 720);
+        transitionTo(lblTenThoBep, "/fxml/kho/KhoView.fxml", "H3K Bakery - Kho va nguyen lieu", 1280, 720);
     }
 
     @FXML
     private void onDangXuat() {
         xacThucService.dangXuat();
         UserSession.clear();
-        transitionTo(lblTenThoBep, "/fxml/DangNhapView.fxml", "H3K Bakery - Dang nhap", 1280, 720);
+        transitionTo(lblTenThoBep, "/fxml/hethong/DangNhapView.fxml", "H3K Bakery - Dang nhap", 1280, 720);
     }
 }

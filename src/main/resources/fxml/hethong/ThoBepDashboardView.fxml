@@ -14,9 +14,8 @@
             styleClass="bg-app">
     <top>
         <HBox styleClass="app-header" alignment="CENTER_LEFT">
-            <Label text="Bang dieu phoi bep" styleClass="header-title"/>
+            <Label text="Bảng điều phối bếp" styleClass="header-title"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Dang xuat" styleClass="btn-danger" onAction="#onDangXuat"/>
         </HBox>
     </top>
     <center>
@@ -30,9 +29,14 @@
             <HBox spacing="24.0">
                 <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
                     <Label text="Theo doi don san xuat" styleClass="dash-card-title"/>
-                    <Label text="Uu tien don moi nhan, don dang lam va don cho giao theo UC14, UC15." styleClass="dash-card-desc" wrapText="true"/>
                     <Region VBox.vgrow="ALWAYS"/>
                     <Button text="Mo danh sach don" styleClass="btn-primary" onAction="#onMoTheoDoiDon"/>
+                </VBox>
+                <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <Label text="Ke hoach san xuat" styleClass="dash-card-title"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Lap ke hoach" styleClass="btn-primary" onAction="#onMoSanXuat"/>
                 </VBox>
                 <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
                     <Label text="Lap phieu xuat kho" styleClass="dash-card-title"/>
@@ -53,6 +57,7 @@
                     <Button text="Mo kho nguyen lieu" styleClass="btn-primary" onAction="#onMoKho"/>
                 </VBox>
             </HBox>
+
 
             <VBox styleClass="card" spacing="12.0" VBox.vgrow="ALWAYS">
                 <Label text="Danh sách đơn cần sản xuất (Chế độ Demo)" styleClass="lbl-title-card"/>

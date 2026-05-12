@@ -33,12 +33,12 @@
             
             <VBox spacing="8">
                 <Label text="Mã đơn:" styleClass="lbl-body-bold"/>
-                <TextField fx:id="txtTimMaDon" promptText="VD: 1001" prefWidth="80" styleClass="text-field"/>
+                <TextField fx:id="txtTimMaDon" prefWidth="80" styleClass="text-field"/>
             </VBox>
 
             <VBox spacing="8">
                 <Label text="Tên khách:" styleClass="lbl-body-bold"/>
-                <TextField fx:id="txtTimKhachHang" promptText="Tìm theo tên..." prefWidth="150" styleClass="text-field"/>
+                <TextField fx:id="txtTimKhachHang" prefWidth="150" styleClass="text-field"/>
             </VBox>
             
             <VBox spacing="8">

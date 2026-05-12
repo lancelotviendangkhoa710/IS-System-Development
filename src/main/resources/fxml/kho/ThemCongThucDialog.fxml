@@ -25,7 +25,10 @@
 
         <VBox spacing="6">
             <Label text="Định mức tiêu hao: *" styleClass="lbl-body-bold"/>
-            <TextField fx:id="txtDinhMuc" promptText="VD: 0.25 (kg)" styleClass="text-field"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="txtDinhMuc" promptText="VD: 0.25" styleClass="text-field" HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblDonVi" text="" styleClass="lbl-body-bold" minWidth="40"/>
+            </HBox>
         </VBox>
 
         <Label fx:id="lblLoi" text="" styleClass="lbl-danger" wrapText="true"/>

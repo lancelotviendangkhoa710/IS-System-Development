@@ -17,7 +17,8 @@ public class ThemCongThucDialogController {
 
     @FXML private ComboBox<NguyenLieuDTO> cmbNguyenLieu;
     @FXML private TextField txtDinhMuc;
-    @FXML private Label lblLoi;
+    @FXML private Label     lblDonVi;  // hiện đơn vị tính động khi chọn NL
+    @FXML private Label     lblLoi;
 
     private NguyenLieuDTO nguyenLieuChon;
     private double dinhMuc;
@@ -25,11 +26,24 @@ public class ThemCongThucDialogController {
 
     /** Inject danh sách nguyên liệu từ controller cha trước khi show. */
     public void khoiTaoDanhSachNguyenLieu(List<NguyenLieuDTO> dsNL) {
+        // Converter hiện "Tên NL (DVT)" để user biết đơn vị trước khi nhập
         cmbNguyenLieu.setConverter(new StringConverter<>() {
-            @Override public String toString(NguyenLieuDTO nl) { return nl != null ? nl.getTenNL() : ""; }
+            @Override public String toString(NguyenLieuDTO nl) {
+                if (nl == null) return "";
+                String dvt = nl.getTenDVT();
+                return dvt.isEmpty() ? nl.getTenNL() : nl.getTenNL() + " (" + dvt + ")";
+            }
             @Override public NguyenLieuDTO fromString(String s) { return null; }
         });
+
         if (dsNL != null) cmbNguyenLieu.setItems(FXCollections.observableArrayList(dsNL));
+
+        // Cập nhật label đơn vị ngay khi chọn nguyên liệu
+        cmbNguyenLieu.valueProperty().addListener((obs, old, nl) -> {
+            if (lblDonVi != null) {
+                lblDonVi.setText(nl != null && !nl.getTenDVT().isEmpty() ? nl.getTenDVT() : "");
+            }
+        });
     }
 
     public boolean isConfirmed()           { return confirmed; }

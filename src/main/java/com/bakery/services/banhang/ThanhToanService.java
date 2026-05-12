@@ -45,27 +45,50 @@ public class ThanhToanService {
     }
 
     /**
+     * Tổng tiền gốc không nhân thuế — khớp đúng với TONGTIENHDBAN mà
+     * PROC_TAODONHANG tính từ JSON.
+     */
+    private double tinhTienGoc(YeuCauTaoDonHangDTO request) {
+        if (request == null || request.getItems() == null)
+            return 0.0;
+        return request.getItems().stream()
+                .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
+                .sum();
+    }
+
+    /**
      * Tạo đơn hàng HOÀN_THÀNH và xuất hóa đơn bán lẻ ngay.
      * Dùng cho luồng thanh toán trực tiếp tại quầy.
      */
     public HoaDonDTO thanhToanTrucTiep(YeuCauTaoDonHangDTO request, double soTienKhachDua) throws Exception {
-        // 1. Tính tổng tiền từ giỏ hàng
+        // 1. Kiểm tra ca làm việc — FK_HD_CA yêu cầu MACA phải tồn tại
+        if (!SessionContext.getInstance().isCaoDangMo())
+            throw new IllegalStateException("Chưa mở ca làm việc. Vui lòng mở ca trước khi thực hiện thanh toán.");
+
+        // 2. Tính tổng tiền từ giỏ hàng (có thuế 8.5% — dùng cho hiển thị & validate)
         double tongTien = tinhTienHoaDon(request);
 
-        // 2. Validate số tiền khách đưa
+        // 3. Validate số tiền khách đưa
         if (soTienKhachDua < tongTien)
             throw new IllegalArgumentException("Số tiền khách đưa không đủ để thanh toán.");
 
-        // 3. Đặt trạng thái HOÀN_THÀNH và ghi nhận toàn bộ tiền là đã cọc
+        // 3. Đặt trạng thái HOÀN_THÀNH
         int maTrangThaiHoanThanh = layMaTrangThaiHoanThanh();
         request.setMaTrangThai(maTrangThaiHoanThanh);
-        request.setTienDaCoc(tongTien);
+
+        // Fix CK_DON_THANHTOAN: PROC_TAODONHANG tính TONGTIENHDBAN = SUM(soLuong ×
+        // donGia) từ JSON
+        // — donGia là giá gốc chưa nhân thuế.
+        // TIENDACOC phải <= TONGTIENHDBAN nên phải set bằng tổng tiền gốc (không nhân
+        // 1.085).
+        double tongTienGoc = tinhTienGoc(request);
+        request.setTienDaCoc(tongTienGoc);
 
         // 4. Tạo đơn hàng
         int maDon = quanLyDonHangService.taoDonHang(request);
 
-        // 5. Tạo hóa đơn bán lẻ
-        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTien, "BAN_LE");
+        // 5. Tạo hóa đơn bán lẻ (tienGoc = tongTienGoc trước thuế)
+        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTienGoc, tongTien, "BAN_LE");
 
         int maHD = hoaDonDAO.themHoaDonMoi(hd);
         if (maHD <= 0)
@@ -96,12 +119,16 @@ public class ThanhToanService {
     public HoaDonDTO chotHoaDonDatHang(DonDatHangDTO donHang) throws Exception {
         if (donHang == null)
             throw new IllegalArgumentException("Thông tin đơn hàng bị trống.");
+        // Kiểm tra ca làm việc — FK_HD_CA yêu cầu MACA phải tồn tại
+        if (!SessionContext.getInstance().isCaoDangMo())
+            throw new IllegalStateException("Chưa mở ca làm việc. Vui lòng mở ca trước khi chốt hóa đơn.");
 
         double tongTien = donHang.getTongTienHDBan() != null ? donHang.getTongTienHDBan().doubleValue() : 0.0;
         double tienCoc = donHang.getTienDaCoc() != null ? donHang.getTienDaCoc().doubleValue() : 0.0;
         double tongTienConLai = Math.max(0, tongTien - tienCoc);
 
-        HoaDonDTO hd = taoHoaDonDTO(donHang.getMaDon(), tongTienConLai, "DAT_HANG");
+        // tienGoc = tongTien (đơn đặt hàng không áp thuế thêm tại đây)
+        HoaDonDTO hd = taoHoaDonDTO(donHang.getMaDon(), tongTien, tongTienConLai, "DAT_HANG");
         hd.setMaDon(donHang.getMaDon());
 
         try {
@@ -126,17 +153,27 @@ public class ThanhToanService {
 
     /**
      * Tạo một đối tượng HoaDonDTO cơ bản.
-     * Dùng cho việc chuẩn bị dữ liệu trước khi lưu hoặc hiển thị.
+     * 
+     * @param maDon   Mã đơn hàng liên kết
+     * @param tienGoc Tiền hàng trước thuế (dùng cho báo cáo doanh thu/lợi nhuận)
+     * @param soTien  Tổng tiền thanh toán đã gồm thuế
+     * @param loaiHD  Loại hóa đơn: BAN_LE, DAT_HANG
      */
-    public HoaDonDTO taoHoaDonDTO(int maDon, double soTien, String loaiHD) {
+    public HoaDonDTO taoHoaDonDTO(int maDon, double tienGoc, double soTien, String loaiHD) {
         HoaDonDTO hd = new HoaDonDTO();
         hd.setMaDon(maDon);
         hd.setMaCa(SessionContext.getInstance().getMaCa());
         hd.setThueVAT(8.5); // Mặc định 8.5%
+        hd.setTienHangGoc(java.math.BigDecimal.valueOf(tienGoc));
         hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(soTien));
         hd.setMaPTTT(1); // Mặc định Tiền mặt
         hd.setLoaiHD(loaiHD);
         return hd;
+    }
+
+    /** Overload tương thích ngược: tienGoc = soTien (không tách biệt). */
+    public HoaDonDTO taoHoaDonDTO(int maDon, double soTien, String loaiHD) {
+        return taoHoaDonDTO(maDon, soTien, soTien, loaiHD);
     }
 
     /**

@@ -46,19 +46,19 @@ public class NhanSuViewFXMLController extends BaseController {
 
     /** Load QuanLyNhanVienView vào Tab 1. */
     private void taiTabNhanVien() {
-        Node view = FXMLLoaderUtil.loadFXML("/fxml/QuanLyNhanVienView.fxml");
+        Node view = FXMLLoaderUtil.loadFXML("/fxml/nhansu/QuanLyNhanVienView.fxml");
         if (view != null) stackNhanVien.getChildren().setAll(view);
     }
 
     /** Load MaTranPhanQuyenView vào Tab 2 (lazy). */
     private void taiTabPhanQuyen() {
-        Node view = FXMLLoaderUtil.loadFXML("/fxml/MaTranPhanQuyenView.fxml");
+        Node view = FXMLLoaderUtil.loadFXML("/fxml/hethong/MaTranPhanQuyenView.fxml");
         if (view != null) stackPhanQuyen.getChildren().setAll(view);
     }
 
     /** Load PhanQuyenVaiTroView vào Tab 3 (lazy). */
     private void taiTabVaiTro() {
-        Node view = FXMLLoaderUtil.loadFXML("/fxml/PhanQuyenVaiTroView.fxml");
+        Node view = FXMLLoaderUtil.loadFXML("/fxml/hethong/PhanQuyenVaiTroView.fxml");
         if (view != null) stackVaiTro.getChildren().setAll(view);
     }
 

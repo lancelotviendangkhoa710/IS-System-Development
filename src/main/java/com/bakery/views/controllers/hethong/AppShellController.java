@@ -33,7 +33,7 @@ public class AppShellController {
         if (mainMenuController != null) {
             mainMenuController.setAppShellController(this);
             // Load màn hình mặc định (Dashboard)
-            loadView("/fxml/DashboardView.fxml");
+            loadView("/fxml/hethong/DashboardView.fxml");
         } else {
             LOGGER.severe("mainMenuController is null! Check AppShell.fxml fx:include.");
         }

@@ -5,12 +5,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
 
-<!--
-    CreateOrderDialog.fxml — Wizard 2 bước tạo đơn hàng
-    Bước 1: Xác định khách hàng
-    Bước 2: Chọn loại đơn (Thanh toán ngay / Đặt trước)
-    Controller: com.bakery.views.controllers.CreateOrderController
--->
+
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bakery.views.controllers.banhang.TaoDonHangViewFXMLController"
@@ -107,6 +102,9 @@
                                    styleClass="lbl-small-bold"/>
                             <DatePicker fx:id="dpNgayGiao" styleClass="text-field" prefWidth="180"
                                         GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                            <!-- Biến đếm năng lực sản xuất: X/Y bánh -->
+                            <Label fx:id="lblNangLuc" text="" styleClass="lbl-small"
+                                   GridPane.columnIndex="2" GridPane.rowIndex="0"/>
 
                             <Label text="Giờ nhận:" GridPane.columnIndex="0" GridPane.rowIndex="1"
                                    styleClass="lbl-small-bold"/>

@@ -1,6 +1,6 @@
 package com.bakery.model.dao.kho;
-import com.bakery.model.dao.BaseDAO;
 
+import com.bakery.model.dao.BaseDAO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
 
 import java.sql.CallableStatement;
@@ -14,56 +14,46 @@ import java.util.List;
 
 /**
  * DAO truy xuất bảng NGUYENLIEU.
- * Tương tác với DB qua PreparedStatement (SELECT) và Stored Procedure
- * (CUD).
+ * Tương tác với DB qua PreparedStatement (SELECT) và Stored Procedure (CUD).
  */
 public class NguyenLieuDAO extends BaseDAO {
 
-    /**
-     * Lấy tất cả nguyên liệu còn hoạt động (chưa bị xóa mềm).
-     */
+    /** Lấy tất cả nguyên liệu còn hoạt động, kèm tên đơn vị tính từ DONVITINH. */
     public List<NguyenLieuDTO> layTatCaNguyenLieu() throws Exception {
         List<NguyenLieuDTO> list = new ArrayList<>();
-        String sql = "SELECT MANL, TENNL, XUATXU, MADVT, GIAVONTRUNGBINH, " +
-                "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
-                "THOIDIEMXOA, MANX " +
-                "FROM NGUYENLIEU " +
-                "WHERE THOIDIEMXOA IS NULL " +
-                "ORDER BY MANL";
-
+        String sql = "SELECT NL.MANL, NL.TENNL, NL.XUATXU, NL.MADVT, DVT.TENDVT, " +
+                "NL.GIAVONTRUNGBINH, NL.MUCTONANTOAN, NL.SOLUONGTONTONG, " +
+                "NL.DATCHUANVSATTP, NL.PHIENBAN, NL.THOIDIEMXOA, NL.MANX " +
+                "FROM NGUYENLIEU NL " +
+                "LEFT JOIN DONVITINH DVT ON DVT.MADVT = NL.MADVT " +
+                "WHERE NL.THOIDIEMXOA IS NULL " +
+                "ORDER BY NL.MANL";
         try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
-
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 list.add(mapNguyenLieu(rs));
             }
         } catch (SQLException e) {
             handleException("layTatCaNguyenLieu", e);
         }
-
         return list;
     }
 
-    /**
-     * Tìm kiếm nguyên liệu theo tên (LIKE, không phân biệt hoa
-     * thường).
-     */
+    /** Tìm kiếm nguyên liệu theo tên (LIKE, không phân biệt hoa thường). */
     public List<NguyenLieuDTO> timKiemNguyenLieu(String keyword) throws Exception {
         List<NguyenLieuDTO> list = new ArrayList<>();
-        String sql = "SELECT MANL, TENNL, XUATXU, MADVT, GIAVONTRUNGBINH, " +
-                "MUCTONANTOAN, SOLUONGTONTONG, DATCHUANVSATTP, PHIENBAN, " +
-                "THOIDIEMXOA, MANX " +
-                "FROM NGUYENLIEU " +
-                "WHERE THOIDIEMXOA IS NULL " +
-                "AND LOWER(TENNL) LIKE ? " +
-                "ORDER BY MANL";
-
+        String sql = "SELECT NL.MANL, NL.TENNL, NL.XUATXU, NL.MADVT, DVT.TENDVT, " +
+                "NL.GIAVONTRUNGBINH, NL.MUCTONANTOAN, NL.SOLUONGTONTONG, " +
+                "NL.DATCHUANVSATTP, NL.PHIENBAN, NL.THOIDIEMXOA, NL.MANX " +
+                "FROM NGUYENLIEU NL " +
+                "LEFT JOIN DONVITINH DVT ON DVT.MADVT = NL.MADVT " +
+                "WHERE NL.THOIDIEMXOA IS NULL " +
+                "AND LOWER(NL.TENNL) LIKE ? " +
+                "ORDER BY NL.MANL";
         try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "%" + keyword.toLowerCase() + "%");
-
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapNguyenLieu(rs));
@@ -72,27 +62,22 @@ public class NguyenLieuDAO extends BaseDAO {
         } catch (SQLException e) {
             handleException("timKiemNguyenLieu", e);
         }
-
         return list;
     }
 
     /**
      * Thêm mới nguyên liệu qua PROC_THEM_NGUYENLIEU.
-     * Tham số: P_TENNL, P_XUATXU, P_MUCTONANTOAN, P_MADVT, P_MANV, P_MANL_OUT
-     *
      * @return mã nguyên liệu vừa tạo (>= 1), hoặc -1 nếu lỗi
      */
     public int themNguyenLieu(NguyenLieuDTO dto, int maNv) throws Exception {
         String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-                CallableStatement cstmt = conn.prepareCall(sql)) {
-
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setString(1, dto.getTenNL());
             cstmt.setString(2, dto.getXuatXu());
             cstmt.setDouble(3, dto.getMucTonAnToan());
             cstmt.setInt(4, dto.getMaDVT());
             cstmt.registerOutParameter(5, Types.NUMERIC);
-
             cstmt.execute();
             return cstmt.getInt(5);
         } catch (SQLException e) {
@@ -101,21 +86,16 @@ public class NguyenLieuDAO extends BaseDAO {
         return -1;
     }
 
-    /**
-     * Cập nhật nguyên liệu qua PROC_SUA_NGUYENLIEU.
-     * Tham số: P_MANL, P_TENNL, P_XUATXU, P_MADVT, P_MUCTONANTOAN
-     */
+    /** Cập nhật nguyên liệu qua PROC_SUA_NGUYENLIEU. */
     public boolean capNhatNguyenLieu(NguyenLieuDTO dto) throws Exception {
         String sql = "{CALL PROC_SUA_NGUYENLIEU(?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-                CallableStatement cstmt = conn.prepareCall(sql)) {
-
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, dto.getMaNL());
             cstmt.setString(2, dto.getTenNL());
             cstmt.setString(3, dto.getXuatXu());
             cstmt.setInt(4, dto.getMaDVT());
             cstmt.setDouble(5, dto.getMucTonAnToan());
-
             cstmt.execute();
             return true;
         } catch (SQLException e) {
@@ -126,17 +106,14 @@ public class NguyenLieuDAO extends BaseDAO {
 
     /**
      * Xóa nguyên liệu qua PROC_XOA_NGUYENLIEU.
-     * Procedure tự phân loại: xóa mềm nếu đã có lịch sử, xóa
-     * cứng nếu chưa.
+     * Procedure tự phân loại: xóa mềm nếu đã có lịch sử, xóa cứng nếu chưa.
      */
     public boolean xoaNguyenLieu(int maNL, int maNv) throws Exception {
         String sql = "{CALL PROC_XOA_NGUYENLIEU(?, ?)}";
         try (Connection conn = moKetNoi();
-                CallableStatement cstmt = conn.prepareCall(sql)) {
-
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, maNL);
             cstmt.setInt(2, maNv);
-
             cstmt.execute();
             return true;
         } catch (SQLException e) {
@@ -181,21 +158,18 @@ public class NguyenLieuDAO extends BaseDAO {
         dto.setTenNL(rs.getString("TENNL"));
         dto.setXuatXu(rs.getString("XUATXU"));
         dto.setMaDVT(rs.getInt("MADVT"));
+        // TENDVT có khi query JOIN DONVITINH
+        try { dto.setTenDVT(rs.getString("TENDVT")); } catch (SQLException ignored) {}
         dto.setGiaVonTrungBinh(rs.getBigDecimal("GIAVONTRUNGBINH"));
         dto.setMucTonAnToan(rs.getDouble("MUCTONANTOAN"));
         dto.setSoLuongTonTong(rs.getDouble("SOLUONGTONTONG"));
         dto.setDatChuanVSATTP(rs.getInt("DATCHUANVSATTP"));
         dto.setPhienBan(rs.getInt("PHIENBAN"));
-
         if (rs.getTimestamp("THOIDIEMXOA") != null) {
             dto.setThoiDiemXoa(rs.getTimestamp("THOIDIEMXOA").toLocalDateTime());
         }
-
         int maNX = rs.getInt("MANX");
-        if (!rs.wasNull()) {
-            dto.setMaNX(maNX);
-        }
-
+        if (!rs.wasNull()) dto.setMaNX(maNX);
         return dto;
     }
 }

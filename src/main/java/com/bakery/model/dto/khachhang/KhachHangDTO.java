@@ -1,5 +1,6 @@
 package com.bakery.model.dto.khachhang;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -12,6 +13,8 @@ public class KhachHangDTO {
     private Integer diemTichLuy;
     private Integer maHang;
     private String tenHang;
+    // Tỷ lệ giảm giá thực tế từ HANGTHANHVIEN.PHANTRAMGIAMGIA (0-100)
+    private BigDecimal phanTramGiamGia;
     private LocalDateTime thoiDiemXoa;
     private Integer maNX;
     private String tenNguoiXoa;
@@ -61,6 +64,9 @@ public class KhachHangDTO {
 
     public String getTenHang() { return tenHang; }
     public void setTenHang(String tenHang) { this.tenHang = tenHang; }
+
+    public BigDecimal getPhanTramGiamGia() { return phanTramGiamGia; }
+    public void setPhanTramGiamGia(BigDecimal phanTramGiamGia) { this.phanTramGiamGia = phanTramGiamGia; }
 
     public String getTenNguoiXoa() { return tenNguoiXoa; }
     public void setTenNguoiXoa(String tenNguoiXoa) { this.tenNguoiXoa = tenNguoiXoa; }

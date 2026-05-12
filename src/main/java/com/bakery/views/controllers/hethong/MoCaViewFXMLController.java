@@ -84,7 +84,7 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
     public void navigateToMain() {
         Platform.runLater(() -> {
             try {
-                transitionTo(btnBatDau, "/fxml/MainMenuView.fxml", "H3K Bakery - Hệ thống Quản lý", 1366, 768);
+                transitionTo(btnBatDau, "/fxml/hethong/MainMenuView.fxml", "H3K Bakery - Hệ thống Quản lý", 1366, 768);
             } catch (Exception e) {
                 hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
             }
@@ -95,7 +95,7 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
     public void navigateToLogin() {
         Platform.runLater(() -> {
             try {
-                transitionTo(btnBatDau, "/fxml/DangNhapView.fxml", "H3K Bakery - Đăng nhập", 1366, 768);
+                transitionTo(btnBatDau, "/fxml/hethong/DangNhapView.fxml", "H3K Bakery - Đăng nhập", 1366, 768);
             } catch (Exception e) {
                 hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
             }

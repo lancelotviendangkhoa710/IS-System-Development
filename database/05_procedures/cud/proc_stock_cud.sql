@@ -150,7 +150,7 @@ BEGIN
 
     -- 2. TẠO CHỨNG TỪ XUẤT TỔNG
     INSERT INTO PHIEUXUATKHO (MANV, LYDOXUAT)
-    VALUES (P_MANV, 'Xuat kho san xuat ' || P_SOLUONGSANXUAT || ' banh (Ma SP: ' || P_MASP || ')')
+    VALUES (P_MANV, 'Lam banh')
     RETURNING MAPX INTO V_MAPX;
 
     -- 3. XUẤT THEO RÚT GỌN LÔ (FIFO) VÀ GHI CHI TIẾT
@@ -246,5 +246,89 @@ EXCEPTION
         ELSE
             RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_XUAT_BANH, 'Loi he thong khi xuat huy banh: ' || SQLERRM);
         END IF;
+END;
+/
+
+-- Procedure Xuat huy nguyen lieu hong (FIFO theo lo, khong can cong thuc)
+CREATE OR REPLACE PROCEDURE PROC_XUATNGUYENLIEUHONG (
+    P_MANL       IN NGUYENLIEU.MANL%TYPE,
+    P_SOLUONGHUY IN NGUYENLIEU.SOLUONGTONTONG%TYPE,
+    P_MANV       IN NHANVIEN.MANV%TYPE
+)
+IS
+    V_MAPX          CTPHIEUXUAT_NL.MAPX%TYPE;
+    V_TENNL         NGUYENLIEU.TENNL%TYPE;
+    V_TONGTON       NGUYENLIEU.SOLUONGTONTONG%TYPE;
+    V_LUONGCANDUNG  NGUYENLIEU.SOLUONGTONTONG%TYPE;
+
+    CURSOR C_LOHANG IS
+        SELECT MALO, SOLUONGCONLAI
+        FROM CTPHIEUNHAP
+        WHERE MANL = P_MANL
+          AND SOLUONGCONLAI > 0
+        ORDER BY HANSUDUNG ASC, MALO ASC
+        FOR UPDATE OF SOLUONGCONLAI;
+BEGIN
+    -- 1. Lay ten va kiem tra ton kho (Pessimistic Lock)
+    BEGIN
+        SELECT TENNL, SOLUONGTONTONG
+        INTO V_TENNL, V_TONGTON
+        FROM NGUYENLIEU
+        WHERE MANL = P_MANL
+        FOR UPDATE;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_KHONG_CO_NGUYEN_LIEU,
+                'Nguyen lieu khong ton tai trong kho!');
+    END;
+
+    IF V_TONGTON < P_SOLUONGHUY THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_NL,
+            'So luong huy (' || P_SOLUONGHUY || ') vuot qua ton kho hien tai (' || V_TONGTON || ')!');
+    END IF;
+
+    -- 2. Tao phieu xuat voi ly do co dinh dung constraint
+    INSERT INTO PHIEUXUATKHO (MANV, LYDOXUAT)
+    VALUES (P_MANV, 'Nguyen lieu hong')
+    RETURNING MAPX INTO V_MAPX;
+
+    -- 3. Rut lo theo FIFO
+    V_LUONGCANDUNG := P_SOLUONGHUY;
+    FOR LO_REC IN C_LOHANG LOOP
+        EXIT WHEN V_LUONGCANDUNG <= 0;
+
+        IF LO_REC.SOLUONGCONLAI >= V_LUONGCANDUNG THEN
+            INSERT INTO CTPHIEUXUAT_NL (MAPX, MALO, SOLUONG)
+            VALUES (V_MAPX, LO_REC.MALO, V_LUONGCANDUNG);
+            V_LUONGCANDUNG := 0;
+        ELSE
+            INSERT INTO CTPHIEUXUAT_NL (MAPX, MALO, SOLUONG)
+            VALUES (V_MAPX, LO_REC.MALO, LO_REC.SOLUONGCONLAI);
+            V_LUONGCANDUNG := V_LUONGCANDUNG - LO_REC.SOLUONGCONLAI;
+        END IF;
+    END LOOP;
+
+    -- Safe check: dam bao da rut du (tranh ton ao)
+    IF V_LUONGCANDUNG > 0 THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_TON_AO,
+            'Dong bo du lieu ton ao: ton chi tiet lo khong khop voi tong ton (' || V_TENNL || ').');
+    END IF;
+
+    -- 4. Ghi log hoat dong va chot so
+    INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+    VALUES (P_MANV, 'KHO', 'Xuat huy NL hong #' || P_MANL || ' SL:' || P_SOLUONGHUY, V_MAPX);
+
+    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_NL
+        OR SQLCODE = PKG_ERROR_CODES.ERR_KHONG_CO_NGUYEN_LIEU
+        OR SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO THEN
+            RAISE;
+        END IF;
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_NL,
+            'Loi he thong khi xuat huy nguyen lieu hong: ' || SQLERRM);
 END;
 /

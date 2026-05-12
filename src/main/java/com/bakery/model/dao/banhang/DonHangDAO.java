@@ -265,10 +265,12 @@ public class DonHangDAO extends BaseDAO {
             for (CTDonHangDTO item : dsCtDonHang) {
                 if (hasItem) json.append(",");
                 hasItem = true;
+                // Null-guard: donGia null sẽ khiến Oracle SUM = NULL → TONGTIENHDBAN = 0 → vi phạm CK_DON_THANHTOAN
+                java.math.BigDecimal donGia = item.getDonGia() != null ? item.getDonGia() : java.math.BigDecimal.ZERO;
                 json.append("{")
                         .append("\"maSP\":").append(item.getMaSP()).append(",")
                         .append("\"soLuong\":").append(item.getSoLuong()).append(",")
-                        .append("\"donGia\":").append(item.getDonGia()).append(",")
+                        .append("\"donGia\":").append(donGia.toPlainString()).append(",")
                         .append("\"isCustom\":\"false\"")
                         .append("}");
             }
@@ -278,10 +280,11 @@ public class DonHangDAO extends BaseDAO {
             for (CTDonTuyChinhDTO item : dsCtTuyChinh) {
                 if (hasItem) json.append(",");
                 hasItem = true;
+                java.math.BigDecimal donGia = item.getDonGia() != null ? item.getDonGia() : java.math.BigDecimal.ZERO;
                 json.append("{")
                         .append("\"maSP\":").append(item.getMaSP()).append(",")
                         .append("\"soLuong\":").append(item.getSoLuong()).append(",")
-                        .append("\"donGia\":").append(item.getDonGia()).append(",")
+                        .append("\"donGia\":").append(donGia.toPlainString()).append(",")
                         .append("\"isCustom\":\"true\",")
                         .append("\"ghiChu\":\"").append(thoatKyTuJson(item.getLoiChucTrenBanh())).append("\",")
                         .append("\"phuKien\":\"").append(thoatKyTuJson(item.getGhiChuThoBanh())).append("\",")

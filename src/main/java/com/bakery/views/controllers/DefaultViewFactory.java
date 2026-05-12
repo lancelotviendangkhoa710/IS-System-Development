@@ -38,7 +38,7 @@ public class DefaultViewFactory implements ViewFactory {
     @Override
     public void openMembershipTierDialog(Runnable onClosedCallback) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HangThanhVienView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/khachhang/HangThanhVienView.fxml"));
             Parent root = loader.load();
 
             Stage stage = createModalStage("Quản lý Hạng Thành viên", root);
@@ -70,7 +70,7 @@ public class DefaultViewFactory implements ViewFactory {
 
     private void openKhachHangTongHop(Runnable onClosedCallback) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KhachHangView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/khachhang/KhachHangView.fxml"));
             Parent root = loader.load();
             Stage stage = createModalStage("Quản lý Khách hàng", root);
             stage.setOnHiding(event -> {

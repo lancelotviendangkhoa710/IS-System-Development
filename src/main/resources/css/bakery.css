@@ -2487,3 +2487,32 @@
     border-width: 3px 0 0 0;
     -fx-background-radius: 8px;
 }
+
+/* ─── TABLEROW HIGHLIGHT — Sản xuất thiếu kho ─── */
+.row-danger {
+    -fx-background-color: #FCEBEB;
+    background-color: #FCEBEB;
+}
+
+.row-danger .table-cell {
+    -fx-text-fill: #791F1F;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+.row-danger:selected {
+    -fx-background-color: #F3A6A6;
+    background-color: #F3A6A6;
+}
+
+.lbl-danger {
+    -fx-text-fill: #DC2626;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+.lbl-success {
+    -fx-text-fill: #27500A;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}

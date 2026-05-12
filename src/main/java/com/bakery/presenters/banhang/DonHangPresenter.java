@@ -203,9 +203,14 @@ public class DonHangPresenter {
         try {
             KhachHangDTO kh = orderService.timKhachHangTheoSoDienThoai(sdt);
             if (kh != null) {
-                phanTramGiamGia = 0.10;
-                view.hienThiThongTinKhach(kh.getHoTen() + " (Thành viên -10%)", true);
-                // Cập nhật khách hàng hiện tại vào View để dùng cho việc Sửa
+                // Đọc tỷ lệ giảm giá thực tế từ hạng thành viên (DB lưu dạng 0-100)
+                double tylePhanTram = (kh.getPhanTramGiamGia() != null)
+                        ? kh.getPhanTramGiamGia().doubleValue() / 100.0
+                        : 0.0;
+                phanTramGiamGia = tylePhanTram;
+                String tenHang = (kh.getTenHang() != null && !kh.getTenHang().isBlank()) ? kh.getTenHang() : "Thành viên";
+                String moTaGiam = tylePhanTram > 0 ? String.format(" (-%d%%)", Math.round(tylePhanTram * 100)) : "";
+                view.hienThiThongTinKhach(kh.getHoTen() + " - " + tenHang + moTaGiam, true);
                 view.capNhatKhachHangHienTai(kh);
             } else {
                 lamMoiKhachHang();
@@ -288,7 +293,18 @@ public class DonHangPresenter {
             return;
 
         // Áp dụng thông tin khách hàng từ dialog
-        phanTramGiamGia = (req.maKH() != null) ? 0.10 : 0.0;
+        if (req.maKH() != null) {
+            try {
+                KhachHangDTO khDialog = orderService.timKhachHangTheoSoDienThoai(req.soDienThoai());
+                phanTramGiamGia = (khDialog != null && khDialog.getPhanTramGiamGia() != null)
+                        ? khDialog.getPhanTramGiamGia().doubleValue() / 100.0
+                        : 0.0;
+            } catch (Exception ignored) {
+                phanTramGiamGia = 0.0;
+            }
+        } else {
+            phanTramGiamGia = 0.0;
+        }
         view.hienThiThongTinKhach(req.tenKhach(), req.maKH() != null);
 
         try {

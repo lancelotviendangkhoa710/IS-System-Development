@@ -8,6 +8,7 @@ public class NguyenLieuDTO {
     private String tenNL;
     private String xuatXu;
     private int maDVT;
+    private String tenDVT; // join từ DONVITINH
     private BigDecimal giaVonTrungBinh;
     private Double mucTonAnToan;
     private Double soLuongTonTong;
@@ -43,6 +44,9 @@ public class NguyenLieuDTO {
 
     public int getMaDVT() { return maDVT; }
     public void setMaDVT(int maDVT) { this.maDVT = maDVT; }
+
+    public String getTenDVT() { return tenDVT != null ? tenDVT : ""; }
+    public void setTenDVT(String tenDVT) { this.tenDVT = tenDVT; }
 
     public BigDecimal getGiaVonTrungBinh() { return giaVonTrungBinh; }
     public void setGiaVonTrungBinh(BigDecimal giaVonTrungBinh) { this.giaVonTrungBinh = giaVonTrungBinh; }

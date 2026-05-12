@@ -21,7 +21,7 @@ public class HoatDongNhanVienService {
      * @param denNgay Đến ngày (null = bỏ qua)
      */
     public List<HoatDongNhanVienDTO> layDanhSach(String nhom, String tuKhoa,
-                                                  LocalDate tuNgay, LocalDate denNgay) {
+            LocalDate tuNgay, LocalDate denNgay) {
         try {
             List<HoatDongNhanVienDTO> ds = dao.layDanhSach(nhom, tuKhoa, tuNgay, denNgay);
             return ds != null ? ds : Collections.emptyList();

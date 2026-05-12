@@ -221,7 +221,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     @FXML
     private void onThemMoi() {
         try {
-            URL fxmlUrl = getClass().getResource("/fxml/ThemNhanVienDialog.fxml");
+            URL fxmlUrl = getClass().getResource("/fxml/nhansu/ThemNhanVienDialog.fxml");
             if (fxmlUrl == null) throw new RuntimeException("Khong tim thay ThemNhanVienDialog.fxml");
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene scene = new Scene(loader.load());

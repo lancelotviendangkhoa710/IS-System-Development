@@ -2,6 +2,7 @@ package com.bakery.presenters.kho;
 
 import com.bakery.model.dto.kho.CongThucDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.services.kho.CongThucService;
 import com.bakery.views.interfaces.kho.ICongThucView;
 
@@ -24,9 +25,10 @@ public class CongThucPresenter {
         this.congThucService = new CongThucService();
     }
 
-    /** Gọi khi Tab Công thức được hiển thị — load danh sách nguyên liệu. */
+    /** Gọi khi Tab Công thức được hiển thị — load danh sách nguyên liệu và sản phẩm. */
     public void khoiTao() {
         taiDanhSachNguyenLieu();
+        taiDanhSachSanPham();
     }
 
     private void taiDanhSachNguyenLieu() {
@@ -35,6 +37,15 @@ public class CongThucPresenter {
             view.hienThiDanhSachNguyenLieu(dsNL);
         } catch (Exception e) {
             view.hienThiLoi("Lỗi tải danh sách nguyên liệu: " + e.getMessage());
+        }
+    }
+
+    private void taiDanhSachSanPham() {
+        try {
+            List<SanPhamDTO> dsSP = congThucService.layDanhSachSanPham();
+            view.hienThiDanhSachSanPham(dsSP);
+        } catch (Exception e) {
+            view.hienThiLoi("Lỗi tải danh sách sản phẩm: " + e.getMessage());
         }
     }
 

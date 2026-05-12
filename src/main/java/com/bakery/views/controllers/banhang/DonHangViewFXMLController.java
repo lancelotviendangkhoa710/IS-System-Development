@@ -232,7 +232,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
             List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam,
             double khachDua, double tienThua, boolean laDonCoc) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HoaDonView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/banhang/HoaDonView.fxml"));
             Parent root = loader.load();
             HoaDonViewFXMLController controller = loader.getController();
             String tenKhach = (khachHangHienTai != null) ? khachHangHienTai.getHoTen() : "Khách hàng";
@@ -255,7 +255,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     public void inHoaDonHoanThanh(DonDatHangDTO don, HoaDonDTO hd, List<CTDonHangDTO> dsItems,
             double khachDua, double tienThua, boolean laDonCoc) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/HoaDonView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/banhang/HoaDonView.fxml"));
             Parent root = loader.load();
             HoaDonViewFXMLController controller = loader.getController();
             String tenKhach = (don != null && don.getMaKH() != null) ? "KH #" + don.getMaKH() : "Khách lẻ";
@@ -440,14 +440,43 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         return card;
     }
 
+    private static final Image ANH_MAC_DINH = loadAnhMacDinh();
+
+    private static Image loadAnhMacDinh() {
+        // Tải ảnh placeholder một lần khi class load
+        try (InputStream in = DonHangViewFXMLController.class.getResourceAsStream("/images/no_image.png")) {
+            if (in != null) return new Image(in);
+        } catch (Exception ignored) {}
+        return null;
+    }
+
     private Image taiAnhSanPham(String path) {
-        if (path == null || path.isBlank()) return null;
+        if (path == null || path.isBlank()) return ANH_MAC_DINH;
+
+        // 1. Thử đường dẫn file hệ thống (absolute path hoặc relative)
+        java.io.File file = new java.io.File(path);
+        if (file.exists() && file.isFile()) {
+            try {
+                return new Image(file.toURI().toString());
+            } catch (Exception ignored) {}
+        }
+
+        // 2. Thử URI dạng file:/// nếu path đã có tiền tố
+        if (path.startsWith("file:") || path.startsWith("http:") || path.startsWith("https:")) {
+            try {
+                return new Image(path, true); // background loading
+            } catch (Exception ignored) {}
+        }
+
+        // 3. Thử classpath resource với nhiều prefix thông dụng
         for (String candidate : List.of(path, "/" + path, "/images/" + path, "/images/products/" + path)) {
             try (InputStream in = getClass().getResourceAsStream(candidate)) {
                 if (in != null) return new Image(in);
             } catch (Exception ignored) {}
         }
-        return null;
+
+        // 4. Fallback về ảnh mặc định
+        return ANH_MAC_DINH;
     }
 
     private void capNhatGiaBanhTuyChinh() {

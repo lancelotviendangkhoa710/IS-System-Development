@@ -166,28 +166,28 @@ public class MainMenuViewFXMLController {
     private void onMoDashboard() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.TONG_QUAN, "Tong quan")) return;
         if (appShellController != null) {
-            appShellController.loadView("/fxml/DashboardView.fxml");
+            appShellController.loadView("/fxml/hethong/DashboardView.fxml");
         } else {
-            loadView("/fxml/DashboardView.fxml");
+            loadView("/fxml/hethong/DashboardView.fxml");
         }
     }
 
     @FXML
     private void onMoBanHang() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "Dat hang POS")) return;
-        loadView("/fxml/DonHangView.fxml");
+        loadView("/fxml/banhang/DonHangView.fxml");
     }
 
     @FXML
     private void onMoTheoDoiDon() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG, "Theo doi don hang")) return;
-        loadView("/fxml/TheoDoiDonHangView.fxml");
+        loadView("/fxml/banhang/TheoDoiDonHangView.fxml");
     }
 
     @FXML
     private void onMoKhachHang() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHACH_HANG, "Khach hang")) return;
-        loadView("/fxml/KhachHangView.fxml");
+        loadView("/fxml/khachhang/KhachHangView.fxml");
     }
 
     @FXML
@@ -200,7 +200,7 @@ public class MainMenuViewFXMLController {
             if (lblThongBao != null) lblThongBao.setText("Ban khong co quyen truy cap San pham.");
             return;
         }
-        loadView("/fxml/QuanLySanPhamView.fxml");
+        loadView("/fxml/kho/QuanLySanPhamView.fxml");
     }
 
     /** Mo man hinh KHO — tab mac dinh: Nha cung cap. */
@@ -224,25 +224,25 @@ public class MainMenuViewFXMLController {
             if (lblThongBao != null) lblThongBao.setText("Ban khong co quyen truy cap Nhan su.");
             return;
         }
-        loadView("/fxml/NhanSuView.fxml");
+        loadView("/fxml/nhansu/NhanSuView.fxml");
     }
 
     @FXML
     private void onMoBaoCao() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "Bao cao kinh doanh")) return;
-        loadView("/fxml/BaoCaoView.fxml");
+        loadView("/fxml/baocao/BaoCaoView.fxml");
     }
 
     @FXML
     private void onMoLichSuHeThong() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG, "Nhat ky he thong")) return;
-        loadView("/fxml/LichSuHeThongView.fxml");
+        loadView("/fxml/hethong/LichSuHeThongView.fxml");
     }
 
     @FXML
     private void onMoCauHinhGioiHan() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON, "Cau hinh gioi han nhan don")) return;
-        loadView("/fxml/CauHinhGioiHanDonView.fxml");
+        loadView("/fxml/hethong/CauHinhGioiHanDonView.fxml");
     }
 
     @FXML
@@ -251,7 +251,7 @@ public class MainMenuViewFXMLController {
             lblThongBao.setText("⚠️ Chuc nang nay chi danh cho Quan ly.");
             return;
         }
-        loadView("/fxml/GiamSatCaView.fxml");
+        loadView("/fxml/hethong/GiamSatCaView.fxml");
     }
 
     // ─── Ca lam viec dialog ───────────────────────────────────────────────────
@@ -261,7 +261,7 @@ public class MainMenuViewFXMLController {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quan ly ca lam viec")) return;
         try {
             boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
-            String fxmlPath = caoDangMo ? "/fxml/DoiSoatDongCaView.fxml" : "/fxml/MoCaView.fxml";
+            String fxmlPath = caoDangMo ? "/fxml/hethong/DoiSoatDongCaView.fxml" : "/fxml/hethong/MoCaView.fxml";
             String title = caoDangMo ? "H3K Bakery - Dong ca" : "H3K Bakery - Mo ca";
 
             URL fxmlUrl = getClass().getResource(fxmlPath);
@@ -376,8 +376,8 @@ public class MainMenuViewFXMLController {
     /** Dieu huong ve man dang nhap — chi goi tu FX thread. */
     private void chuyenVeDangNhap() {
         try {
-            URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
-            if (fxmlUrl == null) throw new RuntimeException("Khong tim thay /fxml/DangNhapView.fxml");
+            URL fxmlUrl = getClass().getResource("/fxml/hethong/DangNhapView.fxml");
+            if (fxmlUrl == null) throw new RuntimeException("Khong tim thay /fxml/hethong/DangNhapView.fxml");
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
@@ -407,7 +407,7 @@ public class MainMenuViewFXMLController {
     /** Tai KhoView roi chuyen sang tab tuong ung. */
     private void moKhoTab(String tabKey) {
         try {
-            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/KhoView.fxml");
+            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/kho/KhoView.fxml");
             Node view = loader.load();
             com.bakery.views.controllers.kho.KhoViewFXMLController ctrl = loader.getController();
             if (ctrl != null) ctrl.chuyenTab(tabKey);
@@ -420,7 +420,7 @@ public class MainMenuViewFXMLController {
     /** Tai BepView roi chuyen sang tab tuong ung. */
     private void moBepTab(String tabKey) {
         try {
-            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/BepView.fxml");
+            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/hethong/BepView.fxml");
             Node view = loader.load();
             com.bakery.views.controllers.bep.BepViewFXMLController ctrl = loader.getController();
             if (ctrl != null) ctrl.chuyenTab(tabKey);
@@ -492,7 +492,7 @@ public class MainMenuViewFXMLController {
         alert.setContentText("Phan quyen cua ban da bi thu hoi hoac phien dang nhap da ket thuc.\nVui long dang nhap lai.");
         alert.showAndWait();
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/hethong/DangNhapView.fxml");
             if (fxmlUrl == null) return;
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
             javafx.scene.Parent root = loader.load();

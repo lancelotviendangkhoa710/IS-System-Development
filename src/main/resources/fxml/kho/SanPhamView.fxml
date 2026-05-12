@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.SanPhamViewFXMLController">
+    <padding>
+        <Insets bottom="16" left="24" right="24" top="16" />
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <VBox spacing="5">
+            <Label styleClass="lbl-title-screen" text="Quản lý Sản phẩm" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <!-- Content: bảng trái + form phải -->
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
+
+        <!-- Left: TableView -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label styleClass="lbl-title-card" text="Danh sách sản phẩm" />
+                <Region HBox.hgrow="ALWAYS" />
+                <TextField fx:id="txtTimKiem" promptText="🔍 Tìm theo tên hoặc mã SP..."
+                           prefWidth="240" onKeyReleased="#onTimKiem" styleClass="text-field"/>
+                <Button onAction="#onLamMoi" styleClass="btn-secondary" text="↺ Làm mới" />
+                <Button fx:id="btnSua" onAction="#onSuaSanPham" styleClass="btn-secondary" text="✏️ Sửa" disable="true" />
+                <Button fx:id="btnXoa" onAction="#onXoa" styleClass="btn-danger" text="🗑 Xóa" disable="true" />
+                <Button fx:id="btnThemMoi" onAction="#onThemMoi" styleClass="btn-primary" text="➕ Thêm mới" />
+            </HBox>
+            <TableView fx:id="tblSanPham" styleClass="table-view" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colMaSP"    prefWidth="60"  text="Mã SP" />
+                    <TableColumn fx:id="colTenSP"   prefWidth="220" text="Tên sản phẩm" />
+                    <TableColumn fx:id="colDanhMuc" prefWidth="140" text="Danh mục" />
+                    <TableColumn fx:id="colGiaVon"  prefWidth="110" text="Giá vốn" />
+                    <TableColumn fx:id="colGiaBan"  prefWidth="110" text="Giá bán" />
+                    <TableColumn fx:id="colTonKho"  prefWidth="70"  text="Tồn kho" />
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+
+
+    </HBox>
+
+    <!-- Footer Status -->
+    <HBox>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold" />
+    </HBox>
+</VBox>

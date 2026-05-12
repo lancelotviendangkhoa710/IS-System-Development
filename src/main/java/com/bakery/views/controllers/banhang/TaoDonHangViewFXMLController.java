@@ -20,6 +20,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import com.bakery.model.dao.hethong.CauHinhGioiHanDAO;
+import com.bakery.model.dto.hethong.CauHinhGioiHanDTO;
 import com.bakery.services.khachhang.KhachHangService;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import java.net.URL;
@@ -71,6 +73,9 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
     @FXML private ToggleButton btnDeposit;
     @FXML private TextField txtTienCoc;
     @FXML private Label lblCocToiThieu;
+    @FXML private Label lblNangLuc;
+
+    private final CauHinhGioiHanDAO cauHinhGioiHanDAO = new CauHinhGioiHanDAO();
 
     private Window ownerWindow;
     private Stage dialogStage;
@@ -111,12 +116,41 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
         if (txtTienCoc != null) {
             txtTienCoc.textProperty().addListener((obs, oldVal, newVal) -> capNhatHienThiThanhToan());
         }
+        // Listener đổi ngày giao → cập nhật biến đếm năng lực sản xuất
+        if (dpNgayGiao != null) {
+            dpNgayGiao.valueProperty().addListener((obs, oldVal, ngayMoi) -> capNhatNangLuc(ngayMoi));
+        }
+    }
+
+    /** Truy vấn và hiển thị năng lực sản xuất cho ngày giao đã chọn (ngaySanXuat = ngayGiao - 1). */
+    private void capNhatNangLuc(LocalDate ngayGiao) {
+        if (lblNangLuc == null || ngayGiao == null) return;
+        // Giả định chuẩn bị 1 ngày → sản xuất ngày trước ngày giao
+        LocalDate ngaySanXuat = ngayGiao.minusDays(1);
+        try {
+            CauHinhGioiHanDTO nangLuc = cauHinhGioiHanDAO.layTheoNgay(ngaySanXuat);
+            if (nangLuc == null) {
+                lblNangLuc.setText("⚠ Chưa cài giới hạn cho ngày SX " + ngaySanXuat);
+                lblNangLuc.getStyleClass().setAll("lbl-warning");
+                if (btnConfirm != null) btnConfirm.setDisable(false);
+                return;
+            }
+            int daNhan = nangLuc.getSoBanhDaNhan();
+            int gioi = nangLuc.getGioiHanSoBanh();
+            boolean day = daNhan >= gioi;
+            lblNangLuc.setText(String.format("📦 %d/%d bánh%s", daNhan, gioi, day ? " — ĐẦY" : ""));
+            lblNangLuc.getStyleClass().setAll(day ? "lbl-danger" : "lbl-success");
+            if (btnConfirm != null) btnConfirm.setDisable(day);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Không tải được năng lực sản xuất", e);
+            lblNangLuc.setText("");
+        }
     }
 
     @Override
     public IDonHangDialogFactory.YeuCauDonHang showCreateOrderDialog(double tongTienPhaiTra, IDonHangDialogFactory.TraCuuKhachHang customerLookup) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/TaoDonHangDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/banhang/TaoDonHangDialog.fxml"));
             Parent root = loader.load();
             TaoDonHangViewFXMLController controller = loader.getController();
 
@@ -149,7 +183,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
     @Override
     public boolean showPaymentConfirmation(int maDon, double tongTien, double daCoc, double conLai) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ThanhToanDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/banhang/ThanhToanDialog.fxml"));
             Parent root = loader.load();
             ThanhToanDialogViewFXMLController controller = loader.getController();
             controller.initData(maDon, tongTien, daCoc, conLai);
@@ -311,7 +345,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
                 maKH = Integer.parseInt(info[0]);
                 tenKhach = info[1];
                 soDienThoai = sdt;
-                lblKhachInfo.setText("OK " + tenKhach + " - thanh vien giam 10%");
+                lblKhachInfo.setText("OK " + tenKhach);
                 lblKhachInfo.getStyleClass().setAll("lbl-success");
             } else {
                 maKH = null;
@@ -354,7 +388,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
 
     private void moDialogKhachHang(KhachHangDTO kh) {
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/fxml/KhachHangDialog.fxml");
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/khachhang/KhachHangDialog.fxml");
             if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy KhachHangDialog.fxml");
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
             javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
@@ -378,7 +412,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
                 this.tenKhach = kq.getHoTen();
                 this.soDienThoai = kq.getSdt();
                 txtSDT.setText(this.soDienThoai);
-                lblKhachInfo.setText("OK " + tenKhach + " - thành viên giảm 10%");
+                lblKhachInfo.setText("OK " + tenKhach);
                 lblKhachInfo.getStyleClass().setAll("lbl-success");
             }
         } catch (Exception ex) {
@@ -479,6 +513,12 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
     private void xuLyXacNhanDatTruoc() {
         LocalDate ngay = dpNgayGiao.getValue();
         String gio = cbGioGiao.getValue();
+        // Kiểm tra năng lực một lần nữa trước khi submit (Fail-Fast)
+        capNhatNangLuc(ngay);
+        if (btnConfirm != null && btnConfirm.isDisable()) {
+            hienThiLoiValidate("Ngày sản xuất " + (ngay != null ? ngay.minusDays(1) : "") + " đã đạt công suất tối đa. Vui lòng chọn ngày giao khác.");
+            return;
+        }
 
         if (ngay == null || gio == null || gio.isBlank()) {
             hienThiLoiValidate("Vui long chon ngay gio nhan banh.");

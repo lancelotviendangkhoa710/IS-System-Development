@@ -85,7 +85,7 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
 
     public static void hienThi() {
         try {
-            URL fxml = DoiSoatDongCaViewFXMLController.class.getResource("/fxml/DoiSoatDongCaView.fxml");
+            URL fxml = DoiSoatDongCaViewFXMLController.class.getResource("/fxml/hethong/DoiSoatDongCaView.fxml");
             if (fxml == null)
                 return;
 
@@ -294,7 +294,7 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
             // Chuyển owner về màn hình đăng nhập
             if (owner instanceof Stage ownerStage) {
                 try {
-                    java.net.URL fxmlUrl = getClass().getResource("/fxml/DangNhapView.fxml");
+                    java.net.URL fxmlUrl = getClass().getResource("/fxml/hethong/DangNhapView.fxml");
                     if (fxmlUrl == null) return;
                     javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
                     javafx.scene.Parent root = loader.load();

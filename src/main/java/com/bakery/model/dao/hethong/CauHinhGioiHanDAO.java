@@ -59,4 +59,30 @@ public class CauHinhGioiHanDAO extends BaseDAO {
             handleException("luuCauHinh", e);
         }
     }
+
+    /**
+     * Lấy năng lực sản xuất cho một ngày cụ thể.
+     * @return DTO với soBanhDaNhan/gioiHanSoBanh, hoặc null nếu chưa có cấu hình.
+     */
+    public CauHinhGioiHanDTO layTheoNgay(LocalDate ngay) throws Exception {
+        String sql = "SELECT NGAYSANXUAT, GIOIHANSOBANH, SOBANHDANHAN " +
+                     "FROM NANGLUCSANXUAT WHERE TRUNC(NGAYSANXUAT) = TRUNC(?)";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDate(1, java.sql.Date.valueOf(ngay));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    CauHinhGioiHanDTO dto = new CauHinhGioiHanDTO();
+                    if (rs.getDate("NGAYSANXUAT") != null)
+                        dto.setNgaySanXuat(rs.getDate("NGAYSANXUAT").toLocalDate());
+                    dto.setGioiHanSoBanh(rs.getInt("GIOIHANSOBANH"));
+                    dto.setSoBanhDaNhan(rs.getInt("SOBANHDANHAN"));
+                    return dto;
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layTheoNgay", e);
+        }
+        return null;
+    }
 }

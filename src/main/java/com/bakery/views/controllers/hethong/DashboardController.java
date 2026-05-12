@@ -108,25 +108,25 @@ public class DashboardController {
     @FXML
     private void onMoBanHang() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "đặt hàng POS")) return;
-        AppShellController.getInstance().loadView("/fxml/DonHangView.fxml");
+        AppShellController.getInstance().loadView("/fxml/banhang/DonHangView.fxml");
     }
 
     @FXML
     private void onMoKho() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN, "kho")) return;
-        AppShellController.getInstance().loadView("/fxml/KhoView.fxml");
+        AppShellController.getInstance().loadView("/fxml/kho/KhoView.fxml");
     }
 
     @FXML
     private void onMoNhanSu() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "nhân sự")) return;
-        AppShellController.getInstance().loadView("/fxml/QuanLyNhanVienView.fxml");
+        AppShellController.getInstance().loadView("/fxml/nhansu/QuanLyNhanVienView.fxml");
     }
 
     @FXML
     private void onMoBaoCao() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "báo cáo")) return;
-        AppShellController.getInstance().loadView("/fxml/BaoCaoView.fxml");
+        AppShellController.getInstance().loadView("/fxml/baocao/BaoCaoView.fxml");
     }
 
     @FXML
@@ -134,7 +134,7 @@ public class DashboardController {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quản lý ca")) return;
         try {
             boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
-            String fxmlPath = caoDangMo ? "/fxml/DoiSoatDongCaView.fxml" : "/fxml/MoCaView.fxml";
+            String fxmlPath = caoDangMo ? "/fxml/hethong/DoiSoatDongCaView.fxml" : "/fxml/hethong/MoCaView.fxml";
             String title    = caoDangMo ? "H3K Bakery - Dong ca" : "H3K Bakery - Mo ca";
 
             java.net.URL fxmlUrl = getClass().getResource(fxmlPath);
@@ -161,13 +161,13 @@ public class DashboardController {
     @FXML
     private void onMoLichSuHeThong() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG, "nhật ký hệ thống")) return;
-        AppShellController.getInstance().loadView("/fxml/LichSuHeThongView.fxml");
+        AppShellController.getInstance().loadView("/fxml/hethong/LichSuHeThongView.fxml");
     }
 
     @FXML
     private void onMoKds() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP, "màn hình KDS")) return;
-        AppShellController.getInstance().loadView("/fxml/ThoBepDashboardView.fxml");
+        AppShellController.getInstance().loadView("/fxml/hethong/ThoBepDashboardView.fxml");
     }
 
     @FXML

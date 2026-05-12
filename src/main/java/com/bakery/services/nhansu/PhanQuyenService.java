@@ -139,12 +139,18 @@ public class PhanQuyenService {
             tinhNang.add(TinhNangHeThong.NHAT_KY_HE_THONG);
         }
         if (modules.contains(SystemModule.NHA_BEP)) {
+            // Tho Bep: full access bep + full access san pham (de cau hinh cong thuc)
+            //          + read-only kho (tab Nhap kho bi khoa boi KhoViewFXMLController)
             tinhNang.addAll(EnumSet.of(
                     TinhNangHeThong.KDS_MAN_HINH_BEP,
                     TinhNangHeThong.THEO_DOI_DON_HANG,
+                    TinhNangHeThong.DON_HANG_BEP,
                     TinhNangHeThong.XUAT_KHO,
-                    TinhNangHeThong.KHO_TONG_QUAN,
-                    TinhNangHeThong.DON_HANG_BEP
+                    TinhNangHeThong.KHO_TONG_QUAN,      // Xem kho read-only
+                    TinhNangHeThong.SAN_PHAM,            // Full access san pham
+                    TinhNangHeThong.DANH_MUC_SAN_PHAM,  // Full access danh muc sp
+                    TinhNangHeThong.CONG_THUC_SAN_XUAT, // Cau hinh cong thuc
+                    TinhNangHeThong.THANH_PHAN_BANH      // Cau hinh thanh phan banh
             ));
         }
         // BAO_CAO không tự cấp CAU_HINH_GIOI_HAN_DON — đã handle ở block laQuanLy
@@ -161,15 +167,15 @@ public class PhanQuyenService {
 
     public String layManHinhTrangChu(NhanVienDTO nhanVien) {
         if (laThuNgan(nhanVien)) {
-            return "/fxml/ThuNganDashboardView.fxml";
+            return "/fxml/hethong/ThuNganDashboardView.fxml";
         }
         if (laThoBep(nhanVien)) {
-            return "/fxml/ThoBepDashboardView.fxml";
+            return "/fxml/hethong/ThoBepDashboardView.fxml";
         }
         if (laThuKho(nhanVien)) {
-            return "/fxml/ThuKhoDashboardView.fxml";
+            return "/fxml/hethong/ThuKhoDashboardView.fxml";
         }
-        return "/fxml/MainView.fxml";
+        return "/fxml/hethong/MainView.fxml";
     }
 
     public String layTieuDeTrangChu(NhanVienDTO nhanVien) {

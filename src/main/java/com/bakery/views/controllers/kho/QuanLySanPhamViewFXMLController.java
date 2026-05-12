@@ -18,15 +18,17 @@ public class QuanLySanPhamViewFXMLController {
 
     @FXML
     public void initialize() {
-        // Khi chuyển sang tab Công thức, đồng bộ sản phẩm đang chọn ở Tab Sản phẩm
+        // Tiêm CongThucController vào SanPhamController để chuyenSangTabCongThuc gọi thẳng
+        if (sanPhamContentController != null && congThucContentController != null) {
+            sanPhamContentController.setCongThucController(congThucContentController);
+        }
+
         tabPaneChinh.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             if (newTab == null) return;
             String tabId = newTab.getId();
-            if ("tabCongThuc".equals(tabId) && congThucContentController != null) {
-                SanPhamDTO spDangChon = sanPhamContentController != null
-                        ? sanPhamContentController.getSelectedSanPham()
-                        : null;
-                congThucContentController.capNhatSanPhamDangChon(spDangChon);
+            // Quay về Tab SP → reload để lấy giá vốn mới nhất từ DB
+            if ("tabSanPham".equals(tabId) && sanPhamContentController != null) {
+                sanPhamContentController.lamMoiDanhSach();
             }
         });
     }

@@ -2,8 +2,10 @@ package com.bakery.services.kho;
 
 import com.bakery.model.dao.kho.CongThucDAO;
 import com.bakery.model.dao.kho.NguyenLieuDAO;
+import com.bakery.model.dao.kho.SanPhamDAO;
 import com.bakery.model.dto.kho.CongThucDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.services.BaseService;
 
 import java.util.List;
@@ -13,6 +15,7 @@ public class CongThucService extends BaseService {
 
     private final CongThucDAO congThucDAO = new CongThucDAO();
     private final NguyenLieuDAO nguyenLieuDAO = new NguyenLieuDAO();
+    private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
 
     /** Lấy danh sách công thức của một sản phẩm (kèm tên và đơn giá nguyên liệu). */
     public List<CongThucDTO> layCongThucTheoSP(int maSP) throws Exception {
@@ -48,5 +51,22 @@ public class CongThucService extends BaseService {
     /** Tính tổng giá vốn BOM của một sản phẩm (preview trước khi lưu). */
     public double tinhGiaVonBOM(int maSP) throws Exception {
         return congThucDAO.tinhTongGiaVon(maSP);
+    }
+
+    /** Lấy tất cả sản phẩm để populate ComboBox chọn sản phẩm trên Tab Công thức. */
+    public List<SanPhamDTO> layDanhSachSanPham() throws Exception {
+        return sanPhamDAO.layTatCaSanPhamQuanLy();
+    }
+
+    /** Lấy công thức kèm tồn kho hiện tại — dùng cho màn hình kế hoạch sản xuất. */
+    public List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> layCongThucVaTonKho(int maSP) throws Exception {
+        if (maSP <= 0) throw new Exception("Mã sản phẩm không hợp lệ.");
+        return congThucDAO.layCongThucVaTonKho(maSP);
+    }
+
+    /** Số lượng tối đa có thể làm với tồn kho hiện tại. */
+    public double tinhSoLuongKhaDung(int maSP) throws Exception {
+        if (maSP <= 0) throw new Exception("Mã sản phẩm không hợp lệ.");
+        return congThucDAO.tinhSoLuongKhaDung(maSP);
     }
 }

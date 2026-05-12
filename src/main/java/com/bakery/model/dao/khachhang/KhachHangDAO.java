@@ -16,7 +16,7 @@ import java.util.List;
 public class KhachHangDAO extends BaseDAO {
 
 
-    private static final String CUSTOMER_SELECT_SQL = "SELECT KH.*, HTV.TENHANG AS TENHANG, NV.HOTEN AS TENNX FROM KHACHHANG KH LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG LEFT JOIN NHANVIEN NV ON KH.MANX = NV.MANV";
+    private static final String CUSTOMER_SELECT_SQL = "SELECT KH.*, HTV.TENHANG AS TENHANG, HTV.PHANTRAMGIAMGIA AS PHANTRAMGIAMGIA, NV.HOTEN AS TENNX FROM KHACHHANG KH LEFT JOIN HANGTHANHVIEN HTV ON KH.MAHANG = HTV.MAHANG LEFT JOIN NHANVIEN NV ON KH.MANX = NV.MANV";
 
     public KhachHangDTO findActiveCustomerByPhone(String phone) throws Exception {
         String sql = CUSTOMER_SELECT_SQL + " WHERE KH.SDT = ? AND KH.THOIDIEMXOA IS NULL";
@@ -282,6 +282,8 @@ public class KhachHangDAO extends BaseDAO {
         customer.setDiemTichLuy(rs.getInt("DIEMTICHLUY"));
         customer.setMaHang(rs.getInt("MAHANG"));
         customer.setTenHang(rs.getString("TENHANG"));
+        // Lấy tỷ lệ giảm giá thực tế từ hạng thành viên (có thể NULL nếu KH chưa có hạng)
+        customer.setPhanTramGiamGia(rs.getBigDecimal("PHANTRAMGIAMGIA"));
         if (rs.getTimestamp("THOIDIEMXOA") != null) {
             customer.setThoiDiemXoa(rs.getTimestamp("THOIDIEMXOA").toLocalDateTime());
         }

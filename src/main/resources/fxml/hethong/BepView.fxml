@@ -35,12 +35,12 @@
 
         <!-- Tab 1: Lập phiếu xuất kho -->
         <Tab text="📤  Lập phiếu xuất kho" fx:id="tabXuatKho">
-            <fx:include source="XuatKhoView.fxml"/>
+            <fx:include source="../kho/XuatKhoView.fxml"/>
         </Tab>
 
         <!-- Tab 2: Đơn hàng bếp -->
         <Tab text="👨‍🍳  Đơn hàng bếp" fx:id="tabDonHangBep">
-            <fx:include source="TheoDoiDonHangView.fxml"/>
+            <fx:include source="../banhang/TheoDoiDonHangView.fxml"/>
         </Tab>
 
         <!-- Tab 3: Màn hình bếp (KDS) -->

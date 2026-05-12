@@ -2,6 +2,7 @@ package com.bakery.views.interfaces.kho;
 
 import com.bakery.model.dto.kho.CongThucDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.SanPhamDTO;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
 public interface ICongThucView {
     void hienThiDanhSachCongThuc(List<CongThucDTO> ds);
     void hienThiDanhSachNguyenLieu(List<NguyenLieuDTO> dsNL);
+    void hienThiDanhSachSanPham(List<SanPhamDTO> dsSP);
     void hienThiChiTiet(CongThucDTO ct);
     void hienThiLoi(String thongBao);
     void hienThiThanhCong(String thongBao);
