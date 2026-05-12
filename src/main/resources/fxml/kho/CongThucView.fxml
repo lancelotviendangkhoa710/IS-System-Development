@@ -16,8 +16,8 @@
                   editable="true" prefWidth="320" styleClass="combo-box"/>
         <Label fx:id="lblSanPhamDangCauHinh" text="" styleClass="lbl-body" wrapText="false"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="↺ Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
-        <Button text="➕ Thêm nguyên liệu" styleClass="btn-primary" onAction="#onThemCongThuc"/>
+        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+        <Button text="➕ Thêm nguyên liệu" styleClass="btn-success" onAction="#onThemCongThuc"/>
     </HBox>
 
     <!-- MAIN CONTENT -->
@@ -66,7 +66,7 @@
 
             <VBox spacing="12" maxWidth="Infinity">
                 <Button fx:id="btnLuuCongThuc" text="💾 Cập nhật định mức"
-                        styleClass="btn-primary" maxWidth="Infinity"
+                        styleClass="btn-success" maxWidth="Infinity"
                         onAction="#onLuuCongThuc"/>
                 <Button fx:id="btnXoaCongThuc" text="🗑 Xóa khỏi công thức"
                         styleClass="btn-danger" maxWidth="Infinity"

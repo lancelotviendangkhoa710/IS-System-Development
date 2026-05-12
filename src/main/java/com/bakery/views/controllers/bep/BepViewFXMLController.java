@@ -19,6 +19,7 @@ public class BepViewFXMLController extends BaseController {
     @FXML private Tab tabXuatKho;
     @FXML private Tab tabDonHangBep;
     @FXML private Tab tabKds;
+    @FXML private Tab tabCauHinhGioiHan;
 
     @FXML
     public void initialize() {
@@ -36,6 +37,7 @@ public class BepViewFXMLController extends BaseController {
         Tab target = switch (tabKey.toLowerCase()) {
             case "donhangbep" -> tabDonHangBep;
             case "kds"        -> tabKds;
+            case "cauhinhgioihan", "gioihan" -> tabCauHinhGioiHan;
             default           -> tabXuatKho;
         };
         if (target != null) {

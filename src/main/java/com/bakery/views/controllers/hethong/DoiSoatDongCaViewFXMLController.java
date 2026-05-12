@@ -3,8 +3,11 @@ package com.bakery.views.controllers.hethong;
 // import com.bakery.App;
 // import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.hethong.DoiSoatDongCaPresenter;
+import com.bakery.services.nhansu.XacThucService;
 import com.bakery.services.hethong.DoiSoatService;
 import com.bakery.utils.CurrencyFormatter;
+import com.bakery.utils.SessionContext;
+import com.bakery.utils.UserSession;
 import com.bakery.views.interfaces.hethong.IDoiSoatDongCaView;
 import javafx.application.Platform;
 // import javafx.collections.FXCollections;
@@ -81,18 +84,30 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
     @FXML
     private Button btnHoanTat;
 
+    private boolean yeuCauDangXuatSauDongCa = false;
+    private Stage ownerStage;
+
     private final DoiSoatDongCaPresenter presenter = new DoiSoatDongCaPresenter(this, new DoiSoatService());
 
     public static void hienThi() {
+        hienThi(null, false);
+    }
+
+    public static void hienThi(Stage owner, boolean dangXuatSauDongCa) {
         try {
             URL fxml = DoiSoatDongCaViewFXMLController.class.getResource("/fxml/hethong/DoiSoatDongCaView.fxml");
             if (fxml == null)
                 return;
 
-            Parent root = FXMLLoader.load(fxml);
+            FXMLLoader loader = new FXMLLoader(fxml);
+            Parent root = loader.load();
+            DoiSoatDongCaViewFXMLController controller = loader.getController();
+
             Stage dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
-            // dialog.initOwner(App.getPrimaryStage());
+            if (owner != null) {
+                dialog.initOwner(owner);
+            }
             dialog.setTitle("Đối soát đóng ca");
             dialog.setResizable(false);
 
@@ -101,6 +116,8 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
             if (css != null)
                 scene.getStylesheets().add(css.toExternalForm());
 
+            controller.yeuCauDangXuatSauDongCa = dangXuatSauDongCa;
+            controller.ownerStage = owner;
             dialog.setScene(scene);
             dialog.showAndWait();
         } catch (IOException e) {
@@ -286,13 +303,25 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
 
     @Override
     public void navigateToLogin() {
+        if (!yeuCauDangXuatSauDongCa) {
+            return;
+        }
+
         Platform.runLater(() -> {
-            // Lấy owner window (MainMenuView) trước khi đóng dialog
-            javafx.stage.Window owner = getStage().getOwner();
-            getStage().close();
+            try {
+                new XacThucService().dangXuat();
+            } catch (Exception ignored) {
+                UserSession.clear();
+                SessionContext.clear();
+            }
+
+            Stage owner = ownerStage;
+            if (owner == null && getStage() != null && getStage().getOwner() instanceof Stage stage) {
+                owner = stage;
+            }
 
             // Chuyển owner về màn hình đăng nhập
-            if (owner instanceof Stage ownerStage) {
+            if (owner != null) {
                 try {
                     java.net.URL fxmlUrl = getClass().getResource("/fxml/hethong/DangNhapView.fxml");
                     if (fxmlUrl == null) return;
@@ -301,10 +330,10 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
                     javafx.scene.Scene scene = new javafx.scene.Scene(root);
                     URL css = getClass().getResource("/css/bakery.css");
                     if (css != null) scene.getStylesheets().add(css.toExternalForm());
-                    ownerStage.setTitle("H3K Bakery - Đăng nhập");
-                    ownerStage.setScene(scene);
-                    ownerStage.setResizable(false);
-                    ownerStage.centerOnScreen();
+                    owner.setTitle("H3K Bakery - Đăng nhập");
+                    owner.setScene(scene);
+                    owner.setResizable(false);
+                    owner.centerOnScreen();
                 } catch (Exception e) {
                     System.err.println("[DoiSoatDongCa] Lỗi về màn hình đăng nhập: " + e.getMessage());
                 }

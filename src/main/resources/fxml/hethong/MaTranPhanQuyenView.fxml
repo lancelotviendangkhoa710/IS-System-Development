@@ -20,7 +20,7 @@
             <Label text="Quản lý vai trò nhân viên và quyền truy cập từng chức năng" styleClass="lbl-body-secondary"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="↻ Làm mới" onAction="#onRefresh" styleClass="btn-secondary"/>
+        <Button text="↺ Làm mới" onAction="#onRefresh" styleClass="btn-reset"/>
     </HBox>
 
     <Separator style="-fx-padding: 12 0 12 0;"/>
@@ -36,7 +36,7 @@
                     <TextField fx:id="txtTimNhanVien" promptText="Tìm nhân viên..." prefWidth="260"/>
                     <Button text="🔍 Tìm" onAction="#onTimKiemNhanVien" styleClass="btn-secondary"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="💾 Lưu thay đổi" onAction="#onLuuPhanVaiTro" styleClass="btn-primary"/>
+                    <Button text="💾 Lưu thay đổi" onAction="#onLuuPhanVaiTro" styleClass="btn-success"/>
                 </HBox>
 
                 <VBox styleClass="card" VBox.vgrow="ALWAYS">
@@ -57,7 +57,7 @@
                     <ComboBox fx:id="cbVaiTro" promptText="-- Chọn vai trò --" prefWidth="200"/>
                     <Button text="Tải quyền" onAction="#onTaiQuyenVaiTro" styleClass="btn-secondary"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="💾 Lưu quyền" onAction="#onLuuQuyenChucNang" styleClass="btn-primary"/>
+                    <Button text="💾 Lưu quyền" onAction="#onLuuQuyenChucNang" styleClass="btn-success"/>
                 </HBox>
 
                 <VBox styleClass="card" VBox.vgrow="ALWAYS">

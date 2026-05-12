@@ -84,11 +84,11 @@
 
             <VBox spacing="12" maxWidth="Infinity">
                 <Button fx:id="btnThem" text="➕ Thêm Mới"
-                        onAction="#onThem" maxWidth="Infinity" styleClass="btn-primary"/>
+                        onAction="#onThem" maxWidth="Infinity" styleClass="btn-success"/>
                 <Button fx:id="btnLuu" text="💾 Lưu Thay Đổi"
-                        onAction="#onLuu" maxWidth="Infinity" styleClass="btn-primary"/>
+                        onAction="#onLuu" maxWidth="Infinity" styleClass="btn-success"/>
                 <Button fx:id="btnHuy" text="↺ Làm Mới Form"
-                        onAction="#onHuy" maxWidth="Infinity" styleClass="btn-secondary"/>
+                        onAction="#onHuy" maxWidth="Infinity" styleClass="btn-reset"/>
                 <Button fx:id="btnXoa" text="🗑 Xóa Đối Tác"
                         onAction="#onXoa" maxWidth="Infinity" styleClass="btn-danger"/>
             </VBox>

@@ -17,6 +17,8 @@ public class SanPhamDTO extends BaseDTO {
     private LocalDateTime thoiDiemXoa;
     private int thoiGianChuanBi;
     private Integer maNX;
+    /** Chuỗi tên nguyên liệu LISTAGG từ DB — dùng cho Tooltip POS (không lưu DB). */
+    private String thanhPhan;
 
     public SanPhamDTO() {
     }
@@ -142,5 +144,13 @@ public class SanPhamDTO extends BaseDTO {
 
     public void setMaNX(Integer maNX) {
         this.maNX = maNX;
+    }
+
+    public String getThanhPhan() {
+        return thanhPhan;
+    }
+
+    public void setThanhPhan(String thanhPhan) {
+        this.thanhPhan = thanhPhan;
     }
 }

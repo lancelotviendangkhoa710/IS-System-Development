@@ -234,6 +234,67 @@ public class XacThucService {
         SessionContext.clear();
     }
 
+    /**
+     * Cập nhật thông tin cá nhân và đổi mật khẩu mới cho phiên hiện tại.
+     * Luồng này yêu cầu nhập mật khẩu mới để xác nhận lưu thay đổi.
+     */
+    public void capNhatThongTinCaNhan(String hoTen, String soDienThoai,
+                                      String matKhauMoi, String xacNhanMatKhauMoi) throws Exception {
+        SessionContext.AuthSession session = requireActiveSession();
+
+        if (hoTen == null || hoTen.isBlank()) {
+            throw new Exception("Họ tên không được để trống.");
+        }
+
+        if (soDienThoai == null || soDienThoai.isBlank()) {
+            throw new Exception("Số điện thoại không được để trống.");
+        }
+        String sdt = soDienThoai.trim();
+        if (sdt.length() < 9 || sdt.length() > 15) {
+            throw new Exception("Số điện thoại phải từ 9 đến 15 ký tự.");
+        }
+
+        String matKhauMoiHopLe = validatePassword(matKhauMoi, "Mật khẩu mới");
+        String xacNhanHopLe = validatePassword(xacNhanMatKhauMoi, "Xác nhận mật khẩu mới");
+        if (!matKhauMoiHopLe.equals(xacNhanHopLe)) {
+            throw new Exception("Mật khẩu mới và xác nhận mật khẩu mới không khớp.");
+        }
+
+        boolean updatedInfo = nhanVienDAO.capNhatThongTinCaNhan(
+                session.getMaNhanVien(),
+                hoTen.trim(),
+                sdt
+        );
+        if (!updatedInfo) {
+            throw new Exception("Không thể cập nhật thông tin cá nhân.");
+        }
+
+        boolean updatedPassword = nhanVienDAO.doiMatKhau(
+                session.getMaNhanVien(),
+                PasswordUtils.hash(matKhauMoiHopLe)
+        );
+        if (!updatedPassword) {
+            throw new Exception("Không thể cập nhật mật khẩu mới.");
+        }
+
+        // Đồng bộ cache session/user sau khi lưu DB.
+        NhanVienDTO nhanVienMoi = nhanVienDAO.timNhanVienTheoMa(session.getMaNhanVien());
+        if (nhanVienMoi != null) {
+            UserSession.setCurrentUser(nhanVienMoi);
+            SessionContext.AuthSession oldSession = SessionContext.getCurrentSession();
+            if (oldSession != null) {
+                SessionContext.createSession(new SessionContext.AuthSession(
+                        oldSession.getMaNhanVien(),
+                        oldSession.getMaVaiTro(),
+                        oldSession.getTenDangNhap(),
+                        nhanVienMoi.getHoTen(),
+                        oldSession.getTenVaiTro(),
+                        oldSession.getQuyen()
+                ));
+            }
+        }
+    }
+
     private SessionContext.AuthSession requireActiveSession() throws Exception {
         SessionContext.AuthSession session = SessionContext.getCurrentSession();
         if (session == null) {

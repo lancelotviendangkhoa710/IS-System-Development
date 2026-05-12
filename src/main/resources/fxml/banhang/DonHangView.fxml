@@ -40,6 +40,10 @@
                            promptText="🔍  Tìm sản phẩm..."
                            prefWidth="220"
                            styleClass="text-field"/>
+                <Button fx:id="btnLamMoi"
+                        text="🔄 Làm mới"
+                        styleClass="btn-reset"
+                        onAction="#onLamMoi"/>
             </HBox>
 
             <!-- Product Area (StackPane chứa 2 màn hình: Products / Custom) -->

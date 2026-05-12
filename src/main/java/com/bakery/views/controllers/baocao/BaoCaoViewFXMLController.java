@@ -38,6 +38,10 @@ public class BaoCaoViewFXMLController extends BaseController {
     
     @FXML private ComboBox<String> cbLoaiBaoCao;
     @FXML private DatePicker dpNgayBaoCao;
+    @FXML private TabPane tabPaneBaoCao;
+    @FXML private Tab tabThongKeKinhDoanh;
+    @FXML private Tab tabSoQuyThuChi;
+    @FXML private Tab tabGiamSatCa;
 
     private ThongKeService thongKeService = new ThongKeService();
 
@@ -53,6 +57,25 @@ public class BaoCaoViewFXMLController extends BaseController {
 
         setupFilters();
         refreshData();
+        if (tabPaneBaoCao != null && tabThongKeKinhDoanh != null) {
+            tabPaneBaoCao.getSelectionModel().select(tabThongKeKinhDoanh);
+        }
+    }
+
+    /**
+     * Chuyển tab trong BaoCaoView từ MainMenu.
+     * tabKey: "thongke" | "soquy" | "giamsatca"
+     */
+    public void chuyenTab(String tabKey) {
+        if (tabPaneBaoCao == null || tabKey == null) return;
+        Tab target = switch (tabKey.toLowerCase()) {
+            case "soquy" -> tabSoQuyThuChi;
+            case "giamsatca" -> tabGiamSatCa;
+            default -> tabThongKeKinhDoanh;
+        };
+        if (target != null) {
+            tabPaneBaoCao.getSelectionModel().select(target);
+        }
     }
 
     private void setupFilters() {

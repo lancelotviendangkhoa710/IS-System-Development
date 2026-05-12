@@ -125,6 +125,12 @@ public class CauHinhGioiHanDonViewFXMLController implements ICauHinhGioiHanView 
         lblThongBao.setText("");
     }
 
+    @FXML
+    private void onLamMoi() {
+        lamMoiForm();
+        presenter.taiDuLieu();
+    }
+
     // --- private helpers ---
 
     private void khoiTaoCot() {

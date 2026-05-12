@@ -17,19 +17,33 @@ public class SanPhamDAO extends BaseDAO {
 
     public List<SanPhamDTO> layTatCaSanPhamDeBan() throws Exception {
         List<SanPhamDTO> list = new ArrayList<>();
-        String sql = "SELECT MASP, MADM, TENSP, NVL(GIAVON,0) AS GIAVON, NVL(GIABAN,0) AS GIABAN, " +
-                "HINHANH, CHOPHEPTUYCHINH, " +
-                "THOIGIANBAOQUAN, NVL(SOLUONGTON, 0) AS SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
-                "FROM SANPHAM " +
-                "WHERE THOIDIEMXOA IS NULL " +
-                "ORDER BY MASP";
+        // JOIN CONGTHUC + NGUYENLIEU, dùng LISTAGG để gộp tên NL vào 1 chuỗi.
+        // Tránh N+1 query khi hiển thị Tooltip trên màn hình POS.
+        String sql =
+                "SELECT sp.MASP, sp.MADM, sp.TENSP, " +
+                "NVL(sp.GIAVON,0) AS GIAVON, NVL(sp.GIABAN,0) AS GIABAN, " +
+                "sp.HINHANH, sp.CHOPHEPTUYCHINH, sp.THOIGIANBAOQUAN, " +
+                "NVL(sp.SOLUONGTON,0) AS SOLUONGTON, sp.PHIENBAN, " +
+                "sp.THOIDIEMXOA, sp.THOIGIANCHUANBI, sp.MANX, " +
+                "LISTAGG(nl.TENNL, ', ') WITHIN GROUP (ORDER BY nl.TENNL) AS THANH_PHAN " +
+                "FROM SANPHAM sp " +
+                "LEFT JOIN CONGTHUC ct ON ct.MASP = sp.MASP " +
+                "LEFT JOIN NGUYENLIEU nl ON nl.MANL = ct.MANL " +
+                "WHERE sp.THOIDIEMXOA IS NULL " +
+                "GROUP BY sp.MASP, sp.MADM, sp.TENSP, sp.GIAVON, sp.GIABAN, " +
+                "sp.HINHANH, sp.CHOPHEPTUYCHINH, sp.THOIGIANBAOQUAN, " +
+                "sp.SOLUONGTON, sp.PHIENBAN, sp.THOIDIEMXOA, sp.THOIGIANCHUANBI, sp.MANX " +
+                "ORDER BY sp.MASP";
 
         try (Connection conn = moKetNoi();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(mapSanPham(rs));
+                    SanPhamDTO sp = mapSanPham(rs);
+                    String tp = rs.getString("THANH_PHAN");
+                    sp.setThanhPhan(tp != null ? tp : "");
+                    list.add(sp);
                 }
             }
         } catch (SQLException e) {

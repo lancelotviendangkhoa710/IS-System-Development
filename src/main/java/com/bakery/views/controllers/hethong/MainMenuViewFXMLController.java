@@ -2,6 +2,7 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.SessionWatchdogService;
+import com.bakery.services.nhansu.XacThucService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
@@ -12,8 +13,13 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
@@ -41,6 +47,7 @@ public class MainMenuViewFXMLController {
     @FXML private Label lblVaiTro;
     @FXML private Label lblThongBao;
     @FXML private Label lblBannerName;
+    @FXML private Button btnAvatar;
 
     // ─── Sidebar layout ───────────────────────────────────────────────────────
     @FXML private VBox vboxSidebar;
@@ -102,6 +109,9 @@ public class MainMenuViewFXMLController {
 
         lblTenNguoiDung.setText(
                 this.currentUser.getHoTen() == null ? this.currentUser.getTenDangNhap() : this.currentUser.getHoTen());
+        if (btnAvatar != null) {
+            btnAvatar.setText(taoKyTuAvatar(lblTenNguoiDung.getText()));
+        }
         if (lblBannerName != null) {
             lblBannerName.setText(lblTenNguoiDung.getText());
         }
@@ -110,9 +120,11 @@ public class MainMenuViewFXMLController {
         // Tong quan
         capNhatTrangThaiNut(btnTongQuan, coQuyen(PhanQuyenService.TinhNangHeThong.TONG_QUAN));
 
-        // Ban hang
-        capNhatTrangThaiNut(btnBanHang, coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS));
-        capNhatTrangThaiNut(btnTheoDoiDon, coQuyen(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG));
+        // Ban hang (gom POS + Theo doi don vao 1 nut)
+        boolean coQuyenBanHangTong = coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG);
+        capNhatTrangThaiNut(btnBanHang, coQuyenBanHangTong);
+        anNutDieuHuong(btnTheoDoiDon);
         capNhatTrangThaiNut(btnKhachHang, coQuyen(PhanQuyenService.TinhNangHeThong.KHACH_HANG));
 
         // San pham — 1 nut gom 4 module
@@ -152,6 +164,7 @@ public class MainMenuViewFXMLController {
                 && (laAdmin || authorizationService.laQuanLy(currentUser));
         capNhatTrangThaiNut(btnCauHinhGioiHan, coQuyenCauHinh);
 
+
         // Load dashboard mac dinh
         if (contentArea != null && contentArea.getChildren().isEmpty()) {
             onMoDashboard();
@@ -174,8 +187,13 @@ public class MainMenuViewFXMLController {
 
     @FXML
     private void onMoBanHang() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "Dat hang POS")) return;
-        loadView("/fxml/banhang/DonHangView.fxml");
+        boolean coQuyenPos = coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS);
+        boolean coQuyenTheoDoi = coQuyen(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG);
+        if (!coQuyenPos && !coQuyenTheoDoi) {
+            if (lblThongBao != null) lblThongBao.setText("Ban khong co quyen truy cap Ban hang.");
+            return;
+        }
+        loadView(coQuyenPos ? "/fxml/banhang/DonHangView.fxml" : "/fxml/banhang/TheoDoiDonHangView.fxml");
     }
 
     @FXML
@@ -230,7 +248,7 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoBaoCao() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "Bao cao kinh doanh")) return;
-        loadView("/fxml/baocao/BaoCaoView.fxml");
+        moBaoCaoTab("thongke");
     }
 
     @FXML
@@ -242,7 +260,7 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onMoCauHinhGioiHan() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON, "Cau hinh gioi han nhan don")) return;
-        loadView("/fxml/hethong/CauHinhGioiHanDonView.fxml");
+        moBepTab("cauhinhgioihan");
     }
 
     @FXML
@@ -251,7 +269,7 @@ public class MainMenuViewFXMLController {
             lblThongBao.setText("⚠️ Chuc nang nay chi danh cho Quan ly.");
             return;
         }
-        loadView("/fxml/hethong/GiamSatCaView.fxml");
+        moBaoCaoTab("giamsatca");
     }
 
 
@@ -262,6 +280,12 @@ public class MainMenuViewFXMLController {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quan ly ca lam viec")) return;
         try {
             boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
+            if (caoDangMo) {
+                Stage owner = (Stage) lblTenNguoiDung.getScene().getWindow();
+                DoiSoatDongCaViewFXMLController.hienThi(owner, false);
+                return;
+            }
+
             String fxmlPath = caoDangMo ? "/fxml/hethong/DoiSoatDongCaView.fxml" : "/fxml/hethong/MoCaView.fxml";
             String title = caoDangMo ? "H3K Bakery - Dong ca" : "H3K Bakery - Mo ca";
 
@@ -331,23 +355,102 @@ public class MainMenuViewFXMLController {
         lblThongBao.setText("Chuc nang dang phat trien.");
     }
 
+    @FXML
+    private void onMoThongTinCaNhan() {
+        if (currentUser == null) return;
+
+        TextField txtHoTen = new TextField(currentUser.getHoTen() == null ? "" : currentUser.getHoTen());
+        TextField txtSdt = new TextField(currentUser.getSdt() == null ? "" : currentUser.getSdt());
+        PasswordField txtMatKhauMoi = new PasswordField();
+        PasswordField txtXacNhanMatKhau = new PasswordField();
+
+        txtHoTen.getStyleClass().add("text-field");
+        txtSdt.getStyleClass().add("text-field");
+        txtMatKhauMoi.getStyleClass().add("text-field");
+        txtXacNhanMatKhau.getStyleClass().add("text-field");
+
+        txtMatKhauMoi.setPromptText("Nhập mật khẩu mới");
+        txtXacNhanMatKhau.setPromptText("Xác nhận mật khẩu mới");
+
+        GridPane form = new GridPane();
+        form.setHgap(12);
+        form.setVgap(10);
+        form.setPadding(new Insets(8, 0, 0, 0));
+        form.add(new Label("Họ tên:"), 0, 0);
+        form.add(txtHoTen, 1, 0);
+        form.add(new Label("Số điện thoại:"), 0, 1);
+        form.add(txtSdt, 1, 1);
+        form.add(new Label("Mật khẩu mới:"), 0, 2);
+        form.add(txtMatKhauMoi, 1, 2);
+        form.add(new Label("Xác nhận mật khẩu:"), 0, 3);
+        form.add(txtXacNhanMatKhau, 1, 3);
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Cập nhật thông tin cá nhân");
+        dialog.setHeaderText("Thay đổi thông tin và nhập mật khẩu mới để lưu.");
+        dialog.getDialogPane().setContent(form);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.initOwner(lblTenNguoiDung.getScene().getWindow());
+
+        dialog.showAndWait().ifPresent(bt -> {
+            if (bt != ButtonType.OK) return;
+
+            javafx.concurrent.Task<Void> taskCapNhat = new javafx.concurrent.Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    new XacThucService().capNhatThongTinCaNhan(
+                            txtHoTen.getText(),
+                            txtSdt.getText(),
+                            txtMatKhauMoi.getText(),
+                            txtXacNhanMatKhau.getText()
+                    );
+                    return null;
+                }
+            };
+
+            taskCapNhat.setOnSucceeded(evt -> javafx.application.Platform.runLater(() -> {
+                NhanVienDTO userMoi = UserSession.getCurrentUser();
+                if (userMoi != null) {
+                    currentUser = userMoi;
+                    lblTenNguoiDung.setText(userMoi.getHoTen() == null ? userMoi.getTenDangNhap() : userMoi.getHoTen());
+                    lblVaiTro.setText(xayDungNhanQuyen(currentUser, authorizationService.laAdmin(currentUser)));
+                    if (lblBannerName != null) lblBannerName.setText(lblTenNguoiDung.getText());
+                    if (btnAvatar != null) btnAvatar.setText(taoKyTuAvatar(lblTenNguoiDung.getText()));
+                }
+                if (lblThongBao != null) lblThongBao.setText("Đã cập nhật thông tin cá nhân thành công.");
+            }));
+            taskCapNhat.setOnFailed(evt -> javafx.application.Platform.runLater(() ->
+                    hienThiLoiLabel(taskCapNhat.getException() != null
+                            ? taskCapNhat.getException().getMessage()
+                            : "Cập nhật thông tin thất bại.")));
+
+            Thread t = new Thread(taskCapNhat, "cap-nhat-thong-tin-ca-nhan");
+            t.setDaemon(true);
+            t.start();
+        });
+    }
+
     // ─── Dang xuat ───────────────────────────────────────────────────────────
+
+    private void hienThiLoiLabel(String thongBao) {
+        if (lblThongBao != null) {
+            lblThongBao.setText(thongBao == null || thongBao.isBlank()
+                    ? "Co loi xay ra. Vui long thu lai."
+                    : thongBao);
+        }
+    }
 
     @FXML
     private void onDangXuat() {
-        // Thu ngân phải đóng ca trước khi đăng xuất
+        // Thu ngan: neu ca dang mo thi mo thang dialog Dong ca (khong hien alert).
         if (currentUser != null && authorizationService.laThuNgan(currentUser)
                 && com.bakery.utils.SessionContext.getInstance().isCaoDangMo()) {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.WARNING);
-            alert.setTitle("Không thể đăng xuất");
-            alert.setHeaderText("Ca làm việc đang mở");
-            alert.setContentText(
-                    "Bạn cần đóng ca làm việc trước khi đăng xuất.\n" +
-                    "Vui lòng vào mục \"Quản lý ca\" → \"Đóng ca\" rồi thử lại.");
-            alert.initOwner(lblTenNguoiDung.getScene().getWindow());
-            alert.showAndWait();
-            if (lblThongBao != null) lblThongBao.setText("⚠️ Vui lòng đóng ca trước khi đăng xuất.");
+            dungWatchdog();
+            Stage owner = (Stage) lblTenNguoiDung.getScene().getWindow();
+            DoiSoatDongCaViewFXMLController.hienThi(owner, true);
+            if (lblThongBao != null) {
+                lblThongBao.setText("Vui long dong ca de hoan tat dang xuat.");
+            }
             return;
         }
 
@@ -431,6 +534,19 @@ public class MainMenuViewFXMLController {
         }
     }
 
+    /** Tai BaoCaoView roi chuyen sang tab tuong ung. */
+    private void moBaoCaoTab(String tabKey) {
+        try {
+            javafx.fxml.FXMLLoader loader = FXMLLoaderUtil.getLoader("/fxml/baocao/BaoCaoView.fxml");
+            Node view = loader.load();
+            com.bakery.views.controllers.baocao.BaoCaoViewFXMLController ctrl = loader.getController();
+            if (ctrl != null) ctrl.chuyenTab(tabKey);
+            if (contentArea != null) contentArea.getChildren().setAll(view);
+        } catch (Exception e) {
+            LOGGER.warning("Khong the mo BaoCaoView: " + e.getMessage());
+        }
+    }
+
     private void loadView(String fxmlPath) {
         if (contentArea == null) {
             LOGGER.warning("contentArea is null, cannot load view: " + fxmlPath);
@@ -445,7 +561,21 @@ public class MainMenuViewFXMLController {
     private void capNhatTrangThaiNut(Button button, boolean duocCapQuyen) {
         if (button == null) return;
         button.setDisable(!duocCapQuyen);
-        button.setOpacity(duocCapQuyen ? 1.0 : 0.45);
+        button.setVisible(duocCapQuyen);
+        button.setManaged(duocCapQuyen);
+        button.setOpacity(1.0);
+    }
+
+    private void anNutDieuHuong(Button button) {
+        if (button == null) return;
+        button.setDisable(true);
+        button.setVisible(false);
+        button.setManaged(false);
+    }
+
+    private String taoKyTuAvatar(String ten) {
+        if (ten == null || ten.isBlank()) return "👤";
+        return String.valueOf(Character.toUpperCase(ten.trim().charAt(0)));
     }
 
     private boolean coQuyen(PhanQuyenService.TinhNangHeThong tinhNang) {

@@ -101,6 +101,7 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
     @FXML private void onLuuThayDoi() { presenter.suaDanhMuc(); }
     @FXML private void onXoa() { presenter.xoaDanhMuc(); }
     @FXML private void onTimKiem() { presenter.timKiem(); }
+    @FXML private void onLamMoi() { lamMoiForm(); presenter.taiDanhSach(); }
 
     @FXML
     private void onQuayLai() {

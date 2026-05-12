@@ -7,7 +7,9 @@ import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.PhieuXuatKhoDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.services.kho.XuatKhoSanXuatService;
+import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.SessionContext;
+import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -30,6 +32,7 @@ import java.util.List;
 public class XuatKhoViewFXMLController extends BaseController {
 
     @FXML private Label lblTitle;
+    @FXML private Button btnXoa;
     @FXML private TableView<PhieuXuatKhoDTO> tblData;
     @FXML private TableColumn<PhieuXuatKhoDTO, String> colDate;
     @FXML private TableColumn<PhieuXuatKhoDTO, String> colUser;
@@ -56,6 +59,22 @@ public class XuatKhoViewFXMLController extends BaseController {
         lblTitle.setText("QUẢN LÝ XUẤT KHO");
         setupTable();
         taiDuLieu();
+        capNhatQuyenXoa();
+    }
+
+    /** Task 3: Chỉ Admin/Quản lý được thấy nút Xóa phiếu xuất. */
+    private void capNhatQuyenXoa() {
+        if (btnXoa == null) return;
+        PhanQuyenService svc = new PhanQuyenService();
+        com.bakery.model.dto.nhansu.NhanVienDTO user = UserSession.getCurrentUser();
+        boolean coQuyen = svc.laAdmin(user) || svc.laQuanLy(user);
+        btnXoa.setVisible(coQuyen);
+        btnXoa.setManaged(coQuyen);
+        if (coQuyen) {
+            btnXoa.setDisable(true);
+            tblData.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, old, nv) -> btnXoa.setDisable(nv == null));
+        }
     }
 
     private void setupTable() {
@@ -96,6 +115,17 @@ public class XuatKhoViewFXMLController extends BaseController {
     @FXML
     private void onBack() {
         quayLaiMenuChinh(lblTitle);
+    }
+
+    /**
+     * Chức năng xóa phiếu xuất yêu cầu Procedure hủy chuyên biệt.
+     * Hiện chỉ bật RBAC hiển thị nút theo vai trò và hướng dẫn thao tác an toàn.
+     */
+    @FXML
+    private void onXoa() {
+        PhieuXuatKhoDTO selected = tblData.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+        hienThiLoiLabel("Hệ thống chưa cấu hình Procedure hủy phiếu xuất kho. Vui lòng liên hệ Quản lý DB.");
     }
 
     // ── Bước 1: Dialog chọn lý do xuất ────────────────────────────────

@@ -28,7 +28,7 @@
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
     </HBox>
 
-    <!-- TabPane chứa 3 phân hệ bếp -->
+    <!-- TabPane chứa các phân hệ bếp -->
     <TabPane fx:id="tabPaneBep" VBox.vgrow="ALWAYS"
              tabClosingPolicy="UNAVAILABLE"
              styleClass="tab-pane">
@@ -46,6 +46,11 @@
         <!-- Tab 3: Màn hình bếp (KDS) -->
         <Tab text="🖥  Màn hình bếp (KDS)" fx:id="tabKds">
             <fx:include source="ThoBepDashboardView.fxml"/>
+        </Tab>
+
+        <!-- Tab 4: Cấu hình giới hạn nhận đơn -->
+        <Tab text="⚙  Giới hạn nhận đơn" fx:id="tabCauHinhGioiHan">
+            <fx:include source="CauHinhGioiHanDonView.fxml"/>
         </Tab>
 
     </TabPane>

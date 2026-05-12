@@ -32,9 +32,9 @@
 
     <!-- MAIN CONTENT -->
     <center>
-        <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="modern-tab-pane">
+        <TabPane fx:id="tabPaneBaoCao" tabClosingPolicy="UNAVAILABLE" styleClass="modern-tab-pane">
             <tabs>
-                <Tab text="📈 Thống kê kinh doanh">
+                <Tab fx:id="tabThongKeKinhDoanh" text="📈 Thống kê kinh doanh">
                     <content>
                         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
                             <VBox spacing="24" style="-fx-padding: 20 40 40 40;">
@@ -154,9 +154,14 @@
                         </ScrollPane>
                     </content>
                 </Tab>
-                <Tab text="💰 Sổ quỹ thu chi">
+                <Tab fx:id="tabSoQuyThuChi" text="💰 Sổ quỹ thu chi">
                     <content>
                         <fx:include source="SoQuyView.fxml" />
+                    </content>
+                </Tab>
+                <Tab fx:id="tabGiamSatCa" text="🔍 Giám sát tiền mặt đóng ca">
+                    <content>
+                        <fx:include source="../hethong/GiamSatCaView.fxml" />
                     </content>
                 </Tab>
             </tabs>

@@ -31,6 +31,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -123,6 +124,13 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     @FXML
     private void onQuayLai() {
         quayLaiMenuChinh(tabTaoDon);
+    }
+
+    @FXML
+    private void onLamMoi() {
+        if (presenter == null) return;
+        presenter.taiDuLieuBanDau();
+        hienThiThanhCong("Đã làm mới danh sách sản phẩm.");
     }
 
     @FXML
@@ -430,6 +438,16 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         if (anh != null) imageView.setImage(anh);
 
         StackPane imageContainer = new StackPane(imageView);
+        imageContainer.setPickOnBounds(true);
+        String thanhPhan = sanPham.getThanhPhan();
+        String noiDungTooltip = (thanhPhan == null || thanhPhan.isBlank())
+                ? "Thành phần: Chưa có dữ liệu"
+                : "Thành phần: " + thanhPhan;
+        Tooltip tooltipThanhPhan = new Tooltip(noiDungTooltip);
+        tooltipThanhPhan.setShowDelay(Duration.millis(120));
+        Tooltip.install(imageContainer, tooltipThanhPhan);
+        Tooltip.install(imageView, tooltipThanhPhan);
+
         Label lblStock = new Label();
         lblStock.getStyleClass().add("lbl-stock-badge");
         StackPane.setAlignment(lblStock, Pos.TOP_RIGHT);

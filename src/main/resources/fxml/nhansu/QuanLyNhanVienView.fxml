@@ -33,8 +33,8 @@
         <Region HBox.hgrow="ALWAYS"/>
         <TextField fx:id="txtTimKiem" promptText="Tìm tên hoặc SĐT..." prefWidth="200" styleClass="text-field"/>
         <ComboBox fx:id="cmbLocTrangThai" promptText="Tất cả trạng thái" prefWidth="160" styleClass="combo-box"/>
-        <Button text="Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
-        <Button fx:id="btnThemMoi" text="Thêm nhân viên" styleClass="btn-primary" onAction="#onThemMoi"/>
+        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+        <Button fx:id="btnThemMoi" text="Thêm nhân viên" styleClass="btn-success" onAction="#onThemMoi"/>
     </HBox>
 
     <HBox spacing="30" VBox.vgrow="ALWAYS">
@@ -106,7 +106,7 @@
             <Region VBox.vgrow="ALWAYS"/>
 
             <VBox spacing="12" maxWidth="Infinity">
-                <Button fx:id="btnLuu" text="Lưu thông tin" styleClass="btn-primary" maxWidth="Infinity" onAction="#onLuu"/>
+                <Button fx:id="btnLuu" text="Lưu thông tin" styleClass="btn-success" maxWidth="Infinity" onAction="#onLuu"/>
                 <Button fx:id="btnChoThoiViec" text="Cho thôi việc" styleClass="btn-danger" maxWidth="Infinity" onAction="#onChoThoiViec"/>
             </VBox>
         </VBox>

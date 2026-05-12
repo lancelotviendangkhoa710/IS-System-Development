@@ -682,6 +682,15 @@
     -fx-text-fill: #1C0A00;
 }
 
+/* Fix: JavaFX không propagate text-fill vào các cell con → override ở đây */
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: #1C0A00;
+}
+
+.table-row-cell:focused:selected .table-cell {
+    -fx-text-fill: #1C0A00;
+}
+
 .table-row-cell:hover {
     -fx-background-color: #FFFBEB;
     background-color: #FFFBEB;
@@ -1910,6 +1919,40 @@
 .btn-success:hover {
     -fx-background-color: #15803D;
     background-color: #15803D;
+}
+
+/* Nút làm mới / Reset (tím nhạt) */
+.btn-reset {
+    -fx-background-color: #EDE9FE;
+    background-color: #EDE9FE;
+    -fx-text-fill: #5B21B6;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 8px 18px;
+    padding: 8px 18px;
+    -fx-background-radius: 10px;
+    -fx-border-color: #C4B5FD;
+    border-color: #C4B5FD;
+    -fx-border-width: 1.5px;
+    border-width: 1.5px;
+    -fx-border-radius: 10px;
+    border-radius: 10px;
+    -fx-cursor: hand;
+    cursor: hand;
+}
+
+.btn-reset:hover {
+    -fx-background-color: #DDD6FE;
+    background-color: #DDD6FE;
+    -fx-border-color: #8B5CF6;
+    border-color: #8B5CF6;
+}
+
+.btn-reset:pressed {
+    -fx-background-color: #C4B5FD;
+    background-color: #C4B5FD;
 }
 
 .btn-success:pressed {

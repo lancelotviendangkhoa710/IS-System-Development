@@ -11,6 +11,7 @@ public class NhanVienDTO extends BaseDTO {
     private String hoTen;
     private LocalDate ngaySinh;
     private String sdt;
+    private String diaChi;
     private String tenDangNhap;
     private String matKhau;
     private int trangThaiLamViec;
@@ -19,11 +20,12 @@ public class NhanVienDTO extends BaseDTO {
 
     public NhanVienDTO() {}
 
-    public NhanVienDTO(int maNV, String hoTen, LocalDate ngaySinh, String sdt, String tenDangNhap, String matKhau, int trangThaiLamViec) {
+    public NhanVienDTO(int maNV, String hoTen, LocalDate ngaySinh, String sdt, String diaChi, String tenDangNhap, String matKhau, int trangThaiLamViec) {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
         this.sdt = sdt;
+        this.diaChi = diaChi;
         this.tenDangNhap = tenDangNhap;
         this.matKhau = matKhau;
         this.trangThaiLamViec = trangThaiLamViec;
@@ -46,6 +48,9 @@ public class NhanVienDTO extends BaseDTO {
 
     public String getSdt() { return sdt; }
     public void setSdt(String sdt) { this.sdt = sdt; }
+
+    public String getDiaChi() { return diaChi; }
+    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
 
     public String getTenDangNhap() { return tenDangNhap; }
     public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }

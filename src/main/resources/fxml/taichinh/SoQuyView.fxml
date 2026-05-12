@@ -36,7 +36,7 @@
                     <ComboBox fx:id="cmbLocPhanLoai" promptText="Tất cả" prefWidth="140"/>
                     <ComboBox fx:id="cmbLocCa" promptText="Ca hiện tại" prefWidth="200"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnLamMoi" text="↻ Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
+                    <Button fx:id="btnLamMoi" text="↻ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
                 </HBox>
 
                 <!-- Bảng phiếu thu chi -->

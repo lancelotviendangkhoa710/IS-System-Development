@@ -55,7 +55,7 @@
                             <Button onAction="#onExportExcelClicked"
                                     styleClass="btn-secondary" text="📥 Xuất Excel"/>
                             <Button onAction="#onAddCustomerClicked"
-                                    styleClass="btn-primary" text="➕ Thêm khách hàng"/>
+                                    styleClass="btn-success" text="➕ Thêm khách hàng"/>
                         </HBox>
 
 

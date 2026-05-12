@@ -66,7 +66,7 @@
     <!-- Footer -->
     <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
         <Button text="Hủy" styleClass="btn-secondary" onAction="#onHuy"/>
-        <Button text="✅ Thêm &amp; Cấu hình công thức" styleClass="btn-primary" onAction="#onXacNhan"/>
+        <Button text="✅ Thêm &amp; Cấu hình công thức" styleClass="btn-success" onAction="#onXacNhan"/>
     </HBox>
 
 </VBox>

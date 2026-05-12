@@ -30,9 +30,9 @@
                    styleClass="lbl-small-bold"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Lưu phân quyền" fx:id="btnLuuPhanQuyen" styleClass="btn-primary"
+        <Button text="Lưu phân quyền" fx:id="btnLuuPhanQuyen" styleClass="btn-success"
                 onAction="#onLuuPhanQuyen"/>
-        <Button text="Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
+        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
         <Button text="← Quay lại" styleClass="btn-ghost" onAction="#onQuayLai"/>
     </HBox>
 

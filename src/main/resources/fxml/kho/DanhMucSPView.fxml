@@ -26,7 +26,8 @@
             <Label text="Quản lý danh mục sản phẩm" styleClass="lbl-title-screen"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-primary" onAction="#onThemMoi"/>
+        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+        <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-success" onAction="#onThemMoi"/>
     </HBox>
 
     <!-- Main Content Area -->
@@ -65,7 +66,7 @@
             <Region VBox.vgrow="ALWAYS"/>
 
             <VBox spacing="12" maxWidth="Infinity">
-                <Button fx:id="btnLuuThayDoi" text="💾 Lưu thay đổi" styleClass="btn-primary" maxWidth="Infinity" onAction="#onLuuThayDoi"/>
+                <Button fx:id="btnLuuThayDoi" text="💾 Lưu thay đổi" styleClass="btn-success" maxWidth="Infinity" onAction="#onLuuThayDoi"/>
                 <Button fx:id="btnXoa" text="🗑 Xóa danh mục" styleClass="btn-danger" maxWidth="Infinity" onAction="#onXoa"/>
             </VBox>
         </VBox>

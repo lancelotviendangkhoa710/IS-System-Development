@@ -60,7 +60,7 @@
     <!-- Footer -->
     <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="12">
         <Button text="Hủy" onAction="#onHuy" styleClass="btn-secondary"/>
-        <Button fx:id="btnLuu" text="✅ Lưu khách hàng" onAction="#onLuu" styleClass="btn-primary"/>
+        <Button fx:id="btnLuu" text="✅ Lưu khách hàng" onAction="#onLuu" styleClass="btn-success"/>
     </HBox>
 
 </VBox>

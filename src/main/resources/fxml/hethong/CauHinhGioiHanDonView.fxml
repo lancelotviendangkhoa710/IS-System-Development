@@ -17,6 +17,8 @@
         <VBox spacing="3">
             <Label text="Thiết lập số lượng bánh tối đa bếp có thể sản xuất trong một ngày." styleClass="lbl-body"/>
         </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
     </HBox>
 
     <!-- ② CONTENT -->
@@ -67,7 +69,7 @@
             <!-- Actions -->
             <VBox spacing="12" maxWidth="Infinity">
                 <Button fx:id="btnLuuCauHinh" text="💾 Lưu cấu hình"
-                        styleClass="btn-primary" maxWidth="Infinity"
+                        styleClass="btn-success" maxWidth="Infinity"
                         onAction="#onLuuCauHinh"/>
                 <Button fx:id="btnHuy" text="✖ Hủy"
                         styleClass="btn-secondary" maxWidth="Infinity"

@@ -21,7 +21,7 @@
         <Label text="💰 Giám sát tiền mặt đóng ca" styleClass="view-header-title"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Label text="Chỉ xem — không chỉnh sửa" styleClass="lbl-small" style="-fx-text-fill: #6B7280;"/>
-        <Button text="🔄 Làm mới" styleClass="btn-secondary" onAction="#onRefresh"/>
+        <Button text="🔄 Làm mới" styleClass="btn-reset" onAction="#onRefresh"/>
     </HBox>
 
     <!-- Content -->

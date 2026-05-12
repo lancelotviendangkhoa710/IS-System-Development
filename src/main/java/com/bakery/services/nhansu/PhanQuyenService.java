@@ -165,7 +165,15 @@ public class PhanQuyenService {
         return layTinhNangDuocCap(nhanVien).contains(tinhNang);
     }
 
+    /**
+     * Xác định màn hình trang chủ theo vai trò.
+     * Nguyên tắc: vai trò có quyền CAO NHẤT luôn được ưu tiên (Admin > Quản lý > các vai trò chuyên biệt).
+     * Nếu nhân viên có đồng thời Thu Ngân + Quản lý → hiển thị màn hình Quản lý.
+     */
     public String layManHinhTrangChu(NhanVienDTO nhanVien) {
+        if (laAdmin(nhanVien) || laQuanLy(nhanVien)) {
+            return "/fxml/hethong/MainView.fxml";
+        }
         if (laThuNgan(nhanVien)) {
             return "/fxml/hethong/ThuNganDashboardView.fxml";
         }
@@ -178,7 +186,14 @@ public class PhanQuyenService {
         return "/fxml/hethong/MainView.fxml";
     }
 
+    /**
+     * Xác định tiêu đề cửa sổ theo vai trò.
+     * Cùng nguyên tắc "highest privilege wins" với layManHinhTrangChu.
+     */
     public String layTieuDeTrangChu(NhanVienDTO nhanVien) {
+        if (laAdmin(nhanVien) || laQuanLy(nhanVien)) {
+            return "H3K Bakery - He Thong Quan Ly";
+        }
         if (laThuNgan(nhanVien)) {
             return "H3K Bakery - Thu Ngan";
         }
@@ -198,7 +213,7 @@ public class PhanQuyenService {
 
         Set<SystemModule> modules = EnumSet.noneOf(SystemModule.class);
         List<ChucNangDTO> danhSach;
-        
+
         try {
             // Sử dụng logic hợp nhất quyền từ tất cả vai trò của nhân viên
             PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());

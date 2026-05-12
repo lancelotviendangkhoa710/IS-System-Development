@@ -4,13 +4,11 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -36,46 +34,42 @@
                     <VBox styleClass="dash-nav" spacing="12">
                         <!-- PHÂN HỆ: TỔNG QUAN -->
                         <VBox spacing="4">
-                            <Label text="HỆ THỐNG" styleClass="nav-category-label"/>
                             <Button fx:id="btnTongQuan" text="📊 Tổng quan" onAction="#onMoDashboard" styleClass="dash-nav-item, dash-nav-active" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
                         <!-- PHÂN HỆ: NHÂN SỰ -->
                         <VBox spacing="4">
-                            <Label text="NHÂN SỰ" styleClass="nav-category-label"/>
                             <Button fx:id="btnNhanSu" text="👥 Nhân sự" onAction="#onMoNhanSu" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
                         <!-- PHÂN HỆ: BÁN HÀNG -->
                         <VBox spacing="4">
-                            <Label text="BÁN HÀNG" styleClass="nav-category-label"/>
-                            <Button fx:id="btnBanHang" text="🛒 Đặt hàng (POS)" onAction="#onMoBanHang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnTheoDoiDon" text="🚚 Theo dõi đơn" onAction="#onMoTheoDoiDon" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnBanHang" text="🛒 Bán hàng" onAction="#onMoBanHang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                        </VBox>
+
+                        <!-- PHÂN HỆ: QUẢN LÝ KHÁCH HÀNG -->
+                        <VBox spacing="4">
                             <Button fx:id="btnKhachHang" text="🤝 Khách hàng" onAction="#onMoKhachHang" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
                         <!-- PHÂN HỆ: SẢN PHẨM -->
                         <VBox spacing="4">
-                            <Label text="SẢN PHẨM" styleClass="nav-category-label"/>
                             <Button fx:id="btnSanPham" text="🍰 Sản phẩm" onAction="#onMoSanPham" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
                         <!-- PHAN HE: KHO -->
                         <VBox spacing="4">
-                            <Label text="KHO" styleClass="nav-category-label"/>
                             <Button fx:id="btnKho" text="📦 Kho" onAction="#onMoKho" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
                         <!-- PHAN HE: BEP -->
                         <VBox spacing="4">
-                            <Label text="BẾP" styleClass="nav-category-label"/>
                             <Button fx:id="btnBep" text="🍳 Bếp" onAction="#onMoBep" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
 
                         <!-- PHÂN HỆ: BÁO CÁO -->
                         <VBox spacing="4">
-                            <Label text="BÁO CÁO" styleClass="nav-category-label"/>
                             <Button fx:id="btnBaoCao" text="📈 Thống kê &amp; BC" onAction="#onMoBaoCao" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnAuditLogs" text="📜 Lịch sử hệ thống" onAction="#onMoLichSuHeThong" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnGiamSatCa" text="🔍 Giám sát tiền mặt" onAction="#onMoGiamSatCa" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
@@ -94,21 +88,16 @@
             <top>
                 <HBox styleClass="dash-header" alignment="CENTER_LEFT">
                     <Region HBox.hgrow="ALWAYS"/>
-
-                    <!-- Icons -->
-                    <HBox styleClass="dash-header-icons" spacing="12" alignment="CENTER">
-                        <Button text="🔔" styleClass="dash-icon-btn"/>
-                        <Button text="⚙" styleClass="dash-icon-btn"/>
-                        <Button text="☁" styleClass="dash-icon-btn"/>
-                    </HBox>
-
                     <!-- User Profile -->
                     <HBox styleClass="dash-user-profile" spacing="12" alignment="CENTER">
                         <VBox alignment="CENTER_RIGHT">
                             <Label fx:id="lblTenNguoiDung" text="User Name" styleClass="dash-user-name"/>
                             <Label fx:id="lblVaiTro" text="ROLE ACCESS" styleClass="dash-user-role"/>
                         </VBox>
-                        <Circle radius="18" fill="#1C0A00" styleClass="dash-avatar"/>
+                        <Button fx:id="btnAvatar"
+                                text="👤"
+                                styleClass="dash-icon-btn"
+                                onAction="#onMoThongTinCaNhan"/>
                         <Button text="🚪" styleClass="dash-icon-btn" onAction="#onDangXuat"/>
                     </HBox>
                 </HBox>

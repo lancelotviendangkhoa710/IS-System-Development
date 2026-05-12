@@ -8,7 +8,9 @@ import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.PhieuNhapKhoDTO;
 import com.bakery.services.kho.NhapKhoService;
+import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.SessionContext;
+import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -35,10 +37,9 @@ import java.util.Locale;
 public class NhapKhoViewFXMLController extends BaseController {
 
     // ── Header row (từ FXML cũ — dùng lại fx:id) ──────────────────────
-    @FXML
-    private Label lblTitle;
-    @FXML
-    private TableView<PhieuNhapKhoDTO> tblData;
+    @FXML private Label lblTitle;
+    @FXML private Button btnXoa;  // Task 3: chỉ visible với Admin/Quản lý
+    @FXML private TableView<PhieuNhapKhoDTO> tblData;
     @FXML
     private TableColumn<PhieuNhapKhoDTO, String> colDate;
     @FXML
@@ -65,6 +66,24 @@ public class NhapKhoViewFXMLController extends BaseController {
         lblTitle.setText("QUẢN LÝ NHẬP KHO");
         setupTable();
         taiDuLieu();
+        // Task 3: Hiện nút Xóa chỉ khi Admin hoặc Quản lý
+        capNhatQuyenXoa();
+    }
+
+    /** Task 3: Kiểm tra vai trò, hiện/ẩn btnXoa theo RBAC. */
+    private void capNhatQuyenXoa() {
+        if (btnXoa == null) return;
+        PhanQuyenService svc = new PhanQuyenService();
+        com.bakery.model.dto.nhansu.NhanVienDTO user = UserSession.getCurrentUser();
+        boolean coQuyen = svc.laAdmin(user) || svc.laQuanLy(user);
+        btnXoa.setVisible(coQuyen);
+        btnXoa.setManaged(coQuyen);
+        if (coQuyen) {
+            // Chỉ enable khi đã chọn dòng trong bảng
+            btnXoa.setDisable(true);
+            tblData.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, old, nv) -> btnXoa.setDisable(nv == null));
+        }
     }
 
     private void setupTable() {
@@ -106,6 +125,36 @@ public class NhapKhoViewFXMLController extends BaseController {
     @FXML
     private void onAction() {
         moDialogTaoPhieu();
+    }
+
+    /** Task 3: Hủy phiếu nhập đang chọn — chỉ Admin/Quản lý. */
+    @FXML
+    private void onXoa() {
+        PhieuNhapKhoDTO selected = tblData.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Xác nhận hủy");
+        confirm.setHeaderText("Hủy phiếu nhập #" + selected.getMaPN() + "?");
+        confirm.setContentText("Hệ thống sẽ hoàn kho theo quy tắc DB. Bạn có chắc chắn?");
+        confirm.initOwner(lblTitle.getScene().getWindow());
+        confirm.showAndWait().ifPresent(bt -> {
+            if (bt == ButtonType.OK) {
+                Thread t = new Thread(() -> {
+                    try {
+                        nhapKhoDAO.huyPhieuNhap(selected.getMaPN());
+                        javafx.application.Platform.runLater(() -> {
+                            hienThiThanhCongLabel("✅ Đã hủy phiếu nhập #" + selected.getMaPN());
+                            taiDuLieu();
+                        });
+                    } catch (Exception e) {
+                        javafx.application.Platform.runLater(() ->
+                                hienThiLoiLabel("Lỗi hủy phiếu nhập: " + e.getMessage()));
+                    }
+                }, "nhap-kho-xoa");
+                t.setDaemon(true);
+                t.start();
+            }
+        });
     }
 
     @FXML

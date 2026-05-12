@@ -29,7 +29,8 @@
             <Label text="Thêm, sửa, xóa các nguyên liệu dùng trong công thức sản xuất bánh." styleClass="lbl-body"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-primary" onAction="#onThemMoi"/>
+        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+        <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-success" onAction="#onThemMoi"/>
     </HBox>
 
     <!-- Content -->
@@ -86,7 +87,7 @@
 
             <VBox spacing="12" maxWidth="Infinity">
                 <Button fx:id="btnLuuThayDoi" text="💾 Lưu thay đổi"
-                        styleClass="btn-primary" maxWidth="Infinity" onAction="#onLuuThayDoi"/>
+                        styleClass="btn-success" maxWidth="Infinity" onAction="#onLuuThayDoi"/>
                 <Button fx:id="btnXoa" text="🗑 Xóa nguyên liệu"
                         styleClass="btn-danger" maxWidth="Infinity" onAction="#onXoa"/>
             </VBox>

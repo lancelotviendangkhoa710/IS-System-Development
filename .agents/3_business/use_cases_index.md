@@ -14,6 +14,7 @@
 | UC07 | Tra cứu nhân sự | Tìm kiếm thông tin nhân viên |
 | UC08 | Phân quyền | Cấp / giới hạn quyền theo vai trò |
 | UC09 | Xem nhật ký hoạt động | Lịch sử thao tác nhạy cảm (ai, khi nào, nội dung) |
+| UC58 | Tối ưu đăng xuất thu ngân & RBAC | Ép đóng ca trước logout và ẩn module nhạy cảm theo vai trò |
 
 ## II. Quản lý Khách hàng
 | UC | Tên | Mô tả ngắn |
@@ -77,6 +78,7 @@
 | UC50 | Báo cáo lợi nhuận | Giá vốn vs đơn giá bán |
 | UC51 | Báo cáo doanh thu | Theo ca / ngày / tháng / năm |
 | UC52 | Báo cáo tồn kho | Đầu kỳ / nhập / xuất / cuối kỳ |
+| UC59 | Gộp màn hình theo Tab Báo cáo/Bếp | Nhúng Giám sát ca vào Báo cáo và Cấu hình giới hạn vào Bếp |
 
 ## VII. Sổ Quỹ
 | UC | Tên | Mô tả ngắn |
