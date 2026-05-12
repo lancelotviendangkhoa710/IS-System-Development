@@ -187,7 +187,12 @@ BEGIN
             END IF;
         END LOOP;
 
-    -- 4. BÀN GIAO CHO TRIGGER & CHỐT SỔ
+    -- 4. CẬP NHẬT TỒN KHO THÀNH PHẨM (tồn cũ + số bánh vừa làm ra)
+    UPDATE SANPHAM
+    SET SOLUONGTON = SOLUONGTON + P_SOLUONGSANXUAT
+    WHERE MASP = P_MASP;
+
+    -- 5. BÀN GIAO CHO TRIGGER & CHỐT SỔ
     COMMIT;
 
 EXCEPTION
@@ -200,18 +205,17 @@ EXCEPTION
 END;
 /
 
--- Procedure Xuất hủy bánh
+-- Procedure Xuất hủy bánh bảo quản hỏng
 CREATE OR REPLACE PROCEDURE PROC_XUATHUYBANH (
-    P_MASP IN SANPHAM.MASP%type,
-    P_SOLUONGHUY IN SANPHAM.SOLUONGTON%type,
-    P_LYDOXUAT IN NVARCHAR2,
-    P_MANV IN NHANVIEN.MANV%type
+    P_MASP       IN SANPHAM.MASP%TYPE,
+    P_SOLUONGHUY IN SANPHAM.SOLUONGTON%TYPE,
+    P_MANV       IN NHANVIEN.MANV%TYPE
 )
 IS
-    V_SOLUONGTON SANPHAM.SOLUONGTON%type;
-    V_MAPX CTPHIEUXUAT_TP.MAPX%type;
+    V_SOLUONGTON SANPHAM.SOLUONGTON%TYPE;
+    V_MAPX       CTPHIEUXUAT_TP.MAPX%TYPE;
 BEGIN
-    -- 1. Xác thực (Checking Stock)
+    -- 1. Xác thực tồn kho (Checking Stock)
     BEGIN
         SELECT SOLUONGTON INTO V_SOLUONGTON
         FROM SANPHAM
@@ -221,17 +225,18 @@ BEGIN
             RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI, 'Ma san pham khong ton tai trong kho!');
     END;
 
-    -- Chống Nhân viên gõ nhầm số lượng lớn hơn số bánh đang có thật trên kệ
+    -- Chống nhập số lượng lớn hơn tồn thực tế
     IF V_SOLUONGTON < P_SOLUONGHUY THEN
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH, 'So luong huy vuot qua so luong ton kho hien tai! (Ton: ' || V_SOLUONGTON || ')');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH,
+            'So luong huy vuot qua so luong ton kho hien tai! (Ton: ' || V_SOLUONGTON || ')');
     END IF;
 
-    -- 2. Lập chứng từ (INSERT INTO PHIEUXUATKHO)
-    INSERT INTO PHIEUXUATKHO (LYDOXUAT, MANV)
-    VALUES (P_LYDOXUAT, P_MANV)
+    -- 2. Lập chứng từ với lý do cố định đúng constraint
+    INSERT INTO PHIEUXUATKHO (MANV, LYDOXUAT)
+    VALUES (P_MANV, 'San pham hong')
     RETURNING MAPX INTO V_MAPX;
 
-    -- 3. Ghi chi tiết (INSERT INTO CTPHIEUXUAT_TP)
+    -- 3. Ghi chi tiết → TRG_TRUKHO_PHIEUXUATTP tự trừ SANPHAM.SOLUONGTON
     INSERT INTO CTPHIEUXUAT_TP (MAPX, MASP, SOLUONG)
     VALUES (V_MAPX, P_MASP, P_SOLUONGHUY);
 
@@ -241,7 +246,8 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_BANH OR SQLCODE = PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI THEN
+        IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_BANH
+        OR SQLCODE = PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI THEN
             RAISE;
         ELSE
             RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_XUAT_BANH, 'Loi he thong khi xuat huy banh: ' || SQLERRM);

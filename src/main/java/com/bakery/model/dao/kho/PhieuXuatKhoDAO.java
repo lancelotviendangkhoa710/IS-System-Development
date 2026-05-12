@@ -40,20 +40,20 @@ public class PhieuXuatKhoDAO extends BaseDAO {
     }
 
     /**
-     * Xuất hủy thành phẩm qua PROC_XUATHUYBANH.
-     * @param maSP         mã sản phẩm cần hủy
-     * @param soLuongHuy   số lượng hủy
-     * @param lyDoXuat     lý do hủy
-     * @param maNV         mã nhân viên thực hiện
+     * Xuất hủy bánh bảo quản hỏng qua PROC_XUATHUYBANH.
+     * LYDOXUAT được hardcode = 'San pham hong' trong Procedure.
+     *
+     * @param maSP       mã sản phẩm cần hủy
+     * @param soLuongHuy số lượng hủy
+     * @param maNV       mã nhân viên thực hiện
      */
-    public void xuatHuyBanh(int maSP, double soLuongHuy, String lyDoXuat, int maNV) throws Exception {
-        String sql = "{CALL PROC_XUATHUYBANH(?, ?, ?, ?)}";
+    public void xuatHuyBanh(int maSP, double soLuongHuy, int maNV) throws Exception {
+        String sql = "{CALL PROC_XUATHUYBANH(?, ?, ?)}";
         try (Connection conn = moKetNoi();
              CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, maSP);
             cs.setDouble(2, soLuongHuy);
-            cs.setString(3, lyDoXuat);
-            cs.setInt(4, maNV);
+            cs.setInt(3, maNV);
             cs.execute();
         } catch (SQLException e) {
             handleException("xuatHuyBanh", e);
