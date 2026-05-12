@@ -108,6 +108,44 @@ public class PhieuThuChiDAO extends BaseDAO {
         return ds;
     }
 
+    /** Lấy toàn bộ phiếu thu chi không giới hạn ca — dùng cho view "Tất cả ca". */
+    public List<PhieuThuChiDTO> layTatCa() throws Exception {
+        List<PhieuThuChiDTO> ds = new ArrayList<>();
+        String sql = "SELECT p.MAPHIEUTC, p.NGAYTAO, p.MALOAITHUCHI, p.SOTIEN, "
+                + "p.MANV, p.MAHD, p.MAPN, p.MACA, p.GHICHU, p.TRANGTHAI, "
+                + "l.TENLOAITHUCHI, l.PHANLOAI, nv.HOTEN "
+                + "FROM PHIEUTHUCHI p "
+                + "JOIN LOAITHUCHI l ON p.MALOAITHUCHI = l.MALOAITHUCHI "
+                + "LEFT JOIN NHANVIEN nv ON p.MANV = nv.MANV "
+                + "ORDER BY p.NGAYTAO DESC";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                PhieuThuChiDTO p = new PhieuThuChiDTO();
+                p.setMaPhieuTC(rs.getInt("MAPHIEUTC"));
+                Timestamp ts = rs.getTimestamp("NGAYTAO");
+                if (ts != null) p.setNgayTao(ts.toLocalDateTime());
+                p.setMaLoaiThuChi(rs.getInt("MALOAITHUCHI"));
+                p.setSoTien(rs.getBigDecimal("SOTIEN"));
+                p.setMaNV(rs.getInt("MANV"));
+                int maHD = rs.getInt("MAHD"); if (!rs.wasNull()) p.setMaHD(maHD);
+                int maPN = rs.getInt("MAPN"); if (!rs.wasNull()) p.setMaPN(maPN);
+                p.setMaCa(rs.getInt("MACA"));
+                p.setGhiChu(rs.getString("GHICHU"));
+                String tt = rs.getString("TRANGTHAI");
+                p.setTrangThai(tt != null ? tt : "active");
+                p.setTenLoaiThuChi(rs.getString("TENLOAITHUCHI"));
+                p.setTenNhanVien(rs.getString("HOTEN"));
+                p.setPhanLoai(rs.getString("PHANLOAI"));
+                ds.add(p);
+            }
+        } catch (SQLException e) {
+            handleException("layTatCa", e);
+        }
+        return ds;
+    }
+
     public void huyPhieu(int maPhieuTC, String lyDo) throws Exception {
         String sql = "UPDATE PHIEUTHUCHI SET TRANGTHAI = 'cancelled', "
                 + "GHICHU = NVL(GHICHU, '') || ' [Lý do huỷ: ' || ? || ']' "

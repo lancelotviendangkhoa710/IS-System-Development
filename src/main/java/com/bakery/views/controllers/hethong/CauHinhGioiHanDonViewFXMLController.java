@@ -1,6 +1,7 @@
 package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.hethong.CauHinhGioiHanDTO;
+import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.presenters.hethong.CauHinhGioiHanPresenter;
 import com.bakery.views.interfaces.hethong.ICauHinhGioiHanView;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.util.StringConverter;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,7 +29,8 @@ public class CauHinhGioiHanDonViewFXMLController implements ICauHinhGioiHanView 
     @FXML private TableColumn<CauHinhGioiHanDTO, String>  colCapNhat;
 
     @FXML private TextField txtGioiHanTuyChinhMoi;
-    @FXML private ComboBox<String> cmbSanPhamBanLe;
+    // Task 5: Đổi generic type sang SanPhamDTO để có thể binding đúng đối tượng
+    @FXML private ComboBox<SanPhamDTO> cmbSanPhamBanLe;
     @FXML private TextField txtGioiHanSanPham;
     @FXML private Button btnLuuCauHinh;
     @FXML private Button btnHuy;
@@ -63,6 +66,20 @@ public class CauHinhGioiHanDonViewFXMLController implements ICauHinhGioiHanView 
         lblThongBao.setText(msg);
     }
 
+    /**
+     * Task 5: Nhận danh sách sản phẩm từ Presenter, populate ComboBox với StringConverter.
+     */
+    @Override
+    public void napDanhSachSanPhamBanLe(List<SanPhamDTO> dsSanPham) {
+        cmbSanPhamBanLe.setConverter(new StringConverter<>() {
+            @Override public String toString(SanPhamDTO sp) {
+                return sp == null ? "" : sp.getTenSP();
+            }
+            @Override public SanPhamDTO fromString(String s) { return null; }
+        });
+        cmbSanPhamBanLe.setItems(FXCollections.observableArrayList(dsSanPham));
+    }
+
     @Override
     public void lamMoiForm() {
         txtGioiHanTuyChinhMoi.clear();
@@ -72,14 +89,34 @@ public class CauHinhGioiHanDonViewFXMLController implements ICauHinhGioiHanView 
 
     // --- FXML handlers ---
 
+    /**
+     * Task 6: Tách logic Tùy chỉnh vs Có sẵn trong cùng 1 handler.
+     * - Nếu txtGioiHanTuyChinhMoi có giá trị → path Tùy chỉnh.
+     * - Nếu cmbSanPhamBanLe + txtGioiHanSanPham đều có giá trị → path Có sẵn.
+     * - Không được điền đồng thời cả hai.
+     */
     @FXML
     private void onLuuCauHinh() {
         String gioiHanTuyChinh = txtGioiHanTuyChinhMoi.getText().trim();
-        if (!gioiHanTuyChinh.isBlank()) {
-            presenter.luuCauHinhTuyChinh(gioiHanTuyChinh);
-        } else {
-            hienThiLoi("Vui lòng nhập giới hạn bánh tùy chỉnh.");
+        SanPhamDTO spDaChon = cmbSanPhamBanLe.getValue();
+        String gioiHanSP = txtGioiHanSanPham.getText().trim();
+
+        boolean coTuyChinh = !gioiHanTuyChinh.isBlank();
+        boolean coCuSan = spDaChon != null && !gioiHanSP.isBlank();
+
+        if (coTuyChinh && coCuSan) {
+            hienThiLoi("Vui lòng chỉ nhập 1 loại giới hạn cùng lúc.");
+            return;
         }
+        if (coTuyChinh) {
+            presenter.luuCauHinhTuyChinh(gioiHanTuyChinh);
+            return;
+        }
+        if (coCuSan) {
+            presenter.luuCauHinhSanPhamBanLe(spDaChon.getMaSP(), gioiHanSP);
+            return;
+        }
+        hienThiLoi("Vui lòng nhập giới hạn bánh tùy chỉnh HOẶC chọn sản phẩm và nhập giới hạn.");
     }
 
     @FXML

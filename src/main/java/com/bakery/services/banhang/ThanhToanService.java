@@ -1,14 +1,13 @@
 package com.bakery.services.banhang;
 
 import com.bakery.model.dao.banhang.HoaDonDAO;
+import com.bakery.model.dao.hethong.LoaiThuChiDAO;
+import com.bakery.model.dao.hethong.PhieuThuChiDAO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.banhang.HoaDonDTO;
 import com.bakery.model.dto.banhang.YeuCauTaoDonHangDTO;
-import com.bakery.model.dto.hethong.PhieuThuChiDTO;
-import com.bakery.model.dao.hethong.PhieuThuChiDAO;
 import com.bakery.utils.SessionContext;
 import java.math.BigDecimal;
-
 import java.sql.SQLException;
 
 /**
@@ -21,11 +20,13 @@ public class ThanhToanService {
     private final HoaDonDAO hoaDonDAO;
     private final QuanLyDonHangService quanLyDonHangService;
     private final PhieuThuChiDAO phieuThuChiDAO;
+    private final LoaiThuChiDAO loaiThuChiDAO;
 
     public ThanhToanService() {
         this.hoaDonDAO = new HoaDonDAO();
         this.quanLyDonHangService = new QuanLyDonHangService();
         this.phieuThuChiDAO = new PhieuThuChiDAO();
+        this.loaiThuChiDAO = new LoaiThuChiDAO();
     }
 
     public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService,
@@ -33,6 +34,7 @@ public class ThanhToanService {
         this.hoaDonDAO = hoaDonDAO;
         this.quanLyDonHangService = quanLyDonHangService;
         this.phieuThuChiDAO = phieuThuChiDAO;
+        this.loaiThuChiDAO = new LoaiThuChiDAO();
     }
 
     public double tinhTienHoaDon(YeuCauTaoDonHangDTO request) {
@@ -41,7 +43,7 @@ public class ThanhToanService {
         double subtotal = request.getItems().stream()
                 .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
                 .sum();
-        return subtotal * 1.085; // Mặc định tính thêm 8.5% (Thuế/Phụ phí)
+        return subtotal * 1.085;
     }
 
     /**
@@ -177,22 +179,62 @@ public class ThanhToanService {
     }
 
     /**
-     * Tạo phiếu thu chi liên kết với hóa đơn.
+     * Tạo phiếu thu liên kết với hóa đơn vào bảng PHIEUTHUCHI.
+     * Tự động upsert loại "Thu từ bán hàng" nếu chưa có trong LOAITHUCHI.
+     * Nếu không thể lưu phiếu thu → chỉ log warning, không rollback thanh toán.
      */
-    private void taoPhieuThuChiTuHoaDon(int maHD, double soTien, String ghiChu) throws Exception {
-        int maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Bán hàng");
-        if (maLoaiThu == -1)
-            maLoaiThu = 1; // Fallback
+    private void taoPhieuThuChiTuHoaDon(int maHD, double soTien, String ghiChu) {
+        try {
+            // Tìm loại thu "Thu từ bán hàng" — dò nhiều biến thể tên
+            int maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Thu từ bán hàng");
+            if (maLoaiThu == -1)
+                maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Thu tu ban hang");
+            if (maLoaiThu == -1)
+                maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Bán hàng");
+            if (maLoaiThu == -1)
+                maLoaiThu = phieuThuChiDAO.layMaLoaiTheoTen("Ban hang");
 
-        PhieuThuChiDTO ptc = new PhieuThuChiDTO();
-        ptc.setMaLoaiThuChi(maLoaiThu);
-        ptc.setSoTien(BigDecimal.valueOf(soTien));
-        ptc.setMaNV(SessionContext.getInstance().getMaNV());
-        ptc.setMaHD(maHD);
-        ptc.setMaCa(SessionContext.getInstance().getMaCa());
-        ptc.setGhiChu(ghiChu);
+            // Nếu vẫn không tìm thấy → auto-insert loại mặc định
+            if (maLoaiThu == -1) {
+                maLoaiThu = upsertLoaiThuBanHang();
+            }
 
-        phieuThuChiDAO.taoPhieuThuChi(ptc);
+            // Nếu vẫn không có (DB lỗi) → skip, không crash
+            if (maLoaiThu == -1) {
+                System.err.println(
+                        "[ThanhToanService] Khong the tao phieu thu: khong tim duoc LOAITHUCHI 'Thu tu ban hang'. Skip.");
+                return;
+            }
+
+            com.bakery.model.dto.hethong.PhieuThuChiDTO ptc = new com.bakery.model.dto.hethong.PhieuThuChiDTO();
+            ptc.setMaLoaiThuChi(maLoaiThu);
+            ptc.setSoTien(BigDecimal.valueOf(soTien));
+            ptc.setMaNV(SessionContext.getInstance().getMaNV());
+            ptc.setMaHD(maHD);
+            ptc.setMaCa(SessionContext.getInstance().getMaCa());
+            ptc.setGhiChu(ghiChu);
+
+            phieuThuChiDAO.taoPhieuThuChi(ptc);
+
+        } catch (Exception e) {
+            // Phiếu thu chỉ là ghi sổ — không được phép rollback thanh toán đã thành công
+            System.err
+                    .println("[ThanhToanService] Warning: Khong the tao phieu thu HD#" + maHD + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Tự động INSERT loại "Thu từ bán hàng" vào LOAITHUCHI nếu chưa tồn tại.
+     * Trả về mã mới hoặc -1 nếu thất bại.
+     */
+    private int upsertLoaiThuBanHang() {
+        try {
+            loaiThuChiDAO.them("Thu từ bán hàng", "Thu");
+            return phieuThuChiDAO.layMaLoaiTheoTen("Thu từ bán hàng");
+        } catch (Exception e) {
+            System.err.println("[ThanhToanService] upsertLoaiThuBanHang failed: " + e.getMessage());
+        }
+        return -1;
     }
 
     private int layMaTrangThaiHoanThanh() throws Exception {

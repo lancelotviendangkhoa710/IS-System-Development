@@ -79,21 +79,23 @@ public class PhieuNhapKhoDAO extends BaseDAO {
 
     /**
      * Tạo phiếu nhập kho qua PROC_TAOPHIEUNHAPKHO.
-     * @param maNV  mã nhân viên thực hiện
-     * @param maNCC mã nhà cung cấp
+     * @param maNV        mã nhân viên thực hiện
+     * @param maNCC       mã nhà cung cấp
      * @param jsonChiTiet JSON array chi tiết lô hàng
+     * @param maCa        mã ca làm việc đang mở (dùng cho phiếu chi tự động)
      * @return mã phiếu nhập vừa tạo
      */
-    public int taoPhieuNhap(int maNV, int maNCC, String jsonChiTiet) throws Exception {
-        String sql = "{CALL PROC_TAOPHIEUNHAPKHO(?, ?, ?, ?)}";
+    public int taoPhieuNhap(int maNV, int maNCC, String jsonChiTiet, int maCa) throws Exception {
+        String sql = "{CALL PROC_TAOPHIEUNHAPKHO(?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
              CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, maNV);
             cs.setInt(2, maNCC);
             cs.setClob(3, new java.io.StringReader(jsonChiTiet));
-            cs.registerOutParameter(4, Types.NUMERIC);
+            cs.setInt(4, maCa);
+            cs.registerOutParameter(5, Types.NUMERIC);
             cs.execute();
-            return cs.getInt(4);
+            return cs.getInt(5);
         } catch (SQLException e) {
             handleException("taoPhieuNhap", e);
             throw e;

@@ -71,30 +71,9 @@ BEGIN
     ) J
     WHERE LOWER(NVL(J.IS_CUSTOM, 'false')) = 'false';
 
-    -- Trừ tồn kho ngay sau khi insert
-    UPDATE SANPHAM SP
-    SET SOLUONGTON = SOLUONGTON - (
-        SELECT J.SOLUONG
-        FROM JSON_TABLE(P_JSONCHITIET, '$[*]'
-            COLUMNS (
-                MASP    NUMBER PATH '$.maSP',
-                SOLUONG NUMBER PATH '$.soLuong',
-                IS_CUSTOM VARCHAR2(10) PATH '$.isCustom'
-            )
-        ) J
-        WHERE J.MASP = SP.MASP
-          AND LOWER(NVL(J.IS_CUSTOM, 'false')) = 'false'
-    )
-    WHERE SP.MASP IN (
-        SELECT J.MASP
-        FROM JSON_TABLE(P_JSONCHITIET, '$[*]'
-            COLUMNS (
-                MASP    NUMBER PATH '$.maSP',
-                IS_CUSTOM VARCHAR2(10) PATH '$.isCustom'
-            )
-        ) J
-        WHERE LOWER(NVL(J.IS_CUSTOM, 'false')) = 'false'
-    );
+    -- Ghi chú: Không UPDATE SANPHAM.SOLUONGTON ở đây.
+    -- Trigger TRG_TRUKHO_DONHANG (ON CTDONHANG) đã tự động trừ kho
+    -- cho từng row được INSERT vào CTDONHANG ở bước trên.
 
     -- 5. Đẩy chi tiết bánh Tùy Chỉnh
     INSERT INTO CTDONTUYCHINH (MADON, MASP, SOLUONG, DONGIA, LOICHUCTRENBANH, GHICHUTHOBANH, MAKC, MACOT, MANHAN, MATRANGTRI)
@@ -129,5 +108,86 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Loi he thong khi Tao Don Hang: ' || SQLERRM);
+END;
+/
+
+-- ================================================================
+-- PROC_HUYDON_HOANCOC
+-- Hủy đơn đặt hàng và ghi phiếu chi hoàn tiền (nếu có cọc).
+-- Cả 2 bước trong 1 transaction — COMMIT 1 lần cuối.
+-- ================================================================
+CREATE OR REPLACE PROCEDURE PROC_HUYDON_HOANCOC (
+    P_MADON     IN DONDATHANG.MADON%TYPE,
+    P_LYDOHUY   IN NVARCHAR2,
+    P_MANV      IN NHANVIEN.MANV%TYPE,
+    P_SOTIENHOANTIEN IN NUMBER,
+    P_MACA      IN CALAMVIEC.MACA%TYPE
+)
+IS
+    V_MATRANGTHAI_HUY   NUMBER;
+    V_MALOAITHUCHI_CHI  NUMBER;
+    V_MAPHIEUTC_OUT     PHIEUTHUCHI.MAPHIEUTC%TYPE;
+BEGIN
+    -- 1. Lấy mã trạng thái "Đã hủy"
+    SELECT MATRANGTHAI INTO V_MATRANGTHAI_HUY
+    FROM TRANGTHAIDON
+    WHERE UPPER(TENTRANGTHAI) LIKE N'%H%Y%'
+      AND ROWNUM = 1;
+
+    -- 2. Cập nhật trạng thái đơn sang "Đã hủy"
+    UPDATE DONDATHANG
+    SET MATRANGTHAI = V_MATRANGTHAI_HUY
+    WHERE MADON = P_MADON;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20910, N'Không tìm thấy đơn hàng để hủy: ' || P_MADON);
+    END IF;
+
+    -- 3. Ghi lịch sử hủy
+    INSERT INTO LICHSUDONHANG (MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT, GHICHU)
+    VALUES (P_MADON, NULL, V_MATRANGTHAI_HUY, CURRENT_TIMESTAMP, P_MANV, P_LYDOHUY);
+
+    -- 4. Ghi log hoạt động nhân viên
+    INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+    VALUES (P_MANV, 'DON_HANG', N'Huy don hang #' || P_MADON || N' — ' || P_LYDOHUY, P_MADON);
+
+    -- 5. Nếu có hoàn tiền → tạo phiếu chi trong CÙNG transaction
+    IF NVL(P_SOTIENHOANTIEN, 0) > 0 THEN
+        -- Lấy mã loại chi "Hoàn tiền" (động, không hardcode ID)
+        BEGIN
+            SELECT MALOAITHUCHI INTO V_MALOAITHUCHI_CHI
+            FROM LOAITHUCHI
+            WHERE UPPER(TENLOAITHUCHI) LIKE N'%HOAN%TIEN%'
+              AND PHANLOAI = 'Chi'
+              AND THOIDIEMXOA IS NULL
+              AND ROWNUM = 1;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- Tự tạo loại chi "Hoàn tiền" nếu chưa có
+                INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+                VALUES (N'Hoàn tiền', 'Chi', NULL, NULL)
+                RETURNING MALOAITHUCHI INTO V_MALOAITHUCHI_CHI;
+        END;
+
+        -- Tạo phiếu chi hoàn tiền — liên kết với đơn hàng
+        -- Bug 4 fix: NULLIF(P_MACA, 0) → nếu maCa = 0 (ca chưa mở) → lưu NULL thay vì FK fail
+        INSERT INTO PHIEUTHUCHI (MALOAITHUCHI, SOTIEN, MANV, MAHD, MAPN, MACA, GHICHU)
+        VALUES (
+            V_MALOAITHUCHI_CHI,
+            P_SOTIENHOANTIEN,
+            P_MANV,
+            NULL,                  -- MAHD: không có hóa đơn
+            NULL,                  -- MAPN: không phải phiếu nhập kho
+            NULLIF(P_MACA, 0),    -- Bug 4: 0 → NULL tránh FK violation
+            N'Hoàn tiền cọc đơn hàng #' || P_MADON
+        );
+    END IF;
+
+    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20911, N'Lỗi hệ thống khi hủy đơn hàng: ' || SQLERRM);
 END;
 /

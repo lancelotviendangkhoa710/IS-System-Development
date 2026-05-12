@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.control.Tooltip;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -51,6 +52,34 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         tblNguyenLieu.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, newVal) -> hienThiChiTiet(newVal));
         presenter.khoiTao();
+        // Task 8: Thủ kho không được sửa mức tồn kho an toàn
+        apDungPhanQuyenTonKhoAnToan();
+    }
+
+    /**
+     * Task 8: Kiểm tra vai trò hiện tại.
+     * Chỉ Quản lý / Admin mới được phép chỉnh sửa mức tồn kho an toàn.
+     * Thủ kho và các vai trò khác: field chỉ đọc + tooltip giải thích.
+     */
+    private void apDungPhanQuyenTonKhoAnToan() {
+        com.bakery.model.dto.nhansu.NhanVienDTO user =
+                com.bakery.utils.UserSession.getCurrentUser();
+        if (user == null) return;
+
+        boolean coQuyenSua = user.getDanhSachTenVaiTro().stream().anyMatch(r -> {
+            String rNorm = r.toLowerCase();
+            return rNorm.contains("quản lý")
+                || rNorm.contains("quan ly")
+                || rNorm.contains("admin");
+        });
+
+        if (!coQuyenSua) {
+            txtMucTonAnToan.setEditable(false);
+            txtMucTonAnToan.setFocusTraversable(false);
+            txtMucTonAnToan.getStyleClass().add("field-readonly");
+            Tooltip.install(txtMucTonAnToan,
+                new Tooltip("Chỉ Quản lý mới có quyền thay đổi mức tồn kho an toàn."));
+        }
     }
 
     private void setupTable() {

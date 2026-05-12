@@ -34,7 +34,6 @@ import javafx.stage.Stage;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -47,11 +46,10 @@ import java.util.function.Function;
 public class DonHangViewFXMLController extends BaseController implements IDonHangView, Initializable {
 
     @FXML private HBox tabTaoDon;
+    @FXML private HBox hboxBoLocDanhMuc;
     @FXML private ToggleButton btnLocTatCa;
-    @FXML private ToggleButton btnLocCake;
-    @FXML private ToggleButton btnLocCookie;
-    @FXML private ToggleButton btnLocBread;
     @FXML private ToggleButton btnLocTuyChinh;
+    private ToggleGroup grupBoLocDanhMuc;
     @FXML private TextField txtTimKiemSanPham;
     @FXML private ScrollPane scrollSanPham;
     @FXML private FlowPane tileSanPham;
@@ -185,6 +183,8 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         if (dict != null) mapDanhMuc.putAll(dict);
         mapSanPhamById.clear();
         for (SanPhamDTO sanPham : danhSachSanPham) mapSanPhamById.put(sanPham.getMaSP(), sanPham);
+        // Tái tạo nút lọc theo danh mục thực tế từ dữ liệu
+        javafx.application.Platform.runLater(this::taoNutLocDongTuMapDanhMuc);
         apDungBoLocSanPham();
     }
 
@@ -279,13 +279,36 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     @Override public double getTongThanhToanHienTai() { return tongThanhToanHienTai; }
 
     private void khoiTaoBoLocDanhMuc() {
-        ToggleGroup group = new ToggleGroup();
-        btnLocTatCa.setToggleGroup(group);
-        btnLocCake.setToggleGroup(group);
-        btnLocCookie.setToggleGroup(group);
-        btnLocBread.setToggleGroup(group);
-        btnLocTuyChinh.setToggleGroup(group);
+        grupBoLocDanhMuc = new ToggleGroup();
+        btnLocTatCa.setToggleGroup(grupBoLocDanhMuc);
+        btnLocTuyChinh.setToggleGroup(grupBoLocDanhMuc);
         btnLocTatCa.setSelected(true);
+    }
+
+    /**
+     * Tạo động ToggleButton cho từng danh mục trong mapDanhMuc.
+     * Chèn vào hboxBoLocDanhMuc trước btnLocTuyChinh, sau btnLocTatCa.
+     * Gọi lại mỗi khi dữ liệu danh mục được nạp từ Presenter.
+     */
+    private void taoNutLocDongTuMapDanhMuc() {
+        // Xóa các nút danh mục động cũ (giữ nguyên btnLocTatCa và btnLocTuyChinh)
+        hboxBoLocDanhMuc.getChildren().removeIf(node ->
+            node instanceof ToggleButton tb
+            && !tb.equals(btnLocTatCa)
+            && !tb.equals(btnLocTuyChinh));
+
+        // Vị trí chèn: ngay sau btnLocTatCa (index 0)
+        int insertIdx = hboxBoLocDanhMuc.getChildren().indexOf(btnLocTatCa) + 1;
+
+        for (Map.Entry<Integer, String> entry : mapDanhMuc.entrySet()) {
+            ToggleButton btn = new ToggleButton(entry.getValue());
+            btn.setUserData(String.valueOf(entry.getKey())); // userData = String(maDM)
+            btn.getStyleClass().add("toggle-filter");
+            btn.setToggleGroup(grupBoLocDanhMuc);
+            btn.setOnAction(e -> onLocDanhMuc());
+            hboxBoLocDanhMuc.getChildren().add(insertIdx, btn);
+            insertIdx++;
+        }
     }
 
     private void khoiTaoBangGioHang() {
@@ -387,9 +410,9 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         tileSanPham.getChildren().clear();
 
         for (SanPhamDTO sanPham : danhSachSanPham) {
-            String tenDanhMuc = mapDanhMuc.getOrDefault(sanPham.getMaDM(), "Khác");
-            String danhMucChuan = mapDanhMucLoc(tenDanhMuc);
-            boolean khopDanhMuc = "ALL".equalsIgnoreCase(danhMucDangLoc) || danhMucDangLoc.equalsIgnoreCase(danhMucChuan);
+            // So sánh theo maDM (Integer) — không còn hardcode tên tiếng Anh
+            boolean khopDanhMuc = "ALL".equals(danhMucDangLoc)
+                    || String.valueOf(sanPham.getMaDM()).equals(danhMucDangLoc);
             boolean khopTen = sanPham.getTenSP() != null && sanPham.getTenSP().toLowerCase().contains(tuKhoa);
             if (khopDanhMuc && khopTen) tileSanPham.getChildren().add(taoCardSanPham(sanPham));
         }
@@ -492,14 +515,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     private Integer getMaNhan() { NhanBanhDTO dto = cbCustomNhanBanh.getValue(); return dto == null ? null : dto.getMaNhan(); }
     private Integer getMaTrangTri() { KieuTrangTriDTO dto = cbCustomTrangTri.getValue(); return dto == null ? null : dto.getMaTrangTri(); }
 
-    private String mapDanhMucLoc(String tenDanhMuc) {
-        if (tenDanhMuc == null) return "ALL";
-        String normalized = Normalizer.normalize(tenDanhMuc, Normalizer.Form.NFD).replaceAll("\\p{M}", "").toUpperCase(Locale.ROOT);
-        if (normalized.contains("CAKE")) return "Cake";
-        if (normalized.contains("COOKIE")) return "Cookie";
-        if (normalized.contains("BREAD") || normalized.contains("MI")) return "Bread";
-        return "ALL";
-    }
+
 
     private String layTenSanPham(int maSP) {
         SanPhamDTO sp = mapSanPhamById.get(maSP);

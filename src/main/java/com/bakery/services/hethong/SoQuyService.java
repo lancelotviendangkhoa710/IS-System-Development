@@ -19,6 +19,12 @@ public class SoQuyService extends BaseService {
         return data != null ? data : java.util.List.of();
     }
 
+    /** Lấy toàn bộ phiếu thu chi — không giới hạn ca. */
+    public List<PhieuThuChiDTO> layTatCaGiaoDich() throws Exception {
+        List<PhieuThuChiDTO> data = ptcDAO.layTatCa();
+        return data != null ? data : java.util.List.of();
+    }
+
     public void huyGiaoDich(int maPhieuTC, String lyDo) throws Exception {
         ptcDAO.huyPhieu(maPhieuTC, lyDo);
     }

@@ -144,7 +144,7 @@ public class QuanLyDonHangService {
 
     /** Hủy đơn và hoàn kho sau khi kiểm tra trạng thái cho phép hủy. */
     public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat,
-            String tenTrangThaiHienTai, double refundAmount) throws Exception {
+            String tenTrangThaiHienTai, double refundAmount, int maCa) throws Exception {
         if (maDon <= 0)
             throw new IllegalArgumentException("Mã đơn hủy sai định dạng.");
         if (maNvCapNhat <= 0)
@@ -155,7 +155,7 @@ public class QuanLyDonHangService {
             throw new IllegalStateException("Đơn hàng đang ở trạng thái không cho phép hủy.");
 
         try {
-            donHangDAO.huyDonVaHoanKho(maDon, lyDoHuy.trim(), maNvCapNhat, refundAmount);
+            donHangDAO.huyDonVaHoanKho(maDon, lyDoHuy.trim(), maNvCapNhat, refundAmount, maCa);
         } catch (SQLException e) {
             throw new Exception("Hủy đơn thất bại: " + e.getMessage(), e);
         }

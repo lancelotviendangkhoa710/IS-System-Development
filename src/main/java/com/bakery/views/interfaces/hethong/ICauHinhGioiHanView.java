@@ -1,6 +1,7 @@
 package com.bakery.views.interfaces.hethong;
 
 import com.bakery.model.dto.hethong.CauHinhGioiHanDTO;
+import com.bakery.model.dto.kho.SanPhamDTO;
 
 import java.util.List;
 
@@ -10,4 +11,7 @@ public interface ICauHinhGioiHanView {
     void hienThiThongBao(String msg);
     void hienThiLoi(String msg);
     void lamMoiForm();
+
+    /** Task 5: Nhận danh sách sản phẩm bán lẻ để populate ComboBox. */
+    void napDanhSachSanPhamBanLe(List<SanPhamDTO> dsSanPham);
 }

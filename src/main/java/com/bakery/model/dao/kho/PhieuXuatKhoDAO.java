@@ -22,13 +22,14 @@ public class PhieuXuatKhoDAO extends BaseDAO {
                 "ORDER BY PX.MAPX DESC " +
                 "FETCH FIRST 50 ROWS ONLY";
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 PhieuXuatKhoDTO dto = new PhieuXuatKhoDTO();
                 dto.setMaPX(rs.getInt("MAPX"));
                 dto.setNgayXuat(rs.getTimestamp("NGAYXUAT") != null
-                        ? rs.getTimestamp("NGAYXUAT").toLocalDateTime() : null);
+                        ? rs.getTimestamp("NGAYXUAT").toLocalDateTime()
+                        : null);
                 dto.setLyDoXuat(rs.getString("LYDOXUAT"));
                 dto.setTenNhanVien(rs.getString("TENNV"));
                 list.add(dto);
@@ -50,7 +51,7 @@ public class PhieuXuatKhoDAO extends BaseDAO {
     public void xuatHuyBanh(int maSP, double soLuongHuy, int maNV) throws Exception {
         String sql = "{CALL PROC_XUATHUYBANH(?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, maSP);
             cs.setDouble(2, soLuongHuy);
             cs.setInt(3, maNV);
@@ -63,17 +64,18 @@ public class PhieuXuatKhoDAO extends BaseDAO {
 
     /**
      * Xuất kho sản xuất qua PROC_XUATKHOSANXUAT.
-     * Procedure tự: kiểm tra đủ NL (Pessimistic Lock) → tạo phiếu → xuất FIFO theo lô.
+     * Procedure tự: kiểm tra đủ NL (Pessimistic Lock) → tạo phiếu → xuất FIFO theo
+     * lô.
      * Trigger TRG_XUATSLNGUYENLIEU sẽ tự trừ tồn kho.
      *
-     * @param maSP            mã sản phẩm cần làm
-     * @param soLuongSanXuat  số lượng bánh cần làm
-     * @param maNV            mã nhân viên (thợ bếp) thực hiện
+     * @param maSP           mã sản phẩm cần làm
+     * @param soLuongSanXuat số lượng bánh cần làm
+     * @param maNV           mã nhân viên (thợ bếp) thực hiện
      */
     public void xuatKhoSanXuat(int maSP, double soLuongSanXuat, int maNV) throws Exception {
         String sql = "{CALL PROC_XUATKHOSANXUAT(?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, maSP);
             cs.setDouble(2, soLuongSanXuat);
             cs.setInt(3, maNV);
@@ -85,7 +87,7 @@ public class PhieuXuatKhoDAO extends BaseDAO {
     }
 
     /**
-     * Xuất hủy nguyên liệu hỏng qua PROC_XUATNGUYENLIEUHO NG.
+     * Xuất hủy nguyên liệu hỏng qua PROC_XUATNGUYENLIEUHONG.
      * Procedure tự: kiểm tra tồn kho (Pessimistic Lock) → tạo phiếu xuất
      * → rút lô FIFO → trigger TRG_XUATSLNGUYENLIEU trừ tồn tự động.
      *
@@ -94,15 +96,33 @@ public class PhieuXuatKhoDAO extends BaseDAO {
      * @param maNV       mã nhân viên thực hiện
      */
     public void xuatHuyNguyenLieu(int maNL, double soLuongHuy, int maNV) throws Exception {
-        String sql = "{CALL PROC_XUATNGUYENLIEUHO NG(?, ?, ?)}";
+        String sql = "{CALL PROC_XUATNGUYENLIEUHONG(?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, maNL);
             cs.setDouble(2, soLuongHuy);
             cs.setInt(3, maNV);
             cs.execute();
         } catch (SQLException e) {
             handleException("xuatHuyNguyenLieu", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Xuất hủy bánh bị sai sót trong sản xuất qua PROC_XUATSAISOTBANH.
+     * LYDOXUAT hardcode = 'Sai sot trong qua trinh lam banh' trong Procedure.
+     */
+    public void xuatSaiSotBanh(int maSP, double soLuongHuy, int maNV) throws Exception {
+        String sql = "{CALL PROC_XUATSAISOTBANH(?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+                CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, maSP);
+            cs.setDouble(2, soLuongHuy);
+            cs.setInt(3, maNV);
+            cs.execute();
+        } catch (SQLException e) {
+            handleException("xuatSaiSotBanh", e);
             throw e;
         }
     }

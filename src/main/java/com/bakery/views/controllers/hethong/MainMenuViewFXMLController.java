@@ -254,6 +254,7 @@ public class MainMenuViewFXMLController {
         loadView("/fxml/hethong/GiamSatCaView.fxml");
     }
 
+
     // ─── Ca lam viec dialog ───────────────────────────────────────────────────
 
     @FXML

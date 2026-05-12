@@ -42,7 +42,7 @@ public class SanPhamDAO extends BaseDAO {
         List<SanPhamDTO> list = new ArrayList<>();
         String sql = "SELECT MASP, MADM, TENSP, NVL(GIAVON,0) AS GIAVON, NVL(GIABAN,0) AS GIABAN, " +
                 "HINHANH, CHOPHEPTUYCHINH, " +
-                "THOIGIANBAOQUAN, SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
+                "THOIGIANBAOQUAN, NVL(SOLUONGTON, 0) AS SOLUONGTON, PHIENBAN, THOIDIEMXOA, THOIGIANCHUANBI, MANX " +
                 "FROM SANPHAM " +
                 "WHERE THOIDIEMXOA IS NULL " +
                 "ORDER BY MASP";

@@ -1,20 +1,24 @@
 -- Procedure Tạo phiếu nhập kho
+-- Tự động tạo PHIEUTHUCHI loại 'Nhap hang' sau khi nhập lô xong (cùng transaction)
 CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     P_MANV          IN PHIEUNHAPKHO.MANV%TYPE,
     P_MANCC         IN PHIEUNHAPKHO.MANCC%TYPE,
     P_JSON_DATALIST IN CLOB,
+    P_MACA          IN PHIEUTHUCHI.MACA%TYPE,
     P_MAPN_OUT      OUT PHIEUNHAPKHO.MAPN%TYPE
 )
 IS
     V_MAPN          PHIEUNHAPKHO.MAPN%TYPE;
     V_CURRENT_MANL  NGUYENLIEU.MANL%TYPE;
+    V_MALOAITHUCHI  LOAITHUCHI.MALOAITHUCHI%TYPE;
+    V_TONGTIENNHAP  PHIEUTHUCHI.SOTIEN%TYPE;
 BEGIN
     -- 1. Khởi tạo chứng từ gốc
     INSERT INTO PHIEUNHAPKHO (MANV, MANCC, NGAYNHAP)
     VALUES (P_MANV, P_MANCC, SYSDATE)
     RETURNING MAPN INTO V_MAPN;
-    
-    P_MAPN_OUT := V_MAPN; 
+
+    P_MAPN_OUT := V_MAPN;
 
     -- 2. Quét JSON và Đẩy chi tiết
     FOR ROW_DATA IN (
@@ -46,19 +50,38 @@ BEGIN
         -- Đưa hàng vào Lô mới
         INSERT INTO CTPHIEUNHAP (MAPN, MANL, SOLUONG, DONGIA, SOLUONGCONLAI, NGAYSANXUAT, HANSUDUNG)
         VALUES (
-            V_MAPN, 
-            V_CURRENT_MANL, 
-            ROW_DATA.SOLUONG, 
-            ROW_DATA.DONGIA, 
-            ROW_DATA.SOLUONG, -- Cột SoLuongConLai ban đầu bằng đúng lượng nhập
-            
+            V_MAPN,
+            V_CURRENT_MANL,
+            ROW_DATA.SOLUONG,
+            ROW_DATA.DONGIA,
+            ROW_DATA.SOLUONG, -- SoLuongConLai ban đầu bằng đúng lượng nhập
+
             -- 3. Xử lý an toàn cho Date (Chống lỗi khi truyền chuỗi rỗng)
             CASE WHEN ROW_DATA.NGAYSANXUAT IS NOT NULL THEN TO_DATE(ROW_DATA.NGAYSANXUAT, 'YYYY-MM-DD') ELSE NULL END,
             CASE WHEN ROW_DATA.HANSUDUNG IS NOT NULL THEN TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD') ELSE NULL END
         );
     END LOOP;
 
-    -- Ghi log hoạt động nhân viên
+    -- 4. Tính tổng tiền nhập (sau LOOP → CTPHIEUNHAP đã có đủ dòng)
+    SELECT NVL(SUM(SOLUONG * DONGIA), 0)
+    INTO V_TONGTIENNHAP
+    FROM CTPHIEUNHAP
+    WHERE MAPN = V_MAPN;
+
+    -- 5. Lấy mã loại thu chi 'Nhap hang' — SELECT động, không hardcode ID
+    SELECT MALOAITHUCHI INTO V_MALOAITHUCHI
+    FROM LOAITHUCHI
+    WHERE TENLOAITHUCHI = N'Nhap hang'
+      AND PHANLOAI = 'Chi'
+      AND THOIDIEMXOA IS NULL
+    FETCH FIRST 1 ROW ONLY;
+
+    -- 6. Tạo phiếu chi nhập hàng tương ứng (cùng transaction)
+    INSERT INTO PHIEUTHUCHI (MALOAITHUCHI, SOTIEN, MANV, MACA, MAPN, GHICHU)
+    VALUES (V_MALOAITHUCHI, V_TONGTIENNHAP, P_MANV, P_MACA, V_MAPN,
+            N'Tự động — Nhập kho phiếu #' || V_MAPN);
+
+    -- 7. Ghi log hoạt động nhân viên
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
     VALUES (P_MANV, 'KHO', 'Nhap kho phieu #' || V_MAPN, V_MAPN);
 
@@ -67,7 +90,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEU_NHAP_KHO, 'Loi he thong khi nhap kho vat tu: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEU_NHAP_KHO, N'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
 END;
 /
 
@@ -114,14 +137,12 @@ CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
     V_TONGTON      NGUYENLIEU.SOLUONGTONTONG%type;
     V_LUONGCANDUNG CONGTHUC.SOLUONGTIEUHAO%type;
 
-    -- Xếp hàng nguyên liệu cần theo Công thức nướng bánh
     CURSOR C_CONGTHUC IS
         SELECT C.MANL, N.TENNL, (C.SOLUONGTIEUHAO * P_SOLUONGSANXUAT) AS TONG_CAN_DUNG
         FROM CONGTHUC C
                  JOIN NGUYENLIEU N ON C.MANL = N.MANL
         WHERE C.MASP = P_MASP;
 
-    -- Xếp hàng ưu tiên các lô hàng Còn Phiếu & Nhập Sớm Nhất (FIFO)
     CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
         SELECT MALO, SOLUONGCONLAI
         FROM CTPHIEUNHAP
@@ -133,14 +154,12 @@ BEGIN
     -- 1. KIỂM TRA TOÀN DIỆN KHẢ NĂNG
     FOR REC IN C_CONGTHUC
         LOOP
-            -- Pessimistic Lock trên Tổng Kho
             SELECT SOLUONGTONTONG
             INTO V_TONGTON
             FROM NGUYENLIEU
             WHERE MANL = REC.MANL
                 FOR UPDATE;
 
-            -- Nếu 1 nguyên liệu bất kì không đủ, lập tức đập vỡ Giao dịch và văng Exception cứu hệ thống
             IF V_TONGTON < REC.TONG_CAN_DUNG THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DU,
                                         'Kho khong du dinh muc (NL: ' || REC.TENNL || ') de lam ' || P_SOLUONGSANXUAT ||
@@ -160,27 +179,19 @@ BEGIN
 
             FOR LO_REC IN C_LOHANG(REC.MANL)
                 LOOP
-                    -- Trồi ra khi luợng cần rút đã bằng 0
-                    IF V_LUONGCANDUNG <= 0 THEN
-                        EXIT;
-                    END IF;
+                    IF V_LUONGCANDUNG <= 0 THEN EXIT; END IF;
 
                     IF LO_REC.SOLUONGCONLAI >= V_LUONGCANDUNG THEN
-                        -- Lô này cân đủ phần còn lại
                         INSERT INTO CTPHIEUXUAT_NL (MAPX, MALO, SOLUONG)
                         VALUES (V_MAPX, LO_REC.MALO, V_LUONGCANDUNG);
-
                         V_LUONGCANDUNG := 0;
                     ELSE
-                        -- Lô này không đủ, vét sạch Lô chứa và dồn sang Lô khác
                         INSERT INTO CTPHIEUXUAT_NL (MAPX, MALO, SOLUONG)
                         VALUES (V_MAPX, LO_REC.MALO, LO_REC.SOLUONGCONLAI);
-
                         V_LUONGCANDUNG := V_LUONGCANDUNG - LO_REC.SOLUONGCONLAI;
                     END IF;
                 END LOOP;
 
-            -- Safe check báo rủi ro (Rất hiếm thi gặp trừ khi Tổng Tồn đồng bộ sai với Tồn Chi Tiết Lô)
             IF V_LUONGCANDUNG > 0 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_TON_AO,
                                         'Dong bo du lieu ton ao o muc lo hang: ' || REC.TENNL);
@@ -188,11 +199,12 @@ BEGIN
         END LOOP;
 
     -- 4. CẬP NHẬT TỒN KHO THÀNH PHẨM (tồn cũ + số bánh vừa làm ra)
+    -- NVL bảo vệ trường hợp SOLUONGTON đang NULL trong DB (NULL + n = NULL trong Oracle)
     UPDATE SANPHAM
-    SET SOLUONGTON = SOLUONGTON + P_SOLUONGSANXUAT
+    SET SOLUONGTON = NVL(SOLUONGTON, 0) + P_SOLUONGSANXUAT
     WHERE MASP = P_MASP;
 
-    -- 5. BÀN GIAO CHO TRIGGER & CHỐT SỔ
+    -- 5. BÀN GIAO CHO TRIGGER
     COMMIT;
 
 EXCEPTION
@@ -201,7 +213,8 @@ EXCEPTION
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO THEN
             RAISE;
         END IF;
-        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO, 'Loi he thong khi xuat kho san xuat: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
+                                'Loi he thong khi xuat kho san xuat: ' || SQLERRM);
 END;
 /
 
@@ -336,5 +349,55 @@ EXCEPTION
         END IF;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_NL,
             'Loi he thong khi xuat huy nguyen lieu hong: ' || SQLERRM);
+END;
+/
+
+-- Procedure Xuat huy banh bi sai sot trong qua trinh lam banh
+CREATE OR REPLACE PROCEDURE PROC_XUATSAISOTBANH (
+    P_MASP       IN SANPHAM.MASP%TYPE,
+    P_SOLUONGHUY IN SANPHAM.SOLUONGTON%TYPE,
+    P_MANV       IN NHANVIEN.MANV%TYPE
+)
+IS
+    V_SOLUONGTON SANPHAM.SOLUONGTON%TYPE;
+    V_MAPX       CTPHIEUXUAT_TP.MAPX%TYPE;
+BEGIN
+    -- 1. Xac thuc ton kho thanh pham
+    BEGIN
+        SELECT SOLUONGTON INTO V_SOLUONGTON
+        FROM SANPHAM WHERE MASP = P_MASP;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI,
+                'Ma san pham khong ton tai trong kho!');
+    END;
+
+    IF V_SOLUONGTON < P_SOLUONGHUY THEN
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_XUAT_HUY_BANH,
+            'So luong huy vuot qua ton kho hien tai! (Ton: ' || V_SOLUONGTON || ')');
+    END IF;
+
+    -- 2. Lap chung tu voi ly do co dinh dung constraint
+    INSERT INTO PHIEUXUATKHO (MANV, LYDOXUAT)
+    VALUES (P_MANV, 'Sai sot trong qua trinh lam banh')
+    RETURNING MAPX INTO V_MAPX;
+
+    -- 3. Ghi chi tiet -> TRG_TRUKHO_PHIEUXUATTP tu tru SANPHAM.SOLUONGTON
+    INSERT INTO CTPHIEUXUAT_TP (MAPX, MASP, SOLUONG)
+    VALUES (V_MAPX, P_MASP, P_SOLUONGHUY);
+
+    -- 4. Chot so
+    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        IF SQLCODE = PKG_ERROR_CODES.ERR_XUAT_HUY_BANH
+        OR SQLCODE = PKG_ERROR_CODES.ERR_SP_KHONG_TON_TAI THEN
+            RAISE;
+        ELSE
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_XUAT_BANH,
+                'Loi he thong khi xuat huy banh sai sot: ' || SQLERRM);
+        END IF;
 END;
 /

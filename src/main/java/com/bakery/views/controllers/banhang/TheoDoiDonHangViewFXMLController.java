@@ -200,8 +200,12 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
 
         Button btnHuyDon = new Button("Hủy đơn");
         btnHuyDon.getStyleClass().add("btn-danger");
+        // Task 7: Khóa toàn bộ controls khi đơn đã kết thúc (Hoàn thành / Hủy)
         String tt = don.getTenTrangThai() == null ? "" : don.getTenTrangThai();
-        if (tt.contains("Hoàn thành") || tt.contains("Hủy")) {
+        boolean daKetThuc = tt.contains("Ho\u00e0n th\u00e0nh") || tt.contains("H\u1ee7y");
+        if (daKetThuc) {
+            cbTrangThai.setDisable(true);
+            btnCapNhat.setDisable(true);
             btnHuyDon.setDisable(true);
         }
         btnHuyDon.setOnAction(event -> {

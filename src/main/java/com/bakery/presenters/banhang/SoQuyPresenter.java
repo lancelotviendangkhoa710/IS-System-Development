@@ -51,18 +51,12 @@ public class SoQuyPresenter {
     // ── Tải dữ liệu ──────────────────────────────────────────────────────────
 
     private void taiGiaoDich() {
-        SessionContext session = SessionContext.getInstance();
-        int maCa = session.getMaCa();
-        if (maCa == 0) {
-            tatCaGiaoDich = new ArrayList<>();
-            capNhatTongQuan();
-            apDungBoLoc();
-            return;
-        }
+        // FIX: Sổ quỹ = màn hình lịch sử → luôn load TẤT CẢ giao dịch.
+        // Không giới hạn theo ca hiện tại — user cần xem lịch sử toàn bộ.
         view.setLoadingLichSu(true);
         Thread t = new Thread(() -> {
             try {
-                tatCaGiaoDich = service.layGiaoDich(maCa);
+                tatCaGiaoDich = service.layTatCaGiaoDich();
                 capNhatTongQuan();
                 apDungBoLoc();
             } catch (Exception e) {

@@ -52,9 +52,10 @@ BEGIN
     WHERE MADON = P_MADON;
 
     -- 6. Hoàn kho theo từng sản phẩm trong chi tiết đơn
+    -- NVL bảo vệ trường hợp SOLUONGTON đang NULL trong DB (NULL + n = NULL trong Oracle)
     FOR ROW_CT IN (SELECT MASP, SOLUONG FROM CTDONHANG WHERE MADON = P_MADON) LOOP
         UPDATE SANPHAM
-        SET SOLUONGTON = SOLUONGTON + ROW_CT.SOLUONG
+        SET SOLUONGTON = NVL(SOLUONGTON, 0) + ROW_CT.SOLUONG
         WHERE MASP = ROW_CT.MASP;
     END LOOP;
 

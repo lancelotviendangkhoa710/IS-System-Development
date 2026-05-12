@@ -487,11 +487,19 @@ public class DonHangPresenter {
         final int maNvHienTai = getCurrentUserId();
         final String tenTrangThai = don.getTenTrangThai();
 
+        // Bug 3 fix: capture maCa TRƯỚC lambda để tránh race condition.
+        // Nếu có hoàn tiền mà ca chưa mở → block ngay, không để FK fail ở DB.
+        final int maCa = com.bakery.utils.SessionContext.getInstance().getMaCa();
+        if (soTienHoan > 0 && maCa <= 0) {
+            view.hienThiLoiTraCuu("Cần mở ca làm việc trước khi hoàn tiền cọc. Vui lòng mở ca rồi thử lại.");
+            return;
+        }
+
         // Bước 4: Thực thi DB trên background Task (tránh UI freeze)
         javafx.concurrent.Task<Void> taskHuy = new javafx.concurrent.Task<>() {
             @Override
             protected Void call() throws Exception {
-                orderService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvHienTai, tenTrangThai, soTienHoan);
+                orderService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvHienTai, tenTrangThai, soTienHoan, maCa);
                 return null;
             }
         };

@@ -42,6 +42,7 @@ public class XuatKhoViewFXMLController extends BaseController {
     private static final String LYDO_LAM_BANH = "Lam banh";
     private static final String LYDO_NL_HONG  = "Nguyen lieu hong";
     private static final String LYDO_SP_HONG  = "San pham hong";
+    private static final String LYDO_SAI_SOT  = "Sai sot trong qua trinh lam banh";
 
     private final PhieuXuatKhoDAO     xuatKhoDAO       = new PhieuXuatKhoDAO();
     private final SanPhamDAO          sanPhamDAO        = new SanPhamDAO();
@@ -110,23 +111,26 @@ public class XuatKhoViewFXMLController extends BaseController {
         RadioButton rdoLamBanh = new RadioButton("Xuất để làm bánh");
         RadioButton rdoNLHong  = new RadioButton("Xuất vì nguyên liệu hỏng");
         RadioButton rdoSPHong  = new RadioButton("Xuất vì bánh bảo quản hỏng");
+        RadioButton rdoSaiSot  = new RadioButton("Xuất vì sai sót trong làm bánh");
 
         ToggleGroup group = new ToggleGroup();
         rdoLamBanh.setToggleGroup(group);
         rdoNLHong.setToggleGroup(group);
         rdoSPHong.setToggleGroup(group);
+        rdoSaiSot.setToggleGroup(group);
         rdoLamBanh.setSelected(true);
 
-        VBox box = new VBox(14, rdoLamBanh, rdoNLHong, rdoSPHong);
+        VBox box = new VBox(14, rdoLamBanh, rdoNLHong, rdoSPHong, rdoSaiSot);
         box.setPadding(new Insets(20));
         dialog.getDialogPane().setContent(box);
-        dialog.getDialogPane().setPrefWidth(380);
+        dialog.getDialogPane().setPrefWidth(400);
 
         dialog.showAndWait().ifPresent(result -> {
             if (!result.getButtonData().isDefaultButton()) return;
-            if (rdoLamBanh.isSelected())    moDialogLamBanh();
-            else if (rdoNLHong.isSelected()) moDialogNguyenLieuHong();
-            else if (rdoSPHong.isSelected()) moDialogSanPhamHong();
+            if (rdoLamBanh.isSelected())        moDialogLamBanh();
+            else if (rdoNLHong.isSelected())    moDialogNguyenLieuHong();
+            else if (rdoSPHong.isSelected())    moDialogSanPhamHong();
+            else if (rdoSaiSot.isSelected())    moDialogSaiSotBanh();
         });
     }
 
@@ -282,6 +286,38 @@ public class XuatKhoViewFXMLController extends BaseController {
             runAsync(() -> xuatKhoDAO.xuatHuyBanh(sp.getMaSP(), sl, maNV),
                     "Đã xuất hủy " + (int) sl + " " + sp.getTenSP() + " (hỏng bảo quản).",
                     "Lỗi xuất hủy bánh", "xuat-huy-banh");
+        });
+    }
+
+    // ── Lý do 4: Xuất vì sai sót trong làm bánh → PROC_XUATSAISOTBANH ─
+
+    private void moDialogSaiSotBanh() {
+        List<SanPhamDTO> dsSP = loadSanPham();
+        if (dsSP == null) return;
+
+        Dialog<ButtonType> dialog = buildDialog(
+                "Xuất Kho — Sai Sót Làm Bánh",
+                "Xác nhận xuất hủy bánh bị lỗi trong quá trình sản xuất\n(Lý do: " + LYDO_SAI_SOT + ")");
+
+        ComboBox<SanPhamDTO> cbSP = buildCbSanPham(dsSP);
+        TextField txtSL = new TextField("1");
+        dialog.getDialogPane().setContent(buildGrid("Sản phẩm:", cbSP, "Số lượng hủy:", txtSL));
+
+        dialog.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK) return;
+            SanPhamDTO sp = cbSP.getValue();
+            if (sp == null) { hienThiLoiLabel("Vui lòng chọn sản phẩm."); return; }
+            double sl = parsePositive(txtSL.getText());
+            if (sl < 0) return;
+            if (sl > sp.getSoLuongTon()) {
+                hienThiLoiLabel(String.format(
+                        "Số lượng vượt quá tồn kho hiện tại (tồn: %d cái).", (int) sp.getSoLuongTon()));
+                return;
+            }
+            int maNV = SessionContext.getInstance().getMaNV();
+            runAsync(() -> xuatKhoDAO.xuatSaiSotBanh(sp.getMaSP(), sl, maNV),
+                    "Đã xuất hủy " + (int) sl + " " + sp.getTenSP() + " (sai sót SX).",
+                    "Lỗi xuất hủy bánh sai sót", "xuat-sai-sot-banh");
         });
     }
 

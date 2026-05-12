@@ -22,6 +22,7 @@ module BakeryManagementSystem {
     opens com.bakery.views.controllers.kho to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.views.controllers.bep to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.views.controllers.nhansu to javafx.fxml, javafx.graphics, javafx.controls;
+    opens com.bakery.views.controllers.taichinh to javafx.fxml, javafx.graphics, javafx.controls;
     opens com.bakery.model.dto to javafx.base, javafx.fxml;
     opens com.bakery.model.dto.banhang to javafx.base, javafx.fxml;
     opens com.bakery.model.dto.baocao to javafx.base, javafx.fxml;
@@ -29,6 +30,7 @@ module BakeryManagementSystem {
     opens com.bakery.model.dto.khachhang to javafx.base, javafx.fxml;
     opens com.bakery.model.dto.kho to javafx.base, javafx.fxml;
     opens com.bakery.model.dto.nhansu to javafx.base, javafx.fxml;
+    opens com.bakery.model.dto.taichinh to javafx.base, javafx.fxml;
     opens com.bakery.presenters to javafx.fxml, javafx.graphics;
     opens com.bakery.utils to jbcrypt;
 
@@ -40,6 +42,7 @@ module BakeryManagementSystem {
     exports com.bakery.model.dto.khachhang;
     exports com.bakery.model.dto.kho;
     exports com.bakery.model.dto.nhansu;
+    exports com.bakery.model.dto.taichinh;
     exports com.bakery.model.enums;
     exports com.bakery.model.dao;
     exports com.bakery.model.dao.banhang;
@@ -48,6 +51,7 @@ module BakeryManagementSystem {
     exports com.bakery.model.dao.khachhang;
     exports com.bakery.model.dao.kho;
     exports com.bakery.model.dao.nhansu;
+    exports com.bakery.model.dao.taichinh;
     exports com.bakery.views.interfaces;
     exports com.bakery.views.interfaces.banhang;
     exports com.bakery.views.interfaces.baocao;
@@ -63,6 +67,7 @@ module BakeryManagementSystem {
     exports com.bakery.views.controllers.kho;
     exports com.bakery.views.controllers.bep;
     exports com.bakery.views.controllers.nhansu;
+    exports com.bakery.views.controllers.taichinh;
     exports com.bakery.presenters;
     exports com.bakery.presenters.banhang;
     exports com.bakery.presenters.baocao;
@@ -77,5 +82,6 @@ module BakeryManagementSystem {
     exports com.bakery.services.khachhang;
     exports com.bakery.services.kho;
     exports com.bakery.services.nhansu;
+    exports com.bakery.services.taichinh;
     exports com.bakery.utils;
 }

@@ -264,11 +264,16 @@ public class NhapKhoViewFXMLController extends BaseController {
 
     private void thucHienLuuTuFile(List<CTPhieuNhapDTO> dsDong, NhaCungCapDTO ncc) {
         int maNV = SessionContext.getInstance().getMaNV();
+        int maCa = SessionContext.getInstance().getMaCa();
+        if (maCa == 0) {
+            hienThiLoiLabel("⚠️ Chưa mở ca làm việc. Vui lòng mở ca trước khi nhập kho.");
+            return;
+        }
         String json = nhapKhoService.buildJsonPayload(dsDong);
 
         Thread t = new Thread(() -> {
             try {
-                int maPN = nhapKhoDAO.taoPhieuNhap(maNV, ncc.getMaNCC(), json);
+                int maPN = nhapKhoDAO.taoPhieuNhap(maNV, ncc.getMaNCC(), json, maCa);
                 javafx.application.Platform.runLater(() -> {
                     hienThiThanhCongLabel("✅ Đã nhập kho từ file — Phiếu #" + maPN
                             + " (" + dsDong.size() + " lô hàng)");
@@ -468,6 +473,11 @@ public class NhapKhoViewFXMLController extends BaseController {
         }
 
         int maNV = SessionContext.getInstance().getMaNV();
+        int maCa = SessionContext.getInstance().getMaCa();
+        if (maCa == 0) {
+            hienThiLoiLabel("⚠️ Chưa mở ca làm việc. Vui lòng mở ca trước khi nhập kho.");
+            return;
+        }
 
         // Build JSON array cho procedure
         StringBuilder json = new StringBuilder("[");
@@ -494,7 +504,7 @@ public class NhapKhoViewFXMLController extends BaseController {
         final String jsonStr = json.toString();
         Thread t = new Thread(() -> {
             try {
-                int maPN = nhapKhoDAO.taoPhieuNhap(maNV, ncc.getMaNCC(), jsonStr);
+                int maPN = nhapKhoDAO.taoPhieuNhap(maNV, ncc.getMaNCC(), jsonStr, maCa);
                 javafx.application.Platform.runLater(() -> {
                     hienThiThanhCongLabel("Đã tạo phiếu nhập #" + maPN + " thành công!");
                     taiDuLieu();

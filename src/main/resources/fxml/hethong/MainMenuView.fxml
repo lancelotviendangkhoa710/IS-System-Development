@@ -72,13 +72,13 @@
                             <Button fx:id="btnBep" text="🍳 Bếp" onAction="#onMoBep" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
-                     
+
                         <!-- PHÂN HỆ: BÁO CÁO -->
                         <VBox spacing="4">
                             <Label text="BÁO CÁO" styleClass="nav-category-label"/>
                             <Button fx:id="btnBaoCao" text="📈 Thống kê &amp; BC" onAction="#onMoBaoCao" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnAuditLogs" text="📜 Lịch sử hệ thống" onAction="#onMoLichSuHeThong" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnGiamSatCa" text="💰 Giám sát tiền mặt" onAction="#onMoGiamSatCa" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnGiamSatCa" text="🔍 Giám sát tiền mặt" onAction="#onMoGiamSatCa" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnCauHinhGioiHan" text="🔢 Giới hạn nhận đơn" onAction="#onMoCauHinhGioiHan" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
                     </VBox>

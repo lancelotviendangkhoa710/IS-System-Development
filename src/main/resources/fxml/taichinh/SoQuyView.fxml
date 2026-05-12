@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+    SoQuyView.fxml — Màn hình Sổ Quỹ (UC53–UC57)
+    Root: VBox styleClass="bg-app" — KHÔNG có stylesheets (load từ App.java)
+    Controller: SoQuyViewFXMLController
+-->
+<VBox styleClass="bg-app" spacing="20"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.taichinh.SoQuyViewFXMLController">
+    <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+    <!-- ── Header ──────────────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button fx:id="btnQuayLai" text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
+        <Label fx:id="lblTitle" text="SỔ QUỸ — THU CHI" styleClass="lbl-title-screen"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnLapPhieu" text="+ Lập phiếu" styleClass="btn-primary" onAction="#onLapPhieu"/>
+    </HBox>
+
+    <!-- ── TabPane chính ────────────────────────────────────────────── -->
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+
+        <!-- Tab 1: Danh sách phiếu thu chi -->
+        <Tab text="Phiếu Thu Chi" fx:id="tabDanhSach">
+            <VBox spacing="12" VBox.vgrow="ALWAYS">
+                <padding><Insets top="16" bottom="8"/></padding>
+
+                <!-- Thanh lọc -->
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Lọc:" styleClass="lbl-body-bold"/>
+                    <ComboBox fx:id="cmbLocPhanLoai" promptText="Tất cả" prefWidth="140"/>
+                    <ComboBox fx:id="cmbLocCa" promptText="Ca hiện tại" prefWidth="200"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnLamMoi" text="↻ Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
+                </HBox>
+
+                <!-- Bảng phiếu thu chi -->
+                <VBox styleClass="card" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="tblPhieu" styleClass="table-view" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colMaPhieu"   text="#"               prefWidth="60"/>
+                            <TableColumn fx:id="colNgayTao"   text="Ngày lập"        prefWidth="140"/>
+                            <TableColumn fx:id="colPhanLoai"  text="Loại"            prefWidth="70"/>
+                            <TableColumn fx:id="colHangMuc"   text="Hạng mục"        prefWidth="200"/>
+                            <TableColumn fx:id="colSoTien"    text="Số tiền (VNĐ)"   prefWidth="140"/>
+                            <TableColumn fx:id="colNguoiLap"  text="Người lập"       prefWidth="160"/>
+                            <TableColumn fx:id="colGhiChu"    text="Ghi chú"         prefWidth="200"/>
+                            <TableColumn fx:id="colTrangThai" text="Trạng thái"      prefWidth="100"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+
+                <!-- Tổng kết cuối bảng -->
+                <HBox styleClass="card" spacing="30" alignment="CENTER_LEFT">
+                    <padding><Insets top="12" right="20" bottom="12" left="20"/></padding>
+                    <VBox spacing="4">
+                        <Label text="Tổng Thu" styleClass="lbl-body-bold"/>
+                        <Label fx:id="lblTongThu" text="0 ₫" styleClass="lbl-price"/>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label text="Tổng Chi" styleClass="lbl-body-bold"/>
+                        <Label fx:id="lblTongChi" text="0 ₫" styleClass="lbl-price"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <VBox spacing="4" alignment="CENTER_RIGHT">
+                        <Label text="Số Dư Quỹ" styleClass="lbl-body-bold"/>
+                        <Label fx:id="lblSoDu" text="0 ₫" styleClass="lbl-price"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </Tab>
+
+        <!-- Tab 2: Quản lý loại thu chi -->
+        <Tab text="Hạng Mục Thu Chi" fx:id="tabLoai">
+            <VBox spacing="12" VBox.vgrow="ALWAYS">
+                <padding><Insets top="16" bottom="8"/></padding>
+
+                <HBox spacing="12" alignment="CENTER_RIGHT">
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnThemLoai" text="+ Thêm hạng mục" styleClass="btn-primary" onAction="#onThemLoai"/>
+                </HBox>
+
+                <VBox styleClass="card" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="tblLoai" styleClass="table-view" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colLoaiMa"    text="Mã"          prefWidth="80"/>
+                            <TableColumn fx:id="colLoaiTen"   text="Tên hạng mục" prefWidth="300"/>
+                            <TableColumn fx:id="colLoaiPL"    text="Phân loại"   prefWidth="100"/>
+                            <TableColumn fx:id="colLoaiAction" text="Thao tác"   prefWidth="160"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+
+    <!-- Footer thông báo -->
+    <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+</VBox>

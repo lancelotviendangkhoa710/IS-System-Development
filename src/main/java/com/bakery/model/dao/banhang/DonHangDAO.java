@@ -75,14 +75,15 @@ public class DonHangDAO extends BaseDAO {
         }
     }
 
-    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount) throws Exception {
-        String sql = "{CALL PROC_HUYDON_HOANCOC(?, ?, ?, ?)}";
+    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount, int maCa) throws Exception {
+        String sql = "{CALL PROC_HUYDON_HOANCOC(?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
                 cstmt.setInt(1, maDon);
                 cstmt.setString(2, lyDoHuy);
                 cstmt.setInt(3, maNvCapNhat);
                 cstmt.setDouble(4, refundAmount);
+                cstmt.setInt(5, maCa);
                 cstmt.execute();
             }
         } catch (SQLException e) {

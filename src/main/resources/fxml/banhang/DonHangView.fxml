@@ -25,24 +25,12 @@
         <!-- Panel trái: Danh sách sản phẩm (65%) -->
         <VBox HBox.hgrow="ALWAYS" spacing="12">
 
-            <!-- Filter Bar -->
-            <HBox spacing="8" alignment="CENTER_LEFT">
+            <!-- Filter Bar — các nút danh mục được tạo động từ DB trong controller -->
+            <HBox fx:id="hboxBoLocDanhMuc" spacing="8" alignment="CENTER_LEFT">
                 <ToggleButton fx:id="btnLocTatCa" text="Tất cả"
                              styleClass="toggle-filter"
                              onAction="#onLocDanhMuc"
                              userData="ALL" selected="true"/>
-                <ToggleButton fx:id="btnLocCake" text="🎂 Cake"
-                             styleClass="toggle-filter"
-                             onAction="#onLocDanhMuc"
-                             userData="Cake"/>
-                <ToggleButton fx:id="btnLocCookie" text="🍪 Cookie"
-                             styleClass="toggle-filter"
-                             onAction="#onLocDanhMuc"
-                             userData="Cookie"/>
-                <ToggleButton fx:id="btnLocBread" text="🍞 Bread"
-                             styleClass="toggle-filter"
-                             onAction="#onLocDanhMuc"
-                             userData="Bread"/>
                 <ToggleButton fx:id="btnLocTuyChinh" text="✨ Tùy chỉnh"
                              styleClass="toggle-filter"
                              onAction="#onLocDanhMuc"

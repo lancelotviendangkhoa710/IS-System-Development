@@ -337,5 +337,39 @@ WHERE UPPER(TRIM(TK.TENDANGNHAP)) = UPPER(TRIM('khoa'))
         AND NVVT.MAVAITRO = VT.MAVAITRO
   );
 
+-- ================================================================
+-- SEED: Danh muc LOAITHUCHI mac dinh
+-- Chay thu cong tren Oracle DB (SQL Developer / SQLcl)
+-- ================================================================
+
+-- Loai CHI
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Tien dien, nuoc', 'Chi', NULL, NULL);
+
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Cuoc Internet / WiFi', 'Chi', NULL, NULL);
+
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Luong nhan vien', 'Chi', NULL, NULL);
+
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Bao tri, sua chua vat dung', 'Chi', NULL, NULL);
+
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Thue mat bang', 'Chi', NULL, NULL);
+
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Hoan tien cho khach', 'Chi', NULL, NULL);
+
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Nhap hang', 'Chi', NULL, NULL);
+
+-- Loai THU (phan loai cho phieu tu dong tu HoaDon)
+INSERT INTO LOAITHUCHI (TENLOAITHUCHI, PHANLOAI, THOIDIEMXOA, MANX)
+VALUES (N'Thu tu ban hang', 'Thu', NULL, NULL);
+
+COMMIT;
+
+
 COMMIT;
 ---Script đã được kiểm thủ và chạy trong DB
