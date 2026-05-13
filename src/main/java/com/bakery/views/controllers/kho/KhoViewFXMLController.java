@@ -28,6 +28,8 @@ public class KhoViewFXMLController extends BaseController {
     private Tab tabKiemKe;
     @FXML
     private Tab tabNhapKho;
+    @FXML
+    private Tab tabTraCuuNguonGoc;
 
     @FXML
     public void initialize() {
@@ -58,6 +60,7 @@ public class KhoViewFXMLController extends BaseController {
         Tab target = switch (tabKey.toLowerCase()) {
             case "kiemke", "nguyenlieu" -> tabKiemKe;
             case "nhapkho" -> tabNhapKho;
+            case "tracuunguongoc", "traceability" -> tabTraCuuNguonGoc;
             default -> tabNhaCungCap;
         };
         if (target != null && tabPaneKho.getTabs().contains(target)) {

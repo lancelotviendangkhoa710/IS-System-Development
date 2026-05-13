@@ -34,7 +34,7 @@
                     <VBox styleClass="dash-nav" spacing="12">
                         <!-- PHÂN HỆ: TỔNG QUAN -->
                         <VBox spacing="4">
-                            <Button fx:id="btnTongQuan" text="📊 Tổng quan" onAction="#onMoDashboard" styleClass="dash-nav-item, dash-nav-active" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnTongQuan" text="📊 Tổng quan" onAction="#onMoDashboard" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
 
                         <!-- PHÂN HỆ: NHÂN SỰ -->
@@ -72,8 +72,6 @@
                         <VBox spacing="4">
                             <Button fx:id="btnBaoCao" text="📈 Thống kê &amp; BC" onAction="#onMoBaoCao" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnAuditLogs" text="📜 Lịch sử hệ thống" onAction="#onMoLichSuHeThong" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnGiamSatCa" text="🔍 Giám sát tiền mặt" onAction="#onMoGiamSatCa" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
-                            <Button fx:id="btnCauHinhGioiHan" text="🔢 Giới hạn nhận đơn" onAction="#onMoCauHinhGioiHan" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>
                     </VBox>
                 </content>

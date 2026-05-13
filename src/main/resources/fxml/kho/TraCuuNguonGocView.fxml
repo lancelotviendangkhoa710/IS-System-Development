@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  TraCuuNguonGocView.fxml — Màn hình Truy xuất nguồn gốc nguyên liệu.
+  Layout: Bộ lọc (top) + Bảng mẻ sản xuất (trái) + Bảng chi tiết lô NL (phải).
+  Controller: TraCuuNguonGocViewFXMLController.
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.TraCuuNguonGocViewFXMLController"
+      spacing="16" styleClass="bg-app">
+
+    <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+    <!-- ① BỘ LỌC -->
+    <VBox styleClass="card" spacing="12">
+        <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+        <Label text="🔍  Bộ lọc tra cứu" styleClass="lbl-title-card"/>
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <TextField fx:id="txtTimKiem"
+                       promptText="Tên sản phẩm..."
+                       prefWidth="220"
+                       styleClass="text-field"/>
+            <Label text="Từ ngày:" styleClass="lbl-body"/>
+            <DatePicker fx:id="dpTuNgay" prefWidth="140"/>
+            <Label text="Đến ngày:" styleClass="lbl-body"/>
+            <DatePicker fx:id="dpDenNgay" prefWidth="140"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnTimKiem" text="🔍  Tìm kiếm"
+                    styleClass="btn-primary" onAction="#onTimKiem"/>
+            <Button fx:id="btnXoaLoc" text="↺  Xoá lọc"
+                    styleClass="btn-secondary" onAction="#onXoaLoc"/>
+        </HBox>
+    </VBox>
+
+    <!-- ② CONTENT: Bảng mẻ (trái) + Bảng lô NL (phải) -->
+    <HBox spacing="16" VBox.vgrow="ALWAYS">
+
+        <!-- Trái: Danh sách mẻ sản xuất -->
+        <VBox spacing="8" prefWidth="440" HBox.hgrow="NEVER">
+            <Label text="📋  Danh sách mẻ sản xuất" styleClass="lbl-title-card"/>
+            <TableView fx:id="tblMe" VBox.vgrow="ALWAYS" styleClass="table-view">
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+                <columns>
+                    <TableColumn fx:id="colMaMe"    text="Mã mẻ"    prefWidth="60"/>
+                    <TableColumn fx:id="colTenSP"   text="Sản phẩm" prefWidth="140"/>
+                    <TableColumn fx:id="colSoLuong" text="Số lượng" prefWidth="75"/>
+                    <TableColumn fx:id="colNgaySX"  text="Ngày SX"  prefWidth="110"/>
+                    <TableColumn fx:id="colNhanVien" text="Nhân viên" prefWidth="110"/>
+                </columns>
+                <placeholder>
+                    <Label text="Chưa có dữ liệu mẻ sản xuất." styleClass="lbl-body"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- Phải: Chi tiết lô nguyên liệu -->
+        <VBox spacing="8" HBox.hgrow="ALWAYS">
+            <Label text="🌾  Chi tiết nguồn gốc nguyên liệu" styleClass="lbl-title-card"/>
+            <TableView fx:id="tblChiTiet" VBox.vgrow="ALWAYS" styleClass="table-view">
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+                <columns>
+                    <TableColumn fx:id="colTenNL"      text="Nguyên liệu"   prefWidth="130"/>
+                    <TableColumn fx:id="colSoLuongDung" text="SL đã dùng"   prefWidth="80"/>
+                    <TableColumn fx:id="colMaLo"       text="Mã lô"         prefWidth="60"/>
+                    <TableColumn fx:id="colMaVach"     text="Mã vạch lô"    prefWidth="100"/>
+                    <TableColumn fx:id="colNSX"        text="NSX"           prefWidth="90"/>
+                    <TableColumn fx:id="colHSD"        text="HSD"           prefWidth="90"/>
+                    <TableColumn fx:id="colNCC"        text="Nhà cung cấp"  prefWidth="140"/>
+                    <TableColumn fx:id="colSDT"        text="SĐT NCC"       prefWidth="100"/>
+                </columns>
+                <placeholder>
+                    <Label text="Chọn một mẻ sản xuất bên trái để xem chi tiết." styleClass="lbl-body"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+    </HBox>
+
+    <!-- ③ STATUS BAR -->
+    <HBox>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
+
+</VBox>

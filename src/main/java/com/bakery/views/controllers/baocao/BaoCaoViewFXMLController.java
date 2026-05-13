@@ -42,6 +42,16 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private Tab tabThongKeKinhDoanh;
     @FXML private Tab tabSoQuyThuChi;
     @FXML private Tab tabGiamSatCa;
+    @FXML private Tab tabTonKho;
+
+    // UC52 — Tab Tồn kho
+    @FXML private DatePicker dpTonKhoTuNgay;
+    @FXML private DatePicker dpTonKhoDenNgay;
+    @FXML private Button     btnXemTonKho;
+    @FXML private Label      lblTonKhoHetHang;
+    @FXML private Label      lblTonKhoSapHet;
+    @FXML private Label      lblTonKhoDuHang;
+    @FXML private TableView<String[]> tableTonKho;
 
     private ThongKeService thongKeService = new ThongKeService();
 
@@ -60,6 +70,7 @@ public class BaoCaoViewFXMLController extends BaseController {
         if (tabPaneBaoCao != null && tabThongKeKinhDoanh != null) {
             tabPaneBaoCao.getSelectionModel().select(tabThongKeKinhDoanh);
         }
+        setupTonKhoTableColumns();
     }
 
     /**
@@ -71,12 +82,86 @@ public class BaoCaoViewFXMLController extends BaseController {
         Tab target = switch (tabKey.toLowerCase()) {
             case "soquy" -> tabSoQuyThuChi;
             case "giamsatca" -> tabGiamSatCa;
+            case "tonkho" -> tabTonKho;
             default -> tabThongKeKinhDoanh;
         };
         if (target != null) {
             tabPaneBaoCao.getSelectionModel().select(target);
         }
     }
+
+    // ── UC52: Tab Tồn kho ────────────────────────────────────────────────────
+
+    @SuppressWarnings("unchecked")
+    private void setupTonKhoTableColumns() {
+        if (tableTonKho == null) return;
+        // 6 cột tương ứng String[]{tenNL, dvt, tonDau, nhap, xuat, tonCuoi}
+        for (int i = 0; i < tableTonKho.getColumns().size(); i++) {
+            final int idx = i;
+            ((TableColumn<String[], String>) tableTonKho.getColumns().get(i))
+                .setCellValueFactory(c -> new SimpleStringProperty(
+                    c.getValue() != null && c.getValue().length > idx
+                        ? c.getValue()[idx] : ""));
+        }
+        // Tô đỏ dòng tồn cuối kỳ <= 0
+        tableTonKho.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(String[] item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item.length < 6) {
+                    getStyleClass().removeAll("row-danger", "row-warning");
+                } else {
+                    try {
+                        double tonCuoi = Double.parseDouble(item[5].replace(",", "."));
+                        getStyleClass().removeAll("row-danger", "row-warning");
+                        if (tonCuoi <= 0) {
+                            getStyleClass().add("row-danger");
+                        }
+                    } catch (NumberFormatException ignored) { }
+                }
+            }
+        });
+        // Mặc định kỳ = tháng hiện tại
+        dpTonKhoTuNgay.setValue(java.time.LocalDate.now().withDayOfMonth(1));
+        dpTonKhoDenNgay.setValue(java.time.LocalDate.now());
+    }
+
+    @FXML
+    private void onXemBaoCaoTonKho() {
+        if (btnXemTonKho != null) btnXemTonKho.setDisable(true);
+        java.time.LocalDate tu  = dpTonKhoTuNgay  != null ? dpTonKhoTuNgay.getValue()  : null;
+        java.time.LocalDate den = dpTonKhoDenNgay != null ? dpTonKhoDenNgay.getValue() : null;
+
+        new Thread(() -> {
+            try {
+                // Load KPI tổng hợp
+                java.util.Map<String, Long> tongHop = thongKeService.getTonKhoTongHop();
+                // Load bảng chi tiết kỳ
+                java.util.List<String[]> rows = thongKeService.getBaoCaoTonKho(tu, den);
+
+                javafx.application.Platform.runLater(() -> {
+                    // KPI
+                    if (lblTonKhoHetHang != null)
+                        lblTonKhoHetHang.setText(String.valueOf(tongHop.getOrDefault("HET_HANG", 0L)));
+                    if (lblTonKhoSapHet != null)
+                        lblTonKhoSapHet.setText(String.valueOf(tongHop.getOrDefault("SAP_HET", 0L)));
+                    if (lblTonKhoDuHang != null)
+                        lblTonKhoDuHang.setText(String.valueOf(tongHop.getOrDefault("DU_HANG", 0L)));
+                    // Bảng
+                    if (tableTonKho != null)
+                        tableTonKho.setItems(FXCollections.observableArrayList(rows));
+                    if (btnXemTonKho != null) btnXemTonKho.setDisable(false);
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    hienThiCanhBao("Lỗi tải tồn kho", e.getMessage());
+                    if (btnXemTonKho != null) btnXemTonKho.setDisable(false);
+                });
+            }
+        }, "bao-cao-ton-kho").start();
+    }
+
+    // ── Bộ lọc báo cáo kinh doanh ────────────────────────────────────────────
 
     private void setupFilters() {
         cbLoaiBaoCao.setItems(FXCollections.observableArrayList("Ngày", "Tháng", "Quý", "Năm"));
@@ -117,8 +202,10 @@ public class BaoCaoViewFXMLController extends BaseController {
             }
 
             double doanhThu = thongKeService.getDoanhThu(loai, giaTri);
+            double giaVon   = thongKeService.getGiaVon(loai, giaTri);
+            double loiNhuan = doanhThu - giaVon;
             lblDoanhThu.setText(String.format("%,.0fđ", doanhThu));
-            lblLoiNhuan.setText(String.format("%,.0fđ", doanhThu * 0.3));
+            lblLoiNhuan.setText(String.format("%,.0fđ", loiNhuan));
 
             updateChart(loai, giaTri);
             updateCategoryCharts(loai, giaTri);

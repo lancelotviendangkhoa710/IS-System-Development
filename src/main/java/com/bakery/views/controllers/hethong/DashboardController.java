@@ -54,6 +54,54 @@ public class DashboardController {
         tinhNangDuocCap = phanQuyenService.layTinhNangDuocCap(currentUser);
         apDungPhanQuyenManHinh();
         loadBestSellers();
+        kiemTraCanhBaoTonKho();   // UC43: cảnh báo tồn kho sau khi đăng nhập
+    }
+
+    // UC43 — Kiểm tra và hiển thị cảnh báo nguyên liệu dưới mức an toàn
+    private void kiemTraCanhBaoTonKho() {
+        Thread t = new Thread(() -> {
+            try {
+                java.util.Map<String, Long> tongHop = thongKeService.getTonKhoTongHop();
+                java.util.List<String[]>    sapHet  = thongKeService.getNguyenLieuSapHet();
+
+                long soHet    = tongHop.getOrDefault("HET_HANG", 0L);
+                long soSapHet = tongHop.getOrDefault("SAP_HET",  0L);
+
+                if (soHet == 0 && soSapHet == 0) return; // không cần cảnh báo
+
+                // Tạo thông điệp cảnh báo
+                StringBuilder sb = new StringBuilder();
+                if (soHet > 0)    sb.append("⛔ ").append(soHet).append(" NL hết hàng  ");
+                if (soSapHet > 0) sb.append("⚠ ").append(soSapHet).append(" NL sắp hết");
+
+                // Tạo tooltip liệt kê chi tiết 10 NL tệ nhất
+                StringBuilder tip = new StringBuilder("Nguyên liệu dưới mức an toàn:\n");
+                for (String[] row : sapHet) {
+                    tip.append("• ").append(row[0])
+                       .append(": ").append(row[1]).append("/").append(row[2])
+                       .append(" ").append(row[3]).append("\n");
+                }
+                final String msg     = sb.toString().trim();
+                final String tooltip = tip.toString();
+
+                javafx.application.Platform.runLater(() -> {
+                    if (lblThongBao != null) {
+                        lblThongBao.setText(msg);
+                        lblThongBao.getStyleClass().removeAll("lbl-success");
+                        if (!lblThongBao.getStyleClass().contains("lbl-danger"))
+                            lblThongBao.getStyleClass().add("lbl-danger");
+                        javafx.scene.control.Tooltip tp = new javafx.scene.control.Tooltip(tooltip);
+                        tp.setWrapText(true);
+                        tp.setPrefWidth(320);
+                        javafx.scene.control.Tooltip.install(lblThongBao, tp);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("[DashboardController] kiemTraCanhBaoTonKho: " + e.getMessage());
+            }
+        }, "dashboard-canh-bao-tonkho");
+        t.setDaemon(true);
+        t.start();
     }
 
     private void loadBestSellers() {

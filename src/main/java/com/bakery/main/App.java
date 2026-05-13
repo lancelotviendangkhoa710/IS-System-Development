@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -29,8 +30,17 @@ public class App extends Application {
             scene.getStylesheets().add(cssUrl.toExternalForm());
         }
 
+        // Bind background image to scale with window resize / fullscreen
+        ImageView bgImageView = (ImageView) root.lookup("#bgImageView");
+        if (bgImageView != null) {
+            bgImageView.fitWidthProperty().bind(scene.widthProperty());
+            bgImageView.fitHeightProperty().bind(scene.heightProperty());
+        }
+
         primaryStage.setTitle("H3K Bakery - Đăng nhập");
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
+        primaryStage.setMinWidth(1280);
+        primaryStage.setMinHeight(720);
         primaryStage.centerOnScreen();
         primaryStage.setScene(scene);
         primaryStage.show();

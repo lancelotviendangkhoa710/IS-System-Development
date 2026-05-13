@@ -1103,16 +1103,42 @@
 }
 
 /* ─── COMBO BOX ─── */
+
+/* Button-cell: vùng hiển thị giá trị đang chọn — nền sáng, chữ tối */
+.combo-box-base > .list-cell {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-text-fill: #1C0A00;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 0 4px;
+    padding: 0 4px;
+}
+
+/* Arrow button */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+    background-color: transparent;
+    -fx-padding: 0 8px;
+    padding: 0 8px;
+}
+.combo-box .arrow-button .arrow {
+    -fx-background-color: #92400E;
+    background-color: #92400E;
+}
+
+/* Hover item trong dropdown popup */
 .combo-box .list-cell:hover {
     -fx-background-color: #FEF3C7;
     background-color: #FEF3C7;
     -fx-text-fill: #78350F;
 }
 
+/* Selected item trong dropdown popup */
 .combo-box .list-cell:selected {
-    -fx-background-color: #92400E;
-    background-color: #92400E;
-    -fx-text-fill: white;
+    -fx-background-color: #FDE68A;
+    background-color: #FDE68A;
+    -fx-text-fill: #78350F;
 }
 
 /* ─── DATE PICKER ─── */
@@ -1194,18 +1220,22 @@
 }
 
 .dash-nav-active {
-    -fx-background-color: rgba(146, 64, 14, 0.12);
-    background-color: rgba(146, 64, 14, 0.12);
-    -fx-text-fill: #92400E;
+    -fx-background-color: linear-gradient(to right, #92400E, #B45309);
+    background-color: #92400E;
+    -fx-text-fill: white;
     -fx-font-weight: bold;
     font-weight: bold;
-    -fx-border-color: #92400E transparent transparent transparent;
-    border-color: #92400E transparent transparent transparent;
-    -fx-border-width: 0 0 0 3;
-    border-width: 0 0 0 3px;
-    -fx-border-radius: 0 8px 8px 0;
-    border-radius: 0 8px 8px 0;
-    -fx-effect: dropshadow(gaussian, rgba(146, 64, 14, 0.08), 6, 0, 2, 0);
+    -fx-font-size: 14px;
+    font-size: 14px;
+    -fx-border-width: 0;
+    border-width: 0;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(146, 64, 14, 0.4), 10, 0, 0, 3);
+}
+.dash-nav-active:hover {
+    -fx-background-color: linear-gradient(to right, #7C2D12, #92400E);
+    background-color: #7C2D12;
+    -fx-text-fill: white;
 }
 
 .nav-category-label {
@@ -1326,8 +1356,11 @@
 /* Main Content Area */
 .dash-scroll {
     -fx-background-color: transparent;
+    background-color: transparent;
     -fx-background: transparent;
+    background: transparent;
     -fx-border-color: transparent;
+    border-color: transparent;
 }
 
 .dash-main-content {
@@ -1418,8 +1451,9 @@
     border-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 2);
     -fx-min-width: 220;
-    min-width: 220;
+    min-width: 220px;
     -fx-min-height: 140;
+    min-height: 140px;
 }
 
 .best-seller-icon {
@@ -1496,7 +1530,9 @@
     -fx-cursor: hand;
     cursor: hand;
     -fx-min-height: 280;
+    min-height: 280px;
     -fx-max-height: 280;
+    max-height: 280px;
 }
 
 .dash-card:hover {
@@ -1804,9 +1840,11 @@
 
 .default-color0.chart-line-symbol {
     -fx-background-color: #D85A30, white;
+    background-color: #D85A30;
     -fx-background-insets: 0, 2;
     -fx-background-radius: 5px;
     -fx-padding: 5px;
+    padding: 5px;
 }
 
 /* ─── BUTTON MỞ RỘNG (Merged từ amber.css) ─── */
@@ -1964,7 +2002,6 @@
     -fx-background-color: white;
     background-color: white;
     -fx-background-radius: 10px;
-    background-radius: 10px;
     -fx-text-fill: #92400E;
     -fx-font-weight: bold;
     font-weight: bold;
@@ -1982,6 +2019,7 @@
     -fx-background-color: #FEF3C7;
     background-color: #FEF3C7;
     -fx-padding: 24 32;
+    padding: 24px 32px;
     -fx-pref-width: 220px;
     -fx-pref-height: 100px;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.14), 12, 0, 0, 4);
@@ -1992,8 +2030,10 @@
 /* Hộp hướng dẫn nền amber nhạt */
 .moca-info-box {
     -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
     -fx-background-radius: 8px;
     -fx-padding: 12 16 12 16;
+    padding: 12px 16px;
 }
 
 .prefix-field-box {
@@ -2127,10 +2167,15 @@
 
 .login-hero {
     -fx-background-image: url("../images/login-bg.png");
+    background-image: url("../images/login-bg.png");
     -fx-background-size: cover;
+    background-size: cover;
     -fx-background-position: center center;
+    background-position: center center;
     -fx-background-repeat: no-repeat;
+    background-repeat: no-repeat;
     -fx-border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
     -fx-padding: 36px;
     padding: 36px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 20, 0, 0, 10);
@@ -2324,36 +2369,51 @@
 /* Dùng: styleClass="card card-accent-green" */
 .card-accent-green {
     -fx-border-color: #16A34A #E5E7EB #E5E7EB #E5E7EB;
+    border-color: #16A34A;
     -fx-border-width: 0 0 0 4;
+    border-width: 0 0 0 4px;
     -fx-border-radius: 0 14px 14px 0;
+    border-radius: 0 14px 14px 0;
     -fx-background-radius: 0 14px 14px 0;
 }
 
 .card-accent-blue {
     -fx-border-color: #2563EB #E5E7EB #E5E7EB #E5E7EB;
+    border-color: #2563EB;
     -fx-border-width: 0 0 0 4;
+    border-width: 0 0 0 4px;
     -fx-border-radius: 0 14px 14px 0;
+    border-radius: 0 14px 14px 0;
     -fx-background-radius: 0 14px 14px 0;
 }
 
 .card-accent-red {
     -fx-border-color: #DC2626 #E5E7EB #E5E7EB #E5E7EB;
+    border-color: #DC2626;
     -fx-border-width: 0 0 0 4;
+    border-width: 0 0 0 4px;
     -fx-border-radius: 0 14px 14px 0;
+    border-radius: 0 14px 14px 0;
     -fx-background-radius: 0 14px 14px 0;
 }
 
 .card-accent-amber {
     -fx-border-color: #D97706 #E5E7EB #E5E7EB #E5E7EB;
+    border-color: #D97706;
     -fx-border-width: 0 0 0 4;
+    border-width: 0 0 0 4px;
     -fx-border-radius: 0 14px 14px 0;
+    border-radius: 0 14px 14px 0;
     -fx-background-radius: 0 14px 14px 0;
 }
 
 .card-accent-purple {
     -fx-border-color: #7C3AED #E5E7EB #E5E7EB #E5E7EB;
+    border-color: #7C3AED;
     -fx-border-width: 0 0 0 4;
+    border-width: 0 0 0 4px;
     -fx-border-radius: 0 14px 14px 0;
+    border-radius: 0 14px 14px 0;
     -fx-background-radius: 0 14px 14px 0;
 }
 
@@ -2364,9 +2424,12 @@
     -fx-border-color: #86EFAC;
     border-color: #86EFAC;
     -fx-border-width: 1px;
+    border-width: 1px;
     -fx-border-radius: 14px;
+    border-radius: 14px;
     -fx-background-radius: 14px;
     -fx-padding: 16px;
+    padding: 16px;
 }
 
 .card-danger {
@@ -2375,9 +2438,12 @@
     -fx-border-color: #FCA5A5;
     border-color: #FCA5A5;
     -fx-border-width: 1px;
+    border-width: 1px;
     -fx-border-radius: 14px;
+    border-radius: 14px;
     -fx-background-radius: 14px;
     -fx-padding: 16px;
+    padding: 16px;
 }
 
 .card-info {
@@ -2386,9 +2452,12 @@
     -fx-border-color: #93C5FD;
     border-color: #93C5FD;
     -fx-border-width: 1px;
+    border-width: 1px;
     -fx-border-radius: 14px;
+    border-radius: 14px;
     -fx-background-radius: 14px;
     -fx-padding: 16px;
+    padding: 16px;
 }
 
 .card-warning {
@@ -2397,9 +2466,12 @@
     -fx-border-color: #FCD34D;
     border-color: #FCD34D;
     -fx-border-width: 1px;
+    border-width: 1px;
     -fx-border-radius: 14px;
+    border-radius: 14px;
     -fx-background-radius: 14px;
     -fx-padding: 16px;
+    padding: 16px;
 }
 
 /* ── SECTION HEADER ── */
@@ -2411,11 +2483,16 @@
     font-weight: bold;
     -fx-text-fill: #78350F;
     -fx-background-color: linear-gradient(to right, #FEF3C7, transparent);
+    background-color: #FEF3C7;
     -fx-padding: 6px 12px;
+    padding: 6px 12px;
     -fx-background-radius: 6px;
     -fx-border-color: #FCD34D transparent transparent transparent;
+    border-color: #FCD34D;
     -fx-border-width: 0 0 0 3;
+    border-width: 0 0 0 3px;
     -fx-max-width: infinity;
+    max-width: 100%;
 }
 
 /* ── STAT HIGHLIGHT CARD (Dashboard KPI) ── */
@@ -2558,4 +2635,757 @@
     -fx-text-fill: #27500A;
     -fx-font-weight: bold;
     font-weight: bold;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CUSTOM ADDITIONS
+   ══════════════════════════════════════════════════════════════ */
+
+/* 1. BUG FIX: Chữ trắng khi chọn dòng TableView
+      JavaFX không propagate text-fill từ row xuống cell con → fix ở đây */
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: #1C0A00;
+}
+.table-row-cell:focused:selected .table-cell {
+    -fx-text-fill: #1C0A00;
+}
+
+/* 2. NÚT LÀM MỚI — màu tím nhạt */
+.btn-reset {
+    -fx-background-color: #EDE9FE;
+    background-color: #EDE9FE;
+    -fx-text-fill: #5B21B6;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 8px 18px;
+    padding: 8px 18px;
+    -fx-background-radius: 10px;
+    -fx-border-color: #C4B5FD;
+    border-color: #C4B5FD;
+    -fx-border-width: 1.5px;
+    border-width: 1.5px;
+    -fx-border-radius: 10px;
+    border-radius: 10px;
+    -fx-cursor: hand;
+    cursor: hand;
+}
+.btn-reset:hover {
+    -fx-background-color: #DDD6FE;
+    background-color: #DDD6FE;
+    -fx-border-color: #8B5CF6;
+    border-color: #8B5CF6;
+}
+.btn-reset:pressed {
+    -fx-background-color: #C4B5FD;
+    background-color: #C4B5FD;
+}
+
+/* btn-success-sm (mini) */
+.btn-success-sm {
+    -fx-background-color: #DCFCE7;
+    background-color: #DCFCE7;
+    -fx-text-fill: #15803D;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 4px 10px;
+    padding: 4px 10px;
+    -fx-background-radius: 6px;
+    -fx-border-color: #BBF7D0;
+    border-color: #BBF7D0;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 6px;
+    border-radius: 6px;
+    -fx-cursor: hand;
+    cursor: hand;
+}
+.btn-danger-sm {
+    -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
+    -fx-text-fill: #B91C1C;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 4px 10px;
+    padding: 4px 10px;
+    -fx-background-radius: 6px;
+    -fx-border-color: #FECACA;
+    border-color: #FECACA;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 6px;
+    border-radius: 6px;
+    -fx-cursor: hand;
+    cursor: hand;
+}
+
+/* 3. LOGIN SCREEN V2 — Redesigned (amber palette + split layout) */
+.login-root-bg {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #3B0E00, #78350F, #B45309);
+    background-color: #78350F;
+}
+.login-hero-panel {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(0,0,0,0.05), rgba(0,0,0,0.28));
+    background-color: rgba(0,0,0,0.15);
+}
+.login-form-panel {
+    -fx-background-color: #FDFBF7;
+    background-color: #FDFBF7;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 50, 0, -10, 0);
+}
+.login-brand-giant {
+    -fx-font-size: 84px;
+    font-size: 84px;
+    -fx-font-weight: 800;
+    font-weight: 800;
+    -fx-font-style: italic;
+    font-style: italic;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 14, 0, 0, 4);
+}
+.login-brand-name {
+    -fx-font-size: 20px;
+    font-size: 20px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: #FDE68A;
+}
+.login-hero-feature {
+    -fx-font-size: 14px;
+    font-size: 14px;
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+}
+.login-form-title {
+    -fx-font-size: 26px;
+    font-size: 26px;
+    -fx-font-weight: 800;
+    font-weight: 800;
+    -fx-text-fill: #1C0A00;
+}
+.login-form-subtitle {
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-text-fill: #888780;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODERN COLOR PALETTE — nâng cấp UI trông mature & professional
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Gradient buttons (hiện đại hơn flat color) ── */
+.btn-primary-gradient {
+    -fx-background-color: linear-gradient(to bottom, #C2580A, #92400E);
+    background-color: #92400E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 10px 20px;
+    padding: 10px 20px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    cursor: hand;
+    -fx-border-width: 0;
+    border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(146,64,14,0.35), 8, 0, 0, 2);
+}
+.btn-primary-gradient:hover {
+    -fx-background-color: linear-gradient(to bottom, #D97706, #B45309);
+    background-color: #B45309;
+    -fx-effect: dropshadow(gaussian, rgba(146,64,14,0.5), 12, 0, 0, 4);
+}
+
+.btn-success-gradient {
+    -fx-background-color: linear-gradient(to bottom, #22C55E, #16A34A);
+    background-color: #16A34A;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 10px 20px;
+    padding: 10px 20px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+    cursor: hand;
+    -fx-border-width: 0;
+    border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(22,163,74,0.3), 8, 0, 0, 2);
+}
+.btn-success-gradient:hover {
+    -fx-background-color: linear-gradient(to bottom, #16A34A, #15803D);
+    background-color: #15803D;
+    -fx-effect: dropshadow(gaussian, rgba(22,163,74,0.5), 12, 0, 0, 4);
+}
+
+/* ── Chip / Badge hiện đại (pill shape) ── */
+.chip-amber {
+    -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
+    -fx-text-fill: #92400E;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #FDE68A;
+    border-color: #FDE68A;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+.chip-green {
+    -fx-background-color: #DCFCE7;
+    background-color: #DCFCE7;
+    -fx-text-fill: #166534;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #BBF7D0;
+    border-color: #BBF7D0;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+.chip-red {
+    -fx-background-color: #FEE2E2;
+    background-color: #FEE2E2;
+    -fx-text-fill: #991B1B;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #FECACA;
+    border-color: #FECACA;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+.chip-blue {
+    -fx-background-color: #DBEAFE;
+    background-color: #DBEAFE;
+    -fx-text-fill: #1E40AF;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #BFDBFE;
+    border-color: #BFDBFE;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+.chip-purple {
+    -fx-background-color: #EDE9FE;
+    background-color: #EDE9FE;
+    -fx-text-fill: #5B21B6;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #DDD6FE;
+    border-color: #DDD6FE;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+.chip-gray {
+    -fx-background-color: #F3F4F6;
+    background-color: #F3F4F6;
+    -fx-text-fill: #374151;
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 10px;
+    padding: 3px 10px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #E5E7EB;
+    border-color: #E5E7EB;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+
+/* ── Divider hiện đại (dùng thay Separator) ── */
+.divider-subtle {
+    -fx-background-color: #F0EDEA;
+    background-color: #F0EDEA;
+    -fx-pref-height: 1px;
+    -fx-max-height: 1px;
+}
+
+/* ── Frosted glass panel (dùng cho sidebar, overlay) ── */
+.glass-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.72);
+    background-color: rgba(255, 255, 255, 0.72);
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.5);
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 16px;
+    border-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 20, 0, 0, 6);
+}
+
+/* ── Amber surface tones (thay thế nền trắng flat) ── */
+.surface-warm {
+    -fx-background-color: #FDFAF6;
+    background-color: #FDFAF6;
+}
+.surface-muted {
+    -fx-background-color: #F5F0EB;
+    background-color: #F5F0EB;
+}
+
+/* ── Input focus ring màu amber (override text-field:focused) ── */
+.text-field:focused {
+    -fx-border-color: #D97706;
+    border-color: #D97706;
+    -fx-border-width: 2px;
+    border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(217,119,6,0.25), 6, 0, 0, 0);
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #FFFBEB;
+    background-color: #FFFBEB;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BÁO CÁO SCREEN — Animated & Colorful
+   ══════════════════════════════════════════════════════════════ */
+
+/* Header */
+.report-header {
+    -fx-padding: 20px 40px 10px 40px;
+    padding: 20px 40px 10px 40px;
+    -fx-border-color: transparent transparent #F0EDEA transparent;
+    border-color: transparent;
+    -fx-border-width: 0 0 1 0;
+    border-width: 0 0 1px 0;
+}
+.report-avatar {
+    -fx-font-size: 20px;
+    font-size: 20px;
+    -fx-padding: 6px 8px;
+    padding: 6px 8px;
+    -fx-background-color: #F3F4F6;
+    background-color: #F3F4F6;
+    -fx-background-radius: 20px;
+}
+.report-scroll {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+/* Filter Bar */
+.report-filter-bar {
+    -fx-background-color: #F9FAFB;
+    background-color: #F9FAFB;
+    -fx-padding: 10px 16px;
+    padding: 10px 16px;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E5E7EB;
+    border-color: #E5E7EB;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 12px;
+    border-radius: 12px;
+}
+
+/* ── KPI CARDS ── */
+.kpi-card {
+    -fx-padding: 22px 20px;
+    padding: 22px 20px;
+    -fx-background-radius: 16px;
+    -fx-border-width: 0;
+    border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 16, 0, 0, 4);
+    -fx-cursor: hand;
+    cursor: hand;
+}
+.kpi-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.24), 24, 0, 0, 8);
+}
+
+/* Amber — Doanh Thu */
+.kpi-amber {
+    -fx-background-color: linear-gradient(to bottom right, #F59E0B, #B45309);
+    background-color: #D97706;
+}
+/* Green — Lợi Nhuận */
+.kpi-green {
+    -fx-background-color: linear-gradient(to bottom right, #10B981, #065F46);
+    background-color: #059669;
+}
+/* Blue — Đơn Hàng */
+.kpi-blue {
+    -fx-background-color: linear-gradient(to bottom right, #3B82F6, #1E3A8A);
+    background-color: #2563EB;
+}
+/* Purple — Khách Hàng */
+.kpi-purple {
+    -fx-background-color: linear-gradient(to bottom right, #A78BFA, #5B21B6);
+    background-color: #7C3AED;
+}
+
+/* KPI text styles */
+.kpi-label {
+    -fx-font-size: 10px;
+    font-size: 10px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: rgba(255,255,255,0.75);
+    -fx-letter-spacing: 1px;
+}
+.kpi-value {
+    -fx-font-size: 30px;
+    font-size: 30px;
+    -fx-font-weight: 800;
+    font-weight: 800;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+.kpi-sub {
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-text-fill: rgba(255,255,255,0.7);
+}
+
+/* KPI Badges */
+.kpi-badge-up {
+    -fx-background-color: rgba(255,255,255,0.2);
+    background-color: rgba(255,255,255,0.2);
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    font-size: 10px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 8px;
+    padding: 3px 8px;
+    -fx-background-radius: 999px;
+}
+.kpi-badge-down {
+    -fx-background-color: rgba(239,68,68,0.3);
+    background-color: rgba(239,68,68,0.3);
+    -fx-text-fill: #FEE2E2;
+    -fx-font-size: 10px;
+    font-size: 10px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 8px;
+    padding: 3px 8px;
+    -fx-background-radius: 999px;
+}
+.kpi-badge-neutral {
+    -fx-background-color: rgba(255,255,255,0.15);
+    background-color: rgba(255,255,255,0.15);
+    -fx-text-fill: rgba(255,255,255,0.9);
+    -fx-font-size: 10px;
+    font-size: 10px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 3px 8px;
+    padding: 3px 8px;
+    -fx-background-radius: 999px;
+}
+
+/* ── CHART CARD (container cho biểu đồ) ── */
+.chart-card {
+    -fx-background-color: white;
+    background-color: white;
+    -fx-background-radius: 16px;
+    -fx-border-color: #F0EDEA;
+    border-color: #F0EDEA;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 16px;
+    border-radius: 16px;
+    -fx-padding: 24px;
+    padding: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);
+}
+.chart-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 20, 0, 0, 6);
+}
+
+/* ── BADGE "Cập nhật Live" ── */
+.badge-live {
+    -fx-text-fill: #059669;
+    -fx-background-color: #D1FAE5;
+    background-color: #D1FAE5;
+    -fx-font-size: 10px;
+    font-size: 10px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-padding: 4px 12px;
+    padding: 4px 12px;
+    -fx-background-radius: 999px;
+    -fx-border-color: #A7F3D0;
+    border-color: #A7F3D0;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 999px;
+    border-radius: 999px;
+}
+
+/* ── CHART COLOR PALETTE — 8 màu đa sắc ── */
+/* LineChart / BarChart series */
+.default-color0.chart-series-line { -fx-stroke: #F59E0B; stroke: #F59E0B; -fx-stroke-width: 3px; }
+.default-color1.chart-series-line { -fx-stroke: #10B981; stroke: #10B981; -fx-stroke-width: 3px; }
+.default-color2.chart-series-line { -fx-stroke: #3B82F6; stroke: #3B82F6; -fx-stroke-width: 3px; }
+.default-color3.chart-series-line { -fx-stroke: #A78BFA; stroke: #A78BFA; -fx-stroke-width: 3px; }
+.default-color4.chart-series-line { -fx-stroke: #EF4444; stroke: #EF4444; -fx-stroke-width: 3px; }
+.default-color5.chart-series-line { -fx-stroke: #EC4899; stroke: #EC4899; -fx-stroke-width: 3px; }
+
+.default-color0.chart-line-symbol { -fx-background-color: #F59E0B, white; background-color: #F59E0B; }
+.default-color1.chart-line-symbol { -fx-background-color: #10B981, white; background-color: #10B981; }
+.default-color2.chart-line-symbol { -fx-background-color: #3B82F6, white; background-color: #3B82F6; }
+.default-color3.chart-line-symbol { -fx-background-color: #A78BFA, white; background-color: #A78BFA; }
+.default-color4.chart-line-symbol { -fx-background-color: #EF4444, white; background-color: #EF4444; }
+.default-color5.chart-line-symbol { -fx-background-color: #EC4899, white; background-color: #EC4899; }
+
+/* BarChart fill */
+.default-color0.chart-bar { -fx-bar-fill: #F59E0B; }
+.default-color1.chart-bar { -fx-bar-fill: #10B981; }
+.default-color2.chart-bar { -fx-bar-fill: #3B82F6; }
+.default-color3.chart-bar { -fx-bar-fill: #A78BFA; }
+.default-color4.chart-bar { -fx-bar-fill: #EF4444; }
+.default-color5.chart-bar { -fx-bar-fill: #EC4899; }
+.default-color6.chart-bar { -fx-bar-fill: #F97316; }
+.default-color7.chart-bar { -fx-bar-fill: #14B8A6; }
+
+/* PieChart slices — đa màu sặc sỡ */
+.default-color0.chart-pie { -fx-pie-color: #F59E0B; }
+.default-color1.chart-pie { -fx-pie-color: #10B981; }
+.default-color2.chart-pie { -fx-pie-color: #3B82F6; }
+.default-color3.chart-pie { -fx-pie-color: #A78BFA; }
+.default-color4.chart-pie { -fx-pie-color: #EF4444; }
+.default-color5.chart-pie { -fx-pie-color: #EC4899; }
+.default-color6.chart-pie { -fx-pie-color: #F97316; }
+.default-color7.chart-pie { -fx-pie-color: #14B8A6; }
+
+/* Chart plot area & legend */
+.chart-plot-background {
+    -fx-background-color: #FAFAFA;
+    background-color: #FAFAFA;
+}
+.chart-legend {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+.chart-vertical-grid-lines {
+    -fx-stroke: #F0EDEA;
+    stroke: #F0EDEA;
+}
+.chart-horizontal-grid-lines {
+    -fx-stroke: #F0EDEA;
+    stroke: #F0EDEA;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LOGIN SCREEN v3 — Image Background + Glassmorphism
+   ══════════════════════════════════════════════════════════════ */
+
+/* Glass card container */
+.login-glass-card {
+    -fx-background-color: rgba(255, 255, 255, 0.13);
+    background-color: rgba(255, 255, 255, 0.13);
+    -fx-background-radius: 24px;
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.28);
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 24px;
+    border-radius: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 40, 0, 0, 12);
+}
+
+/* Brand inside glass */
+.login-glass-card .login-brand-giant {
+    -fx-font-size: 56px;
+    font-size: 56px;
+    -fx-font-weight: 800;
+    font-weight: 800;
+    -fx-font-style: italic;
+    font-style: italic;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
+}
+.login-glass-card .login-brand-name {
+    -fx-font-size: 15px;
+    font-size: 15px;
+    -fx-font-weight: 600;
+    font-weight: 600;
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-letter-spacing: 2px;
+}
+.login-glass-subtitle {
+    -fx-font-size: 11px;
+    font-size: 11px;
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-padding: 4px 0 0 0;
+    padding: 4px 0 0 0;
+}
+
+/* Form text styles */
+.login-glass-title {
+    -fx-font-size: 22px;
+    font-size: 22px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: white;
+}
+.login-glass-body {
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-text-fill: rgba(255,255,255,0.7);
+}
+.login-glass-label {
+    -fx-font-size: 12px;
+    font-size: 12px;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-text-fill: rgba(255,255,255,0.85);
+}
+.login-glass-error {
+    -fx-font-size: 12px;
+    font-size: 12px;
+    -fx-text-fill: #FCA5A5;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+/* Glass input fields */
+.login-glass-input {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    background-color: rgba(255, 255, 255, 0.14);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 10px 14px;
+    padding: 10px 14px;
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.25);
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 10px;
+    border-radius: 10px;
+}
+.login-glass-input:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+    background-color: rgba(255, 255, 255, 0.22);
+    -fx-border-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.15), 6, 0, 0, 0);
+}
+
+/* Primary button — amber solid */
+.btn-login-primary {
+    -fx-background-color: linear-gradient(to bottom, #F59E0B, #D97706);
+    background-color: #D97706;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    font-weight: bold;
+    -fx-font-size: 14px;
+    font-size: 14px;
+    -fx-padding: 12px 20px;
+    padding: 12px 20px;
+    -fx-background-radius: 10px;
+    -fx-border-width: 0;
+    border-width: 0;
+    -fx-cursor: hand;
+    cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(217,119,6,0.5), 10, 0, 0, 3);
+}
+.btn-login-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #D97706, #B45309);
+    background-color: #B45309;
+    -fx-effect: dropshadow(gaussian, rgba(180,83,9,0.6), 14, 0, 0, 5);
+}
+
+/* Ghost button — transparent outline */
+.btn-login-ghost {
+    -fx-background-color: rgba(255,255,255,0.1);
+    background-color: rgba(255,255,255,0.1);
+    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 10px 20px;
+    padding: 10px 20px;
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.25);
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 10px;
+    border-radius: 10px;
+    -fx-cursor: hand;
+    cursor: hand;
+}
+.btn-login-ghost:hover {
+    -fx-background-color: rgba(255,255,255,0.18);
+    background-color: rgba(255,255,255,0.18);
+    -fx-text-fill: white;
+}
+
+/* Icon button (toggle password visibility) */
+.btn-login-icon {
+    -fx-background-color: rgba(255,255,255,0.12);
+    background-color: rgba(255,255,255,0.12);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    font-size: 14px;
+    -fx-padding: 8px 12px;
+    padding: 8px 12px;
+    -fx-background-radius: 8px;
+    -fx-border-width: 0;
+    border-width: 0;
+    -fx-cursor: hand;
+    cursor: hand;
+    -fx-min-width: 40px;
+}
+.btn-login-icon:hover {
+    -fx-background-color: rgba(255,255,255,0.22);
+    background-color: rgba(255,255,255,0.22);
+}
+
+/* Override lbl-success / lbl-danger trong login glass — pastel đọc được trên nền tối */
+.login-glass-card .lbl-success {
+    -fx-text-fill: #86EFAC;
+}
+.login-glass-card .lbl-danger {
+    -fx-text-fill: #FCA5A5;
 }

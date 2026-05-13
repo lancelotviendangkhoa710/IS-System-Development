@@ -38,4 +38,29 @@ public class ThongKeService {
         List<String[]> res = thongKeDAO.getChiTietGiaoDich(loai, giaTri);
         return res != null ? res : List.of();
     }
+
+    /** UC50 — Tính giá vốn thực từ DB theo kỳ. */
+    public double getGiaVon(String loai, String giaTri) throws Exception {
+        return thongKeDAO.getGiaVon(loai, giaTri);
+    }
+
+    /** UC52 — Báo cáo tồn kho: đầu kỳ, nhập, xuất, cuối kỳ theo nguyên liệu. */
+    public List<String[]> getBaoCaoTonKho(java.time.LocalDate tuNgay, java.time.LocalDate denNgay)
+            throws Exception {
+        List<String[]> res = thongKeDAO.getBaoCaoTonKho(tuNgay, denNgay);
+        return res != null ? res : List.of();
+    }
+
+    /** UC52 / UC43 — Thống kê tồn kho NL theo trạng thái: HET_HANG, SAP_HET, DU_HANG. */
+    public Map<String, Long> getTonKhoTongHop() throws Exception {
+        Map<String, Long> res = thongKeDAO.getTonKhoTongHop();
+        return res != null ? res : Map.of("HET_HANG", 0L, "SAP_HET", 0L, "DU_HANG", 0L);
+    }
+
+    /** UC43 — Danh sách NL dưới mức tồn an toàn (tối đa 10 items). */
+    public List<String[]> getNguyenLieuSapHet() throws Exception {
+        List<String[]> res = thongKeDAO.getNguyenLieuSapHet();
+        return res != null ? res : List.of();
+    }
 }
+

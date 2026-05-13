@@ -38,7 +38,7 @@
             <fx:include source="QuanLyNhaCungCapView.fxml"/>
         </Tab>
 
-        <!-- Tab 2: Kiem ke kho — gom Nguyen lieu + Ton kho -->
+        <!-- Tab 2: Kiem ke kho — gom Nguyen lieu + Ton kho + The kho -->
         <Tab text="📊  Kiểm kê kho" fx:id="tabKiemKe">
             <VBox spacing="0">
                 <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="tab-pane">
@@ -48,6 +48,9 @@
                     <Tab text="📋  Tồn kho">
                         <fx:include source="KiemKeKhoView.fxml"/>
                     </Tab>
+                    <Tab text="📒  Thẻ kho">
+                        <fx:include source="TheKhoView.fxml"/>
+                    </Tab>
                 </TabPane>
             </VBox>
         </Tab>
@@ -55,6 +58,11 @@
         <!-- Tab 3: Nhap kho -->
         <Tab text="📥  Nhập kho" fx:id="tabNhapKho">
             <fx:include source="NhapKhoView.fxml"/>
+        </Tab>
+
+        <!-- Tab 4: Truy xuất nguồn gốc -->
+        <Tab text="🔍  Truy xuất nguồn gốc" fx:id="tabTraCuuNguonGoc">
+            <fx:include source="TraCuuNguonGocView.fxml"/>
         </Tab>
 
     </TabPane>
