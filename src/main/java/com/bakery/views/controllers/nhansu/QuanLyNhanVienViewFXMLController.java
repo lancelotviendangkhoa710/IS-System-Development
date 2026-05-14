@@ -75,6 +75,8 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         tblNhanVien.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) hienThiChiTiet(newVal);
         });
+        // Auto-refresh: mỗi 30s tự query DB — khi quản lý thêm/sửa NV từ session khác, danh sách tự cập nhật
+        batDauAutoRefresh(tblNhanVien, this::loadData, 30);
     }
 
     private void setupTable() {

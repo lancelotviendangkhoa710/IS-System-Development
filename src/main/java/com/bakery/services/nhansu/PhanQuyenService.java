@@ -43,7 +43,8 @@ public class PhanQuyenService {
         NHAT_KY_HE_THONG,
         KDS_MAN_HINH_BEP,
         DON_HANG_BEP,           // Quản lý đơn hàng bếp (chỉ bánh tùy chỉnh)
-        CAU_HINH_GIOI_HAN_DON   // Cấu hình giới hạn nhận đơn
+        CAU_HINH_GIOI_HAN_DON,  // Cấu hình giới hạn nhận đơn
+        KHOI_PHUC_DU_LIEU       // Khôi phục / xóa vĩnh viễn dữ liệu soft-delete
     }
 
     /** Tính năng mặc định — mọi nhân viên đều có sau khi đăng nhập. */
@@ -133,10 +134,11 @@ public class PhanQuyenService {
         if (modules.contains(SystemModule.BAO_CAO)) {
             tinhNang.add(TinhNangHeThong.BAO_CAO_KINH_DOANH);
         }
-        // Cấu hình giới hạn đơn + Lịch sử hệ thống — chỉ dành cho Quản lý
+        // Cấu hình giới hạn đơn + Lịch sử hệ thống + Khôi phục DL — chỉ dành cho Quản lý
         if (laQuanLy(nhanVien) || laAdmin(nhanVien)) {
             tinhNang.add(TinhNangHeThong.CAU_HINH_GIOI_HAN_DON);
             tinhNang.add(TinhNangHeThong.NHAT_KY_HE_THONG);
+            tinhNang.add(TinhNangHeThong.KHOI_PHUC_DU_LIEU);
         }
         if (modules.contains(SystemModule.NHA_BEP)) {
             // Tho Bep: full access bep + full access san pham (de cau hinh cong thuc)

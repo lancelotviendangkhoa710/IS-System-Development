@@ -9,6 +9,9 @@ import com.bakery.views.controllers.hethong.MainMenuViewFXMLController;
 import com.bakery.views.controllers.hethong.MainViewFXMLController;
 import com.bakery.views.controllers.hethong.ThoBepDashboardViewFXMLController;
 import com.bakery.views.controllers.hethong.ThuKhoDashboardViewFXMLController;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -17,6 +20,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.logging.Logger;
@@ -24,6 +28,9 @@ import java.util.logging.Logger;
 public abstract class BaseController {
     private static final Logger LOGGER = Logger.getLogger(BaseController.class.getName());
     private final PhanQuyenService phanQuyenService = new PhanQuyenService();
+
+    /** Timeline dùng cho auto-refresh — tự query DB mỗi N giây */
+    private Timeline autoRefreshTimeline;
 
     @FXML
     protected Label lblThongBao;
@@ -115,6 +122,55 @@ public abstract class BaseController {
         } catch (Exception e) {
             LOGGER.warning("[BaseController] Loi dieu huong toi '" + title + "': " + e.getMessage());
             hienThiThongBaoLoi("Loi dieu huong", "Khong the chuyen sang man hinh " + title + ": " + e.getMessage());
+        }
+    }
+
+    // ── AUTO-REFRESH (Polling DB) ────────────────────────────────────────────
+
+    /**
+     * Bật auto-refresh: mỗi N giây tự gọi lại hàm tải dữ liệu từ DB.
+     * Khi user A INSERT/UPDATE ở session khác, user B sẽ tự thấy dữ liệu mới.
+     *
+     * Tự động hủy khi màn hình bị thay thế (AppShell.loadView swap nội dung
+     * contentArea → Node cũ mất Scene → listener tự stop Timeline).
+     *
+     * @param anchor       Node bất kỳ trên màn hình hiện tại (vd: TableView)
+     * @param taiLaiDuLieu Runnable chứa logic SELECT + cập nhật TableView
+     * @param chuKyGiay    Chu kỳ refresh (giây), khuyến nghị 10-15s
+     */
+    protected void batDauAutoRefresh(Node anchor, Runnable taiLaiDuLieu, int chuKyGiay) {
+        huyAutoRefresh(); // Dọn timer cũ nếu có
+        autoRefreshTimeline = new Timeline(new KeyFrame(
+                Duration.seconds(chuKyGiay),
+                e -> {
+                    try {
+                        taiLaiDuLieu.run();
+                    } catch (Exception ex) {
+                        LOGGER.warning("[AutoRefresh] Loi khi tai lai du lieu: " + ex.getMessage());
+                    }
+                }
+        ));
+        autoRefreshTimeline.setCycleCount(Animation.INDEFINITE);
+        autoRefreshTimeline.play();
+
+        // Tự hủy khi Node bị remove khỏi Scene (AppShell thay nội dung)
+        anchor.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null) {
+                huyAutoRefresh();
+                LOGGER.info("[AutoRefresh] Scene removed — auto-stop " + this.getClass().getSimpleName());
+            }
+        });
+
+        LOGGER.info("[AutoRefresh] Bat dau polling moi " + chuKyGiay + "s — " + this.getClass().getSimpleName());
+    }
+
+    /**
+     * Tắt auto-refresh thủ công (backup — thường không cần gọi vì có auto-detect).
+     */
+    protected void huyAutoRefresh() {
+        if (autoRefreshTimeline != null) {
+            autoRefreshTimeline.stop();
+            autoRefreshTimeline = null;
         }
     }
 }

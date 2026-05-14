@@ -1,6 +1,6 @@
 package com.bakery.presenters.hethong;
-import com.bakery.presenters.BasePresenter;
 
+import com.bakery.presenters.BasePresenter;
 import com.bakery.services.hethong.CaLamViecService;
 import com.bakery.utils.SessionContext;
 import com.bakery.views.interfaces.hethong.IMoCaView;
@@ -31,15 +31,17 @@ public class MoCaPresenter extends BasePresenter<IMoCaView> {
         view.xoaLoi();
 
         if (mayPOS == null || mayPOS.isBlank()) {
-            view.hienThiLoi("⚠️ Vui lòng chọn máy POS.");
+            view.hienThiLoi("Vui lòng chọn máy POS.");
             return;
         }
 
         BigDecimal tienDauCa;
         try {
-            tienDauCa = (tienText == null || tienText.isEmpty()) ? BigDecimal.ZERO : new BigDecimal(tienText);
+            // Xóa dấu chấm/phẩy phân cách do CurrencyFormatter định dạng (vd: "500.000" → "500000")
+            String clean = (tienText == null) ? "" : tienText.replaceAll("[^\\d]", "").trim();
+            tienDauCa = clean.isEmpty() ? BigDecimal.ZERO : new BigDecimal(clean);
         } catch (NumberFormatException ex) {
-            view.hienThiLoi("⚠️ Số tiền không hợp lệ.");
+            view.hienThiLoi("Số tiền không hợp lệ.");
             return;
         }
 

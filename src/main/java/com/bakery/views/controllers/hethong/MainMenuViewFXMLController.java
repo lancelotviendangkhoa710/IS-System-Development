@@ -81,7 +81,6 @@ public class MainMenuViewFXMLController {
     // NHAN SU — 1 nut cha
     @FXML
     private Button btnNhanSu;
-    // BAO CAO
     @FXML
     private Button btnBaoCao;
     @FXML
@@ -90,6 +89,8 @@ public class MainMenuViewFXMLController {
     private Button btnGiamSatCa;
     @FXML
     private Button btnCauHinhGioiHan;
+    @FXML
+    private Button btnKhoiPhucDuLieu;
 
     // ─── Misc ─────────────────────────────────────────────────────────────────
     @FXML
@@ -184,6 +185,8 @@ public class MainMenuViewFXMLController {
         boolean coQuyenCauHinh = coQuyen(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON)
                 && (laAdmin || authorizationService.laQuanLy(currentUser));
         capNhatTrangThaiNut(btnCauHinhGioiHan, coQuyenCauHinh);
+        // Khôi phục dữ liệu — chỉ Quản lý
+        capNhatTrangThaiNut(btnKhoiPhucDuLieu, coQuyen(PhanQuyenService.TinhNangHeThong.KHOI_PHUC_DU_LIEU));
 
         // Load dashboard mac dinh
         if (contentArea != null && contentArea.getChildren().isEmpty()) {
@@ -306,6 +309,14 @@ public class MainMenuViewFXMLController {
     }
 
     @FXML
+    private void onMoKhoiPhucDuLieu() {
+        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHOI_PHUC_DU_LIEU, "Khoi phuc du lieu"))
+            return;
+        setActiveNavButton(btnKhoiPhucDuLieu);
+        loadView("/fxml/hethong/KhoiPhucDuLieuView.fxml");
+    }
+
+    @FXML
     private void onMoCauHinhGioiHan() {
         if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.CAU_HINH_GIOI_HAN_DON, "Cau hinh gioi han nhan don"))
             return;
@@ -370,7 +381,7 @@ public class MainMenuViewFXMLController {
                     btnSanPham,
                     btnKho, btnBep,
                     btnNhanSu,
-                    btnBaoCao, btnAuditLogs, btnGiamSatCa, btnCauHinhGioiHan
+                    btnBaoCao, btnAuditLogs, btnGiamSatCa, btnCauHinhGioiHan, btnKhoiPhucDuLieu
             };
             for (Button btn : navButtons) {
                 if (btn != null)

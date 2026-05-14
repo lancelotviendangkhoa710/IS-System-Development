@@ -34,6 +34,8 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
         setupSelectionListener();
         lamMoiForm();
         presenter.taiDanhSach();
+        // Auto-refresh: mỗi 30s tự query DB — danh mục ít thay đổi, interval dài hơn các module nghiệp vụ
+        batDauAutoRefresh(tblDanhMuc, () -> presenter.taiDanhSach(), 30);
     }
 
     private void setupTable() {

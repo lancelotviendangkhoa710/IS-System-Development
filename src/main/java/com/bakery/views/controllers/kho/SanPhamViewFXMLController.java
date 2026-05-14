@@ -58,6 +58,8 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
         tblSanPham.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, newVal) -> presenter.onChonSanPham(newVal));
         presenter.taiDuLieuBanDau();
+        // Auto-refresh: mỗi 10s tự query DB — khi sản xuất/bán hàng, tồn kho tự cập nhật
+        batDauAutoRefresh(tblSanPham, () -> presenter.taiDanhSachSanPham(), 10);
     }
 
     /** Lọc bảng theo từ khóa (tên hoặc mã SP). */

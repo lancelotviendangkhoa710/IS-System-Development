@@ -65,6 +65,8 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         khoiTaoPhanQuyen();
         presenter.taiDuLieu();
         presenter.taiDanhSachHangThanhVien();
+        // Auto-refresh: mỗi 10s tự query DB — khi thu ngân cộng điểm KH, quản lý sẽ thấy ngay
+        batDauAutoRefresh(customerTable, () -> presenter.taiDuLieu(), 10);
     }
 
     // ── KhachHangView interface ──────────────────────────────────────────

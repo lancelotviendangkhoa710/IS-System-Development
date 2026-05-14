@@ -15,11 +15,12 @@ IS
     V_MAHOADON       NUMBER;
     V_HINHTHUCNHAN   NUMBER;
 BEGIN
-    -- 1. Lấy trạng thái hiện tại và hình thức nhận
+    -- 1. Lấy trạng thái hiện tại và hình thức nhận (Lock dòng đơn — ngăn 2 NV cùng hủy 1 đơn)
     SELECT MATRANGTHAI, HINHTHUCNHAN
     INTO V_MATRANGTHAI_CU, V_HINHTHUCNHAN
     FROM DONDATHANG
-    WHERE MADON = P_MADON;
+    WHERE MADON = P_MADON
+    FOR UPDATE;
 
     -- 2. Chỉ cho phép hủy đơn bán trực tiếp (HINHTHUCNHAN = 1)
     IF V_HINHTHUCNHAN != 1 THEN

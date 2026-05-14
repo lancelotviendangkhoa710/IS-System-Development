@@ -64,24 +64,4 @@
             </HBox>
         </VBox>
     </HBox>
-
-    <!-- Cong Thuc Nguyen Lieu Section -->
-    <VBox spacing="10" VBox.vgrow="ALWAYS" styleClass="card">
-        <Label text="Chi tiết định mức nguyên liệu (Công thức cấu thành)" styleClass="lbl-title-card" />
-        <TableView fx:id="tblCongThuc" VBox.vgrow="ALWAYS" prefHeight="150">
-            <columns>
-                <TableColumn fx:id="colTenNguyenLieu" text="Tên nguyên liệu (Bột, Sữa, Trứng,...)" prefWidth="250" />
-                <TableColumn fx:id="colDinhMuc" text="Định mức (Lượng tiêu hao)" prefWidth="150" />
-                <TableColumn fx:id="colDonGiaNL" text="Đơn giá" prefWidth="120" />
-                <TableColumn fx:id="colThanhTienNL" text="Thành tiền (Giá vốn)" prefWidth="150" />
-            </columns>
-            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
-        </TableView>
-    </VBox>
-    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card">
-        <Label text="Ước tính giá vốn khi kết hợp:" styleClass="lbl-body-bold" />
-        <Label fx:id="lblTongGiaVon" styleClass="lbl-primary" text="0 đ" style="-fx-font-size: 16px;"/>
-        <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="lblThongBao" styleClass="lbl-small-bold" />
-    </HBox>
 </VBox>

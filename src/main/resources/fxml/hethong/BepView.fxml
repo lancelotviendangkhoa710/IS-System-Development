@@ -19,10 +19,11 @@
     </padding>
 
     <!-- Header chung -->
-    <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 0 0 16 0;">
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <padding><Insets bottom="16"/></padding>
         <VBox spacing="4">
-            <Label text="QUẢN LÝ BẾP" styleClass="lbl-header"/>
-            <Label text="Xuất kho · Đơn hàng bếp · Màn hình KDS" styleClass="lbl-body-secondary"/>
+            <Label text="👨‍🍳 Quản lý Bếp" styleClass="lbl-title-screen"/>
+            <Label text="Xuất kho · Đơn hàng bếp · Màn hình KDS" styleClass="lbl-body"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
@@ -31,7 +32,7 @@
     <!-- TabPane chứa các phân hệ bếp -->
     <TabPane fx:id="tabPaneBep" VBox.vgrow="ALWAYS"
              tabClosingPolicy="UNAVAILABLE"
-             styleClass="tab-pane">
+             styleClass="modern-tab-pane">
 
         <!-- Tab 1: Lập phiếu xuất kho -->
         <Tab text="📤  Lập phiếu xuất kho" fx:id="tabXuatKho">

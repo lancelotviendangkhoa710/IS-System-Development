@@ -118,6 +118,14 @@
                                         <Insets top="5.0" />
                                     </padding>
                                 </HBox>
+                                <!-- Dòng đọc số tiền bằng chữ — giảm nhầm lẫn cho nhân viên -->
+                                <Label fx:id="lblDocChuThanhToan" text=""
+                                       styleClass="lbl-small"
+                                       wrapText="true"
+                                       maxWidth="Infinity"
+                                       style="-fx-font-style: italic; -fx-text-fill: #555;">
+                                    <VBox.margin><Insets top="2.0"/></VBox.margin>
+                                </Label>
                             </children>
                         </VBox>
                         

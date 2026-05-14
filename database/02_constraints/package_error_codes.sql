@@ -19,6 +19,9 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- Loi he thong khi khoi phuc du lieu
     ERR_HE_THONG_KHOIPHUC          CONSTANT NUMBER := -20001;
 
+    -- Loi he thong khi xoa vinh vien du lieu qua han
+    ERR_HE_THONG_XOAVINHVIEN       CONSTANT NUMBER := -20006;
+
     -- Loi he thong khi thanh toan giao dich
     ERR_THANH_TOAN_GIAO_DICH        CONSTANT NUMBER := -20002;
 

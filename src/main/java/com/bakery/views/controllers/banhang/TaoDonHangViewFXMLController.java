@@ -1,5 +1,6 @@
 package com.bakery.views.controllers.banhang;
 
+import com.bakery.utils.CurrencyFormatter;
 import com.bakery.utils.QRGenerator;
 import com.bakery.views.interfaces.banhang.IDonHangDialogFactory;
 import javafx.fxml.FXML;
@@ -74,6 +75,8 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
     @FXML private TextField txtTienCoc;
     @FXML private Label lblCocToiThieu;
     @FXML private Label lblNangLuc;
+    @FXML private Label lblDocChuKhachDua;  // đọc số tiền khách đưa bằng chữ
+    @FXML private Label lblDocChuTienCoc;   // đọc số tiền cọc bằng chữ
 
     private final CauHinhGioiHanDAO cauHinhGioiHanDAO = new CauHinhGioiHanDAO();
 
@@ -111,10 +114,24 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
         }
 
         if (txtKhachDua != null) {
-            txtKhachDua.textProperty().addListener((obs, oldVal, newVal) -> capNhatHienThiThanhToan());
+            CurrencyFormatter.apDungDinhDangNhapTien(txtKhachDua);
+            txtKhachDua.textProperty().addListener((obs, oldVal, newVal) -> {
+                capNhatHienThiThanhToan();
+                if (lblDocChuKhachDua != null) {
+                    long v = CurrencyFormatter.parse(newVal).longValue();
+                    lblDocChuKhachDua.setText(v > 0 ? CurrencyFormatter.docSoTien(v) : "");
+                }
+            });
         }
         if (txtTienCoc != null) {
-            txtTienCoc.textProperty().addListener((obs, oldVal, newVal) -> capNhatHienThiThanhToan());
+            CurrencyFormatter.apDungDinhDangNhapTien(txtTienCoc);
+            txtTienCoc.textProperty().addListener((obs, oldVal, newVal) -> {
+                capNhatHienThiThanhToan();
+                if (lblDocChuTienCoc != null) {
+                    long v = CurrencyFormatter.parse(newVal).longValue();
+                    lblDocChuTienCoc.setText(v > 0 ? CurrencyFormatter.docSoTien(v) : "");
+                }
+            });
         }
         // Listener đổi ngày giao → cập nhật biến đếm năng lực sản xuất
         if (dpNgayGiao != null) {
@@ -471,10 +488,10 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
         double minCoc = tongTienPhaiTra * 0.5;
         lblCocToiThieu.setText("(tối thiểu " + dinhDangTien(minCoc) + ")");
         if (btnFullPay.isSelected()) {
-            txtTienCoc.setText(String.valueOf((long) tongTienPhaiTra));
+            txtTienCoc.setText(CurrencyFormatter.formatSoThuan((long) tongTienPhaiTra));
             txtTienCoc.setDisable(true);
         } else {
-            txtTienCoc.setText(String.valueOf((long) minCoc));
+            txtTienCoc.setText(CurrencyFormatter.formatSoThuan((long) minCoc));
             txtTienCoc.setDisable(false);
         }
         capNhatHienThiThanhToan();
@@ -622,18 +639,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
     }
 
     private double parseTien(String value) {
-        if (value == null) {
-            return 0;
-        }
-        String digitsOnly = value.replaceAll("[^0-9]", "");
-        if (digitsOnly.isEmpty()) {
-            return 0;
-        }
-        try {
-            return Double.parseDouble(digitsOnly);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+        return CurrencyFormatter.parse(value).doubleValue();
     }
 
     private String dinhDangTien(double amount) {

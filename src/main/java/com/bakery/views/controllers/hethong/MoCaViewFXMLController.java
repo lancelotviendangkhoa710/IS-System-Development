@@ -3,6 +3,7 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.presenters.hethong.MoCaPresenter;
 import com.bakery.services.hethong.CaLamViecService;
+import com.bakery.utils.CurrencyFormatter;
 import com.bakery.views.interfaces.hethong.IMoCaView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -28,12 +29,8 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
     @FXML
     public void initialize() {
         presenter.onInitialize();
-
-        // Chỉ cho nhập số
-        tfTienDauCa.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("[0-9]*"))
-                tfTienDauCa.setText(newVal.replaceAll("[^0-9]", ""));
-        });
+        // Tự động định dạng dấu chấm phân cách mỗi 3 số khi nhập tiền đầu ca
+        CurrencyFormatter.apDungDinhDangNhapTien(tfTienDauCa);
     }
 
     @FXML

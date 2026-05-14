@@ -23,7 +23,7 @@
     </HBox>
 
     <!-- ── TabPane chính ────────────────────────────────────────────── -->
-    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="modern-tab-pane">
 
         <!-- Tab 1: Danh sách phiếu thu chi -->
         <Tab text="Phiếu Thu Chi" fx:id="tabDanhSach">

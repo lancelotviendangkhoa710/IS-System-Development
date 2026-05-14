@@ -23,6 +23,8 @@ public class KhoViewFXMLController extends BaseController {
     private Label lblThongBao;
 
     @FXML
+    private Tab tabTheKho;
+    @FXML
     private Tab tabNhaCungCap;
     @FXML
     private Tab tabKiemKe;
@@ -34,8 +36,8 @@ public class KhoViewFXMLController extends BaseController {
     @FXML
     public void initialize() {
         apDungPhanQuyen();
-        if (tabPaneKho != null && tabNhaCungCap != null) {
-            tabPaneKho.getSelectionModel().select(tabNhaCungCap);
+        if (tabPaneKho != null && tabTheKho != null) {
+            tabPaneKho.getSelectionModel().select(tabTheKho);
         }
     }
 
@@ -58,10 +60,12 @@ public class KhoViewFXMLController extends BaseController {
         if (tabPaneKho == null)
             return;
         Tab target = switch (tabKey.toLowerCase()) {
+            case "thekho" -> tabTheKho;
+            case "nhacungcap" -> tabNhaCungCap;
             case "kiemke", "nguyenlieu" -> tabKiemKe;
             case "nhapkho" -> tabNhapKho;
             case "tracuunguongoc", "traceability" -> tabTraCuuNguonGoc;
-            default -> tabNhaCungCap;
+            default -> tabTheKho;
         };
         if (target != null && tabPaneKho.getTabs().contains(target)) {
             tabPaneKho.getSelectionModel().select(target);

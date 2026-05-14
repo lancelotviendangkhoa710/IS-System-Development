@@ -10,9 +10,10 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 
 /**
- * Controller cho NhanSuView — TabPane gồm 2 tab:
+ * Controller cho NhanSuView — TabPane gồm 3 tab:
  * Tab 1: Quản lý nhân viên (QuanLyNhanVienView)
- * Tab 2: Phân quyền chức năng (MaTranPhanQuyenView)
+ * Tab 2: Nhân viên & Vai trò — gán vai trò cho nhân viên (MaTranPhanQuyenView)
+ * Tab 3: Quyền vai trò (PhanQuyenVaiTroView)
  */
 public class NhanSuViewFXMLController extends BaseController {
 
@@ -50,7 +51,7 @@ public class NhanSuViewFXMLController extends BaseController {
         if (view != null) stackNhanVien.getChildren().setAll(view);
     }
 
-    /** Load MaTranPhanQuyenView vào Tab 2 (lazy). */
+    /** Load MaTranPhanQuyenView vào Tab 2 (lazy) — gán vai trò cho nhân viên. */
     private void taiTabPhanQuyen() {
         Node view = FXMLLoaderUtil.loadFXML("/fxml/hethong/MaTranPhanQuyenView.fxml");
         if (view != null) stackPhanQuyen.getChildren().setAll(view);

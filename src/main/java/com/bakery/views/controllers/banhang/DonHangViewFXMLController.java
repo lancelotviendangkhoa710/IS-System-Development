@@ -121,17 +121,6 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         if (presenter != null) presenter.moDialogTaoDon();
     }
 
-    @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tabTaoDon);
-    }
-
-    @FXML
-    private void onLamMoi() {
-        if (presenter == null) return;
-        presenter.taiDuLieuBanDau();
-        hienThiThanhCong("Đã làm mới danh sách sản phẩm.");
-    }
 
     @FXML
     private void onTuyChinhChanged() {

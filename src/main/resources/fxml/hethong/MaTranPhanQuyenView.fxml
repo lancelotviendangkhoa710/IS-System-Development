@@ -23,7 +23,10 @@
         <Button text="↺ Làm mới" onAction="#onRefresh" styleClass="btn-reset"/>
     </HBox>
 
-    <Separator style="-fx-padding: 12 0 12 0;"/>
+    <VBox>
+        <padding><Insets top="12" bottom="12"/></padding>
+        <Separator/>
+    </VBox>
 
     <!-- Tab pane -->
     <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tab-pane">
@@ -47,39 +50,5 @@
                 <Label fx:id="lblStatusVaiTro" text="Đang tải..." styleClass="lbl-small-bold"/>
             </VBox>
         </Tab>
-
-        <!-- TAB 2: Ma trận quyền chức năng -->
-        <Tab text="🔐  Quyền chức năng" fx:id="tabChucNang">
-            <VBox spacing="16" style="-fx-padding: 16 0 0 0;">
-
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <Label text="Vai trò:" styleClass="lbl-field-label"/>
-                    <ComboBox fx:id="cbVaiTro" promptText="-- Chọn vai trò --" prefWidth="200"/>
-                    <Button text="Tải quyền" onAction="#onTaiQuyenVaiTro" styleClass="btn-secondary"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="💾 Lưu quyền" onAction="#onLuuQuyenChucNang" styleClass="btn-success"/>
-                </HBox>
-
-                <VBox styleClass="card" VBox.vgrow="ALWAYS">
-                    <TableView fx:id="tblChucNang" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="colTenCN" text="Chức năng" prefWidth="200"/>
-                            <TableColumn fx:id="colModule" text="Module" prefWidth="110"/>
-                            <TableColumn fx:id="colView" text="Xem" prefWidth="80"/>
-                            <TableColumn fx:id="colAdd"  text="Thêm" prefWidth="80"/>
-                            <TableColumn fx:id="colEdit" text="Sửa" prefWidth="80"/>
-                            <TableColumn fx:id="colDel"  text="Xóa" prefWidth="80"/>
-                            <TableColumn fx:id="colDown" text="Tải" prefWidth="80"/>
-                        </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
-                    </TableView>
-                </VBox>
-
-                <Label fx:id="lblStatusChucNang" text="Chọn vai trò để xem quyền." styleClass="lbl-small-bold"/>
-            </VBox>
-        </Tab>
-
     </TabPane>
 </VBox>

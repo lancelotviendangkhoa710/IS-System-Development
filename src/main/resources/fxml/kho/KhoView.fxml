@@ -5,8 +5,8 @@
 <?import javafx.scene.layout.*?>
 
 <!--
-  KhoView.fxml — Trung tam Quan ly Kho hang.
-  3 Tab: Nha cung cap | Kiem ke kho (Nguyen lieu + Ton kho) | Nhap kho.
+  KhoView.fxml — Trung tâm Quản lý Kho hàng.
+  Tab 1: Thẻ kho | Tab 2: Nhà cung cấp | Tab 3: Kiểm kê (Nguyên liệu + Tồn kho) | Tab 4: Nhập kho | Tab 5: Truy xuất
   Controller: KhoViewFXMLController.
 -->
 <VBox xmlns="http://javafx.com/javafx/21"
@@ -19,48 +19,51 @@
     </padding>
 
     <!-- Header chung -->
-    <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 0 0 16 0;">
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <padding><Insets bottom="16"/></padding>
         <VBox spacing="4">
-            <Label text="QUAN LY KHO HANG" styleClass="lbl-header"/>
-            <Label text="Nha cung cap · Kiem ke · Nguyen lieu · Nhap kho" styleClass="lbl-body-secondary"/>
+            <Label text="🏪 Quản lý Kho hàng" styleClass="lbl-title-screen"/>
+            <Label text="Thẻ kho · Nhà cung cấp · Kiểm kê · Nguyên liệu · Nhập kho" styleClass="lbl-body"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
     </HBox>
 
-    <!-- TabPane 3 tab chinh -->
+    <!-- TabPane 5 tab chính -->
     <TabPane fx:id="tabPaneKho" VBox.vgrow="ALWAYS"
              tabClosingPolicy="UNAVAILABLE"
-             styleClass="tab-pane">
+             styleClass="modern-tab-pane">
 
-        <!-- Tab 1: Nha cung cap -->
+        <!-- Tab 1: Thẻ kho (nâng lên từ nested → Tab 1 ngoài) -->
+        <Tab text="📒  Thẻ kho" fx:id="tabTheKho">
+            <fx:include source="TheKhoView.fxml"/>
+        </Tab>
+
+        <!-- Tab 2: Nhà cung cấp -->
         <Tab text="🏭  Nhà cung cấp" fx:id="tabNhaCungCap">
             <fx:include source="QuanLyNhaCungCapView.fxml"/>
         </Tab>
 
-        <!-- Tab 2: Kiem ke kho — gom Nguyen lieu + Ton kho + The kho -->
+        <!-- Tab 3: Kiểm kê kho — Nguyên liệu + Tồn kho -->
         <Tab text="📊  Kiểm kê kho" fx:id="tabKiemKe">
             <VBox spacing="0">
-                <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="tab-pane">
+                <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="modern-tab-pane">
                     <Tab text="🌾  Nguyên liệu">
                         <fx:include source="NguyenLieuView.fxml"/>
                     </Tab>
                     <Tab text="📋  Tồn kho">
                         <fx:include source="KiemKeKhoView.fxml"/>
                     </Tab>
-                    <Tab text="📒  Thẻ kho">
-                        <fx:include source="TheKhoView.fxml"/>
-                    </Tab>
                 </TabPane>
             </VBox>
         </Tab>
 
-        <!-- Tab 3: Nhap kho -->
+        <!-- Tab 4: Nhập kho -->
         <Tab text="📥  Nhập kho" fx:id="tabNhapKho">
             <fx:include source="NhapKhoView.fxml"/>
         </Tab>
 
-        <!-- Tab 4: Truy xuất nguồn gốc -->
+        <!-- Tab 5: Truy xuất nguồn gốc -->
         <Tab text="🔍  Truy xuất nguồn gốc" fx:id="tabTraCuuNguonGoc">
             <fx:include source="TraCuuNguonGocView.fxml"/>
         </Tab>

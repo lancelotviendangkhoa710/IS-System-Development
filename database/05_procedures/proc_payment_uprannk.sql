@@ -21,6 +21,12 @@ BEGIN
     FROM TRANGTHAIDON
     WHERE UPPER(TENTRANGTHAI) = 'HOÀN THÀNH';
 
+    -- Lock đơn hàng trước khi UPDATE — ngăn 2 session chốt cùng đơn (Pessimistic Lock)
+    SELECT MADON INTO V_MADON
+    FROM DONDATHANG
+    WHERE MADON = V_MADON
+    FOR UPDATE;
+
     -- Tiến hành UPDATE
     UPDATE DONDATHANG
     SET MATRANGTHAI = V_MATT_HOANTHANH
@@ -31,15 +37,19 @@ BEGIN
         -- Quy đổi tiền thành điểm (cứ 10.000đ = 1 điểm)
         V_DIEM_CONGDON := FLOOR(P_SOTIENTHANHTOAN / 10000);
 
+        -- Lock dòng khách hàng trước — ngăn Lost Update khi 2 thu ngân cùng cộng điểm
+        SELECT DIEMTICHLUY INTO V_DIEM_HIENTAI
+        FROM KHACHHANG
+        WHERE MAKH = P_MAKH
+        FOR UPDATE;
+
         -- Cộng dồn vào điểm hiện tại của khách
         UPDATE KHACHHANG
-        SET DIEMTICHLUY = DIEMTICHLUY + V_DIEM_CONGDON
+        SET DIEMTICHLUY = V_DIEM_HIENTAI + V_DIEM_CONGDON
         WHERE MAKH = P_MAKH;
 
         -- Lấy ra mức điểm mới nhất để rà soát thăng hạng
-        SELECT DIEMTICHLUY INTO V_DIEM_HIENTAI
-        FROM KHACHHANG
-        WHERE MAKH = P_MAKH;
+        V_DIEM_HIENTAI := V_DIEM_HIENTAI + V_DIEM_CONGDON;
 
         -- 3. Quét hạng thành viên (tìm hạng cao nhất mà khách đủ điều kiện)
         BEGIN

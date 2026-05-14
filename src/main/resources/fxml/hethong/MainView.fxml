@@ -36,7 +36,7 @@
                     <Label text="La Boulangerie"
                            style="-fx-font-size: 15px; -fx-font-weight: bold;
                                   -fx-text-fill: #78350F; -fx-font-family: 'Segoe UI';"/>
-                    <Label text="QUẢN LÝ TIỆM BÁNH"
+                    <Label text="HỆ THỐNG QUẢN LÝ TIỆM BÁNH"
                            style="-fx-font-size: 9px; -fx-font-weight: bold;
                                   -fx-text-fill: #D97706; -fx-font-family: 'Segoe UI';"/>
                 </VBox>

@@ -1,8 +1,9 @@
--- Procedure khôi phục dữ liệu
+-- Procedure khôi phục dữ liệu + ghi lịch sử hệ thống
 CREATE OR REPLACE PROCEDURE PROC_KHOIPHUCDULIEU (
     P_TENBANG IN VARCHAR2,
     P_TENCOTXOA IN VARCHAR2,
-    P_ID IN VARCHAR2
+    P_ID IN VARCHAR2,
+    P_MANV IN NUMBER DEFAULT NULL
 )
 AS
     V_DYNAMICSQL VARCHAR2(1000);
@@ -12,6 +13,13 @@ BEGIN
                     ' WHERE ' || P_TENCOTXOA || ' = :ID';
 
     EXECUTE IMMEDIATE V_DYNAMICSQL USING P_ID;
+
+    -- Ghi lịch sử hệ thống
+    IF P_MANV IS NOT NULL THEN
+        INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+        VALUES (P_MANV, 'HE_THONG', 'Khoi phuc du lieu: ' || P_TENBANG || ' #' || P_ID, TO_NUMBER(P_ID));
+    END IF;
+
     COMMIT;
 
 EXCEPTION

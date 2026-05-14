@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.hethong.KhoiPhucDuLieuViewFXMLController"
+      spacing="20" styleClass="bg-app">
+    <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <VBox spacing="5">
+            <Label text="Khôi Phục Dữ Liệu" styleClass="lbl-title-screen"/>
+            <Label text="Quản lý các bản ghi đã bị xóa mềm — khôi phục hoặc xóa vĩnh viễn sau 120 ngày."
+                   styleClass="lbl-body"/>
+        </VBox>
+    </HBox>
+
+    <!-- Thông báo trạng thái -->
+    <Label fx:id="lblThongBao" text="" styleClass="lbl-body" wrapText="true"/>
+
+    <!-- Card chính -->
+    <VBox spacing="14" VBox.vgrow="ALWAYS" styleClass="card">
+
+        <!-- Toolbar -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Dữ liệu đã xóa" styleClass="lbl-title-card"/>
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Lọc theo loại -->
+            <Label text="Loại:" styleClass="lbl-body"/>
+            <ComboBox fx:id="cmbLoai" prefWidth="180" onAction="#onLocDuLieu"/>
+
+            <!-- Tìm kiếm nhanh -->
+            <TextField fx:id="txtTimKiem" promptText="🔍 Tìm tên bản ghi..."
+                       prefWidth="240" onKeyReleased="#onTimKiem" styleClass="text-field"/>
+
+            <Button fx:id="btnTaiLai" text="🔄 Tải lại" onAction="#onTaiLai"
+                    styleClass="btn-secondary"/>
+        </HBox>
+
+        <!-- TableView danh sách đã xóa -->
+        <TableView fx:id="tblDanhSach" VBox.vgrow="ALWAYS" styleClass="table-view">
+            <columns>
+                <TableColumn fx:id="colLoai"         text="Loại"            prefWidth="140"/>
+                <TableColumn fx:id="colTen"          text="Tên bản ghi"     prefWidth="240"/>
+                <TableColumn fx:id="colMa"           text="Mã"              prefWidth="70"/>
+                <TableColumn fx:id="colThoiDiemXoa"  text="Thời điểm xóa"  prefWidth="160"/>
+                <TableColumn fx:id="colNguoiXoa"     text="Người xóa"       prefWidth="160"/>
+                <TableColumn fx:id="colConLai"       text="Ngày còn lại"    prefWidth="110"/>
+            </columns>
+            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+        </TableView>
+
+        <!-- Footer actions -->
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Label fx:id="lblSoBanGhi" text="" styleClass="lbl-body"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnKhoiPhuc" text="↩ Khôi phục bản đã chọn"
+                    onAction="#onKhoiPhuc" styleClass="btn-primary"/>
+            <Button fx:id="btnXoaVinhVien" text="🗑 Xóa vĩnh viễn (&gt;120 ngày)"
+                    onAction="#onXoaVinhVien" styleClass="btn-danger"/>
+        </HBox>
+
+    </VBox>
+</VBox>

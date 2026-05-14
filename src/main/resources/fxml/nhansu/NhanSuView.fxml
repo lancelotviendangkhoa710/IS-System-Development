@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <!--
     NhanSuView — Shell TabPane cho phân hệ Nhân sự.
     Tab 1: Quản lý nhân viên (QuanLyNhanVienView loaded dynamically)
-    Tab 2: Phân quyền chức năng (MaTranPhanQuyenView loaded dynamically)
+    Tab 2: Nhân viên & Vai trò (MaTranPhanQuyenView — gán vai trò cho nhân viên)
+    Tab 3: Quyền vai trò (PhanQuyenVaiTroView loaded dynamically)
     Mỗi tab content được load lazy bởi NhanSuViewFXMLController.
 -->
 <VBox xmlns="http://javafx.com/javafx/25"
@@ -14,13 +16,26 @@
       fx:controller="com.bakery.views.controllers.nhansu.NhanSuViewFXMLController"
       spacing="0" styleClass="bg-app" VBox.vgrow="ALWAYS">
 
-    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tab-pane">
+    <!-- ── Header ─────────────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <padding><Insets top="24" right="32" bottom="12" left="32"/></padding>
+        <VBox spacing="4">
+            <Label text="👥 Nhân Sự" styleClass="lbl-title-screen"/>
+            <Label text="Quản lý nhân viên, vai trò và phân quyền chức năng hệ thống"
+                   styleClass="lbl-body"/>
+        </VBox>
+    </HBox>
+
+    <!-- ── TabPane ─────────────────────────────────────────────────── -->
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE"
+             styleClass="modern-tab-pane">
+        <padding><Insets left="20" right="20" bottom="16"/></padding>
 
         <Tab text="👤  Quản lý nhân viên" fx:id="tabNhanVien">
             <StackPane fx:id="stackNhanVien" VBox.vgrow="ALWAYS"/>
         </Tab>
 
-        <Tab text="🔐  Phân quyền chức năng" fx:id="tabPhanQuyen">
+        <Tab text="🔑  Nhân viên &amp; Vai trò" fx:id="tabPhanQuyen">
             <StackPane fx:id="stackPhanQuyen" VBox.vgrow="ALWAYS"/>
         </Tab>
 

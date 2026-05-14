@@ -132,12 +132,16 @@
 
                             <Label text="Tiền cọc:" GridPane.columnIndex="0" GridPane.rowIndex="4"
                                    styleClass="lbl-small-bold"/>
-                            <HBox spacing="8" alignment="CENTER_LEFT"
-                                  GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                <TextField fx:id="txtTienCoc" prefWidth="140"
-                                           styleClass="text-field"/>
-                                <Label fx:id="lblCocToiThieu" text="" styleClass="lbl-small"/>
-                            </HBox>
+                            <VBox spacing="2" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <TextField fx:id="txtTienCoc" prefWidth="140"
+                                               styleClass="text-field"/>
+                                    <Label fx:id="lblCocToiThieu" text="" styleClass="lbl-small"/>
+                                </HBox>
+                                <!-- Đọc số cọc bằng chữ — kiểm tra trước khi xác nhận -->
+                                <Label fx:id="lblDocChuTienCoc" text="" styleClass="lbl-small"
+                                       style="-fx-font-style: italic; -fx-text-fill: #555;" wrapText="true"/>
+                            </VBox>
                         </GridPane>
                     </VBox>
                 </StackPane>
@@ -166,6 +170,9 @@
                                 <TextField fx:id="txtKhachDua" promptText="Số tiền..."
                                            prefWidth="150" styleClass="text-field"/>
                             </HBox>
+                            <!-- Đọc số tiền khách đưa bằng chữ — tránh nhầm lẫn 0 -->
+                            <Label fx:id="lblDocChuKhachDua" text="" styleClass="lbl-small"
+                                   style="-fx-font-style: italic; -fx-text-fill: #059669;" wrapText="true"/>
                             <HBox alignment="CENTER_LEFT" spacing="12">
                                 <Label text="Tiền thừa:" styleClass="lbl-small-bold"/>
                                 <Label fx:id="lblTienThua" text="0 đ"

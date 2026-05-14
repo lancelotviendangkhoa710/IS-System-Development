@@ -3,6 +3,7 @@ package com.bakery.views.controllers.taichinh;
 import com.bakery.model.dto.hethong.LoaiThuChiDTO;
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;
 import com.bakery.services.hethong.SoQuyService;
+import com.bakery.utils.CurrencyFormatter;
 import com.bakery.utils.SessionContext;
 import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
@@ -86,6 +87,8 @@ public class SoQuyViewFXMLController extends BaseController {
         caiDatBangLoai();
         caiDatBoCLoc();
         taiDuLieu();
+        // Auto-refresh: mỗi 10s tự query DB — khi thu ngân xuất hóa đơn, phiếu thu tự hiện lên
+        batDauAutoRefresh(tblPhieu, this::taiDuLieu, 10);
     }
 
     // ── Setup bảng phiếu ─────────────────────────────────────────────────
@@ -275,6 +278,23 @@ public class SoQuyViewFXMLController extends BaseController {
 
         TextField txtSoTien = new TextField();
         txtSoTien.setPromptText("Nhập số tiền (VNĐ)");
+        txtSoTien.setPrefWidth(220);
+        // Tự động chèn dấu chấm phân cách mỗi 3 chữ số khi user gõ
+        CurrencyFormatter.apDungDinhDangNhapTien(txtSoTien);
+
+        // Label đọc số tiền bằng chữ tiếng Việt (cập nhật real-time)
+        Label lblDocChu = new Label("Nhập số tiền để xem bằng chữ...");
+        lblDocChu.setStyle("-fx-font-style: italic; -fx-text-fill: #555; -fx-font-size: 11px;");
+        lblDocChu.setWrapText(true);
+        lblDocChu.setMaxWidth(280);
+        txtSoTien.textProperty().addListener((obs, oldVal, newVal) -> {
+            BigDecimal parsed = CurrencyFormatter.parse(newVal);
+            if (parsed.compareTo(BigDecimal.ZERO) > 0) {
+                lblDocChu.setText(CurrencyFormatter.docSoTien(parsed));
+            } else {
+                lblDocChu.setText("Nhập số tiền để xem bằng chữ...");
+            }
+        });
 
         TextField txtGhiChu = new TextField();
         txtGhiChu.setPromptText("Ghi chú (tùy chọn)");
@@ -282,6 +302,7 @@ public class SoQuyViewFXMLController extends BaseController {
         dialog.getDialogPane().setContent(buildGrid(
                 "Hạng mục:", cmbLoai,
                 "Số tiền:", txtSoTien,
+                "Bằng chữ:", lblDocChu,
                 "Ghi chú:", txtGhiChu));
 
         dialog.showAndWait().ifPresent(r -> {
@@ -398,15 +419,12 @@ public class SoQuyViewFXMLController extends BaseController {
     }
 
     private BigDecimal parseSoTien(String text) {
-        try {
-            long v = Long.parseLong(text.replaceAll("[,.]", "").trim());
-            if (v <= 0)
-                throw new NumberFormatException();
-            return BigDecimal.valueOf(v);
-        } catch (NumberFormatException e) {
+        BigDecimal v = CurrencyFormatter.parse(text);
+        if (v.compareTo(BigDecimal.ZERO) <= 0) {
             hienThiLoiLabel("Số tiền không hợp lệ (phải là số nguyên dương).");
             return null;
         }
+        return v;
     }
 
     private void runAsync(ThrowingRunnable task, String successMsg, String errPrefix) {

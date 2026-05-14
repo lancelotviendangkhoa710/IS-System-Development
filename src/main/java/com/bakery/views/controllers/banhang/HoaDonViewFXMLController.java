@@ -4,6 +4,7 @@ import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.HoaDonDTO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
+import com.bakery.utils.CurrencyFormatter;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -61,6 +62,8 @@ public class HoaDonViewFXMLController extends BaseController {
     private Label lblTienThua;
     @FXML
     private Label lblThueVAT;
+    @FXML
+    private Label lblDocChuThanhToan;
     @FXML
     private Button btnPrint;
     @FXML
@@ -121,6 +124,10 @@ public class HoaDonViewFXMLController extends BaseController {
         lblDaThu.setText(FORMAT_TIEN.format(tongTienHD) + " đ");
         lblTienKhachDua.setText(FORMAT_TIEN.format(khachDua) + " đ");
         lblTienThua.setText(FORMAT_TIEN.format(tienThua) + " đ");
+        // Đọc số tiền bằng chữ tiếng Việt — giảm nhầm lẫn cho thu ngân
+        if (lblDocChuThanhToan != null) {
+            lblDocChuThanhToan.setText(CurrencyFormatter.docSoTien(tongTienHD));
+        }
 
         vboxItems.getChildren().clear();
         if (cart != null) {

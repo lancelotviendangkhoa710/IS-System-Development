@@ -54,6 +54,8 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         presenter.khoiTao();
         // Task 8: Thủ kho không được sửa mức tồn kho an toàn
         apDungPhanQuyenTonKhoAnToan();
+        // Auto-refresh: mỗi 10s tự query DB, nếu có NL mới sẽ hiện lên
+        batDauAutoRefresh(tblNguyenLieu, () -> presenter.taiDanhSach(), 10);
     }
 
     /**
