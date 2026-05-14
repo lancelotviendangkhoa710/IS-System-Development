@@ -1,6 +1,6 @@
 # Biểu mẫu gitignore cho dự án Java Maven (VSCode)
 
-# Thư mục build
+# ── Build output ────────────────────────────────────────────────────────────
 target/
 bin/
 build/
@@ -8,43 +8,51 @@ out/
 build-check/
 .tools/
 
-# Cấu hình IDE / Môi trường phát triển
+# ── IDE / Editor ─────────────────────────────────────────────────────────────
 .vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
 .idea/
 *.iml
 .project
 .classpath
 .settings/
 
-# File nhật ký
-*.log
-
-# Cấu hình bảo mật và biến môi trường
+# ── Bảo mật / Môi trường ─────────────────────────────────────────────────────
 src/main/java/com/bakery/utils/DBConnect.java
 src/main/resources/application.properties
 src/main/resources/email.properties
 *.env
-
-# Tệp hệ thống
-.DS_Store
-.vscode
-Thumbs.db
 application.properties
 acc.md
-task1.md
-task2.md 
+
+# ── AI / Agent tools (local only — KHÔNG commit lên git) ────────────────────
+.agents/
+.claude/
+.ai/
+.gitnexus/
+
+# ── File phân tích & tài liệu tạm (local only) ──────────────────────────────
+CLAUDE.md
+AGENTS.md
+Backlog_Technical.md
+task_fix_ui.md
 task_fix_ui
+task1.md
+task2.md
+db_top_analysis.md
+concurrent_transactions_report.md
+*_report.md
+*_analysis.md
+
+# ── Log / script tạm ─────────────────────────────────────────────────────────
+*.log
 gitnexus_stderr.txt
-gn_stderr.txt 
+gn_stderr.txt
 gn_stdout.txt
 pw_err.txt
-pw_out.txt 
+pw_out.txt
 check_ucs.py
-.ai/mcp
-.claude/skills/gitnexus
-.gitnexus   
 
+# ── Hệ thống ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
 
