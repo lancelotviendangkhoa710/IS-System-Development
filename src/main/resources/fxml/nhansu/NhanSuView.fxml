@@ -43,6 +43,10 @@
             <StackPane fx:id="stackVaiTro" VBox.vgrow="ALWAYS"/>
         </Tab>
 
+        <Tab text="⏱  Chấm công" fx:id="tabChamCong">
+            <StackPane fx:id="stackChamCong" VBox.vgrow="ALWAYS"/>
+        </Tab>
+
     </TabPane>
 
 </VBox>

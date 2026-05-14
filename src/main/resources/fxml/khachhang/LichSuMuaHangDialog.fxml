@@ -7,7 +7,7 @@
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.bakery.views.controllers.khachhang.LichSuMuaHangDialogViewFXMLController"
-      spacing="0" prefWidth="480">
+      spacing="0" prefWidth="680" prefHeight="520">
 
     <!-- Header -->
     <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
@@ -16,25 +16,46 @@
             <Label text="Lịch sử mua hàng" styleClass="dialog-header-title"/>
             <Label fx:id="lblTenKhachHang" styleClass="lbl-small"/>
         </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="📄 Xuất PDF" styleClass="btn-success"
+                onAction="#onXuatPDF" fx:id="btnXuatPDF"/>
     </HBox>
 
     <!-- 2 stat cards -->
-    <VBox styleClass="dialog-body" spacing="20">
-        <HBox spacing="16">
-            <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="card" alignment="CENTER">
-                <Label text="TỔNG ĐƠN ĐÃ ĐẶT" styleClass="lbl-small-bold"/>
-                <Label fx:id="lblTongDon" text="0" styleClass="lbl-kpi"/>
-                <Label text="đơn hàng" styleClass="lbl-small"/>
-            </VBox>
-            <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="card" alignment="CENTER">
-                <Label text="TỔNG CHI TIÊU" styleClass="lbl-small-bold"/>
-                <Label fx:id="lblTongChiTieu" text="0 đ" styleClass="lbl-price"/>
-                <Label text="tổng giá trị đơn" styleClass="lbl-small"/>
-            </VBox>
-        </HBox>
+    <HBox styleClass="dialog-body" spacing="16">
+        <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="card" alignment="CENTER">
+            <Label text="TỔNG ĐƠN ĐÃ ĐẶT" styleClass="lbl-small-bold"/>
+            <Label fx:id="lblTongDon" text="0" styleClass="lbl-kpi"/>
+            <Label text="đơn hàng" styleClass="lbl-small"/>
+        </VBox>
+        <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="card" alignment="CENTER">
+            <Label text="TỔNG CHI TIÊU" styleClass="lbl-small-bold"/>
+            <Label fx:id="lblTongChiTieu" text="0 đ" styleClass="lbl-price"/>
+            <Label text="tổng giá trị đơn" styleClass="lbl-small"/>
+        </VBox>
+    </HBox>
 
-        <Label fx:id="lblThongBao" text="" styleClass="lbl-small" wrapText="true"/>
+    <!-- TableView chi tiết đơn -->
+    <VBox VBox.vgrow="ALWAYS" style="-fx-padding: 0 16 0 16;">
+        <TableView fx:id="tableDoanhSach" VBox.vgrow="ALWAYS"
+                   styleClass="table-view" style="-fx-pref-height: 280;">
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+            <columns>
+                <TableColumn fx:id="colMaDon"    text="Mã đơn"     prefWidth="90"/>
+                <TableColumn fx:id="colNgayDat"  text="Ngày đặt"   prefWidth="130"/>
+                <TableColumn fx:id="colTongTien" text="Tổng tiền"  prefWidth="130"/>
+                <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="140"/>
+            </columns>
+            <placeholder>
+                <Label text="Khách hàng chưa có đơn hàng nào." styleClass="lbl-body"/>
+            </placeholder>
+        </TableView>
     </VBox>
+
+    <Label fx:id="lblThongBao" text="" styleClass="lbl-small" wrapText="true"
+           style="-fx-padding: 4 16 4 16;"/>
 
     <!-- Footer -->
     <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">

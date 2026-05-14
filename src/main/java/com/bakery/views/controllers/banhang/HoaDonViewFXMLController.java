@@ -5,6 +5,7 @@ import com.bakery.model.dto.banhang.HoaDonDTO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.utils.CurrencyFormatter;
+import com.bakery.utils.ReportPathUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -175,18 +176,13 @@ public class HoaDonViewFXMLController extends BaseController {
     @FXML
     private void handlePrint() {
         try {
-
-            File folder = new File("hoadon");
-            if (!folder.exists()) {
-                folder.mkdir();
-            }
+            String maHD = lblMaHoaDon.getText().replace("#", "").replace("INV-", "");
+            File outputFile = ReportPathUtils.buildPdfPath("HoaDon", "INV-" + maHD);
 
             WritableImage snapshot = receiptContainer.snapshot(null, null);
             BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
 
-            String fileName = "hoadon/HoaDon_" + lblMaHoaDon.getText().replace("#", "") + ".pdf";
             try (PDDocument doc = new PDDocument()) {
-
                 float width = (float) snapshot.getWidth();
                 float height = (float) snapshot.getHeight();
                 PDPage page = new PDPage(new PDRectangle(width, height));
@@ -197,10 +193,9 @@ public class HoaDonViewFXMLController extends BaseController {
                     contents.drawImage(pdImage, 0, 0, width, height);
                 }
 
-                doc.save(fileName);
-                System.out.println("Đã lưu hóa đơn tại: " + new File(fileName).getAbsolutePath());
-
-                hienThiThongTin("Thành công", "Hóa đơn đã được lưu tại thư mục 'hoadon'!");
+                doc.save(outputFile);
+                hienThiThongTin("Thành công",
+                        "Hóa đơn đã được lưu tại:\n" + outputFile.getAbsolutePath());
             }
 
             handleClose();

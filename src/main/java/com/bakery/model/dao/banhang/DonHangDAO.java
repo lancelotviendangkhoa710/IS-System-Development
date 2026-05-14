@@ -21,11 +21,26 @@ import java.util.List;
 
 public class DonHangDAO extends BaseDAO {
 
+    /**
+     * Tạo đơn hàng mới — standalone transaction.
+     * Dùng explicit setAutoCommit(false) để đảm bảo PROC_TAODONHANG
+     * có transaction context thực sự: SELECT FOR UPDATE bên trong proc
+     * sẽ block đúng các connection khác, ngăn Lost Update khi 2 thu ngân
+     * cùng bán sản phẩm có tồn kho ít.
+     */
     public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
-        try (Connection conn = moKetNoi()) {
-            return taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
-        } catch (SQLException e) {
+        Connection conn = null;
+        try {
+            conn = moKetNoi();
+            conn.setAutoCommit(false);   // Bắt đầu explicit transaction
+            int maDon = taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
+            conn.commit();
+            return maDon;
+        } catch (Exception e) {
+            if (conn != null) { try { conn.rollback(); } catch (Exception ignored) {} }
             handleException("taoDonHang", e);
+        } finally {
+            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (Exception ignored) {} }
         }
         return -1;
     }
@@ -60,9 +75,17 @@ public class DonHangDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Chuyển trạng thái đơn — explicit transaction.
+     * PROC_CHUYENTRANGTHAIDON có SELECT FOR UPDATE để đảm bảo
+     * 2 nhân viên không cùng xác nhận 1 đơn tại cùng thời điểm.
+     */
     public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan) throws Exception {
-        String sql = "{CALL PROC_CHUYENTRANGTHAIDON(?, ?, ?, ?)}";
-        try (Connection conn = moKetNoi()) {
+        Connection conn = null;
+        try {
+            conn = moKetNoi();
+            conn.setAutoCommit(false);
+            String sql = "{CALL PROC_CHUYENTRANGTHAIDON(?, ?, ?, ?)}";
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
                 cstmt.setInt(1, maDon);
                 cstmt.setInt(2, maTrangThaiMoi);
@@ -70,8 +93,12 @@ public class DonHangDAO extends BaseDAO {
                 if (hinhThucNhan != null) cstmt.setInt(4, hinhThucNhan); else cstmt.setNull(4, Types.NUMERIC);
                 cstmt.execute();
             }
-        } catch (SQLException e) {
+            conn.commit();
+        } catch (Exception e) {
+            if (conn != null) { try { conn.rollback(); } catch (Exception ignored) {} }
             handleException("chuyenTrangThaiDon", e);
+        } finally {
+            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (Exception ignored) {} }
         }
     }
 

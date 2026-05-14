@@ -110,30 +110,105 @@ public class CaLamViecDAO extends BaseDAO {
     }
 
     /**
-     * Kiểm tra máy POS có đang có ca mở hay không, dùng để chặn mở trùng ca.
+     * Kiểm tra nhân viên đang có ca mở hay không (dùng cho mọi vai trò).
      *
-     * @return true nếu máy đang có ca mở, false nếu không
+     * @return true nếu NV đang có ca mở
      */
-    public boolean kiemTraCaDangMo(String maMayPOS) throws Exception {
-        String sql = "SELECT COUNT(*) AS SO_CA "
-                + "FROM CALAMVIEC "
-                + "WHERE MAMAYPOS = ? AND TRANGTHAI = N'Đang mở'";
-
+    public boolean kiemTraNvDangMoCa(int maNV) throws Exception {
+        String sql = "SELECT COUNT(*) FROM CALAMVIEC WHERE MANV = ? AND TRANGTHAI = N'Đang mở'";
         try (Connection conn = moKetNoi();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, maMayPOS);
-
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maNV);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("SO_CA") > 0;
-                }
+                if (rs.next()) return rs.getInt(1) > 0;
             }
-
         } catch (SQLException e) {
-            handleException("kiemTraCaDangMo", e);
-            throw new RuntimeException("Lỗi hệ thống khi kiểm tra ca: " + e.getMessage(), e);
+            handleException("kiemTraNvDangMoCa", e);
         }
         return false;
+    }
+
+    /**
+     * Mở ca chấm công cho nhân viên không phải thu ngân (MAMAYPOS = NULL).
+     * Thu ngân dùng PROC_MOCA qua moCa().
+     *
+     * @return maCa vừa tạo
+     */
+    public int checkIn(int maNV) throws Exception {
+        String sql = "INSERT INTO CALAMVIEC (MANV, MAMAYPOS, THOIGIANMOCA, TRANGTHAI) "
+                + "VALUES (?, NULL, SYSDATE, N'Đang mở')";
+        Connection conn = null;
+        try {
+            conn = moKetNoi();
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql, new String[]{"MACA"})) {
+                ps.setInt(1, maNV);
+                ps.executeUpdate();
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int maCa = rs.getInt(1);
+                        conn.commit();
+                        return maCa;
+                    }
+                }
+            }
+            conn.rollback();
+        } catch (SQLException e) {
+            if (conn != null) { try { conn.rollback(); } catch (Exception ignored) {} }
+            handleException("checkIn", e);
+        } finally {
+            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (Exception ignored) {} }
+        }
+        return -1;
+    }
+
+    /**
+     * Đóng ca chấm công — dùng cho cả thu ngân lẫn nhân viên thường.
+     * Thu ngân gọi qua dongCa(maCa); nhân viên thường cũng gọi method này.
+     */
+    public void checkOut(int maCa) throws Exception {
+        dongCa(maCa);
+    }
+
+    /**
+     * Lấy lịch sử chấm công của nhân viên theo tháng.
+     *
+     * @param maNV  Mã nhân viên
+     * @param thang Tháng (1–12)
+     * @param nam   Năm (VD: 2026)
+     * @return Danh sách ca trong tháng, sắp xếp mới nhất lên đầu
+     */
+    public java.util.List<CaLamViecDTO> layLichSuChamCong(int maNV, int thang, int nam) throws Exception {
+        java.util.List<CaLamViecDTO> ds = new java.util.ArrayList<>();
+        String sql = "SELECT MACA, MANV, MAMAYPOS, THOIGIANMOCA, THOIGIANDONGCA, TRANGTHAI "
+                + "FROM CALAMVIEC "
+                + "WHERE MANV = ? "
+                + "  AND EXTRACT(MONTH FROM THOIGIANMOCA) = ? "
+                + "  AND EXTRACT(YEAR  FROM THOIGIANMOCA) = ? "
+                + "ORDER BY THOIGIANMOCA DESC";
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maNV);
+            ps.setInt(2, thang);
+            ps.setInt(3, nam);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CaLamViecDTO ca = new CaLamViecDTO();
+                    ca.setMaCa(rs.getInt("MACA"));
+                    ca.setMaNV(rs.getInt("MANV"));
+                    ca.setMaMayPOS(rs.getString("MAMAYPOS"));
+                    if (rs.getTimestamp("THOIGIANMOCA") != null)
+                        ca.setThoiGianMoCa(rs.getTimestamp("THOIGIANMOCA").toLocalDateTime());
+                    if (rs.getTimestamp("THOIGIANDONGCA") != null)
+                        ca.setThoiGianDongCa(rs.getTimestamp("THOIGIANDONGCA").toLocalDateTime());
+                    ca.setTrangThai(rs.getString("TRANGTHAI"));
+                    ds.add(ca);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layLichSuChamCong", e);
+        }
+        return ds;
     }
 }

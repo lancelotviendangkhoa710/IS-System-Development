@@ -10,10 +10,11 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 
 /**
- * Controller cho NhanSuView — TabPane gồm 3 tab:
+ * Controller cho NhanSuView — TabPane gồm 4 tab:
  * Tab 1: Quản lý nhân viên (QuanLyNhanVienView)
  * Tab 2: Nhân viên & Vai trò — gán vai trò cho nhân viên (MaTranPhanQuyenView)
  * Tab 3: Quyền vai trò (PhanQuyenVaiTroView)
+ * Tab 4: Chấm công (ChamCongView)
  */
 public class NhanSuViewFXMLController extends BaseController {
 
@@ -21,9 +22,11 @@ public class NhanSuViewFXMLController extends BaseController {
     @FXML private Tab tabNhanVien;
     @FXML private Tab tabPhanQuyen;
     @FXML private Tab tabVaiTro;
+    @FXML private Tab tabChamCong;
     @FXML private StackPane stackNhanVien;
     @FXML private StackPane stackPhanQuyen;
     @FXML private StackPane stackVaiTro;
+    @FXML private StackPane stackChamCong;
 
     @FXML
     public void initialize() {
@@ -41,6 +44,13 @@ public class NhanSuViewFXMLController extends BaseController {
         tabVaiTro.setOnSelectionChanged(evt -> {
             if (tabVaiTro.isSelected() && stackVaiTro.getChildren().isEmpty()) {
                 taiTabVaiTro();
+            }
+        });
+
+        // Tab 4: Chấm công — load lazy
+        tabChamCong.setOnSelectionChanged(evt -> {
+            if (tabChamCong.isSelected() && stackChamCong.getChildren().isEmpty()) {
+                taiTabChamCong();
             }
         });
     }
@@ -63,13 +73,20 @@ public class NhanSuViewFXMLController extends BaseController {
         if (view != null) stackVaiTro.getChildren().setAll(view);
     }
 
+    /** Load ChamCongView vào Tab 4 (lazy). */
+    private void taiTabChamCong() {
+        Node view = FXMLLoaderUtil.loadFXML("/fxml/nhansu/ChamCongView.fxml");
+        if (view != null) stackChamCong.getChildren().setAll(view);
+    }
+
     /** Cho phép điều hướng trực tiếp đến tab cụ thể từ bên ngoài. */
     public void chuyenTab(String tabKey) {
         switch (tabKey) {
-            case "nhanvien" -> tabPane.getSelectionModel().select(tabNhanVien);
+            case "nhanvien"  -> tabPane.getSelectionModel().select(tabNhanVien);
             case "phanquyen" -> tabPane.getSelectionModel().select(tabPhanQuyen);
-            case "vaitro"   -> tabPane.getSelectionModel().select(tabVaiTro);
-            default -> tabPane.getSelectionModel().selectFirst();
+            case "vaitro"    -> tabPane.getSelectionModel().select(tabVaiTro);
+            case "chamcong"  -> tabPane.getSelectionModel().select(tabChamCong);
+            default          -> tabPane.getSelectionModel().selectFirst();
         }
     }
 }

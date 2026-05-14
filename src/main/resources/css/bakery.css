@@ -320,6 +320,65 @@
     padding: 6px 10px;
 }
 
+/* ─── COMBOBOX DROPDOWN (fix background vàng) ─── */
+.combo-box .list-cell {
+    -fx-background-color: #F9FAFB;
+    background-color: #F9FAFB;
+    -fx-text-fill: #1C0A00;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 4px 10px;
+    padding: 4px 10px;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #FFFFFF;
+    background-color: #FFFFFF;
+    -fx-border-color: #FDE68A;
+    border-color: #FDE68A;
+    -fx-border-width: 1px;
+    border-width: 1px;
+    -fx-border-radius: 8px;
+    border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 3);
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #FFFFFF;
+    background-color: #FFFFFF;
+    -fx-text-fill: #1C0A00;
+    -fx-font-size: 13px;
+    font-size: 13px;
+    -fx-padding: 7px 12px;
+    padding: 7px 12px;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #FEF3C7;
+    background-color: #FEF3C7;
+    -fx-text-fill: #78350F;
+    -fx-font-weight: bold;
+    font-weight: bold;
+}
+
+/* Arrow button trong ComboBox */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+    background-color: transparent;
+}
+
+.combo-box .arrow-button .arrow {
+    -fx-background-color: #92400E;
+    background-color: #92400E;
+}
+
 .check-box {
     -fx-text-fill: #6B7280;
     -fx-font-size: 12px;

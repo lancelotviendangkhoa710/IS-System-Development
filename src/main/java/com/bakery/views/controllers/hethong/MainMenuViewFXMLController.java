@@ -425,14 +425,17 @@ public class MainMenuViewFXMLController {
 
         TextField txtHoTen = new TextField(currentUser.getHoTen() == null ? "" : currentUser.getHoTen());
         TextField txtSdt = new TextField(currentUser.getSdt() == null ? "" : currentUser.getSdt());
+        TextField txtEmail = new TextField(currentUser.getEmail() == null ? "" : currentUser.getEmail());
         PasswordField txtMatKhauMoi = new PasswordField();
         PasswordField txtXacNhanMatKhau = new PasswordField();
 
         txtHoTen.getStyleClass().add("text-field");
         txtSdt.getStyleClass().add("text-field");
+        txtEmail.getStyleClass().add("text-field");
         txtMatKhauMoi.getStyleClass().add("text-field");
         txtXacNhanMatKhau.getStyleClass().add("text-field");
 
+        txtEmail.setPromptText("example@email.com");
         txtMatKhauMoi.setPromptText("Nhập mật khẩu mới");
         txtXacNhanMatKhau.setPromptText("Xác nhận mật khẩu mới");
 
@@ -444,10 +447,12 @@ public class MainMenuViewFXMLController {
         form.add(txtHoTen, 1, 0);
         form.add(new Label("Số điện thoại:"), 0, 1);
         form.add(txtSdt, 1, 1);
-        form.add(new Label("Mật khẩu mới:"), 0, 2);
-        form.add(txtMatKhauMoi, 1, 2);
-        form.add(new Label("Xác nhận mật khẩu:"), 0, 3);
-        form.add(txtXacNhanMatKhau, 1, 3);
+        form.add(new Label("Email:"), 0, 2);
+        form.add(txtEmail, 1, 2);
+        form.add(new Label("Mật khẩu mới:"), 0, 3);
+        form.add(txtMatKhauMoi, 1, 3);
+        form.add(new Label("Xác nhận mật khẩu:"), 0, 4);
+        form.add(txtXacNhanMatKhau, 1, 4);
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Cập nhật thông tin cá nhân");
@@ -460,6 +465,8 @@ public class MainMenuViewFXMLController {
             if (bt != ButtonType.OK)
                 return;
 
+            String emailNhap = txtEmail.getText() == null ? "" : txtEmail.getText().trim();
+
             javafx.concurrent.Task<Void> taskCapNhat = new javafx.concurrent.Task<>() {
                 @Override
                 protected Void call() throws Exception {
@@ -468,6 +475,10 @@ public class MainMenuViewFXMLController {
                             txtSdt.getText(),
                             txtMatKhauMoi.getText(),
                             txtXacNhanMatKhau.getText());
+                    // Cập nhật email nếu có điền
+                    if (!emailNhap.isBlank()) {
+                        new XacThucService().capNhatEmail(emailNhap);
+                    }
                     return null;
                 }
             };
@@ -496,6 +507,7 @@ public class MainMenuViewFXMLController {
             t.start();
         });
     }
+
 
     // ─── Dang xuat ───────────────────────────────────────────────────────────
 

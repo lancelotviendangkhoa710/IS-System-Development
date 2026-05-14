@@ -1,27 +1,39 @@
 package com.bakery.views.controllers.baocao;
 
 import com.bakery.services.baocao.ThongKeService;
+import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.UserSession;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.io.PrintWriter;
-import java.io.File;
 
 public class BaoCaoViewFXMLController extends BaseController {
 
@@ -53,6 +65,9 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private Label      lblTonKhoDuHang;
     @FXML private TableView<String[]> tableTonKho;
 
+    /** Auto-refresh timeline cho tab Tồn kho (60 giây/lần). */
+    private Timeline tonKhoRefreshTimeline;
+
     private ThongKeService thongKeService = new ThongKeService();
 
     @FXML
@@ -71,6 +86,19 @@ public class BaoCaoViewFXMLController extends BaseController {
             tabPaneBaoCao.getSelectionModel().select(tabThongKeKinhDoanh);
         }
         setupTonKhoTableColumns();
+
+        // Auto-refresh: bật/tắt Timeline theo tab đang active
+        if (tabPaneBaoCao != null && tabTonKho != null) {
+            tabPaneBaoCao.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldTab, newTab) -> {
+                    if (newTab == tabTonKho) {
+                        startTonKhoTimeline();
+                    } else {
+                        stopTonKhoTimeline();
+                    }
+                }
+            );
+        }
     }
 
     /**
@@ -124,6 +152,35 @@ public class BaoCaoViewFXMLController extends BaseController {
         // Mặc định kỳ = tháng hiện tại
         dpTonKhoTuNgay.setValue(java.time.LocalDate.now().withDayOfMonth(1));
         dpTonKhoDenNgay.setValue(java.time.LocalDate.now());
+    }
+
+    /**
+     * Khởi động Timeline tự động refresh tồn kho mỗi 60 giây.
+     * Chỉ gọi khi tab "Tồn kho nguyên liệu" đang được chọn.
+     */
+    private void startTonKhoTimeline() {
+        if (tonKhoRefreshTimeline != null && tonKhoRefreshTimeline.getStatus() == Timeline.Status.RUNNING) {
+            return; // Đã chạy rồi
+        }
+        tonKhoRefreshTimeline = new Timeline(
+            new KeyFrame(Duration.seconds(60), evt -> {
+                // Chỉ refresh nếu tab vẫn đang active
+                if (tabPaneBaoCao != null && tabPaneBaoCao.getSelectionModel().getSelectedItem() == tabTonKho) {
+                    onXemBaoCaoTonKho();
+                }
+            })
+        );
+        tonKhoRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        tonKhoRefreshTimeline.play();
+    }
+
+    /**
+     * Dừng Timeline auto-refresh khi rời khỏi tab Tồn kho.
+     */
+    private void stopTonKhoTimeline() {
+        if (tonKhoRefreshTimeline != null) {
+            tonKhoRefreshTimeline.stop();
+        }
     }
 
     @FXML
@@ -315,25 +372,53 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     @FXML
     private void onTaiBaoCaoNhanh() {
-        String loaiStr = cbLoaiBaoCao.getValue();
-        LocalDate ngay = dpNgayBaoCao.getValue();
-        String filename = "BaoCao_" + loaiStr + "_" + ngay.toString() + ".txt";
-        
-        try (PrintWriter writer = new PrintWriter(new File(filename))) {
-            writer.println("H3K BAKERY - BÁO CÁO DOANH THU");
-            writer.println("Loại: " + loaiStr);
-            writer.println("Thời gian: " + ngay.toString());
-            writer.println("----------------------------------");
-            writer.println("TỔNG DOANH THU: " + lblDoanhThu.getText());
-            writer.println("LỢI NHUẬN ƯỚC TÍNH: " + lblLoiNhuan.getText());
-            writer.println("\nDANH SÁCH GIAO DỊCH:");
-            for (String[] row : tableGiaoDich.getItems()) {
-                writer.println(String.join(" | ", row));
+        String loaiStr = cbLoaiBaoCao.getValue() != null ? cbLoaiBaoCao.getValue() : "BaoCao";
+        LocalDate ngay = dpNgayBaoCao.getValue() != null ? dpNgayBaoCao.getValue() : LocalDate.now();
+        String suffix = loaiStr + "_" + ngay.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        File outputFile = ReportPathUtils.buildPdfPath("ThongKe", suffix);
+
+        // Chụp toàn bộ tab Thống kê kinh doanh → PDF
+        new Thread(() -> {
+            try {
+                // Snapshot phải chạy trên FX thread
+                javafx.application.Platform.runLater(() -> {
+                    try {
+                        // Lấy ScrollPane trong tab thống kê để snapshot
+                        javafx.scene.Node tabContent = tabThongKeKinhDoanh.getContent();
+                        WritableImage snapshot = tabContent.snapshot(
+                                new javafx.scene.SnapshotParameters(), null);
+                        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
+
+                        // Ghi PDF trong background
+                        new Thread(() -> {
+                            try (PDDocument doc = new PDDocument()) {
+                                float w = (float) snapshot.getWidth();
+                                float h = (float) snapshot.getHeight();
+                                PDPage page = new PDPage(new PDRectangle(w, h));
+                                doc.addPage(page);
+                                PDImageXObject img = LosslessFactory.createFromImage(doc, bufferedImage);
+                                try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                                    cs.drawImage(img, 0, 0, w, h);
+                                }
+                                doc.save(outputFile);
+                                javafx.application.Platform.runLater(() ->
+                                    hienThiThongTin("Xuất PDF thành công",
+                                        "Báo cáo đã lưu tại:\n" + outputFile.getAbsolutePath()));
+                            } catch (Exception ex) {
+                                javafx.application.Platform.runLater(() ->
+                                    hienThiThongBaoLoi("Lỗi", "Không thể lưu PDF: " + ex.getMessage()));
+                            }
+                        }, "export-pdf-baocao").start();
+
+                    } catch (Exception ex) {
+                        hienThiThongBaoLoi("Lỗi snapshot", ex.getMessage());
+                    }
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                    hienThiThongBaoLoi("Lỗi", "Không thể xuất PDF: " + e.getMessage()));
             }
-            hienThiThongTin("Thành công", "Đã lưu báo cáo nhanh vào file: " + filename);
-        } catch (Exception e) {
-            hienThiThongBaoLoi("Lỗi", "Không thể lưu báo cáo: " + e.getMessage());
-        }
+        }, "export-pdf-trigger").start();
     }
 
 
