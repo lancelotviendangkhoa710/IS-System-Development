@@ -1,6 +1,7 @@
 package com.bakery.views.controllers.banhang;
 
 import com.bakery.utils.CurrencyFormatter;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.QRGenerator;
 import com.bakery.views.interfaces.banhang.IDonHangDialogFactory;
 import javafx.fxml.FXML;
@@ -390,6 +391,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
         if (maKH == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setContentText("Vui lòng tìm khách hàng trước khi sửa.");
+            DialogHelper.applyBakeryTheme(alert);
             alert.showAndWait();
             return;
         }
@@ -435,6 +437,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Lỗi mở dialog: " + ex.getMessage());
+            DialogHelper.applyBakeryTheme(alert);
             alert.showAndWait();
         }
     }
@@ -683,6 +686,7 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
         }
         alert.setHeaderText("Du lieu khong hop le");
         alert.setContentText(message);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 }

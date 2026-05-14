@@ -26,7 +26,7 @@ public class NhanVienDAO extends BaseDAO {
     public NhanVienDTO timNhanVienTheoTenDangNhap(String username) throws Exception {
         String sql = """
                 SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
-                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK
+                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
                 FROM NHANVIEN NV
                 JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
                 WHERE UPPER(TRIM(TK.TENDANGNHAP)) = UPPER(?)
@@ -54,7 +54,7 @@ public class NhanVienDAO extends BaseDAO {
     public NhanVienDTO timNhanVienTheoMa(int maNV) throws Exception {
         String sql = """
                 SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
-                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK
+                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
                 FROM NHANVIEN NV
                 JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
                 WHERE NV.MANV = ?
@@ -101,7 +101,7 @@ public class NhanVienDAO extends BaseDAO {
         }
     }
 
-    /** Äá»•i máº­t kháº©u qua Procedure â€” tuÃ¢n thá»§ D3 */
+    /** Đổi mật khẩu qua Procedure — tuân thủ D3 */
     public boolean doiMatKhau(int maNV, String matKhauMoiDaHash) throws Exception {
         String sql = "{CALL PROC_DOI_MATKHAU_TAIKHOAN(?, ?)}";
         try (Connection conn = moKetNoi();
@@ -117,7 +117,6 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public int themNhanVien(NhanVienDTO nv) throws Exception {
-        // 1. Gá»i Procedure táº¡o nhÃ¢n viÃªn vÃ  tÃ i khoáº£n Ä‘Äƒng nháº­p
         String sqlNV = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
         int generatedId = -1;
 
@@ -140,7 +139,7 @@ public class NhanVienDAO extends BaseDAO {
                 generatedId = cstmt.getInt(8);
             }
 
-            // 2. GÃ¡n cÃ¡c vai trÃ² tá»« danh sÃ¡ch Ä‘a vai trÃ²
+            // Gán các vai trò từ danh sách đa vai trò
             if (generatedId > 0 && nv.getDanhSachMaVaiTro() != null && !nv.getDanhSachMaVaiTro().isEmpty()) {
                 String sqlVT = "{CALL PROC_GAN_VAITRO_NHANVIEN(?, ?)}";
                 try (CallableStatement cstmt = conn.prepareCall(sqlVT)) {
@@ -160,7 +159,6 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public boolean suaNhanVien(NhanVienDTO nv) throws Exception {
-        // 1. Cáº­p nháº­t thÃ´ng tin cÆ¡ báº£n vÃ  tÃ i khoáº£n Ä‘Äƒng nháº­p
         String sqlNV = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sqlNV)) {
@@ -179,7 +177,7 @@ public class NhanVienDAO extends BaseDAO {
                 cstmt.execute();
             }
 
-            // 2. Cáº­p nháº­t láº¡i danh sÃ¡ch vai trÃ² (XÃ³a cÅ©, thÃªm má»›i)
+            // Cập nhật lại danh sách vai trò (Xóa cũ, thêm mới)
             if (nv.getDanhSachMaVaiTro() != null) {
                 String sqlDel = "DELETE FROM NHANVIEN_VAITRO WHERE MANV = ?";
                 try (PreparedStatement delStmt = conn.prepareStatement(sqlDel)) {
@@ -221,7 +219,7 @@ public class NhanVienDAO extends BaseDAO {
     public java.util.List<NhanVienDTO> layTatCaNhanVien() throws Exception {
         String sql = """
                 SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
-                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK
+                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
                 FROM NHANVIEN NV
                 JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
                 ORDER BY NV.MANV DESC
@@ -256,12 +254,13 @@ public class NhanVienDAO extends BaseDAO {
         nv.setTenDangNhap(rs.getString("TENDANGNHAP"));
         nv.setMatKhau(rs.getString("MATKHAU"));
         nv.setTrangThaiTK(rs.getInt("TRANGTHAITK"));
+        nv.setEmail(rs.getString("EMAIL"));
         return nv;
     }
 
     /**
-     * Cáº­p nháº­t thÃ´ng tin cÃ¡ nhÃ¢n cÆ¡ báº£n cá»§a nhÃ¢n viÃªn Ä‘ang Ä‘Äƒng nháº­p.
-     * KhÃ´ng tÃ¡c Ä‘á»™ng vai trÃ² vÃ  tráº¡ng thÃ¡i há»‡ thá»‘ng.
+     * Cập nhật thông tin cá nhân cơ bản của nhân viên đang đăng nhập.
+     * Không tác động vai trò và trạng thái hệ thống.
      */
     public boolean capNhatThongTinCaNhan(int maNV, String hoTen, String sdt) throws Exception {
         String sql = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
@@ -271,7 +270,7 @@ public class NhanVienDAO extends BaseDAO {
             cstmt.setNString(2, hoTen);
             cstmt.setNull(3, java.sql.Types.DATE);
             cstmt.setString(4, sdt);
-            cstmt.setNull(5, java.sql.Types.VARCHAR); // DIACHI â€” chua co column trong DB
+            cstmt.setNull(5, java.sql.Types.VARCHAR);
             cstmt.setNull(6, java.sql.Types.VARCHAR);
             cstmt.setNull(7, java.sql.Types.VARCHAR);
             cstmt.setNull(8, java.sql.Types.NUMERIC);
@@ -285,14 +284,14 @@ public class NhanVienDAO extends BaseDAO {
 
     public void capNhatVaiTroNhanVien(int maNV, java.util.List<Integer> dsMaVT) throws Exception {
         try (Connection conn = moKetNoi()) {
-            // 1. XÃ³a vai trÃ² cÅ©
+            // 1. Xóa vai trò cũ
             String sqlDel = "DELETE FROM NHANVIEN_VAITRO WHERE MANV = ?";
             try (PreparedStatement delStmt = conn.prepareStatement(sqlDel)) {
                 delStmt.setInt(1, maNV);
                 delStmt.executeUpdate();
             }
 
-            // 2. ThÃªm vai trÃ² má»›i
+            // 2. Thêm vai trò mới
             if (dsMaVT != null && !dsMaVT.isEmpty()) {
                 String sqlIns = "{CALL PROC_GAN_VAITRO_NHANVIEN(?, ?)}";
                 try (CallableStatement insStmt = conn.prepareCall(sqlIns)) {
@@ -306,10 +305,11 @@ public class NhanVienDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             handleException("capNhatVaiTroNhanVien", e);
-            throw new Exception("KhÃ´ng thá»ƒ cáº­p nháº­t vai trÃ² nhÃ¢n viÃªn.");
+            throw new Exception("Không thể cập nhật vai trò nhân viên.");
         }
     }
-    /** Láº¥y MATAIKHOAN tá»« báº£ng TAIKHOAN theo MANV â€” dÃ¹ng cho AccountTokenDAO. */
+
+    /** Lấy MATAIKHOAN từ bảng TAIKHOAN theo MANV — dùng cho AccountTokenDAO. */
     public int layMaTaiKhoan(int maNV) throws Exception {
         String sql = "SELECT MATAIKHOAN FROM TAIKHOAN WHERE MANV = ?";
         try (Connection conn = moKetNoi();
@@ -317,7 +317,7 @@ public class NhanVienDAO extends BaseDAO {
             pstmt.setInt(1, maNV);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) return rs.getInt("MATAIKHOAN");
-                throw new Exception("KhÃ´ng tÃ¬m tháº¥y tÃ i khoáº£n cho nhÃ¢n viÃªn mÃ£: " + maNV);
+                throw new Exception("Không tìm thấy tài khoản cho nhân viên mã: " + maNV);
             }
         } catch (SQLException e) {
             handleException("layMaTaiKhoan", e);
@@ -325,7 +325,7 @@ public class NhanVienDAO extends BaseDAO {
         }
     }
 
-    /** Cho thÃ´i viá»‡c (soft-delete): TRANGTHAILAMVIEC=0 + TRANGTHAITK=0 */
+    /** Cho thôi việc (soft-delete): TRANGTHAILAMVIEC=0 + TRANGTHAITK=0 */
     public boolean thoiViec(int maNV) throws Exception {
         String sql = "{CALL PROC_THOIVIEC_NHANVIEN(?)}";
         try (Connection conn = moKetNoi();
@@ -336,6 +336,47 @@ public class NhanVienDAO extends BaseDAO {
         } catch (SQLException e) {
             handleException("thoiViec", e);
             return false;
+        }
+    }
+
+    /**
+     * Lấy maTaiKhoan và email theo tên đăng nhập — dùng cho OTP reset mật khẩu.
+     * @return mảng [maTaiKhoan, email] hoặc null nếu không tìm thấy / email chưa thiết lập
+     */
+    public String[] layEmailVaMaTaiKhoanTheoUsername(String tenDangNhap) throws Exception {
+        String sql = """
+                SELECT TK.MATAIKHOAN, TK.EMAIL
+                FROM TAIKHOAN TK
+                WHERE UPPER(TRIM(TK.TENDANGNHAP)) = UPPER(?)
+                  AND TK.TRANGTHAITK = 1
+                """;
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, tenDangNhap);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String maTK = String.valueOf(rs.getInt("MATAIKHOAN"));
+                    String email = rs.getString("EMAIL");
+                    return new String[]{maTK, email};
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            handleException("layEmailVaMaTaiKhoanTheoUsername", e);
+            return null;
+        }
+    }
+
+    /** Cập nhật địa chỉ email trong TAIKHOAN theo MANV. */
+    public void capNhatEmail(int maNV, String email) throws Exception {
+        String sql = "UPDATE TAIKHOAN SET EMAIL = ? WHERE MANV = ?";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            pstmt.setInt(2, maNV);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            handleException("capNhatEmail", e);
         }
     }
 }

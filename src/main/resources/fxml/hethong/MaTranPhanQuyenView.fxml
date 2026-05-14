@@ -16,11 +16,11 @@
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="16">
         <VBox spacing="4">
-            <Label text="PHÂN QUYỀN HỆ THỐNG" styleClass="lbl-header"/>
-            <Label text="Quản lý vai trò nhân viên và quyền truy cập từng chức năng" styleClass="lbl-body-secondary"/>
+            <Label text="PHÂN QUYỀN HỆ THỐNG" styleClass="lbl-title-screen"/>
+            <Label text="Quản lý vai trò nhân viên và quyền truy cập từng chức năng" styleClass="lbl-small"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="↺ Làm mới" onAction="#onRefresh" styleClass="btn-reset"/>
+        <Button text="↺ Làm mới" onAction="#onRefresh" styleClass="btn-secondary"/>
     </HBox>
 
     <VBox>
@@ -29,10 +29,11 @@
     </VBox>
 
     <!-- Tab pane -->
-    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tab-pane">
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE"
+             styleClass="modern-tab-pane">
 
         <!-- TAB 1: Gán vai trò cho nhân viên -->
-        <Tab text="👤  Nhân viên &amp; Vai trò" fx:id="tabNhanVien">
+        <Tab text="👤  Nhân viên &amp; Vai trò">
             <VBox spacing="16" style="-fx-padding: 16 0 0 0;">
 
                 <HBox spacing="12" alignment="CENTER_LEFT">
@@ -50,5 +51,38 @@
                 <Label fx:id="lblStatusVaiTro" text="Đang tải..." styleClass="lbl-small-bold"/>
             </VBox>
         </Tab>
+
+        <!-- TAB 2: Quyền chi tiết theo vai trò -->
+        <Tab text="🔐  Quyền chức năng">
+            <VBox spacing="16" style="-fx-padding: 16 0 0 0;" VBox.vgrow="ALWAYS">
+
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Vai trò:" styleClass="lbl-body-bold"/>
+                    <ComboBox fx:id="cbVaiTro" prefWidth="220"/>
+                    <Button text="📋 Tải quyền" onAction="#onTaiQuyenVaiTro" styleClass="btn-secondary"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="💾 Lưu quyền" onAction="#onLuuQuyenChucNang" styleClass="btn-success"/>
+                </HBox>
+
+                <TableView fx:id="tblChucNang" VBox.vgrow="ALWAYS" editable="true">
+                    <columns>
+                        <TableColumn fx:id="colTenCN"  text="Chức năng"   prefWidth="220"/>
+                        <TableColumn fx:id="colModule" text="Module"       prefWidth="140"/>
+                        <TableColumn fx:id="colView"   text="Xem"          prefWidth="70"/>
+                        <TableColumn fx:id="colAdd"    text="Thêm"         prefWidth="70"/>
+                        <TableColumn fx:id="colEdit"   text="Sửa"          prefWidth="70"/>
+                        <TableColumn fx:id="colDel"    text="Xóa"          prefWidth="70"/>
+                        <TableColumn fx:id="colDown"   text="Tải xuống"    prefWidth="90"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                </TableView>
+
+                <Label fx:id="lblStatusChucNang" text="Chọn vai trò để xem quyền."
+                       styleClass="lbl-small-bold"/>
+            </VBox>
+        </Tab>
+
     </TabPane>
 </VBox>

@@ -3,6 +3,7 @@ package com.bakery.views.controllers.banhang;
 import com.bakery.main.App;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.nhansu.XacThucService;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.nhansu.DangNhapViewFXMLController;
@@ -196,6 +197,7 @@ public class ThuNganViewFXMLController {
             alert.setTitle(title);
             alert.setHeaderText(null);
             alert.setContentText(content);
+            DialogHelper.applyBakeryTheme(alert);
             alert.showAndWait();
         });
     }

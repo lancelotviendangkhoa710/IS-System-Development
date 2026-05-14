@@ -10,7 +10,7 @@
     <HBox alignment="CENTER_LEFT" spacing="20">
         <Label fx:id="lblTitle" text="KIỂM KÊ KHO" styleClass="lbl-header"/>
         <Region HBox.hgrow="ALWAYS" />
-        <Button text="+ Bắt đầu kiểm kê" onAction="#onAction" styleClass="btn-primary"/>
+        <Button text="+ Bắt đầu kiểm kê" onAction="#onAction" styleClass="btn-success"/>
     </HBox>
 
     <VBox styleClass="card" VBox.vgrow="ALWAYS">

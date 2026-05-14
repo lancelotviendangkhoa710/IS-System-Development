@@ -4,6 +4,7 @@ import com.bakery.model.dto.hethong.KhoiPhucDuLieuDTO;
 import com.bakery.presenters.hethong.KhoiPhucDuLieuPresenter;
 import com.bakery.services.hethong.KhoiPhucDuLieuService;
 import com.bakery.utils.SessionContext;
+import com.bakery.utils.DialogHelper;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.interfaces.hethong.IKhoiPhucDuLieuView;
 import javafx.beans.property.SimpleStringProperty;
@@ -121,6 +122,7 @@ public class KhoiPhucDuLieuViewFXMLController extends BaseController implements 
                 ButtonType.YES, ButtonType.NO);
         confirm.setTitle("Xác nhận khôi phục");
         confirm.setHeaderText(null);
+        DialogHelper.applyBakeryTheme(confirm);
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.YES) {
                 presenter.khoiPhuc(chon, loaiBoLocHienTai());
@@ -136,6 +138,7 @@ public class KhoiPhucDuLieuViewFXMLController extends BaseController implements 
                 ButtonType.YES, ButtonType.NO);
         confirm.setTitle("⚠ Xóa vĩnh viễn dữ liệu quá hạn");
         confirm.setHeaderText("Cảnh báo: Xóa vĩnh viễn");
+        DialogHelper.applyBakeryTheme(confirm);
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.YES) {
                 presenter.xoaVinhVienQuaHan(loaiBoLocHienTai());

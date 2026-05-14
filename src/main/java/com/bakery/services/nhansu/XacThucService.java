@@ -8,6 +8,8 @@ import com.bakery.model.dto.AccountTokenDTO;
 import com.bakery.model.dto.nhansu.ChucNangDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.dto.nhansu.VaiTroDTO;
+import com.bakery.services.EmailService;
+import com.bakery.utils.OtpUtils;
 import com.bakery.utils.PasswordUtils;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.TokenUtils;
@@ -25,6 +27,8 @@ import java.util.Set;
 public class XacThucService {
     /** Token hiệu lực 12h — đủ cho một ca làm việc dài nhất. */
     private static final int TOKEN_EXPIRY_HOURS = 12;
+    /** OTP prefix để phân biệt với session token trong bảng ACCOUNT_TOKEN. */
+    private static final String OTP_PREFIX = "OTP_";
 
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
     private final PhanQuyenDAO phanQuyenDAO = new PhanQuyenDAO();
@@ -202,6 +206,116 @@ public class XacThucService {
         }
     }
 
+    // =========================================================================
+    // OTP — Đặt lại mật khẩu qua Email
+    // =========================================================================
+
+    /**
+     * Tạo OTP, lưu vào ACCOUNT_TOKEN, gửi email cho nhân viên.
+     * Gọi từ background Task trong Controller — KHÔNG gọi trực tiếp từ FX thread.
+     *
+     * @param tenDangNhap Tên đăng nhập cần reset mật khẩu
+     * @throws NgoaiLeXacThuc nếu tài khoản không tồn tại hoặc chưa có email
+     */
+    public void taoVaGuiOtp(String tenDangNhap) throws Exception {
+        String usernameDaChuanHoa = validateUsername(tenDangNhap);
+
+        // Lấy maTaiKhoan + email từ DB
+        String[] info = nhanVienDAO.layEmailVaMaTaiKhoanTheoUsername(usernameDaChuanHoa);
+        if (info == null) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.THONG_TIN_DANG_NHAP_SAI,
+                    "Không tìm thấy tài khoản hoặc tài khoản đã bị khóa.");
+        }
+        int maTaiKhoan = Integer.parseInt(info[0]);
+        String email = info[1];
+        if (email == null || email.isBlank()) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.EMAIL_KHONG_CO,
+                    "Tài khoản này chưa được đăng ký email. Vui lòng liên hệ Quản lý.");
+        }
+
+        // Thu hồi OTP cũ còn tồn tại (token bắt đầu bằng OTP_PREFIX)
+        accountTokenDAO.thuHoiOtpTheoTaiKhoan(maTaiKhoan);
+
+        // Tạo và lưu OTP mới — hết hạn sau 10 phút (EXPIRES_AT dùng DATE)
+        String otpCode = OtpUtils.taoOtp();
+        String tokenValue = OTP_PREFIX + otpCode;
+        int expireMinutes = EmailService.getInstance().getOtpExpireMinutes();
+        LocalDate expiresAt = LocalDate.now().plusDays(1); // DATE column — dùng ngày, logic expire check bằng ISSUED_AT
+        AccountTokenDTO otpToken = new AccountTokenDTO(maTaiKhoan, tokenValue, expiresAt);
+        accountTokenDAO.insertToken(otpToken);
+
+        // Gửi email (blocking — gọi từ background Task)
+        EmailService.getInstance().guiEmailOtp(email, otpCode);
+    }
+
+    /**
+     * Xác minh OTP và đặt lại mật khẩu mới.
+     * Không yêu cầu session đăng nhập.
+     *
+     * @param tenDangNhap  Tên đăng nhập
+     * @param otpCode      Mã OTP 6 số người dùng nhập
+     * @param matKhauMoi   Mật khẩu mới
+     * @param xacNhanMoi   Xác nhận mật khẩu mới
+     */
+    public void xacMinhOtpVaDoiMatKhau(String tenDangNhap, String otpCode,
+                                        String matKhauMoi, String xacNhanMoi) throws Exception {
+        String usernameDaChuanHoa = validateUsername(tenDangNhap);
+        String matKhauMoiHopLe = validatePassword(matKhauMoi, "Mật khẩu mới");
+        String xacNhanHopLe = validatePassword(xacNhanMoi, "Xác nhận mật khẩu mới");
+
+        if (!matKhauMoiHopLe.equals(xacNhanHopLe)) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.MAT_KHAU_XAC_NHAN_KHONG_KHOP,
+                    "Mật khẩu mới và xác nhận không khớp.");
+        }
+
+        // Tìm tài khoản
+        String[] info = nhanVienDAO.layEmailVaMaTaiKhoanTheoUsername(usernameDaChuanHoa);
+        if (info == null) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.THONG_TIN_DANG_NHAP_SAI, "Tài khoản không tồn tại.");
+        }
+        int maTaiKhoan = Integer.parseInt(info[0]);
+
+        // Verify OTP từ ACCOUNT_TOKEN
+        String tokenValue = OTP_PREFIX + (otpCode == null ? "" : otpCode.trim());
+        AccountTokenDTO otpToken = accountTokenDAO.timTheoGiaTri(tokenValue);
+        if (otpToken == null || otpToken.getMaTaiKhoan() != maTaiKhoan) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.OTP_SAI, "Mã xác nhận không chính xác.");
+        }
+        if (!otpToken.conHieuLuc()) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.OTP_HET_HAN, "Mã xác nhận đã hết hạn. Vui lòng yêu cầu mã mới.");
+        }
+
+        // Lấy MANV từ maTaiKhoan để gọi PROC_DOI_MATKHAU_TAIKHOAN
+        NhanVienDTO nv = nhanVienDAO.timNhanVienTheoTenDangNhap(usernameDaChuanHoa);
+        if (nv == null) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.LOI_HE_THONG, "Không tìm được thông tin nhân viên.");
+        }
+
+        // Đổi mật khẩu
+        boolean updated = nhanVienDAO.doiMatKhau(nv.getMaNV(), PasswordUtils.hash(matKhauMoiHopLe));
+        if (!updated) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.LOI_HE_THONG, "Không thể cập nhật mật khẩu.");
+        }
+
+        // Thu hồi OTP sau khi dùng
+        accountTokenDAO.revokeToken(tokenValue);
+    }
+
+    /**
+     * Cập nhật email cho tài khoản — dùng trong màn hình cài đặt cá nhân.
+     */
+    public void capNhatEmail(String emailMoi) throws Exception {
+        SessionContext.AuthSession session = requireActiveSession();
+        if (emailMoi == null || emailMoi.isBlank()) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.LOI_XAC_THUC_DU_LIEU, "Email không được để trống.");
+        }
+        String emailChuan = emailMoi.trim();
+        if (!emailChuan.matches("^[\\w.+\\-]+@[\\w\\-]+\\.[a-z]{2,}$")) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.LOI_XAC_THUC_DU_LIEU, "Địa chỉ email không hợp lệ.");
+        }
+        nhanVienDAO.capNhatEmail(session.getMaNhanVien(), emailChuan);
+    }
+
     public List<VaiTroDTO> layDanhSachVaiTroDangHoatDong() throws Exception {
         return vaiTroDAO.layDanhSachVaiTroDangHoatDong();
     }
@@ -349,6 +463,9 @@ public class XacThucService {
         MAT_KHAU_KHONG_HOP_LE,
         MAT_KHAU_HIEN_TAI_SAI,
         MAT_KHAU_XAC_NHAN_KHONG_KHOP,
+        EMAIL_KHONG_CO,
+        OTP_SAI,
+        OTP_HET_HAN,
         LOI_HE_THONG
     }
 

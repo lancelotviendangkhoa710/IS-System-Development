@@ -25,6 +25,7 @@ build-check/
 # Cấu hình bảo mật và biến môi trường
 src/main/java/com/bakery/utils/DBConnect.java
 src/main/resources/application.properties
+src/main/resources/email.properties
 *.env
 
 # Tệp hệ thống

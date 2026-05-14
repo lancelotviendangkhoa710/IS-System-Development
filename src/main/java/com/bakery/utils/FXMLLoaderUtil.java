@@ -61,6 +61,7 @@ public class FXMLLoaderUtil {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 }

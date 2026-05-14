@@ -4,15 +4,22 @@ import com.bakery.model.dto.kho.CotBanhDTO;
 import com.bakery.model.dto.kho.KieuTrangTriDTO;
 import com.bakery.model.dto.kho.NhanBanhDTO;
 import com.bakery.services.banhang.TuyChinhBanhService;
+import com.bakery.utils.DialogHelper;
+import com.bakery.utils.SessionContext;
 import com.bakery.views.controllers.BaseController;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller cho ThanhPhanBanhView (Quản lý công thức/thành phần bánh).
@@ -43,24 +50,41 @@ public class ThanhPhanBanhController extends BaseController {
 
     private final TuyChinhBanhService service = new TuyChinhBanhService();
 
+    private final ObservableList<CotBanhDTO>      dsCotBanh   = FXCollections.observableArrayList();
+    private final ObservableList<NhanBanhDTO>     dsNhanBanh  = FXCollections.observableArrayList();
+    private final ObservableList<KieuTrangTriDTO> dsTrangTri  = FXCollections.observableArrayList();
+
     @FXML
     public void initialize() {
         setupTables();
         taiDuLieu();
     }
 
+    // ── Setup bảng ─────────────────────────────────────────────────────
+
     private void setupTables() {
         colTenCot.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenCot()));
         colPhuPhiCot.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPhuPhi()));
-        colGiaVonCot.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.4)));
+        colGiaVonCot.setCellValueFactory(cell -> new SimpleStringProperty(
+                String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.4)));
 
         colTenNhan.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenNhan()));
         colPhuPhiNhan.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPhuPhi()));
-        colGiaVonNhan.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.45)));
+        colGiaVonNhan.setCellValueFactory(cell -> new SimpleStringProperty(
+                String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.45)));
 
         colTenTrangTri.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenTrangTri()));
         colPhuPhiTrangTri.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPhuPhi()));
-        colGiaVonTrangTri.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.3)));
+        colGiaVonTrangTri.setCellValueFactory(cell -> new SimpleStringProperty(
+                String.format("%,.0f đ", cell.getValue().getPhuPhi().doubleValue() * 0.3)));
+
+        tblCotBanh.setItems(dsCotBanh);
+        tblNhanBanh.setItems(dsNhanBanh);
+        tblKieuTrangTri.setItems(dsTrangTri);
+
+        tblCotBanh.setPlaceholder(new Label("Chưa có cốt bánh."));
+        tblNhanBanh.setPlaceholder(new Label("Chưa có nhân bánh."));
+        tblKieuTrangTri.setPlaceholder(new Label("Chưa có kiểu trang trí."));
 
         tblCotBanh.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> tinhTongGiaVon());
         tblNhanBanh.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> tinhTongGiaVon());
@@ -78,49 +102,245 @@ public class ThanhPhanBanhController extends BaseController {
         if (lblTongGiaVon != null) lblTongGiaVon.setText(String.format("%,.0f đ", cost));
     }
 
-    private void taiDuLieu() {
-        StringBuilder log = new StringBuilder();
-        try {
-            List<CotBanhDTO> cots = service.layDanhSachCotBanh();
-            tblCotBanh.setItems(FXCollections.observableArrayList(cots != null ? cots : List.of()));
-            if (cots == null || cots.isEmpty()) log.append("Chưa có cốt bánh. ");
-        } catch (Exception e) {
-            tblCotBanh.setItems(FXCollections.observableArrayList());
-            log.append("Lỗi tải cốt bánh: ").append(e.getMessage()).append(". ");
-        }
-        try {
-            List<NhanBanhDTO> nhans = service.layDanhSachNhanBanh();
-            tblNhanBanh.setItems(FXCollections.observableArrayList(nhans != null ? nhans : List.of()));
-            if (nhans == null || nhans.isEmpty()) log.append("Chưa có nhân bánh. ");
-        } catch (Exception e) {
-            tblNhanBanh.setItems(FXCollections.observableArrayList());
-            log.append("Lỗi tải nhân bánh: ").append(e.getMessage()).append(". ");
-        }
-        try {
-            List<KieuTrangTriDTO> tts = service.layDanhSachKieuTrangTri();
-            tblKieuTrangTri.setItems(FXCollections.observableArrayList(tts != null ? tts : List.of()));
-            if (tts == null || tts.isEmpty()) log.append("Chưa có kiểu trang trí. ");
-        } catch (Exception e) {
-            tblKieuTrangTri.setItems(FXCollections.observableArrayList());
-            log.append("Lỗi tải trang trí: ").append(e.getMessage()).append(". ");
-        }
+    // ── Tải dữ liệu (background) ────────────────────────────────────────
 
-        if (lblThongBao != null) {
-            lblThongBao.setText(log.length() > 0 ? log.toString().trim() : "Đã tải dữ liệu từ cơ sở dữ liệu.");
+    private void taiDuLieu() {
+        Thread t = new Thread(() -> {
+            StringBuilder log = new StringBuilder();
+            List<CotBanhDTO>      cots  = List.of();
+            List<NhanBanhDTO>     nhans = List.of();
+            List<KieuTrangTriDTO> tts   = List.of();
+
+            try { cots  = service.layDanhSachCotBanh(); }
+            catch (Exception e) { log.append("Lỗi tải cốt bánh: ").append(e.getMessage()).append(". "); }
+
+            try { nhans = service.layDanhSachNhanBanh(); }
+            catch (Exception e) { log.append("Lỗi tải nhân bánh: ").append(e.getMessage()).append(". "); }
+
+            try { tts   = service.layDanhSachKieuTrangTri(); }
+            catch (Exception e) { log.append("Lỗi tải trang trí: ").append(e.getMessage()).append(". "); }
+
+            final List<CotBanhDTO>      fCots  = cots;
+            final List<NhanBanhDTO>     fNhans = nhans;
+            final List<KieuTrangTriDTO> fTts   = tts;
+            final String logStr = log.toString();
+
+            Platform.runLater(() -> {
+                dsCotBanh.setAll(fCots);
+                dsNhanBanh.setAll(fNhans);
+                dsTrangTri.setAll(fTts);
+                if (lblThongBao != null)
+                    lblThongBao.setText(logStr.isBlank() ? "Đã tải dữ liệu từ cơ sở dữ liệu." : logStr.trim());
+            });
+        }, "thanh-phan-banh-tai");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ── CỐT BÁNH — handlers ─────────────────────────────────────────────
+
+    @FXML
+    private void onThemCot() {
+        moDialogThanhPhan("Thêm Cốt Bánh", "Tên cốt bánh:", "Phụ phí (đ):", null, null,
+            (ten, phuPhi) -> {
+                CotBanhDTO dto = new CotBanhDTO();
+                dto.setTenCot(ten);
+                dto.setPhuPhi(phuPhi);
+                chayNenVaLamMoi(() -> service.themCotBanh(dto), "✅ Đã thêm cốt bánh \"" + ten + "\".");
+            });
+    }
+
+    @FXML
+    private void onSuaCot() {
+        CotBanhDTO sel = tblCotBanh.getSelectionModel().getSelectedItem();
+        if (sel == null) { hienThiLoiLabel("Vui lòng chọn cốt bánh cần sửa."); return; }
+        moDialogThanhPhan("Sửa Cốt Bánh", "Tên cốt bánh:", "Phụ phí (đ):", sel.getTenCot(), sel.getPhuPhi(),
+            (ten, phuPhi) -> {
+                sel.setTenCot(ten);
+                sel.setPhuPhi(phuPhi);
+                chayNenVaLamMoi(() -> service.suaCotBanh(sel), "✅ Đã cập nhật cốt bánh \"" + ten + "\".");
+            });
+    }
+
+    @FXML
+    private void onXoaCot() {
+        CotBanhDTO sel = tblCotBanh.getSelectionModel().getSelectedItem();
+        if (sel == null) { hienThiLoiLabel("Vui lòng chọn cốt bánh cần xóa."); return; }
+        if (xacNhanXoa("cốt bánh", sel.getTenCot())) {
+            int maNV = SessionContext.getInstance().getMaNV();
+            chayNenVaLamMoi(() -> service.xoaCotBanh(sel.getMaCot(), maNV),
+                    "✅ Đã xóa cốt bánh \"" + sel.getTenCot() + "\".");
         }
     }
 
-    @FXML private void onThemCot() { lblThongBao.setText("Chức năng Thêm cốt bánh đang được phát triển."); }
-    @FXML private void onSuaCot() { lblThongBao.setText("Chức năng Sửa cốt bánh đang được phát triển."); }
-    @FXML private void onXoaCot() { lblThongBao.setText("Chức năng Xóa cốt bánh đang được phát triển."); }
+    // ── NHÂN BÁNH — handlers ────────────────────────────────────────────
 
-    @FXML private void onThemNhan() { lblThongBao.setText("Chức năng Thêm nhân bánh đang được phát triển."); }
-    @FXML private void onSuaNhan() { lblThongBao.setText("Chức năng Sửa nhân bánh đang được phát triển."); }
-    @FXML private void onXoaNhan() { lblThongBao.setText("Chức năng Xóa nhân bánh đang được phát triển."); }
+    @FXML
+    private void onThemNhan() {
+        moDialogThanhPhan("Thêm Nhân Bánh", "Tên nhân bánh:", "Phụ phí (đ):", null, null,
+            (ten, phuPhi) -> {
+                NhanBanhDTO dto = new NhanBanhDTO();
+                dto.setTenNhan(ten);
+                dto.setPhuPhi(phuPhi);
+                chayNenVaLamMoi(() -> service.themNhanBanh(dto), "✅ Đã thêm nhân bánh \"" + ten + "\".");
+            });
+    }
 
-    @FXML private void onThemTrangTri() { lblThongBao.setText("Chức năng Thêm trang trí đang được phát triển."); }
-    @FXML private void onSuaTrangTri() { lblThongBao.setText("Chức năng Sửa trang trí đang được phát triển."); }
-    @FXML private void onXoaTrangTri() { lblThongBao.setText("Chức năng Xóa trang trí đang được phát triển."); }
+    @FXML
+    private void onSuaNhan() {
+        NhanBanhDTO sel = tblNhanBanh.getSelectionModel().getSelectedItem();
+        if (sel == null) { hienThiLoiLabel("Vui lòng chọn nhân bánh cần sửa."); return; }
+        moDialogThanhPhan("Sửa Nhân Bánh", "Tên nhân bánh:", "Phụ phí (đ):", sel.getTenNhan(), sel.getPhuPhi(),
+            (ten, phuPhi) -> {
+                sel.setTenNhan(ten);
+                sel.setPhuPhi(phuPhi);
+                chayNenVaLamMoi(() -> service.suaNhanBanh(sel), "✅ Đã cập nhật nhân bánh \"" + ten + "\".");
+            });
+    }
+
+    @FXML
+    private void onXoaNhan() {
+        NhanBanhDTO sel = tblNhanBanh.getSelectionModel().getSelectedItem();
+        if (sel == null) { hienThiLoiLabel("Vui lòng chọn nhân bánh cần xóa."); return; }
+        if (xacNhanXoa("nhân bánh", sel.getTenNhan())) {
+            int maNV = SessionContext.getInstance().getMaNV();
+            chayNenVaLamMoi(() -> service.xoaNhanBanh(sel.getMaNhan(), maNV),
+                    "✅ Đã xóa nhân bánh \"" + sel.getTenNhan() + "\".");
+        }
+    }
+
+    // ── KIỂU TRANG TRÍ — handlers ───────────────────────────────────────
+
+    @FXML
+    private void onThemTrangTri() {
+        moDialogThanhPhan("Thêm Kiểu Trang Trí", "Tên trang trí:", "Phụ phí (đ):", null, null,
+            (ten, phuPhi) -> {
+                KieuTrangTriDTO dto = new KieuTrangTriDTO();
+                dto.setTenTrangTri(ten);
+                dto.setPhuPhi(phuPhi);
+                chayNenVaLamMoi(() -> service.themKieuTrangTri(dto), "✅ Đã thêm kiểu trang trí \"" + ten + "\".");
+            });
+    }
+
+    @FXML
+    private void onSuaTrangTri() {
+        KieuTrangTriDTO sel = tblKieuTrangTri.getSelectionModel().getSelectedItem();
+        if (sel == null) { hienThiLoiLabel("Vui lòng chọn kiểu trang trí cần sửa."); return; }
+        moDialogThanhPhan("Sửa Kiểu Trang Trí", "Tên trang trí:", "Phụ phí (đ):", sel.getTenTrangTri(), sel.getPhuPhi(),
+            (ten, phuPhi) -> {
+                sel.setTenTrangTri(ten);
+                sel.setPhuPhi(phuPhi);
+                chayNenVaLamMoi(() -> service.suaKieuTrangTri(sel), "✅ Đã cập nhật kiểu trang trí \"" + ten + "\".");
+            });
+    }
+
+    @FXML
+    private void onXoaTrangTri() {
+        KieuTrangTriDTO sel = tblKieuTrangTri.getSelectionModel().getSelectedItem();
+        if (sel == null) { hienThiLoiLabel("Vui lòng chọn kiểu trang trí cần xóa."); return; }
+        if (xacNhanXoa("kiểu trang trí", sel.getTenTrangTri())) {
+            int maNV = SessionContext.getInstance().getMaNV();
+            chayNenVaLamMoi(() -> service.xoaKieuTrangTri(sel.getMaTrangTri(), maNV),
+                    "✅ Đã xóa kiểu trang trí \"" + sel.getTenTrangTri() + "\".");
+        }
+    }
 
     @FXML private void onQuayLai() { quayLaiMenuChinh(tblCotBanh); }
+
+    // ── Helpers ─────────────────────────────────────────────────────────
+
+    /**
+     * Dialog tái sử dụng cho Thêm/Sửa một thành phần bánh (tên + phụ phí).
+     * Callback chỉ được gọi khi validation đã qua.
+     */
+    @FunctionalInterface
+    private interface ThanhPhanCallback {
+        void execute(String ten, BigDecimal phuPhi);
+    }
+
+    private void moDialogThanhPhan(String tieuDe, String lblTen, String lblPhi,
+                                   String tenCu, BigDecimal phiCu,
+                                   ThanhPhanCallback callback) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle(tieuDe);
+        dialog.setHeaderText(tieuDe);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        TextField txtTen = new TextField(tenCu != null ? tenCu : "");
+        txtTen.setPromptText("Nhập tên...");
+        txtTen.setPrefWidth(260);
+
+        TextField txtPhi = new TextField(phiCu != null ? phiCu.toPlainString() : "");
+        txtPhi.setPromptText("Ví dụ: 15000");
+        txtPhi.setPrefWidth(260);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20));
+        grid.add(new Label(lblTen), 0, 0);
+        grid.add(txtTen, 1, 0);
+        grid.add(new Label(lblPhi), 0, 1);
+        grid.add(txtPhi, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        DialogHelper.applyBakeryTheme(dialog);
+
+        // Disable OK khi tên rỗng
+        Button okBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okBtn.setDisable(true);
+        txtTen.textProperty().addListener((obs, o, n) -> okBtn.setDisable(n.trim().isEmpty()));
+        if (tenCu != null && !tenCu.isBlank()) okBtn.setDisable(false);
+
+        Platform.runLater(txtTen::requestFocus);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) return;
+
+        String ten = txtTen.getText().trim();
+        if (ten.isEmpty()) { hienThiLoiLabel("Tên không được để trống."); return; }
+
+        BigDecimal phuPhi;
+        try {
+            phuPhi = new BigDecimal(txtPhi.getText().trim().replace(",", "").replace(".", ""));
+            if (phuPhi.compareTo(BigDecimal.ZERO) < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            hienThiLoiLabel("Phụ phí không hợp lệ. Vui lòng nhập số nguyên dương.");
+            return;
+        }
+
+        callback.execute(ten, phuPhi);
+    }
+
+    /** Hiển thị dialog xác nhận xóa mềm, trả true nếu user bấm OK. */
+    private boolean xacNhanXoa(String loai, String ten) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Xóa " + loai + " \"" + ten + "\"?\nDữ liệu sẽ bị ẩn khỏi hệ thống.",
+                ButtonType.OK, ButtonType.CANCEL);
+        confirm.setTitle("Xác nhận xóa");
+        DialogHelper.applyBakeryTheme(confirm);
+        return confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+    }
+
+    /** Chạy tác vụ DB trên background thread, reload bảng khi xong. */
+    private void chayNenVaLamMoi(ThrowingRunnable task, String successMsg) {
+        Thread t = new Thread(() -> {
+            try {
+                task.run();
+                Platform.runLater(() -> {
+                    hienThiThanhCongLabel(successMsg);
+                    taiDuLieu();
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> hienThiLoiLabel("Lỗi: " + e.getMessage()));
+            }
+        }, "thanh-phan-banh-async");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    @FunctionalInterface
+    private interface ThrowingRunnable {
+        void run() throws Exception;
+    }
 }

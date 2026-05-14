@@ -15,12 +15,14 @@ public class NhanVienDTO extends BaseDTO {
     private String tenDangNhap;
     private String matKhau;
     private int trangThaiLamViec;
-    private int trangThaiTK; // 1: Tài khoản hoạt động, 0: Bị khóa
-    private transient boolean canDoiMatKhau; // true nếu mật khẩu chưa được hash (lần đăng nhập đầu)
+    private int trangThaiTK;          // 1: Tài khoản hoạt động, 0: Bị khóa
+    private String email;             // Email khôi phục mật khẩu (cột TAIKHOAN.EMAIL)
+    private transient boolean canDoiMatKhau; // true nếu mật khẩu chưa hash (lần đăng nhập đầu)
 
     public NhanVienDTO() {}
 
-    public NhanVienDTO(int maNV, String hoTen, LocalDate ngaySinh, String sdt, String diaChi, String tenDangNhap, String matKhau, int trangThaiLamViec) {
+    public NhanVienDTO(int maNV, String hoTen, LocalDate ngaySinh, String sdt, String diaChi,
+                       String tenDangNhap, String matKhau, int trangThaiLamViec) {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
@@ -64,6 +66,9 @@ public class NhanVienDTO extends BaseDTO {
     public int getTrangThaiTK() { return trangThaiTK; }
     public void setTrangThaiTK(int trangThaiTK) { this.trangThaiTK = trangThaiTK; }
 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
     public boolean isCanDoiMatKhau() { return canDoiMatKhau; }
     public void setCanDoiMatKhau(boolean canDoiMatKhau) { this.canDoiMatKhau = canDoiMatKhau; }
 
@@ -77,7 +82,7 @@ public class NhanVienDTO extends BaseDTO {
     public int getMaVaiTro() {
         return (danhSachMaVaiTro == null || danhSachMaVaiTro.isEmpty()) ? 0 : danhSachMaVaiTro.get(0);
     }
-    
+
     public void setMaVaiTro(int maVaiTro) {
         if (this.danhSachMaVaiTro == null) this.danhSachMaVaiTro = new ArrayList<>();
         if (!this.danhSachMaVaiTro.contains(maVaiTro)) {

@@ -9,6 +9,7 @@ import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.PhieuNhapKhoDTO;
 import com.bakery.services.kho.NhapKhoService;
 import com.bakery.services.nhansu.PhanQuyenService;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
@@ -137,6 +138,7 @@ public class NhapKhoViewFXMLController extends BaseController {
         confirm.setHeaderText("Hủy phiếu nhập #" + selected.getMaPN() + "?");
         confirm.setContentText("Hệ thống sẽ hoàn kho theo quy tắc DB. Bạn có chắc chắn?");
         confirm.initOwner(lblTitle.getScene().getWindow());
+        DialogHelper.applyBakeryTheme(confirm);
         confirm.showAndWait().ifPresent(bt -> {
             if (bt == ButtonType.OK) {
                 Thread t = new Thread(() -> {
@@ -199,6 +201,7 @@ public class NhapKhoViewFXMLController extends BaseController {
         dialogNCC.getDialogPane().setContent(body);
         dialogNCC.setResultConverter(bt -> bt == ButtonType.OK ? cbNCC.getValue() : null);
 
+        DialogHelper.applyBakeryTheme(dialogNCC);
         NhaCungCapDTO nccChon = dialogNCC.showAndWait().orElse(null);
         if (nccChon == null)
             return;

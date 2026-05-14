@@ -1,9 +1,12 @@
 package com.bakery.views.controllers.banhang;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
+import com.bakery.utils.DialogHelper;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -21,6 +24,18 @@ public class KhachHangDialogViewFXMLController {
     private KhachHangDTO khachHangHienTai;
     private boolean laChinhSua = false;
     private KhachHangDTO ketQua;
+    private boolean duLieuDaThayDoi = false;
+
+    @FXML
+    public void initialize() {
+        txtHoTen.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        txtSDT.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        txtDiaChi.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        Platform.runLater(() -> {
+            Stage s = (Stage) txtHoTen.getScene().getWindow();
+            s.setOnCloseRequest(ev -> { if (!xacNhanHuyThayDoi()) ev.consume(); });
+        });
+    }
 
     public void khoiTaoChinhSua(KhachHangDTO kh) {
         if (kh != null) {
@@ -66,6 +81,7 @@ public class KhachHangDialogViewFXMLController {
                 boolean ok = khachHangService.capNhatKhachHang(khachHangHienTai);
                 if (ok) {
                     ketQua = khachHangHienTai;
+                    duLieuDaThayDoi = false; // lưu thành công → reset dirty
                     hienThongBao("Thành công", "Đã cập nhật thông tin khách hàng.");
                     dongDialog();
                 } else {
@@ -82,6 +98,7 @@ public class KhachHangDialogViewFXMLController {
                 if (maKH > 0) {
                     khMoi.setMaKH(maKH);
                     ketQua = khMoi;
+                    duLieuDaThayDoi = false; // lưu thành công → reset dirty
                     hienThongBao("Thành công", "Đã thêm khách hàng mới! Mã KH: " + maKH);
                     dongDialog();
                 } else {
@@ -96,8 +113,18 @@ public class KhachHangDialogViewFXMLController {
 
     @FXML
     private void onHuy() {
+        if (!xacNhanHuyThayDoi()) return;
         ketQua = null;
         dongDialog();
+    }
+
+    private boolean xacNhanHuyThayDoi() {
+        if (!duLieuDaThayDoi) return true;
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có thay đổi chưa lưu. Hủy bỏ?", ButtonType.YES, ButtonType.NO);
+        a.setTitle("Dữ liệu chưa lưu"); a.setHeaderText("Cảnh báo — Dữ liệu chưa lưu");
+        DialogHelper.applyBakeryTheme(a);
+        return a.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 
     private void dongDialog() {
@@ -110,6 +137,7 @@ public class KhachHangDialogViewFXMLController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(msg);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 }

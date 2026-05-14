@@ -2,6 +2,7 @@ package com.bakery.views.controllers.khachhang;
 
 import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.presenters.khachhang.HangThanhVienPresenter;
+import com.bakery.utils.DialogHelper;
 import com.bakery.views.interfaces.khachhang.HangThanhVienView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -21,10 +22,7 @@ public class HangThanhVienController implements HangThanhVienView {
     @FXML private TableColumn<HangThanhVienDTO, Double> colPhanTramGiamGia;
     @FXML private TableColumn<HangThanhVienDTO, Void> colThaoTac;
 
-    
     private HangThanhVienPresenter presenter;
-
-    
 
     @FXML public void initialize() {
         presenter = new HangThanhVienPresenter(this);
@@ -40,13 +38,31 @@ public class HangThanhVienController implements HangThanhVienView {
     @Override public void setMinPointsError(String error) { }
     @Override public void setDiscountError(String error) { }
     @Override public void clearForm() { }
-    @Override public boolean confirmUpdate(String tierName) { return new Alert(Alert.AlertType.CONFIRMATION, "Cập nhật hạng \"" + tierName + "\"?", ButtonType.OK, ButtonType.CANCEL).showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK; }
+
+    @Override public boolean confirmUpdate(String tierName) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Cập nhật hạng \"" + tierName + "\"?", ButtonType.OK, ButtonType.CANCEL);
+        DialogHelper.applyBakeryTheme(alert);
+        return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+    }
+
     @Override public void displayTiers(List<HangThanhVienDTO> tiers) {
         tierTable.setItems(FXCollections.observableArrayList(tiers));
         tierTable.refresh();
     }
-    @Override public void showErrorAlert(String title, String message) { new Alert(Alert.AlertType.ERROR, message).showAndWait(); }
-    @Override public void showSuccessAlert(String title, String message) { new Alert(Alert.AlertType.INFORMATION, message).showAndWait(); }
+
+    @Override public void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message);
+        DialogHelper.applyBakeryTheme(alert);
+        alert.showAndWait();
+    }
+
+    @Override public void showSuccessAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
+        DialogHelper.applyBakeryTheme(alert);
+        alert.showAndWait();
+    }
+
     @Override public void setBusy(boolean busy) { tierTable.setDisable(busy); }
 
     private void setupColumns() {
@@ -74,27 +90,28 @@ public class HangThanhVienController implements HangThanhVienView {
         dialog.setResizable(false);
         ButtonType save = new ButtonType("Lưu", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(save, ButtonType.CANCEL);
-        
+
         javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new javafx.geometry.Insets(20));
-        
+
         TextField txtName = new TextField(tier.getTenHang());
         txtName.setEditable(false);
         TextField txtPoints = new TextField(String.valueOf(tier.getDiemToiThieu()));
         TextField txtDiscount = new TextField(String.valueOf(tier.getPhanTramGiamGia()));
-        
+
         grid.add(new Label("Tên hạng:"), 0, 0);
         grid.add(txtName, 1, 0);
         grid.add(new Label("Điểm tối thiểu:"), 0, 1);
         grid.add(txtPoints, 1, 1);
         grid.add(new Label("% Giảm giá:"), 0, 2);
         grid.add(txtDiscount, 1, 2);
-        
+
         dialog.getDialogPane().setContent(grid);
         dialog.setResultConverter(btn -> btn == save ? tier : null);
-        
+        DialogHelper.applyBakeryTheme(dialog);
+
         dialog.showAndWait().ifPresent(t -> {
             try {
                 t.setDiemToiThieu(Integer.parseInt(txtPoints.getText().trim()));

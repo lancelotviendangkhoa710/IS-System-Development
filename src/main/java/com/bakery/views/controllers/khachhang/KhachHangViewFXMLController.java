@@ -5,6 +5,7 @@ import com.bakery.model.dto.khachhang.HangThanhVienDTO;
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.khachhang.KhachHangPresenter;
 import com.bakery.services.nhansu.PhanQuyenService;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.controllers.banhang.KhachHangDialogViewFXMLController;
@@ -19,14 +20,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
 public class KhachHangViewFXMLController extends BaseController implements KhachHangView {
-
 
     @FXML private TableView<KhachHangDTO>          customerTable;
     @FXML private TableColumn<KhachHangDTO, Integer>   colId;
@@ -51,7 +53,9 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     // Cache toàn bộ danh sách để lọc client-side
     private java.util.List<KhachHangDTO> allCustomers = java.util.Collections.emptyList();
     // Cache danh sách hạng để tính ngưỡng điểm tiếp theo
-    private java.util.List<HangThanhVienDTO> tierList  = java.util.Collections.emptyList();
+    private java.util.List<HangThanhVienDTO> tierList = java.util.Collections.emptyList();
+    // Trạng thái chế độ thùng rác
+    private boolean dangCheDoChuaXoa = false;
 
     private final KhachHangPresenter presenter    = new KhachHangPresenter(this);
     private final PhanQuyenService   phanQuyenSvc = new PhanQuyenService();
@@ -96,11 +100,8 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         if (!allCustomers.isEmpty()) applyFilter();
     }
 
-    @Override
-    public void capNhatThongTinPhanTrang(String thongTin) {}
-
-    @Override
-    public void capNhatDieuKhienPhanTrang(int trangHienTai, int tongTrang) {}
+    @Override public void capNhatThongTinPhanTrang(String thongTin) {}
+    @Override public void capNhatDieuKhienPhanTrang(int trangHienTai, int tongTrang) {}
 
     @Override
     public void capNhatTongKhachHang(int tongKhachHang) {
@@ -112,8 +113,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         if (lblNewCustomers != null) lblNewCustomers.setText(String.valueOf(soKhachMoi));
     }
 
-    @Override
-    public void batTatTrangThaiBan(boolean ban) {}
+    @Override public void batTatTrangThaiBan(boolean ban) {}
 
     @Override
     public void hienThiLoi(String tieuDe, String noiDung) {
@@ -125,11 +125,31 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         hienThiThanhCongLabel(noiDung);
     }
 
-    @Override
-    public void hienThiThongTin(String tieuDe, String noiDung) {}
+    @Override public void hienThiThongTin(String tieuDe, String noiDung) {}
 
+    /**
+     * Cập nhật UI khi chuyển chế độ thùng rác:
+     * - Nút đổi nhãn và style
+     * - Cột actions hiển thị nút "Khôi phục" thay vì "Lịch sử"
+     */
     @Override
-    public void capNhatCheDoThungRac(boolean cheDoThungRac) {}
+    public void capNhatCheDoThungRac(boolean cheDoThungRac) {
+        dangCheDoChuaXoa = cheDoThungRac;
+        if (btnCheDoThungRac != null) {
+            if (cheDoThungRac) {
+                btnCheDoThungRac.setText("🗂 Xem tất cả");
+                btnCheDoThungRac.getStyleClass().removeAll("btn-secondary");
+                btnCheDoThungRac.getStyleClass().add("btn-danger");
+            } else {
+                btnCheDoThungRac.setText("🗑 Thùng rác");
+                btnCheDoThungRac.getStyleClass().removeAll("btn-danger");
+                btnCheDoThungRac.getStyleClass().add("btn-secondary");
+            }
+        }
+        // Làm mới cột actions để hiện/ẩn nút Khôi phục
+        setupActionsColumn();
+        customerTable.refresh();
+    }
 
     /**
      * Mở dialog lịch sử mua hàng dựa trên FXML — kế thừa stylesheet từ Scene gốc.
@@ -177,8 +197,35 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         applyFilter();
     }
 
-    @FXML private void onDeletedViewClicked()  { hienThiLoiLabel("Chức năng thùng rác đang được phát triển."); }
-    @FXML private void onExportExcelClicked()  { hienThiLoiLabel("Chức năng xuất Excel đang được phát triển."); }
+    /** Toggle giữa chế độ thùng rác và chế độ bình thường. */
+    @FXML
+    private void onDeletedViewClicked() {
+        presenter.chuyenCheDoThungRac(!dangCheDoChuaXoa);
+    }
+
+    /** Mở FileChooser, cho phép user chọn nơi lưu, rồi xuất Excel. */
+    @FXML
+    private void onExportExcelClicked() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Xuất danh sách khách hàng ra Excel");
+        fc.setInitialFileName("DanhSachKhachHang.xlsx");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Excel (.xlsx)", "*.xlsx"));
+
+        // Lấy window của bất kỳ node nào trong Scene hiện tại
+        javafx.stage.Window ownerWindow = customerTable.getScene() != null
+                ? customerTable.getScene().getWindow() : null;
+        File tepTin = fc.showSaveDialog(ownerWindow);
+
+        if (tepTin == null) return; // user bấm Cancel
+
+        // Đảm bảo có đuôi .xlsx
+        if (!tepTin.getName().toLowerCase().endsWith(".xlsx")) {
+            tepTin = new File(tepTin.getAbsolutePath() + ".xlsx");
+        }
+
+        presenter.xuatExcel(tepTin);
+    }
 
     @FXML
     private void onClearFilterClicked() {
@@ -204,15 +251,12 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         colPoints.setCellValueFactory(c -> {
             KhachHangDTO kh = c.getValue();
             int diem = kh.getDiemTichLuy() != null ? kh.getDiemTichLuy() : 0;
-            // Tìm hạng tiếp theo: hạng có diemToiThieu > diem hiện tại, lấy thấp nhất
             int nguong = tierList.stream()
                     .filter(t -> t.getDiemToiThieu() != null && t.getDiemToiThieu() > diem)
                     .mapToInt(t -> t.getDiemToiThieu())
                     .min()
-                    .orElse(-1); // -1 = đã ở hạng cao nhất
-            String display = nguong < 0
-                    ? diem + " ★" // đạt hạng cao nhất
-                    : diem + "/" + nguong;
+                    .orElse(-1);
+            String display = nguong < 0 ? diem + " ★" : diem + "/" + nguong;
             return new SimpleStringProperty(display);
         });
 
@@ -251,26 +295,49 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         if (filtered.isEmpty()) hienThiLoiLabel("Không tìm thấy khách hàng phù hợp.");
     }
 
-
-    /** Thêm nút "Lịch sử" vào cột Actions. */
+    /**
+     * Cột Actions:
+     * - Chế độ bình thường: nút "📋 Lịch sử"
+     * - Chế độ thùng rác:   nút "♻ Khôi phục" + xác nhận qua Dialog có Amber theme
+     */
     private void setupActionsColumn() {
         if (colActions == null) return;
         colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button btnLichSu = new Button("📋 Lịch sử");
+            private final Button btnHanhDong = new Button();
 
             {
-                btnLichSu.getStyleClass().add("btn-secondary");
-                btnLichSu.setOnAction(e -> {
-                    KhachHangDTO kh = getTableView().getItems().get(getIndex());
-                    presenter.xemLichSuMuaHang(kh);
-                });
+                btnHanhDong.getStyleClass().add("btn-secondary");
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : btnLichSu);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                KhachHangDTO kh = getTableView().getItems().get(getIndex());
+                if (dangCheDoChuaXoa) {
+                    btnHanhDong.setText("♻ Khôi phục");
+                    btnHanhDong.setOnAction(e -> xacNhanKhoiPhuc(kh));
+                } else {
+                    btnHanhDong.setText("📋 Lịch sử");
+                    btnHanhDong.setOnAction(e -> presenter.xemLichSuMuaHang(kh));
+                }
+                setGraphic(btnHanhDong);
             }
+        });
+    }
+
+    /** Hiển thị dialog xác nhận trước khi khôi phục khách hàng. */
+    private void xacNhanKhoiPhuc(KhachHangDTO kh) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Khôi phục khách hàng \"" + kh.getHoTen() + "\"?\nHọ sẽ xuất hiện lại trong danh sách hoạt động.",
+                ButtonType.OK, ButtonType.CANCEL);
+        confirm.setTitle("Xác nhận khôi phục");
+        DialogHelper.applyBakeryTheme(confirm);
+        confirm.showAndWait().ifPresent(btn -> {
+            if (btn == ButtonType.OK) presenter.khoiPhucKhachHang(kh.getMaKH());
         });
     }
 
@@ -278,7 +345,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         customerTable.setRowFactory(tv -> {
             TableRow<KhachHangDTO> row = new TableRow<>();
             row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !row.isEmpty()) {
+                if (e.getClickCount() == 2 && !row.isEmpty() && !dangCheDoChuaXoa) {
                     moDialogKhachHang(row.getItem());
                 }
             });

@@ -1,6 +1,8 @@
 package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.SanPhamDTO;
+import com.bakery.utils.DialogHelper;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -29,6 +31,19 @@ public class ThemSanPhamDialogController {
 
     private String selectedImagePath = null;
     private SanPhamDTO ketQua = null;
+    private boolean duLieuDaThayDoi = false;
+
+    @FXML
+    public void initialize() {
+        txtTenSP.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        cmbDanhMuc.valueProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        txtTGBaoQuan.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        txtTGChuanBi.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        Platform.runLater(() -> {
+            Stage s = (Stage) txtTenSP.getScene().getWindow();
+            s.setOnCloseRequest(ev -> { if (!xacNhanHuyThayDoi()) ev.consume(); });
+        });
+    }
 
     /** Inject danh mục từ controller cha trước khi show dialog. */
     public void khoiTaoDanhMuc(Map<Integer, String> danhMucMap) {
@@ -93,8 +108,18 @@ public class ThemSanPhamDialogController {
 
     @FXML
     private void onHuy() {
+        if (!xacNhanHuyThayDoi()) return;
         ketQua = null;
         dongDialog();
+    }
+
+    private boolean xacNhanHuyThayDoi() {
+        if (!duLieuDaThayDoi) return true;
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có thay đổi chưa lưu. Hủy bỏ?", ButtonType.YES, ButtonType.NO);
+        a.setTitle("Dữ liệu chưa lưu"); a.setHeaderText("Cảnh báo — Dữ liệu chưa lưu");
+        DialogHelper.applyBakeryTheme(a);
+        return a.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 
     @FXML

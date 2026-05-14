@@ -47,7 +47,7 @@
         <Region prefHeight="1" maxWidth="Infinity"
                 style="-fx-background-color: rgba(255,255,255,0.18);"/>
 
-        <!-- Form Content Area -->
+        <!-- Form Content Area — tất cả panels nằm trong StackPane này -->
         <StackPane alignment="TOP_CENTER" VBox.vgrow="ALWAYS"
                    style="-fx-padding: 28 40 36 40;">
 
@@ -60,8 +60,7 @@
                 <Button text="Đăng nhập" styleClass="btn-login-primary"
                         maxWidth="Infinity" onAction="#onMoDangNhap"/>
                 <Button text="🔑  Quên mật khẩu?" styleClass="btn-login-ghost"
-                        maxWidth="Infinity" disable="true"
-                        style="-fx-opacity: 0.65;"/>
+                        maxWidth="Infinity" onAction="#onMoQuenMatKhau"/>
             </VBox>
 
             <!-- ── Panel 2: Login Form ── -->
@@ -99,8 +98,7 @@
                         styleClass="btn-login-primary" maxWidth="Infinity"
                         onAction="#onDangNhap"/>
                 <Button text="🔑  Quên mật khẩu?" styleClass="btn-login-ghost"
-                        maxWidth="Infinity" disable="true"
-                        style="-fx-opacity: 0.65;"/>
+                        maxWidth="Infinity" onAction="#onMoQuenMatKhau"/>
                 <Label fx:id="lblThongBao" styleClass="login-glass-error"
                        wrapText="true" maxWidth="Infinity"/>
 
@@ -159,6 +157,82 @@
                         onAction="#onTaoTaiKhoan"/>
                 <Label fx:id="lblRegisterThongBao" styleClass="login-glass-error"
                        wrapText="true" maxWidth="Infinity"/>
+                <Button text="← Quay lại" styleClass="btn-login-ghost"
+                        maxWidth="Infinity" onAction="#onQuayVeStart"/>
+            </VBox>
+
+            <!-- ── Panel 4: Quên mật khẩu (OTP Flow) ── -->
+            <!-- Bước được quản lý bằng visibility của từng sub-section bên trong -->
+            <VBox fx:id="panelQuenMatKhau" alignment="TOP_LEFT" spacing="14"
+                  visible="false" managed="false">
+
+                <!-- Sub 1: Nhập tên đăng nhập -->
+                <VBox fx:id="subNhapUsername" alignment="TOP_LEFT" spacing="14">
+                    <Label text="🔑 Quên mật khẩu" styleClass="login-glass-title"/>
+                    <Label text="Nhập tên đăng nhập để nhận mã OTP qua email"
+                           styleClass="login-glass-body" wrapText="true"/>
+                    <VBox spacing="6">
+                        <Label text="Tên đăng nhập" styleClass="login-glass-label"/>
+                        <TextField fx:id="txtQmkTenDangNhap" styleClass="login-glass-input"
+                                   promptText="Nhập tên đăng nhập..."/>
+                    </VBox>
+                    <Button fx:id="btnGuiOtp" text="Gửi mã OTP"
+                            styleClass="btn-login-primary" maxWidth="Infinity"
+                            onAction="#onGuiOtp"/>
+                    <Label fx:id="lblQmkThongBao1" styleClass="login-glass-error"
+                           wrapText="true" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Sub 2: Nhập OTP -->
+                <VBox fx:id="subNhapOtp" alignment="TOP_LEFT" spacing="14"
+                      visible="false" managed="false">
+                    <Label text="✉️ Nhập mã xác nhận" styleClass="login-glass-title"/>
+                    <Label fx:id="lblQmkEmailHint" styleClass="login-glass-body" wrapText="true"/>
+                    <VBox spacing="6">
+                        <Label text="Mã OTP (6 số)" styleClass="login-glass-label"/>
+                        <TextField fx:id="txtQmkOtp" styleClass="login-glass-input"
+                                   promptText="Nhập mã 6 số..."/>
+                    </VBox>
+                    <Button fx:id="btnXacNhanOtp" text="Xác nhận mã"
+                            styleClass="btn-login-primary" maxWidth="Infinity"
+                            onAction="#onXacNhanOtp"/>
+                    <Button text="Gửi lại mã" styleClass="btn-login-ghost"
+                            maxWidth="Infinity" onAction="#onGuiLaiOtp"/>
+                    <Label fx:id="lblQmkThongBao2" styleClass="login-glass-error"
+                           wrapText="true" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Sub 3: Đặt mật khẩu mới -->
+                <VBox fx:id="subMatKhauMoi" alignment="TOP_LEFT" spacing="14"
+                      visible="false" managed="false">
+                    <Label text="🔒 Đặt mật khẩu mới" styleClass="login-glass-title"/>
+                    <VBox spacing="6">
+                        <Label text="Mật khẩu mới" styleClass="login-glass-label"/>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <StackPane HBox.hgrow="ALWAYS">
+                                <PasswordField fx:id="txtQmkMatKhauMoi"
+                                              styleClass="login-glass-input" maxWidth="Infinity"/>
+                                <TextField fx:id="txtQmkMatKhauMoiVisible"
+                                           styleClass="login-glass-input" visible="false"
+                                           managed="false" maxWidth="Infinity"/>
+                            </StackPane>
+                            <Button fx:id="btnToggleQmkMatKhau" text="Hiện"
+                                    styleClass="btn-login-icon" onAction="#onToggleQmkMatKhau"/>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="Xác nhận mật khẩu mới" styleClass="login-glass-label"/>
+                        <PasswordField fx:id="txtQmkXacNhan"
+                                      styleClass="login-glass-input"/>
+                    </VBox>
+                    <Button fx:id="btnDoiMatKhauMoi" text="Đổi mật khẩu"
+                            styleClass="btn-login-primary" maxWidth="Infinity"
+                            onAction="#onDoiMatKhauSauOtp"/>
+                    <Label fx:id="lblQmkThongBao3" styleClass="login-glass-error"
+                           wrapText="true" maxWidth="Infinity"/>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" minHeight="8"/>
                 <Button text="← Quay lại" styleClass="btn-login-ghost"
                         maxWidth="Infinity" onAction="#onQuayVeStart"/>
             </VBox>

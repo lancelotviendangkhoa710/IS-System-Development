@@ -2,6 +2,7 @@ package com.bakery.views.controllers;
 
 import com.bakery.main.App;
 import com.bakery.services.nhansu.PhanQuyenService;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.banhang.ThuNganViewFXMLController;
 import com.bakery.views.controllers.hethong.AppShellController;
@@ -18,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -28,6 +30,9 @@ import java.util.logging.Logger;
 public abstract class BaseController {
     private static final Logger LOGGER = Logger.getLogger(BaseController.class.getName());
     private final PhanQuyenService phanQuyenService = new PhanQuyenService();
+
+    /** Dirty flag — true khi form có dữ liệu chưa được lưu */
+    private boolean duLieuDaThayDoi = false;
 
     /** Timeline dùng cho auto-refresh — tự query DB mỗi N giây */
     private Timeline autoRefreshTimeline;
@@ -40,6 +45,7 @@ public abstract class BaseController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 
@@ -48,6 +54,7 @@ public abstract class BaseController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 
@@ -56,6 +63,7 @@ public abstract class BaseController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 
@@ -172,5 +180,35 @@ public abstract class BaseController {
             autoRefreshTimeline.stop();
             autoRefreshTimeline = null;
         }
+    }
+
+    // ── DIRTY FLAG (Unsaved-data tracking) ─────────────────────────────────
+
+    /**
+     * Đánh dấu form đang có dữ liệu chưa lưu.
+     * Gọi trong listener của bất kỳ input field nào khi user bắt đầu nhập.
+     */
+    protected void danhDauDaThayDoi() {
+        this.duLieuDaThayDoi = true;
+    }
+
+    /** Reset dirty flag — gọi sau khi lưu thành công. */
+    protected void datLaiDirtyFlag() {
+        this.duLieuDaThayDoi = false;
+    }
+
+    /**
+     * Hiển thị dialog xác nhận nếu form có thay đổi chưa lưu.
+     * @return true nếu được phép đóng (không có thay đổi HOẶC user đồng ý hủy).
+     */
+    protected boolean xacNhanHuyThayDoi() {
+        if (!duLieuDaThayDoi) return true;
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có thay đổi chưa được lưu. Hủy bỏ các thay đổi?",
+                ButtonType.YES, ButtonType.NO);
+        a.setTitle("Dữ liệu chưa lưu");
+        a.setHeaderText("Cảnh báo — Dữ liệu chưa lưu");
+        DialogHelper.applyBakeryTheme(a);
+        return a.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 }

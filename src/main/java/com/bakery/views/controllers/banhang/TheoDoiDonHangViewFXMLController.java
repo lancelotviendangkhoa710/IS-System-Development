@@ -11,6 +11,7 @@ import com.bakery.model.dto.kho.NhanBanhDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.presenters.banhang.DonHangPresenter;
 import com.bakery.services.banhang.DonHangService;
+import com.bakery.utils.DialogHelper;
 import com.bakery.views.interfaces.banhang.IDonHangView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -254,6 +255,7 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setHeaderText("Chi tiết đơn hàng");
         alert.setContentText(noiDung);
+        DialogHelper.applyBakeryTheme(alert);
         alert.showAndWait();
     }
 

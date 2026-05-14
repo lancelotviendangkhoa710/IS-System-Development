@@ -12,7 +12,7 @@
         <Region HBox.hgrow="ALWAYS" />
         <Button fx:id="btnXoa" text="🗑 Xóa phiếu" onAction="#onXoa"
                 styleClass="btn-danger" visible="false" managed="false"/>
-        <Button text="+ Tạo phiếu xuất" onAction="#onAction" styleClass="btn-primary"/>
+        <Button text="+ Tạo phiếu xuất" onAction="#onAction" styleClass="btn-success"/>
     </HBox>
 
     <VBox styleClass="card" VBox.vgrow="ALWAYS">

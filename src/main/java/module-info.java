@@ -11,6 +11,7 @@ module BakeryManagementSystem {
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
     requires jbcrypt;
+    requires jakarta.mail;
 
     // Mở gói cho JavaFX reflection (FXML binding, Platform.runLater, Scene graph)
     opens com.bakery.main to javafx.graphics;
@@ -33,6 +34,7 @@ module BakeryManagementSystem {
     opens com.bakery.model.dto.taichinh to javafx.base, javafx.fxml;
     opens com.bakery.presenters to javafx.fxml, javafx.graphics;
     opens com.bakery.utils to jbcrypt;
+    opens com.bakery.services to javafx.fxml;
 
     exports com.bakery.main;
     exports com.bakery.model.dto;

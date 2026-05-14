@@ -4,6 +4,7 @@ import com.bakery.model.dto.hethong.LoaiThuChiDTO;
 import com.bakery.model.dto.hethong.PhieuThuChiDTO;
 import com.bakery.services.hethong.SoQuyService;
 import com.bakery.utils.CurrencyFormatter;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.SessionContext;
 import com.bakery.views.controllers.BaseController;
 import javafx.beans.property.SimpleStringProperty;
@@ -340,6 +341,7 @@ public class SoQuyViewFXMLController extends BaseController {
                 "Hủy phiếu #" + sel.getMaPhieuTC() + "? Thao tác không thể hoàn tác.",
                 ButtonType.OK, ButtonType.CANCEL);
         c.setTitle("Xác nhận hủy");
+        DialogHelper.applyBakeryTheme(c);
         c.showAndWait().filter(r -> r == ButtonType.OK)
                 .ifPresent(r -> runAsync(() -> soQuySvc.huyGiaoDich(sel.getMaPhieuTC(), "Hủy thủ công"),
                         "Đã hủy phiếu #" + sel.getMaPhieuTC(), "Lỗi hủy phiếu"));
@@ -376,6 +378,7 @@ public class SoQuyViewFXMLController extends BaseController {
         Alert c = new Alert(Alert.AlertType.CONFIRMATION,
                 "Vô hiệu hóa \"" + dto.getTenLoaiThuChi() + "\"?",
                 ButtonType.OK, ButtonType.CANCEL);
+        DialogHelper.applyBakeryTheme(c);
         c.showAndWait().filter(r -> r == ButtonType.OK)
                 .ifPresent(r -> runAsync(() -> soQuySvc.xoaLoai(dto.getMaLoaiThuChi()),
                         "Đã vô hiệu hóa hạng mục.", "Lỗi vô hiệu hóa"));
@@ -397,6 +400,7 @@ public class SoQuyViewFXMLController extends BaseController {
         cmbPL.setValue(existing != null ? existing.getPhanLoai() : "Chi");
 
         d.getDialogPane().setContent(buildGrid("Tên hạng mục:", txtTen, "Phân loại:", cmbPL));
+        DialogHelper.applyBakeryTheme(d);
         return d;
     }
 

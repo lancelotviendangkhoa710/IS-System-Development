@@ -19,7 +19,7 @@
         <Button fx:id="btnQuayLai" text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
         <Label fx:id="lblTitle" text="SỔ QUỸ — THU CHI" styleClass="lbl-title-screen"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnLapPhieu" text="+ Lập phiếu" styleClass="btn-primary" onAction="#onLapPhieu"/>
+        <Button fx:id="btnLapPhieu" text="+ Lập phiếu" styleClass="btn-success" onAction="#onLapPhieu"/>
     </HBox>
 
     <!-- ── TabPane chính ────────────────────────────────────────────── -->
@@ -36,7 +36,7 @@
                     <ComboBox fx:id="cmbLocPhanLoai" promptText="Tất cả" prefWidth="140"/>
                     <ComboBox fx:id="cmbLocCa" promptText="Ca hiện tại" prefWidth="200"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnLamMoi" text="↻ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+                    <Button fx:id="btnLamMoi" text="↻ Làm mới" styleClass="btn-secondary" onAction="#onLamMoi"/>
                 </HBox>
 
                 <!-- Bảng phiếu thu chi -->
@@ -85,7 +85,7 @@
 
                 <HBox spacing="12" alignment="CENTER_RIGHT">
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnThemLoai" text="+ Thêm hạng mục" styleClass="btn-primary" onAction="#onThemLoai"/>
+                    <Button fx:id="btnThemLoai" text="+ Thêm hạng mục" styleClass="btn-success" onAction="#onThemLoai"/>
                 </HBox>
 
                 <VBox styleClass="card" VBox.vgrow="ALWAYS">

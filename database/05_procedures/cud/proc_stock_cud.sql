@@ -37,13 +37,24 @@ BEGIN
         ) J
     )
     LOOP
-        -- Kiểm tra nếu MaNL = 0 hoặc NULL → nguyên liệu mới, cần INSERT trước
+        -- Kiểm tra nếu MaNL = 0 hoặc NULL → tìm theo tên trước, chỉ INSERT khi thực sự mới
         IF ROW_DATA.MANL IS NULL OR ROW_DATA.MANL = 0 THEN
-            INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT)
-            VALUES (ROW_DATA.TENNL, ROW_DATA.XUATXU, ROW_DATA.MADVT)
-            RETURNING MANL INTO V_CURRENT_MANL;
+            -- Tra cứu nguyên liệu theo tên (tránh vi phạm CK_NL_TENNL khi nhập bổ sung từ NCC cũ)
+            BEGIN
+                SELECT MANL INTO V_CURRENT_MANL
+                FROM NGUYENLIEU
+                WHERE UPPER(TRIM(TENNL)) = UPPER(TRIM(ROW_DATA.TENNL))
+                  AND THOIDIEMXOA IS NULL
+                FETCH FIRST 1 ROW ONLY;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                    -- Thực sự là nguyên liệu mới → INSERT
+                    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT)
+                    VALUES (ROW_DATA.TENNL, ROW_DATA.XUATXU, ROW_DATA.MADVT)
+                    RETURNING MANL INTO V_CURRENT_MANL;
+            END;
         ELSE
-            -- Dùng nguyên liệu đã có sẵn
+            -- Dùng nguyên liệu đã có sẵn (client truyền MANL hợp lệ)
             V_CURRENT_MANL := ROW_DATA.MANL;
         END IF;
 

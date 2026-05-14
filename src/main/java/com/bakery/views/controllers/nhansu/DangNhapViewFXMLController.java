@@ -38,6 +38,30 @@ public class DangNhapViewFXMLController extends BaseController {
     @FXML private VBox panelStartScreen;
     @FXML private VBox panelLogin;
     @FXML private VBox panelRegister;
+    @FXML private VBox panelQuenMatKhau;
+
+    // Sub-panels bên trong panelQuenMatKhau
+    @FXML private VBox subNhapUsername;
+    @FXML private VBox subNhapOtp;
+    @FXML private VBox subMatKhauMoi;
+
+    // Fields Quên mật khẩu OTP
+    @FXML private TextField txtQmkTenDangNhap;
+    @FXML private Button btnGuiOtp;
+    @FXML private Label lblQmkThongBao1;
+    @FXML private Label lblQmkEmailHint;
+    @FXML private TextField txtQmkOtp;
+    @FXML private Button btnXacNhanOtp;
+    @FXML private Label lblQmkThongBao2;
+    @FXML private PasswordField txtQmkMatKhauMoi;
+    @FXML private TextField txtQmkMatKhauMoiVisible;
+    @FXML private Button btnToggleQmkMatKhau;
+    @FXML private PasswordField txtQmkXacNhan;
+    @FXML private Button btnDoiMatKhauMoi;
+    @FXML private Label lblQmkThongBao3;
+
+    /** Lưu tên đăng nhập đang thực hiện reset — dùng xuyên các bước OTP. */
+    private String qmkTenDangNhapDangReset;
 
     @FXML private TextField txtTenDangNhap;
     @FXML private PasswordField txtMatKhau;
@@ -75,6 +99,9 @@ public class DangNhapViewFXMLController extends BaseController {
         }
         bindPasswordToggle(txtMatKhau, txtMatKhauVisible, btnToggleMatKhau);
         bindPasswordToggle(txtRegisterMatKhau, txtRegisterMatKhauVisible, btnToggleRegisterMatKhau);
+        if (txtQmkMatKhauMoi != null && txtQmkMatKhauMoiVisible != null && btnToggleQmkMatKhau != null) {
+            bindPasswordToggle(txtQmkMatKhauMoi, txtQmkMatKhauMoiVisible, btnToggleQmkMatKhau);
+        }
     }
 
     public void setLoginInfo(String message) {
@@ -97,6 +124,106 @@ public class DangNhapViewFXMLController extends BaseController {
     @FXML
     private void onQuayVeStart() {
         hienStartScreen();
+    }
+
+    @FXML
+    private void onMoQuenMatKhau() {
+        hienQuenMatKhau();
+    }
+
+    @FXML
+    private void onGuiOtp() {
+        String tenDangNhap = txtQmkTenDangNhap.getText() == null ? "" : txtQmkTenDangNhap.getText().trim();
+        if (tenDangNhap.isBlank()) {
+            hienQmkLoi1("Vui lòng nhập tên đăng nhập.");
+            return;
+        }
+        qmkTenDangNhapDangReset = tenDangNhap;
+        btnGuiOtp.setDisable(true);
+        hienQmkThanhCong1("Đang gửi mã OTP...");
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                xacThucService.taoVaGuiOtp(tenDangNhap);
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            btnGuiOtp.setDisable(false);
+            lblQmkEmailHint.setText("Mã OTP đã được gửi tới email của bạn. Hiệu lực 10 phút.");
+            hienQmkBuoc2();
+        });
+        task.setOnFailed(e -> {
+            btnGuiOtp.setDisable(false);
+            hienQmkLoi1(resolveErrorMessage(task.getException()));
+        });
+        startBackgroundTask(task);
+    }
+
+    @FXML
+    private void onGuiLaiOtp() {
+        hienQmkBuoc1();
+        txtQmkOtp.clear();
+        hienQmkLoi2("");
+        onGuiOtp();
+    }
+
+    @FXML
+    private void onXacNhanOtp() {
+        String otp = txtQmkOtp.getText() == null ? "" : txtQmkOtp.getText().trim();
+        if (otp.isBlank() || otp.length() != 6) {
+            hienQmkLoi2("Vui lòng nhập mã OTP 6 số.");
+            return;
+        }
+        // OTP hợp lệ → tiếp tục bước đặt mật khẩu mới
+        hienQmkBuoc3();
+    }
+
+    @FXML
+    private void onToggleQmkMatKhau() {
+        togglePasswordField(txtQmkMatKhauMoi, txtQmkMatKhauMoiVisible, btnToggleQmkMatKhau);
+    }
+
+    @FXML
+    private void onDoiMatKhauSauOtp() {
+        String otp = txtQmkOtp.getText() == null ? "" : txtQmkOtp.getText().trim();
+        String mk1 = getFieldText(txtQmkMatKhauMoi, txtQmkMatKhauMoiVisible);
+        String mk2 = txtQmkXacNhan.getText() == null ? "" : txtQmkXacNhan.getText();
+
+        if (mk1.isBlank()) {
+            hienQmkLoi3("Mật khẩu mới không được để trống.");
+            return;
+        }
+        if (!mk1.equals(mk2)) {
+            hienQmkLoi3("Mật khẩu xác nhận không khớp.");
+            return;
+        }
+
+        btnDoiMatKhauMoi.setDisable(true);
+        hienQmkThanhCong3("Đang cập nhật mật khẩu...");
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                xacThucService.xacMinhOtpVaDoiMatKhau(
+                        qmkTenDangNhapDangReset, otp, mk1, mk2);
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            btnDoiMatKhauMoi.setDisable(false);
+            hienDangNhap();
+            hienThiThanhCongLabel("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+            if (txtTenDangNhap != null) txtTenDangNhap.setText(qmkTenDangNhapDangReset);
+        });
+        task.setOnFailed(e -> {
+            btnDoiMatKhauMoi.setDisable(false);
+            hienQmkLoi3(resolveErrorMessage(task.getException()));
+        });
+        startBackgroundTask(task);
     }
 
     @FXML
@@ -392,6 +519,54 @@ public class DangNhapViewFXMLController extends BaseController {
         panelLogin.setManaged(panel == panelLogin);
         panelRegister.setVisible(panel == panelRegister);
         panelRegister.setManaged(panel == panelRegister);
+        if (panelQuenMatKhau != null) {
+            panelQuenMatKhau.setVisible(panel == panelQuenMatKhau);
+            panelQuenMatKhau.setManaged(panel == panelQuenMatKhau);
+        }
+    }
+
+    private void hienQuenMatKhau() {
+        hienPanel(panelQuenMatKhau);
+        hienQmkBuoc1();
+        if (lblQmkThongBao1 != null) lblQmkThongBao1.setText("");
+    }
+
+    /** Hiện bước 1: Nhập tên đăng nhập. */
+    private void hienQmkBuoc1() {
+        subNhapUsername.setVisible(true); subNhapUsername.setManaged(true);
+        subNhapOtp.setVisible(false);     subNhapOtp.setManaged(false);
+        subMatKhauMoi.setVisible(false);  subMatKhauMoi.setManaged(false);
+    }
+
+    /** Hiện bước 2: Nhập OTP. */
+    private void hienQmkBuoc2() {
+        subNhapUsername.setVisible(false); subNhapUsername.setManaged(false);
+        subNhapOtp.setVisible(true);       subNhapOtp.setManaged(true);
+        subMatKhauMoi.setVisible(false);   subMatKhauMoi.setManaged(false);
+        if (lblQmkThongBao2 != null) lblQmkThongBao2.setText("");
+        if (txtQmkOtp != null) txtQmkOtp.requestFocus();
+    }
+
+    /** Hiện bước 3: Đặt mật khẩu mới. */
+    private void hienQmkBuoc3() {
+        subNhapUsername.setVisible(false); subNhapUsername.setManaged(false);
+        subNhapOtp.setVisible(false);      subNhapOtp.setManaged(false);
+        subMatKhauMoi.setVisible(true);    subMatKhauMoi.setManaged(true);
+        if (lblQmkThongBao3 != null) lblQmkThongBao3.setText("");
+    }
+
+    // --- Feedback helpers QMK ---
+    private void hienQmkLoi1(String msg) { setQmkLabel(lblQmkThongBao1, msg, true); }
+    private void hienQmkThanhCong1(String msg) { setQmkLabel(lblQmkThongBao1, msg, false); }
+    private void hienQmkLoi2(String msg) { setQmkLabel(lblQmkThongBao2, msg, true); }
+    private void hienQmkLoi3(String msg) { setQmkLabel(lblQmkThongBao3, msg, true); }
+    private void hienQmkThanhCong3(String msg) { setQmkLabel(lblQmkThongBao3, msg, false); }
+
+    private void setQmkLabel(Label lbl, String msg, boolean isError) {
+        if (lbl == null) return;
+        lbl.setText(msg);
+        lbl.getStyleClass().removeAll("lbl-danger", "lbl-success", "login-glass-error");
+        lbl.getStyleClass().add(isError ? "login-glass-error" : "lbl-success");
     }
 
     private void setLoginFormDisabled(boolean disabled) {

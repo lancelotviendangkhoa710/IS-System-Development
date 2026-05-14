@@ -2,6 +2,7 @@ package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.services.kho.NhaCungCapService;
+import com.bakery.utils.DialogHelper;
 import com.bakery.utils.SessionContext;
 import com.bakery.views.controllers.BaseController;
 import javafx.application.Platform;
@@ -9,33 +10,28 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.net.URL;
 import java.util.List;
 
 /**
  * Controller cho màn hình Quản lý Nhà Cung Cấp.
- * CRUD đầy đủ + tìm kiếm realtime.
- * Mọi dữ liệu lấy từ DB qua NhaCungCapService — không có mock.
+ * Thêm/Sửa qua dialog — không còn inline form.
  */
 public class QuanLyNhaCungCapViewFXMLController extends BaseController {
 
-    @FXML private TableView<NhaCungCapDTO> tvNhaCungCap;
+    @FXML private TableView<NhaCungCapDTO>       tvNhaCungCap;
     @FXML private TableColumn<NhaCungCapDTO, String> colMaNCC;
     @FXML private TableColumn<NhaCungCapDTO, String> colTenNCC;
     @FXML private TableColumn<NhaCungCapDTO, String> colSdt;
     @FXML private TableColumn<NhaCungCapDTO, String> colDiaChi;
-
-    @FXML private TextField txtMaNCC;
-    @FXML private TextField txtTenNCC;
-    @FXML private TextField txtSdt;
-    @FXML private TextArea  txtDiaChi;
+    @FXML private TableColumn<NhaCungCapDTO, Void>   colHanhDong;
     @FXML private TextField txtTimKiem;
-
-    @FXML private Button btnThem;
-    @FXML private Button btnLuu;
-    @FXML private Button btnHuy;
-    @FXML private Button btnXoa;
 
     private final NhaCungCapService nhaCungCapService = new NhaCungCapService();
     private final ObservableList<NhaCungCapDTO> nccList = FXCollections.observableArrayList();
@@ -43,25 +39,55 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
     @FXML
     public void initialize() {
         setupTable();
+        setupActionsColumn();
         taiDuLieu();
-        // Chọn hàng → hiển thị chi tiết, bật nút Lưu/Xóa
-        tvNhaCungCap.getSelectionModel().selectedItemProperty()
-                .addListener((obs, old, newVal) -> hienThiChiTiet(newVal));
-        capNhatTrangThai(false);
     }
 
-    // ── Setup ──────────────────────────────────────────────────────────
+    // ── Setup bảng ─────────────────────────────────────────────────────
 
     private void setupTable() {
         colMaNCC.setCellValueFactory(c  -> new SimpleStringProperty(String.valueOf(c.getValue().getMaNCC())));
-        colTenNCC.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenNCC()));
+        colTenNCC.setCellValueFactory(c -> new SimpleStringProperty(nvl(c.getValue().getTenNCC())));
         colSdt.setCellValueFactory(c    -> new SimpleStringProperty(nvl(c.getValue().getSdt())));
         colDiaChi.setCellValueFactory(c -> new SimpleStringProperty(nvl(c.getValue().getDiaChi())));
         tvNhaCungCap.setItems(nccList);
         tvNhaCungCap.setPlaceholder(new Label("Chưa có nhà cung cấp nào."));
+
+        // Double-click → mở dialog Sửa
+        tvNhaCungCap.setRowFactory(tv -> {
+            TableRow<NhaCungCapDTO> row = new TableRow<>();
+            row.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !row.isEmpty()) onSua(row.getItem());
+            });
+            return row;
+        });
     }
 
-    // ── Load dữ liệu (background thread) ───────────────────────────────
+    /** Cột Hành động: nút Sửa + Xóa cho mỗi hàng. */
+    private void setupActionsColumn() {
+        colHanhDong.setCellFactory(col -> new TableCell<>() {
+            private final Button btnSua  = new Button("✏ Sửa");
+            private final Button btnXoa  = new Button("🗑 Xóa");
+
+            {
+                btnSua.getStyleClass().add("btn-secondary");
+                btnXoa.getStyleClass().add("btn-danger");
+                btnSua.setOnAction(e -> onSua(getTableView().getItems().get(getIndex())));
+                btnXoa.setOnAction(e -> onXoa(getTableView().getItems().get(getIndex())));
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) { setGraphic(null); return; }
+                javafx.scene.layout.HBox box = new javafx.scene.layout.HBox(8, btnSua, btnXoa);
+                box.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                setGraphic(box);
+            }
+        });
+    }
+
+    // ── Load dữ liệu ───────────────────────────────────────────────────
 
     private void taiDuLieu() {
         hienThiThanhCongLabel("Đang tải...");
@@ -80,117 +106,17 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
         t.start();
     }
 
-    // ── Hiển thị chi tiết ──────────────────────────────────────────────
+    // ── Handlers (toolbar) ──────────────────────────────────────────────
 
-    private void hienThiChiTiet(NhaCungCapDTO ncc) {
-        if (ncc == null) {
-            xoaTrang();
-            capNhatTrangThai(false);
-            return;
-        }
-        txtMaNCC.setText(String.valueOf(ncc.getMaNCC()));
-        txtTenNCC.setText(nvl(ncc.getTenNCC()));
-        txtSdt.setText(nvl(ncc.getSdt()));
-        txtDiaChi.setText(nvl(ncc.getDiaChi()));
-        capNhatTrangThai(true);
-    }
-
-    /** Bật/tắt nút Lưu và Xóa theo trạng thái chọn hàng. */
-    private void capNhatTrangThai(boolean daChon) {
-        btnLuu.setDisable(!daChon);
-        btnXoa.setDisable(!daChon);
-    }
-
-    // ── Handlers ────────────────────────────────────────────────────────
-
+    /** Mở dialog Thêm mới. */
     @FXML
     private void onThem() {
-        NhaCungCapDTO ncc = layDuLieuTuForm();
-        if (ncc == null) return;
-
-        Thread t = new Thread(() -> {
-            try {
-                nhaCungCapService.themNhaCungCap(ncc);
-                Platform.runLater(() -> {
-                    hienThiThanhCongLabel("✅ Thêm nhà cung cấp thành công.");
-                    xoaTrang();
-                    taiDuLieu();
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> hienThiLoiLabel("Lỗi: " + e.getMessage()));
-            }
-        }, "ncc-them");
-        t.setDaemon(true);
-        t.start();
-    }
-
-    @FXML
-    private void onLuu() {
-        NhaCungCapDTO selected = tvNhaCungCap.getSelectionModel().getSelectedItem();
-        if (selected == null) { hienThiLoiLabel("Vui lòng chọn nhà cung cấp cần sửa."); return; }
-
-        NhaCungCapDTO ncc = layDuLieuTuForm();
-        if (ncc == null) return;
-        ncc.setMaNCC(selected.getMaNCC());
-
-        Thread t = new Thread(() -> {
-            try {
-                nhaCungCapService.suaNhaCungCap(ncc);
-                Platform.runLater(() -> {
-                    hienThiThanhCongLabel("✅ Cập nhật nhà cung cấp thành công.");
-                    taiDuLieu();
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> hienThiLoiLabel("Lỗi: " + e.getMessage()));
-            }
-        }, "ncc-sua");
-        t.setDaemon(true);
-        t.start();
-    }
-
-    @FXML
-    private void onXoa() {
-        NhaCungCapDTO selected = tvNhaCungCap.getSelectionModel().getSelectedItem();
-        if (selected == null) { hienThiLoiLabel("Vui lòng chọn nhà cung cấp cần xóa."); return; }
-
-        // Confirm dialog
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Xác nhận xóa");
-        confirm.setHeaderText("Xóa nhà cung cấp: " + selected.getTenNCC() + "?");
-        confirm.setContentText("Thao tác này sẽ ngừng giao dịch với nhà cung cấp này. Dữ liệu lịch sử nhập kho vẫn được giữ nguyên.");
-        confirm.showAndWait().ifPresent(bt -> {
-            if (bt == ButtonType.OK) thucHienXoa(selected);
-        });
-    }
-
-    private void thucHienXoa(NhaCungCapDTO ncc) {
-        int maNV = SessionContext.getInstance().getMaNV();
-        Thread t = new Thread(() -> {
-            try {
-                nhaCungCapService.xoaNhaCungCap(ncc.getMaNCC(), maNV);
-                Platform.runLater(() -> {
-                    hienThiThanhCongLabel("✅ Đã ngừng giao dịch với \"" + ncc.getTenNCC() + "\".");
-                    xoaTrang();
-                    taiDuLieu();
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> hienThiLoiLabel("Lỗi: " + e.getMessage()));
-            }
-        }, "ncc-xoa");
-        t.setDaemon(true);
-        t.start();
-    }
-
-    @FXML
-    private void onHuy() {
-        xoaTrang();
-        tvNhaCungCap.getSelectionModel().clearSelection();
-        capNhatTrangThai(false);
+        moDialog(null);
     }
 
     @FXML
     private void onTaiLai() {
-        txtTimKiem.clear();
+        if (txtTimKiem != null) txtTimKiem.clear();
         taiDuLieu();
     }
 
@@ -209,26 +135,97 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
         t.start();
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────
+    // ── Handlers (row-level) ────────────────────────────────────────────
 
-    private NhaCungCapDTO layDuLieuTuForm() {
-        String ten = txtTenNCC.getText();
-        if (ten == null || ten.isBlank()) {
-            hienThiLoiLabel("Tên nhà cung cấp không được để trống.");
-            return null;
-        }
-        NhaCungCapDTO ncc = new NhaCungCapDTO();
-        ncc.setTenNCC(ten.trim());
-        ncc.setSdt(txtSdt.getText() != null ? txtSdt.getText().trim() : "");
-        ncc.setDiaChi(txtDiaChi.getText() != null ? txtDiaChi.getText().trim() : "");
-        return ncc;
+    /** Mở dialog Sửa với NCC đã chọn. */
+    private void onSua(NhaCungCapDTO ncc) {
+        moDialog(ncc);
     }
 
-    private void xoaTrang() {
-        txtMaNCC.clear();
-        txtTenNCC.clear();
-        txtSdt.clear();
-        txtDiaChi.clear();
+    /** Xác nhận rồi xóa mềm. */
+    private void onXoa(NhaCungCapDTO ncc) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Xác nhận xóa");
+        confirm.setHeaderText("Xóa nhà cung cấp: " + ncc.getTenNCC() + "?");
+        confirm.setContentText("Dữ liệu lịch sử nhập kho vẫn được giữ nguyên.");
+        DialogHelper.applyBakeryTheme(confirm);
+        confirm.showAndWait().ifPresent(bt -> {
+            if (bt == ButtonType.OK) thucHienXoa(ncc);
+        });
+    }
+
+    private void thucHienXoa(NhaCungCapDTO ncc) {
+        int maNV = SessionContext.getInstance().getMaNV();
+        Thread t = new Thread(() -> {
+            try {
+                nhaCungCapService.xoaNhaCungCap(ncc.getMaNCC(), maNV);
+                Platform.runLater(() -> {
+                    hienThiThanhCongLabel("✅ Đã ngừng giao dịch với \"" + ncc.getTenNCC() + "\".");
+                    taiDuLieu();
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> hienThiLoiLabel("Lỗi: " + e.getMessage()));
+            }
+        }, "ncc-xoa");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ── Dialog helper ────────────────────────────────────────────────────
+
+    /**
+     * Mở dialog Thêm (ncc = null) hoặc Sửa (ncc != null).
+     * Sau khi user nhấn Lưu → lưu xuống DB rồi reload bảng.
+     */
+    private void moDialog(NhaCungCapDTO ncc) {
+        try {
+            URL url = getClass().getResource("/fxml/kho/NhaCungCapDialog.fxml");
+            if (url == null) throw new RuntimeException("Không tìm thấy NhaCungCapDialog.fxml");
+            FXMLLoader loader = new FXMLLoader(url);
+            Scene scene = new Scene(loader.load());
+            URL css = getClass().getResource("/css/bakery.css");
+            if (css != null) scene.getStylesheets().add(css.toExternalForm());
+
+            NhaCungCapDialogController ctrl = loader.getController();
+            if (ncc != null) ctrl.khoiTaoSua(ncc);
+
+            Stage stage = new Stage();
+            stage.setTitle(ncc == null ? "H3K Bakery — Thêm Nhà Cung Cấp" : "H3K Bakery — Sửa Nhà Cung Cấp");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(tvNhaCungCap.getScene().getWindow());
+            stage.setResizable(false);
+            stage.showAndWait();
+
+            NhaCungCapDTO ketQua = ctrl.getKetQua();
+            if (ketQua == null) return; // user bấm Hủy
+
+            // Lưu xuống DB
+            Thread t = new Thread(() -> {
+                try {
+                    if (ncc == null) {
+                        nhaCungCapService.themNhaCungCap(ketQua);
+                        Platform.runLater(() -> {
+                            hienThiThanhCongLabel("✅ Thêm nhà cung cấp thành công.");
+                            taiDuLieu();
+                        });
+                    } else {
+                        nhaCungCapService.suaNhaCungCap(ketQua);
+                        Platform.runLater(() -> {
+                            hienThiThanhCongLabel("✅ Cập nhật nhà cung cấp thành công.");
+                            taiDuLieu();
+                        });
+                    }
+                } catch (Exception e) {
+                    Platform.runLater(() -> hienThiLoiLabel("Lỗi: " + e.getMessage()));
+                }
+            }, ncc == null ? "ncc-them" : "ncc-sua");
+            t.setDaemon(true);
+            t.start();
+
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể mở dialog: " + e.getMessage());
+        }
     }
 
     private static String nvl(String s) { return s != null ? s : ""; }

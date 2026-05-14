@@ -1,13 +1,17 @@
 package com.bakery.main;
 
+import com.bakery.utils.DialogHelper;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.Optional;
 
 public class App extends Application {
     public static final String LOGIN_VIEW = "/fxml/hethong/DangNhapView.fxml";
@@ -43,6 +47,18 @@ public class App extends Application {
         primaryStage.setMinHeight(720);
         primaryStage.centerOnScreen();
         primaryStage.setScene(scene);
+        // Cảnh báo khi đóng cửa sổ chính
+        primaryStage.setOnCloseRequest(event -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Thoát ứng dụng");
+            confirm.setHeaderText("Bạn có chắc muốn thoát H3K Bakery?");
+            confirm.setContentText("Mọi dữ liệu đang nhập chưa lưu sẽ bị mất.");
+            DialogHelper.applyBakeryTheme(confirm);
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isEmpty() || result.get() != ButtonType.OK) {
+                event.consume(); // Chặn đóng
+            }
+        });
         primaryStage.show();
     }
 

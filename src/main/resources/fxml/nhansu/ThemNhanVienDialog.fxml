@@ -21,7 +21,7 @@
 
     <!-- Header -->
     <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
-        <Label text="➕ Thêm Nhân Viên Mới" styleClass="dialog-header-title"/>
+        <Label fx:id="lblTieuDe" text="➕ Thêm Nhân Viên Mới" styleClass="dialog-header-title"/>
     </HBox>
 
     <!-- Body -->

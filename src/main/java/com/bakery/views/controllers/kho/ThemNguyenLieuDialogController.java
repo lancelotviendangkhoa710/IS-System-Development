@@ -2,6 +2,8 @@ package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NhaCungCapDTO;
+import com.bakery.utils.DialogHelper;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -40,6 +42,22 @@ public class ThemNguyenLieuDialogController {
     private LocalDate ngaySanXuat;
     private LocalDate hanSuDung;
     private boolean confirmed = false;
+    private boolean duLieuDaThayDoi = false;
+
+    @FXML
+    public void initialize() {
+        txtTenNL.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        txtSoLuong.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        txtDonGia.textProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        cmbDonViTinh.valueProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        cmbNhaCungCap.valueProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        dpNgaySanXuat.valueProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        dpHanSuDung.valueProperty().addListener((o, ov, nv) -> duLieuDaThayDoi = true);
+        Platform.runLater(() -> {
+            Stage s = (Stage) txtTenNL.getScene().getWindow();
+            s.setOnCloseRequest(ev -> { if (!xacNhanHuyThayDoi()) ev.consume(); });
+        });
+    }
 
     /** Inject dữ liệu từ controller cha trước khi show. */
     public void khoiTao(List<DonViTinhDTO> dsDVT, List<NhaCungCapDTO> dsNCC) {
@@ -100,7 +118,20 @@ public class ThemNguyenLieuDialogController {
         dongDialog();
     }
 
-    @FXML private void onHuy() { confirmed = false; dongDialog(); }
+    @FXML private void onHuy() {
+        if (!xacNhanHuyThayDoi()) return;
+        confirmed = false;
+        dongDialog();
+    }
+
+    private boolean xacNhanHuyThayDoi() {
+        if (!duLieuDaThayDoi) return true;
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có thay đổi chưa lưu. Hủy bỏ?", ButtonType.YES, ButtonType.NO);
+        a.setTitle("Dữ liệu chưa lưu"); a.setHeaderText("Cảnh báo — Dữ liệu chưa lưu");
+        DialogHelper.applyBakeryTheme(a);
+        return a.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
+    }
 
     private void dongDialog() {
         ((Stage) txtTenNL.getScene().getWindow()).close();

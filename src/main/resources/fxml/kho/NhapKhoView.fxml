@@ -13,7 +13,7 @@
         <Button fx:id="btnXoa" text="🗑 Xóa phiếu" onAction="#onXoa"
                 styleClass="btn-danger" visible="false" managed="false"/>
         <Button text="📂 Nhập từ File" onAction="#onNhapTuFile" styleClass="btn-secondary"/>
-        <Button text="+ Tạo phiếu nhập" onAction="#onAction" styleClass="btn-primary"/>
+        <Button text="+ Tạo phiếu nhập" onAction="#onAction" styleClass="btn-success"/>
     </HBox>
 
     <VBox styleClass="card" VBox.vgrow="ALWAYS">

@@ -87,6 +87,19 @@ public class AccountTokenDAO extends BaseDAO {
         }
     }
 
+    /** Thu hồi các OTP cũ của tài khoản (token bắt đầu bằng 'OTP_'). */
+    public void thuHoiOtpTheoTaiKhoan(int maTaiKhoan) throws Exception {
+        String sql = "UPDATE ACCOUNT_TOKEN SET IS_REVOKED = 'Y' " +
+                     "WHERE MATAIKHOAN = ? AND TOKEN_VALUE LIKE 'OTP_%' AND IS_REVOKED = 'N'";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, maTaiKhoan);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            handleException("thuHoiOtpTheoTaiKhoan", e);
+        }
+    }
+
     private AccountTokenDTO anhXa(ResultSet rs) throws SQLException {
         AccountTokenDTO dto = new AccountTokenDTO();
         dto.setTokenId(rs.getLong("TOKEN_ID"));

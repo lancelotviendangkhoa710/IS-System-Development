@@ -3389,3 +3389,126 @@
 .login-glass-card .lbl-danger {
     -fx-text-fill: #FCA5A5;
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+ * DIALOG PANE THEME — Áp dụng cho Alert / Dialog / TextInputDialog
+ * Stylesheet được gắn thủ công qua DialogHelper.applyBakeryTheme()
+ * ───────────────────────────────────────────────────────────────────── */
+
+.dialog-pane {
+    -fx-background-color: #FDFBF7;
+    -fx-padding: 0;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 20, 0, 0, 4);
+}
+
+/* Header (tiêu đề dialog — chỉ xuất hiện khi setHeaderText != null) */
+.dialog-pane .header-panel {
+    -fx-background-color: #FFFBEB;
+    -fx-padding: 16 20;
+    -fx-border-color: transparent transparent #FDE68A transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #78350F;
+    -fx-wrap-text: true;
+}
+
+/* Nội dung chính */
+.dialog-pane .content.label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #1C0A00;
+    -fx-padding: 16 20 8 20;
+    -fx-wrap-text: true;
+}
+
+.dialog-pane .content {
+    -fx-padding: 16 20 8 20;
+}
+
+/* Vùng nút bấm */
+.dialog-pane .button-bar {
+    -fx-padding: 8 16 16 16;
+    -fx-background-color: transparent;
+}
+
+.dialog-pane .button-bar .container {
+    -fx-background-color: transparent;
+}
+
+/* Nút OK / Xác nhận (default) */
+.dialog-pane .button-bar .button:default {
+    -fx-background-color: #92400E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.dialog-pane .button-bar .button:default:hover {
+    -fx-background-color: #78350F;
+}
+
+.dialog-pane .button-bar .button:default:pressed {
+    -fx-background-color: #5C2A0C;
+}
+
+/* Nút Hủy / Cancel */
+.dialog-pane .button-bar .button:cancel {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #92400E;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 8px;
+    -fx-border-color: #92400E;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button-bar .button:cancel:hover {
+    -fx-background-color: #FEF3C7;
+}
+
+/* Tất cả button thông thường trong dialog */
+.dialog-pane .button-bar .button {
+    -fx-font-size: 13px;
+    -fx-padding: 8 20;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-min-width: 80;
+}
+
+/* TextInputDialog — ô nhập liệu */
+.dialog-pane .text-input {
+    -fx-background-color: #F9FAFB;
+    -fx-text-fill: #1C0A00;
+    -fx-font-size: 13px;
+    -fx-padding: 8 10;
+    -fx-background-radius: 8px;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+}
+
+.dialog-pane .text-input:focused {
+    -fx-border-color: #F59E0B;
+    -fx-background-color: #FFFFFF;
+    -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.25), 6, 0, 0, 0);
+}
+
+/* Alert icon area */
+.dialog-pane .graphic-container {
+    -fx-padding: 16 0 0 20;
+}
