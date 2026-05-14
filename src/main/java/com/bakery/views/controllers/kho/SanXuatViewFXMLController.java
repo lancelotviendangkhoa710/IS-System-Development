@@ -165,10 +165,5 @@ public class SanXuatViewFXMLController extends BaseController {
         lblThongBao.setText("Đã xóa bảng kế hoạch.");
     }
 
-    @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tblNguyenLieu);
-    }
-
     private static String nvl(String s) { return s != null ? s : "—"; }
 }

@@ -185,7 +185,6 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
 
     @FXML private void onRefreshClicked()     { presenter.taiDuLieu(); }
     @FXML private void onAddCustomerClicked() { moDialogKhachHang(null); }
-    @FXML private void onBack()               { quayLaiMenuChinh(customerTable); }
 
     @FXML
     private void onSearch() {

@@ -42,17 +42,42 @@ public class KhoViewFXMLController extends BaseController {
     }
 
     /**
-     * Kiem tra quyen NHAP_KHO cua nguoi dung hien tai.
-     * Neu khong co quyen (vi du: Tho Bep), an tab Nhap kho de bao ve read-only.
+     * Phân quyền tab KhoView theo vai trò:
+     * - Thợ Bếp (NHA_BEP): chỉ xem "Thẻ kho" + "Truy xuất nguồn gốc" (read-only
+     * hoàn toàn).
+     * - Thủ Kho (THU_KHO): xem Thẻ kho, Kiểm kê, Truy xuất; ẩn NhaCungCap &
+     * NhapKho.
+     * - Quản lý / Admin: full access tất cả tab.
      */
     private void apDungPhanQuyen() {
-        PhanQuyenService phanQuyenService = new PhanQuyenService();
-        boolean coQuyenNhapKho = phanQuyenService.coTinhNang(
-                UserSession.getCurrentUser(),
-                PhanQuyenService.TinhNangHeThong.NHAP_KHO);
+        PhanQuyenService svc = new PhanQuyenService();
+        com.bakery.model.dto.nhansu.NhanVienDTO user = UserSession.getCurrentUser();
+
+        boolean laThoBep = svc.laThoBep(user);
+        boolean laThuKho = svc.laThuKho(user);
+        boolean coQuyenNhapKho = svc.coTinhNang(user, PhanQuyenService.TinhNangHeThong.NHAP_KHO);
+
+        // Ẩn Nhập kho nếu không có quyền (Thợ Bếp / Thủ Kho)
         if (!coQuyenNhapKho && tabNhapKho != null) {
             tabNhapKho.setDisable(true);
             tabPaneKho.getTabs().remove(tabNhapKho);
+        }
+
+        if (laThoBep) {
+            // Thợ Bếp: chỉ xem Thẻ kho + Truy xuất nguồn gốc — ẩn hết phần có CUD
+            xoaTab(tabNhaCungCap);
+            xoaTab(tabKiemKe);
+        } else if (laThuKho) {
+            // Thủ Kho: có màn hình NhaCungCap riêng → ẩn tab này trong KhoView
+            xoaTab(tabNhaCungCap);
+        }
+    }
+
+    /** Ẩn và xóa 1 tab ra khỏi TabPane an toàn. */
+    private void xoaTab(Tab tab) {
+        if (tab != null) {
+            tab.setDisable(true);
+            tabPaneKho.getTabs().remove(tab);
         }
     }
 
@@ -72,8 +97,4 @@ public class KhoViewFXMLController extends BaseController {
         }
     }
 
-    @FXML
-    private void onBack() {
-        quayLaiMenuChinh(tabPaneKho);
-    }
 }

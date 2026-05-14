@@ -245,8 +245,6 @@ public class ThanhPhanBanhController extends BaseController {
         }
     }
 
-    @FXML private void onQuayLai() { quayLaiMenuChinh(tblCotBanh); }
-
     // ── Helpers ─────────────────────────────────────────────────────────
 
     /**

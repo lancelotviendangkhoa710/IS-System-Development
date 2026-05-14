@@ -138,16 +138,30 @@ END;
 /
 
 -- Procedure Xuất Kho Sản Xuất
+-- IMP-03: Thêm audit log HOATDONGNHANVIEN
+-- IMP-05: Fix exception re-raise cho ERR_NL_KHONG_DU
+-- IMP-09: Dùng PL/SQL collection cache cursor → tránh double scan C_CONGTHUC
 CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
     P_MASP IN SANPHAM.MASP%type,
     P_SOLUONGSANXUAT IN CONGTHUC.SOLUONGTIEUHAO%type,
     P_MANV IN NHANVIEN.MANV%type
 )
     IS
+    -- IMP-09: Record type + collection để cache kết quả cursor
+    TYPE T_REC_CONGTHUC IS RECORD (
+        MANL      CONGTHUC.MANL%TYPE,
+        TENNL     NGUYENLIEU.TENNL%TYPE,
+        TONG_CAN_DUNG NUMBER
+    );
+    TYPE T_TAB_CONGTHUC IS TABLE OF T_REC_CONGTHUC INDEX BY PLS_INTEGER;
+    V_TAB      T_TAB_CONGTHUC;
+    V_IDX      PLS_INTEGER := 0;
+
     V_MAPX         CTPHIEUXUAT_NL.MAPX%type;
     V_TONGTON      NGUYENLIEU.SOLUONGTONTONG%type;
     V_LUONGCANDUNG CONGTHUC.SOLUONGTIEUHAO%type;
 
+    -- Cursor chỉ mở 1 lần duy nhất (IMP-09)
     CURSOR C_CONGTHUC IS
         SELECT C.MANL, N.TENNL, (C.SOLUONGTIEUHAO * P_SOLUONGSANXUAT) AS TONG_CAN_DUNG
         FROM CONGTHUC C
@@ -163,7 +177,7 @@ CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
         ORDER BY HANSUDUNG ASC, MALO ASC
             FOR UPDATE OF SOLUONGCONLAI;
 BEGIN
-    -- 1. KIỂM TRA TOÀN DIỆN KHẢ NĂNG
+    -- 1. KIỂM TRA TOÀN DIỆN KHẢ NĂNG + CACHE vào collection (IMP-09: 1 lần scan duy nhất)
     FOR REC IN C_CONGTHUC
         LOOP
             SELECT SOLUONGTONTONG
@@ -177,6 +191,12 @@ BEGIN
                                         'Kho khong du dinh muc (NL: ' || REC.TENNL || ') de lam ' || P_SOLUONGSANXUAT ||
                                         ' cai banh. Can: ' || REC.TONG_CAN_DUNG || ' nhung chi con: ' || V_TONGTON);
             END IF;
+
+            -- Cache vào collection để dùng lại ở bước 3
+            V_IDX := V_IDX + 1;
+            V_TAB(V_IDX).MANL := REC.MANL;
+            V_TAB(V_IDX).TENNL := REC.TENNL;
+            V_TAB(V_IDX).TONG_CAN_DUNG := REC.TONG_CAN_DUNG;
         END LOOP;
 
     -- 2. TẠO CHỨNG TỪ XUẤT TỔNG
@@ -188,12 +208,12 @@ BEGIN
     INSERT INTO MESANXUAT (MASP, SOLUONGSANXUAT, MANV, MAPX)
     VALUES (P_MASP, P_SOLUONGSANXUAT, P_MANV, V_MAPX);
 
-    -- 3. XUẤT THEO RÚT GỌN LÔ (FIFO) VÀ GHI CHI TIẾT
-    FOR REC IN C_CONGTHUC
+    -- 3. XUẤT THEO RÚT GỌN LÔ (FIFO) — iterate collection thay vì mở lại cursor (IMP-09)
+    FOR I IN 1..V_TAB.COUNT
         LOOP
-            V_LUONGCANDUNG := REC.TONG_CAN_DUNG;
+            V_LUONGCANDUNG := V_TAB(I).TONG_CAN_DUNG;
 
-            FOR LO_REC IN C_LOHANG(REC.MANL)
+            FOR LO_REC IN C_LOHANG(V_TAB(I).MANL)
                 LOOP
                     IF V_LUONGCANDUNG <= 0 THEN EXIT; END IF;
 
@@ -210,7 +230,7 @@ BEGIN
 
             IF V_LUONGCANDUNG > 0 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_TON_AO,
-                                        'Dong bo du lieu ton ao o muc lo hang: ' || REC.TENNL);
+                                        'Dong bo du lieu ton ao o muc lo hang: ' || V_TAB(I).TENNL);
             END IF;
         END LOOP;
 
@@ -220,13 +240,19 @@ BEGIN
     SET SOLUONGTON = NVL(SOLUONGTON, 0) + P_SOLUONGSANXUAT
     WHERE MASP = P_MASP;
 
-    -- 5. BÀN GIAO CHO TRIGGER
+    -- 5. GHI LOG HOẠT ĐỘNG NHÂN VIÊN (IMP-03: thêm audit trail cho nhất quán)
+    INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+    VALUES (P_MANV, 'KHO', 'Xuat kho SX SP #' || P_MASP || ' SL:' || P_SOLUONGSANXUAT, V_MAPX);
+
+    -- 6. BÀN GIAO CHO TRIGGER
     COMMIT;
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO THEN
+        -- IMP-05: Re-raise cả ERR_NL_KHONG_DU và ERR_NL_TON_AO để Java nhận error code chính xác
+        IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO
+        OR SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_DU THEN
             RAISE;
         END IF;
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,

@@ -112,11 +112,6 @@ public class XuatKhoViewFXMLController extends BaseController {
         moDialogChonLyDo();
     }
 
-    @FXML
-    private void onBack() {
-        quayLaiMenuChinh(lblTitle);
-    }
-
     /**
      * Chức năng xóa phiếu xuất yêu cầu Procedure hủy chuyên biệt.
      * Hiện chỉ bật RBAC hiển thị nút theo vai trò và hướng dẫn thao tác an toàn.
@@ -131,6 +126,15 @@ public class XuatKhoViewFXMLController extends BaseController {
     // ── Bước 1: Dialog chọn lý do xuất ────────────────────────────────
 
     private void moDialogChonLyDo() {
+        PhanQuyenService svc = new PhanQuyenService();
+        com.bakery.model.dto.nhansu.NhanVienDTO user = UserSession.getCurrentUser();
+
+        // Thủ Kho chỉ được xuất vì "Nguyên liệu hỏng" — bỏ qua dialog chọn, vào thẳng
+        if (svc.laThuKho(user)) {
+            moDialogNguyenLieuHong();
+            return;
+        }
+
         ButtonType btnTiepTuc = new ButtonType("Tiếp tục →", ButtonBar.ButtonData.OK_DONE);
 
         Dialog<ButtonType> dialog = new Dialog<>();

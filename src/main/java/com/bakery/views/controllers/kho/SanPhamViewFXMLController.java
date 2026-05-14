@@ -217,9 +217,6 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
     }
 
     @FXML
-    private void onQuayLai() { quayLaiMenuChinh(tblSanPham); }
-
-    @FXML
     private void onLamMoi() {
         xoaFilter();
         if (presenter != null) presenter.taiDanhSachSanPham();

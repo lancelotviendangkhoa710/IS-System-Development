@@ -1,4 +1,5 @@
 -- Hàm tính toán giá bán tự động cho bánh Tùy chỉnh
+-- IMP-01: Gộp 5 SELECT riêng lẻ thành 1 câu LEFT JOIN duy nhất (5 round-trip → 1)
 CREATE OR REPLACE FUNCTION FUNC_GIABANHTUYCHINH(
     P_MASP IN SANPHAM.MASP%type,
     P_MAKICHCO IN KICHCOBANH.MAKC%type DEFAULT NULL,
@@ -12,67 +13,28 @@ IS
     V_PHUPHI_COT NUMBER := 0;
     V_PHUPHI_NHAN NUMBER := 0;
     V_PHUPHI_TT NUMBER := 0;
-    V_TONGGIA NUMBER := 0;
 BEGIN
-    -- 1. Lấy giá gốc
-    BEGIN
-        SELECT NVL(GIACOBAN, 0) INTO V_GIACOBAN
-        FROM SANPHAM
-        WHERE MASP = P_MASP;
-    EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            V_GIACOBAN := 0;
-    END;
+    -- 1. Lấy giá gốc + tất cả phụ phí trong 1 câu SELECT duy nhất
+    SELECT
+        NVL(SP.GIABAN, 0),
+        NVL(KC.PHUPHI, 0),
+        NVL(COT.PHUPHI, 0),
+        NVL(NH.PHUPHI, 0),
+        NVL(TT.PHUPHI, 0)
+    INTO V_GIACOBAN, V_PHUPHI_KC, V_PHUPHI_COT, V_PHUPHI_NHAN, V_PHUPHI_TT
+    FROM SANPHAM SP
+    LEFT JOIN KICHCOBANH KC ON KC.MAKC = P_MAKICHCO AND KC.THOIDIEMXOA IS NULL
+    LEFT JOIN COTBANH COT ON COT.MACOT = P_MACOT AND COT.THOIDIEMXOA IS NULL
+    LEFT JOIN NHANBANH NH ON NH.MANHAN = P_MANHAN AND NH.THOIDIEMXOA IS NULL
+    LEFT JOIN KIEUTRANGTRI TT ON TT.MATRANGTRI = P_MATRANGTRI AND TT.THOIDIEMXOA IS NULL
+    WHERE SP.MASP = P_MASP;
 
-    -- 2. Quét phụ phí kích cỡ
-    IF P_MAKICHCO IS NOT NULL THEN
-        BEGIN
-            SELECT NVL(PHUPHI, 0) INTO V_PHUPHI_KC
-            FROM KICHCOBANH
-            WHERE MAKC = P_MAKICHCO;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN V_PHUPHI_KC := 0;
-        END;
-    END IF;
+    -- 2. Tính tổng giá bán
+    RETURN V_GIACOBAN + V_PHUPHI_KC + V_PHUPHI_COT + V_PHUPHI_NHAN + V_PHUPHI_TT;
 
-    -- 3. Quét phụ phí cốt bánh
-    IF P_MACOT IS NOT NULL THEN
-        BEGIN
-            SELECT NVL(PHUPHI, 0) INTO V_PHUPHI_COT
-            FROM COTBANH
-            WHERE MACOT = P_MACOT;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN V_PHUPHI_COT := 0;
-        END;
-    END IF;
-
-    -- 4. Quét phụ phí nhân bánh
-    IF P_MANHAN IS NOT NULL THEN
-        BEGIN
-            SELECT NVL(PHUPHI, 0) INTO V_PHUPHI_NHAN
-            FROM NHANBANH
-            WHERE MANHAN = P_MANHAN;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN V_PHUPHI_NHAN := 0;
-        END;
-    END IF;
-
-    -- 5. Quét phụ phí trang trí
-    IF P_MATRANGTRI IS NOT NULL THEN
-        BEGIN
-            SELECT NVL(PHUPHI, 0) INTO V_PHUPHI_TT
-            FROM KIEUTRANGTRI
-            WHERE MATRANGTRI = P_MATRANGTRI;
-        EXCEPTION
-            WHEN NO_DATA_FOUND THEN V_PHUPHI_TT := 0;
-        END;
-    END IF;
-
-    -- 6. Tính tổng giá bán
-    V_TONGGIA := V_GIACOBAN + V_PHUPHI_KC + V_PHUPHI_COT + V_PHUPHI_NHAN + V_PHUPHI_TT;
-
-    RETURN V_TONGGIA;
 EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 0;
     WHEN OTHERS THEN
         RETURN 0;
 END;

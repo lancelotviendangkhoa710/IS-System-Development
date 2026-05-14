@@ -228,10 +228,6 @@ public class SoQuyViewFXMLController extends BaseController {
 
     // ── Handlers ─────────────────────────────────────────────────────────
 
-    @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(btnLapPhieu);
-    }
 
     @FXML
     private void onLamMoi() {

@@ -44,9 +44,4 @@ public class BepViewFXMLController extends BaseController {
             tabPaneBep.getSelectionModel().select(target);
         }
     }
-
-    @FXML
-    private void onBack() {
-        quayLaiMenuChinh(tabPaneBep);
-    }
 }

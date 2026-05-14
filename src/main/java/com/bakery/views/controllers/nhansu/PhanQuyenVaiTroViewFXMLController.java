@@ -262,11 +262,6 @@ public class PhanQuyenVaiTroViewFXMLController extends BaseController {
         if (selected != null) taiChucNangChoVaiTro(selected);
     }
 
-    @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tblChucNang);
-    }
-
     // ──────────────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────────────

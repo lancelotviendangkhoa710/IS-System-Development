@@ -111,9 +111,4 @@ public class KiemKeKhoViewFXMLController extends BaseController {
         taiDuLieu();
         hienThiThanhCongLabel("Đã làm mới dữ liệu kiểm kê.");
     }
-
-    @FXML
-    private void onBack() {
-        quayLaiMenuChinh(lblTitle);
-    }
 }

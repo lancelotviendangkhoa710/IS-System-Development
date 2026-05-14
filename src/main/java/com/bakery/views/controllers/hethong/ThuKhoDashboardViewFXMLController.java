@@ -45,6 +45,11 @@ public class ThuKhoDashboardViewFXMLController extends BaseController {
     }
 
     @FXML
+    private void onMoXuatKho() {
+        transitionTo(lblTenThuKho, "/fxml/kho/XuatKhoView.fxml", "H3K Bakery - Xuat phieu nguyen lieu hong", 1280, 720);
+    }
+
+    @FXML
     private void onDangXuat() {
         xacThucService.dangXuat();
         UserSession.clear();

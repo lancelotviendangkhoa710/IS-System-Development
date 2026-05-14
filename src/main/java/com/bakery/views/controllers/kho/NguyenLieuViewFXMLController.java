@@ -27,18 +27,35 @@ import java.util.List;
 
 public class NguyenLieuViewFXMLController extends BaseController implements INguyenLieuView {
 
-    @FXML private TableView<NguyenLieuDTO> tblNguyenLieu;
-    @FXML private TableColumn<NguyenLieuDTO, Integer> colMaNL;
-    @FXML private TableColumn<NguyenLieuDTO, String> colTenNL;
-    @FXML private TableColumn<NguyenLieuDTO, String> colXuatXu;
-    @FXML private TableColumn<NguyenLieuDTO, Double> colMucTon;
+    @FXML
+    private TableView<NguyenLieuDTO> tblNguyenLieu;
+    @FXML
+    private TableColumn<NguyenLieuDTO, Integer> colMaNL;
+    @FXML
+    private TableColumn<NguyenLieuDTO, String> colTenNL;
+    @FXML
+    private TableColumn<NguyenLieuDTO, String> colXuatXu;
+    @FXML
+    private TableColumn<NguyenLieuDTO, Double> colMucTon;
 
-    @FXML private TextField txtTimKiem;
-    @FXML private TextField txtTenNL;
-    @FXML private TextField txtXuatXu;
-    @FXML private TextField txtMucTonAnToan;
-    @FXML private ComboBox<DonViTinhDTO> cmbDonViTinh;
-    @FXML private VBox vboxChiTiet;
+    @FXML
+    private TextField txtTimKiem;
+    @FXML
+    private TextField txtTenNL;
+    @FXML
+    private TextField txtXuatXu;
+    @FXML
+    private TextField txtMucTonAnToan;
+    @FXML
+    private ComboBox<DonViTinhDTO> cmbDonViTinh;
+    @FXML
+    private VBox vboxChiTiet;
+    @FXML
+    private Button btnThemMoi;
+    @FXML
+    private Button btnLuuThayDoi;
+    @FXML
+    private Button btnXoa;
 
     private final ObservableList<NguyenLieuDTO> masterData = FXCollections.observableArrayList();
     private NguyenLieuPresenter presenter;
@@ -52,10 +69,38 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         tblNguyenLieu.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, newVal) -> hienThiChiTiet(newVal));
         presenter.khoiTao();
+        // Phân quyền: ẩn CUD nếu không có quyền sửa nguyên liệu (Thợ Bếp read-only)
+        apDungPhanQuyenCUD();
         // Task 8: Thủ kho không được sửa mức tồn kho an toàn
         apDungPhanQuyenTonKhoAnToan();
         // Auto-refresh: mỗi 10s tự query DB, nếu có NL mới sẽ hiện lên
         batDauAutoRefresh(tblNguyenLieu, () -> presenter.taiDanhSach(), 10);
+    }
+
+    private void apDungPhanQuyenCUD() {
+        com.bakery.model.dto.nhansu.NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
+        if (user == null)
+            return;
+
+        com.bakery.services.nhansu.PhanQuyenService svc = new com.bakery.services.nhansu.PhanQuyenService();
+        boolean coQuyenCUD = svc.laAdmin(user) || svc.laQuanLy(user) || svc.laThuKho(user);
+
+        if (!coQuyenCUD) {
+            // Ẩn nút "Thêm mới" trên header
+            if (btnThemMoi != null) {
+                btnThemMoi.setVisible(false);
+                btnThemMoi.setManaged(false);
+            }
+            // Ẩn nút Lưu + Xóa trong panel chi tiết
+            if (btnLuuThayDoi != null) {
+                btnLuuThayDoi.setVisible(false);
+                btnLuuThayDoi.setManaged(false);
+            }
+            if (btnXoa != null) {
+                btnXoa.setVisible(false);
+                btnXoa.setManaged(false);
+            }
+        }
     }
 
     /**
@@ -64,15 +109,15 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
      * Thủ kho và các vai trò khác: field chỉ đọc + tooltip giải thích.
      */
     private void apDungPhanQuyenTonKhoAnToan() {
-        com.bakery.model.dto.nhansu.NhanVienDTO user =
-                com.bakery.utils.UserSession.getCurrentUser();
-        if (user == null) return;
+        com.bakery.model.dto.nhansu.NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
+        if (user == null)
+            return;
 
         boolean coQuyenSua = user.getDanhSachTenVaiTro().stream().anyMatch(r -> {
             String rNorm = r.toLowerCase();
             return rNorm.contains("quản lý")
-                || rNorm.contains("quan ly")
-                || rNorm.contains("admin");
+                    || rNorm.contains("quan ly")
+                    || rNorm.contains("admin");
         });
 
         if (!coQuyenSua) {
@@ -80,7 +125,7 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
             txtMucTonAnToan.setFocusTraversable(false);
             txtMucTonAnToan.getStyleClass().add("field-readonly");
             Tooltip.install(txtMucTonAnToan,
-                new Tooltip("Chỉ Quản lý mới có quyền thay đổi mức tồn kho an toàn."));
+                    new Tooltip("Chỉ Quản lý mới có quyền thay đổi mức tồn kho an toàn."));
         }
     }
 
@@ -107,23 +152,33 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
 
     @Override
     public void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT) {
-        if (dsDVT == null || dsDVT.isEmpty()) return;
+        if (dsDVT == null || dsDVT.isEmpty())
+            return;
         cachedDsDVT = dsDVT;
         cmbDonViTinh.setConverter(new javafx.util.StringConverter<>() {
-            @Override public String toString(DonViTinhDTO d) { return d != null ? d.getTenDVT() : ""; }
-            @Override public DonViTinhDTO fromString(String s) { return null; }
+            @Override
+            public String toString(DonViTinhDTO d) {
+                return d != null ? d.getTenDVT() : "";
+            }
+
+            @Override
+            public DonViTinhDTO fromString(String s) {
+                return null;
+            }
         });
         cmbDonViTinh.setItems(FXCollections.observableArrayList(dsDVT));
     }
 
     @Override
     public void napDanhSachNhaCungCap(List<NhaCungCapDTO> dsNCC) {
-        if (dsNCC != null) cachedDsNCC = dsNCC;
+        if (dsNCC != null)
+            cachedDsNCC = dsNCC;
     }
 
     @Override
     public void hienThiChiTiet(NguyenLieuDTO nl) {
-        if (nl == null) return;
+        if (nl == null)
+            return;
         // Hiện panel chi tiết khi có record được chọn
         vboxChiTiet.setVisible(true);
         vboxChiTiet.setManaged(true);
@@ -139,10 +194,26 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         }
     }
 
-    @Override public void hienThiLoi(String msg)       { hienThiLoiLabel(msg); }
-    @Override public void hienThiThanhCong(String msg)  { hienThiThanhCongLabel(msg); }
-    @Override public void xoaLoi()                      { if (lblThongBao != null) lblThongBao.setText(""); }
-    @Override public void setLoading(boolean l)         { tblNguyenLieu.setDisable(l); }
+    @Override
+    public void hienThiLoi(String msg) {
+        hienThiLoiLabel(msg);
+    }
+
+    @Override
+    public void hienThiThanhCong(String msg) {
+        hienThiThanhCongLabel(msg);
+    }
+
+    @Override
+    public void xoaLoi() {
+        if (lblThongBao != null)
+            lblThongBao.setText("");
+    }
+
+    @Override
+    public void setLoading(boolean l) {
+        tblNguyenLieu.setDisable(l);
+    }
 
     @Override
     public void lamMoiForm() {
@@ -156,23 +227,46 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         vboxChiTiet.setManaged(false);
     }
 
-    @Override public NguyenLieuDTO getSelectedNguyenLieu() { return tblNguyenLieu.getSelectionModel().getSelectedItem(); }
-    @Override public String getTenNLInput()                { return txtTenNL.getText().trim(); }
-    @Override public String getXuatXuInput()               { return txtXuatXu.getText().trim(); }
-    @Override public DonViTinhDTO getDonViTinhSelected()   { return cmbDonViTinh.getValue(); }
-    @Override public String getTuKhoaTimKiemInput()        { return txtTimKiem.getText().trim(); }
+    @Override
+    public NguyenLieuDTO getSelectedNguyenLieu() {
+        return tblNguyenLieu.getSelectionModel().getSelectedItem();
+    }
+
+    @Override
+    public String getTenNLInput() {
+        return txtTenNL.getText().trim();
+    }
+
+    @Override
+    public String getXuatXuInput() {
+        return txtXuatXu.getText().trim();
+    }
+
+    @Override
+    public DonViTinhDTO getDonViTinhSelected() {
+        return cmbDonViTinh.getValue();
+    }
+
+    @Override
+    public String getTuKhoaTimKiemInput() {
+        return txtTimKiem.getText().trim();
+    }
 
     @Override
     public double getMucTonAnToanInput() {
-        try { return Double.parseDouble(txtMucTonAnToan.getText().trim()); }
-        catch (Exception e) { return 0; }
+        try {
+            return Double.parseDouble(txtMucTonAnToan.getText().trim());
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     // ── FXML Actions ─────────────────────────────────────────────────────────
 
     @FXML
     private void onThemMoi() {
-        if (presenter == null) return;
+        if (presenter == null)
+            return;
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/kho/ThemNguyenLieuDialog.fxml"));
@@ -188,7 +282,8 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
 
             Scene scene = new Scene(root);
             URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            if (cssUrl != null)
+                scene.getStylesheets().add(cssUrl.toExternalForm());
             dialogStage.setScene(scene);
             dialogStage.showAndWait();
 
@@ -209,17 +304,27 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         }
     }
 
-    @FXML private void onLuuThayDoi() { if (presenter != null) presenter.suaNguyenLieu(); }
-    @FXML private void onXoa()        { if (presenter != null) presenter.xoaNguyenLieu(); }
-    @FXML private void onTimKiem()    { if (presenter != null) presenter.timKiem(); }
-
     @FXML
-    private void onLamMoi() {
-        if (presenter != null) presenter.taiDanhSach();
+    private void onLuuThayDoi() {
+        if (presenter != null)
+            presenter.suaNguyenLieu();
     }
 
     @FXML
-    private void onQuayLai() {
-        quayLaiMenuChinh(tblNguyenLieu);
+    private void onXoa() {
+        if (presenter != null)
+            presenter.xoaNguyenLieu();
+    }
+
+    @FXML
+    private void onTimKiem() {
+        if (presenter != null)
+            presenter.timKiem();
+    }
+
+    @FXML
+    private void onLamMoi() {
+        if (presenter != null)
+            presenter.taiDanhSach();
     }
 }

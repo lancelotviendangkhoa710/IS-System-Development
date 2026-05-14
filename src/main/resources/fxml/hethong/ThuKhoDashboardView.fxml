@@ -46,6 +46,12 @@
                     <Region VBox.vgrow="ALWAYS"/>
                     <Button text="Mo nha cung cap" styleClass="btn-primary" onAction="#onMoNhaCungCap"/>
                 </VBox>
+                <VBox styleClass="dash-card" spacing="12.0" HBox.hgrow="ALWAYS">
+                    <Label text="Xuat phieu nguyen lieu hong" styleClass="dash-card-title"/>
+                    <Label text="Lap phieu xuat kho xu ly nguyen lieu khong dat chat luong. Chi duoc xuat voi ly do nguyen lieu hong." styleClass="dash-card-desc" wrapText="true"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Xuat phieu nguyen lieu hong" styleClass="btn-danger" onAction="#onMoXuatKho"/>
+                </VBox>
             </HBox>
         </VBox>
     </center>

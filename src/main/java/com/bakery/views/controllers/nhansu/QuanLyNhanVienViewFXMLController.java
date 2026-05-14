@@ -155,7 +155,6 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     @FXML private void onThemMoi() { moDialog(null); }
     @FXML private void onLamMoi()  { loadData(); }
-    @FXML private void onQuayLai() { quayLaiMenuChinh(tblNhanVien); }
 
     // ── Dialog helpers ─────────────────────────────────────────────────────
 

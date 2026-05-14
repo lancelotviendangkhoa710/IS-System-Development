@@ -338,11 +338,6 @@ public class BaoCaoViewFXMLController extends BaseController {
 
 
     @FXML
-    private void onVeMenu() {
-        quayLaiMenuChinh(lblAdminName);
-    }
-
-    @FXML
     private void onMoPOS() {
         transitionTo(lblAdminName, "/fxml/banhang/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
     }

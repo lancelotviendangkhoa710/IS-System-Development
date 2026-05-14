@@ -339,11 +339,6 @@ public class NhapKhoViewFXMLController extends BaseController {
         t.start();
     }
 
-    @FXML
-    private void onBack() {
-        quayLaiMenuChinh(lblTitle);
-    }
-
     // ── Dialog tạo phiếu nhập ─────────────────────────────────────────
 
     private void moDialogTaoPhieu() {
