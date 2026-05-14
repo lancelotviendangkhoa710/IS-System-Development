@@ -202,7 +202,7 @@
             <Button fx:id="btnBack" text="← Quay lại"
                     styleClass="btn-secondary"
                     visible="false" disable="true"
-                    onAction="#onBack"/>
+                    onAction="# "/>
             <Button fx:id="btnNext" text="Tiếp theo →"
                     styleClass="btn-primary"
                     onAction="#onNext"/>

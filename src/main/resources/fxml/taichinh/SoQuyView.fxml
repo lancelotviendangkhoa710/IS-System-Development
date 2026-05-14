@@ -16,7 +16,6 @@
 
     <!-- ── Header ──────────────────────────────────────────────────── -->
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button fx:id="btnQuayLai" text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
         <Label fx:id="lblTitle" text="SỔ QUỸ — THU CHI" styleClass="lbl-title-screen"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="btnLapPhieu" text="+ Lập phiếu" styleClass="btn-success" onAction="#onLapPhieu"/>

@@ -12,7 +12,6 @@
 
     <!-- ① HEADER -->
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Button text="← Quay lại" styleClass="btn-secondary" onAction="#onQuayLai"/>
         <VBox spacing="4">
             <Label text="Lập Kế Hoạch Sản Xuất" styleClass="lbl-title-screen"/>
             <Label text="Tính nguyên liệu cần xuất kho theo công thức" styleClass="lbl-body"/>

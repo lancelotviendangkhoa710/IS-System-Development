@@ -33,7 +33,6 @@
         <Button text="Lưu phân quyền" fx:id="btnLuuPhanQuyen" styleClass="btn-success"
                 onAction="#onLuuPhanQuyen"/>
         <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
-        <Button text="← Quay lại" styleClass="btn-ghost" onAction="#onQuayLai"/>
     </HBox>
 
     <!-- Main content: Left = Role list, Right = Permission grid -->
