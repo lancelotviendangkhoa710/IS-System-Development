@@ -155,6 +155,11 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <!-- JasperReports là unnamed module (JAR legacy) — bằng cách này có thể truy cập từ named module -->
+                        <arg>--add-reads</arg>
+                        <arg>BakeryManagementSystem=ALL-UNNAMED</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

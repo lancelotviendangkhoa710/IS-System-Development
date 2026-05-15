@@ -12,6 +12,7 @@ module BakeryManagementSystem {
     requires org.apache.poi.ooxml;
     requires jbcrypt;
     requires jakarta.mail;
+    // JasperReports — unnamed module legacy JAR, truy cập qua --add-reads ALL-UNNAMED trong pom.xml
 
     // Mở gói cho JavaFX reflection (FXML binding, Platform.runLater, Scene graph)
     opens com.bakery.main to javafx.graphics;

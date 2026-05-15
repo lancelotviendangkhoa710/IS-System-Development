@@ -53,4 +53,24 @@ public final class ReportPathUtils {
     public static String buildPdfPathString(String prefix, String suffix) {
         return buildPdfPath(prefix, suffix).getAbsolutePath();
     }
+
+    /**
+     * Tạo đường dẫn file Excel (.xlsx) với tên chuẩn.
+     */
+    public static File buildExcelPath(String prefix, String suffix) {
+        String dateStr = LocalDate.now().format(DATE_FMT);
+        String fileName = prefix + "_" + suffix + "_" + dateStr + ".xlsx";
+        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        return new File(getReportDir(), fileName);
+    }
+
+    /**
+     * Tạo đường dẫn file CSV với tên chuẩn.
+     */
+    public static File buildCsvPath(String prefix, String suffix) {
+        String dateStr = LocalDate.now().format(DATE_FMT);
+        String fileName = prefix + "_" + suffix + "_" + dateStr + ".csv";
+        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "_");
+        return new File(getReportDir(), fileName);
+    }
 }

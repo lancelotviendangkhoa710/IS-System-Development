@@ -1,6 +1,7 @@
 package com.bakery.views.controllers.baocao;
 
 import com.bakery.services.baocao.ThongKeService;
+import com.bakery.utils.JasperReportUtils;
 import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.UserSession;
 import javafx.animation.KeyFrame;
@@ -421,6 +422,89 @@ public class BaoCaoViewFXMLController extends BaseController {
         }, "export-pdf-trigger").start();
     }
 
+
+    // ── JasperReports: Xuất PDF chuyên nghiệp ───────────────────────────────
+
+    /**
+     * Xuất báo cáo kinh doanh sang PDF bằng JasperReports.
+     * Template: /reports/bao_cao_kinh_doanh.jrxml
+     */
+    @FXML
+    private void onXuatJasperPDF() {
+        xuatBaoCaoJasper(false);
+    }
+
+    /**
+     * Xuất báo cáo kinh doanh sang Excel (.xlsx) bằng JasperReports.
+     */
+    @FXML
+    private void onXuatJasperExcel() {
+        xuatBaoCaoJasper(true);
+    }
+
+    /**
+     * Logic chung: fill data → xuất PDF hoặc Excel.
+     *
+     * @param excel true = xuất Excel, false = xuất PDF
+     */
+    private void xuatBaoCaoJasper(boolean excel) {
+        String loaiStr  = cbLoaiBaoCao.getValue() != null ? cbLoaiBaoCao.getValue() : "Ngày";
+        LocalDate ngay  = dpNgayBaoCao.getValue() != null ? dpNgayBaoCao.getValue() : LocalDate.now();
+
+        // Xác định kỳ báo cáo
+        String loai = "DAY";
+        String giaTri = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        if ("Tháng".equals(loaiStr)) { loai = "MONTH"; giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy")); }
+        else if ("Quý".equals(loaiStr))  { loai = "QUARTER"; giaTri = ((ngay.getMonthValue()-1)/3+1) + "/" + ngay.getYear(); }
+        else if ("Năm".equals(loaiStr))  { loai = "YEAR";  giaTri = String.valueOf(ngay.getYear()); }
+
+        String tieuDe    = "Báo cáo kinh doanh — " + loaiStr + " " + giaTri;
+        String kyBaoCao  = loaiStr + " " + giaTri;
+        String nguoiXuat = UserSession.getCurrentUser() != null
+                ? UserSession.getCurrentUser().getHoTen() : "Hệ thống";
+
+        // Build file đích
+        String ext    = excel ? "xlsx" : "pdf";
+        String suffix = loaiStr + "_" + ngay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        File outputFile = excel
+                ? ReportPathUtils.buildExcelPath("ThongKe", suffix)
+                : ReportPathUtils.buildPdfPath("ThongKe_Jasper", suffix);
+
+        final String finalLoai = loai;
+        final String finalGiaTri = giaTri;
+
+        new Thread(() -> {
+            try {
+                // Lấy data từ DB trong background thread
+                double doanhThu = thongKeService.getDoanhThu(finalLoai, finalGiaTri);
+                double giaVon   = thongKeService.getGiaVon(finalLoai, finalGiaTri);
+                double loiNhuan = doanhThu - giaVon;
+                List<String[]> rows = thongKeService.getChiTietGiaoDich(finalLoai, finalGiaTri);
+
+                String strDoanhThu = String.format("%,.0f ₫", doanhThu);
+                String strGiaVon   = String.format("%,.0f ₫", giaVon);
+                String strLoiNhuan = String.format("%,.0f ₫", loiNhuan);
+                String strTongGD   = String.valueOf(rows.size());
+
+                if (excel) {
+                    JasperReportUtils.xuatExcel(outputFile, tieuDe, kyBaoCao,
+                            strDoanhThu, strGiaVon, strLoiNhuan, strTongGD, nguoiXuat, rows);
+                } else {
+                    JasperReportUtils.xuatPDF(outputFile, tieuDe, kyBaoCao,
+                            strDoanhThu, strGiaVon, strLoiNhuan, strTongGD, nguoiXuat, rows);
+                }
+
+                javafx.application.Platform.runLater(() ->
+                    hienThiThongTin("Xuất báo cáo thành công",
+                        (excel ? "Excel" : "PDF") + " đã lưu tại:\n" + outputFile.getAbsolutePath()));
+
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                    hienThiThongBaoLoi("Lỗi xuất báo cáo",
+                        "Không thể xuất " + (excel ? "Excel" : "PDF") + ": " + e.getMessage()));
+            }
+        }, "jasper-export").start();
+    }
 
     @FXML
     private void onMoPOS() {

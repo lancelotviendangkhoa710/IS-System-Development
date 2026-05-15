@@ -45,6 +45,16 @@
                                     <Region HBox.hgrow="ALWAYS"/>
                                     <Button text="⬇  Tải báo cáo" onAction="#onTaiBaoCaoNhanh"
                                             styleClass="btn-success" style="-fx-font-weight: bold;"/>
+                                    <Button id="btnXuatJasperPDF"
+                                            text="📄  Xuất PDF (Jasper)"
+                                            onAction="#onXuatJasperPDF"
+                                            styleClass="btn-primary"
+                                            style="-fx-font-weight: bold;"/>
+                                    <Button id="btnXuatJasperExcel"
+                                            text="📊  Xuất Excel (Jasper)"
+                                            onAction="#onXuatJasperExcel"
+                                            styleClass="btn-reset"
+                                            style="-fx-font-weight: bold;"/>
                                 </HBox>
 
                                 <!-- KPI CARDS — 4 màu gradient khác nhau -->

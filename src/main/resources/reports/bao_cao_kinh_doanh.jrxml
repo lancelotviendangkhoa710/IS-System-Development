@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD Report Design//EN"
+        "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<!-- Báo cáo kinh doanh H3K Bakery — template JasperReports -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+                  http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="bao_cao_kinh_doanh"
+              pageWidth="595" pageHeight="842"
+              columnWidth="535" leftMargin="30" rightMargin="30"
+              topMargin="30" bottomMargin="30"
+              uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
+
+    <!-- ═══ PARAMETERS ══════════════════════════════════════════════════════ -->
+    <parameter name="P_TIEU_DE"    class="java.lang.String">
+        <defaultValueExpression><![CDATA["Báo cáo kinh doanh"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_KY_BAO_CAO" class="java.lang.String">
+        <defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_DOANH_THU"  class="java.lang.String">
+        <defaultValueExpression><![CDATA["0 ₫"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_GIA_VON"    class="java.lang.String">
+        <defaultValueExpression><![CDATA["0 ₫"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_LOI_NHUAN"  class="java.lang.String">
+        <defaultValueExpression><![CDATA["0 ₫"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_TONG_GIAO_DICH" class="java.lang.String">
+        <defaultValueExpression><![CDATA["0"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_NGAY_XUAT"  class="java.lang.String">
+        <defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_NGUOI_XUAT" class="java.lang.String">
+        <defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+    </parameter>
+
+    <!-- ═══ FIELDS (từ JRMapCollectionDataSource) ══════════════════════════ -->
+    <field name="STT"        class="java.lang.String"/>
+    <field name="MA_DON"     class="java.lang.String"/>
+    <field name="TEN_KHACH"  class="java.lang.String"/>
+    <field name="MON_HANG"   class="java.lang.String"/>
+    <field name="SO_TIEN"    class="java.lang.String"/>
+    <field name="TRANG_THAI" class="java.lang.String"/>
+
+    <!-- ═══ VARIABLES ══════════════════════════════════════════════════════ -->
+    <variable name="PAGE_COUNT_VAR" class="java.lang.Integer"
+              calculation="Count">
+        <variableExpression><![CDATA[$F{MA_DON}]]></variableExpression>
+    </variable>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TITLE BAND — Header trang đầu                                      -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <title>
+        <band height="130" splitType="Stretch">
+
+            <!-- Nền amber gradient (màu chủ đạo hệ thống) -->
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="90" backcolor="#D85A30" uuid="r1"/>
+                <graphicElement>
+                    <pen lineWidth="0"/>
+                </graphicElement>
+            </rectangle>
+
+            <!-- Tên tiệm bánh -->
+            <staticText>
+                <reportElement x="10" y="8" width="515" height="34" forecolor="#FFFFFF" uuid="t1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="20" isBold="true"/>
+                </textElement>
+                <text><![CDATA[🍞  H3K BAKERY — HỆ THỐNG QUẢN LÝ TIỆM BÁNH]]></text>
+            </staticText>
+
+            <!-- Tiêu đề báo cáo -->
+            <textField>
+                <reportElement x="10" y="46" width="515" height="30" forecolor="#FFEEDD" uuid="tf1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="14" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{P_TIEU_DE}]]></textFieldExpression>
+            </textField>
+
+            <!-- Kỳ báo cáo -->
+            <textField>
+                <reportElement x="0" y="96" width="535" height="18" forecolor="#555555" uuid="tf2"/>
+                <textElement textAlignment="Center">
+                    <font fontName="SansSerif" size="10" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Kỳ báo cáo: " + $P{P_KY_BAO_CAO} + "   |   Ngày xuất: " + $P{P_NGAY_XUAT} + "   |   Người xuất: " + $P{P_NGUOI_XUAT}]]></textFieldExpression>
+            </textField>
+
+            <!-- Đường kẻ phân cách -->
+            <line>
+                <reportElement x="0" y="118" width="535" height="1" forecolor="#D85A30" uuid="l1"/>
+                <graphicElement>
+                    <pen lineWidth="1.5"/>
+                </graphicElement>
+            </line>
+        </band>
+    </title>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- PAGE HEADER — KPI tóm tắt (chỉ hiện trang đầu nhờ pageNumber)     -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <pageHeader>
+        <band height="70" splitType="Stretch">
+
+            <!-- KPI Box — Doanh thu -->
+            <rectangle>
+                <reportElement x="0" y="4" width="125" height="58" backcolor="#FFF3ED" uuid="kpi1"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#D85A30"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="0" y="8" width="125" height="16" forecolor="#92400E" uuid="kl1"/>
+                <textElement textAlignment="Center">
+                    <font fontName="SansSerif" size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[DOANH THU]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="26" width="125" height="26" forecolor="#D85A30" uuid="kv1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{P_DOANH_THU}]]></textFieldExpression>
+            </textField>
+
+            <!-- KPI Box — Giá vốn -->
+            <rectangle>
+                <reportElement x="135" y="4" width="125" height="58" backcolor="#F0F9FF" uuid="kpi2"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#185FA5"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="135" y="8" width="125" height="16" forecolor="#185FA5" uuid="kl2"/>
+                <textElement textAlignment="Center">
+                    <font fontName="SansSerif" size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[GIÁ VỐN]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="135" y="26" width="125" height="26" forecolor="#185FA5" uuid="kv2"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{P_GIA_VON}]]></textFieldExpression>
+            </textField>
+
+            <!-- KPI Box — Lợi nhuận -->
+            <rectangle>
+                <reportElement x="270" y="4" width="125" height="58" backcolor="#F0FDF4" uuid="kpi3"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#16A34A"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="270" y="8" width="125" height="16" forecolor="#16A34A" uuid="kl3"/>
+                <textElement textAlignment="Center">
+                    <font fontName="SansSerif" size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[LỢI NHUẬN]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="270" y="26" width="125" height="26" forecolor="#16A34A" uuid="kv3"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{P_LOI_NHUAN}]]></textFieldExpression>
+            </textField>
+
+            <!-- KPI Box — Giao dịch -->
+            <rectangle>
+                <reportElement x="405" y="4" width="130" height="58" backcolor="#FEF9EC" uuid="kpi4"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#D97706"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="405" y="8" width="130" height="16" forecolor="#D97706" uuid="kl4"/>
+                <textElement textAlignment="Center">
+                    <font fontName="SansSerif" size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[GIAO DỊCH]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="405" y="26" width="130" height="26" forecolor="#D97706" uuid="kv4"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{P_TONG_GIAO_DICH}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageHeader>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- COLUMN HEADER — Header bảng giao dịch                              -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <columnHeader>
+        <band height="22" splitType="Stretch">
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="22" backcolor="#2C2C2A" uuid="ch_bg"/>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="2"   y="3" width="30"  height="16" forecolor="#FFFFFF" uuid="ch1"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[STT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="32"  y="3" width="55"  height="16" forecolor="#FFFFFF" uuid="ch2"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[MÃ ĐƠN]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="87"  y="3" width="130" height="16" forecolor="#FFFFFF" uuid="ch3"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[KHÁCH HÀNG]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="217" y="3" width="140" height="16" forecolor="#FFFFFF" uuid="ch4"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[MÓN / SẢN PHẨM]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="357" y="3" width="90"  height="16" forecolor="#FFFFFF" uuid="ch5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[SỐ TIỀN (₫)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="447" y="3" width="86"  height="16" forecolor="#FFFFFF" uuid="ch6"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[TRẠNG THÁI]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- DETAIL — Mỗi dòng giao dịch                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <detail>
+        <band height="18" splitType="Stretch">
+
+            <!-- Nền xen kẽ sáng/tối -->
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="18"
+                               backcolor="#F9F8F5" uuid="det_bg">
+                    <printWhenExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></printWhenExpression>
+                </reportElement>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
+            </rectangle>
+
+            <textField isBlankWhenNull="true">
+                <reportElement x="2"   y="2" width="30"  height="14" uuid="d1"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{STT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="32"  y="2" width="55"  height="14" uuid="d2"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{MA_DON}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="87"  y="2" width="130" height="14" uuid="d3"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TEN_KHACH}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="217" y="2" width="140" height="14" uuid="d4"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{MON_HANG}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="357" y="2" width="90"  height="14" uuid="d5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{SO_TIEN}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="447" y="2" width="86"  height="14" uuid="d6"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TRANG_THAI}]]></textFieldExpression>
+            </textField>
+
+            <!-- Đường kẻ ngang -->
+            <line>
+                <reportElement x="0" y="17" width="535" height="1" forecolor="#E5E5E3" uuid="det_line"/>
+            </line>
+        </band>
+    </detail>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- NO DATA — Hiển thị khi không có giao dịch                          -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <noData>
+        <band height="40">
+            <staticText>
+                <reportElement x="0" y="8" width="535" height="24" forecolor="#A8A29E" uuid="nd1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Không có giao dịch trong kỳ báo cáo này.]]></text>
+            </staticText>
+        </band>
+    </noData>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- PAGE FOOTER — Số trang                                              -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <pageFooter>
+        <band height="24" splitType="Stretch">
+            <line>
+                <reportElement x="0" y="0" width="535" height="1" forecolor="#D85A30" uuid="pf_line"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="4" width="267" height="16" forecolor="#A8A29E" uuid="pf1"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <text><![CDATA[H3K Bakery Management System — Tài liệu nội bộ]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="268" y="4" width="267" height="16" forecolor="#A8A29E" uuid="pf2"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Trang " + $V{PAGE_NUMBER} + " / " + $V{PAGE_COUNT}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+</jasperReport>
