@@ -23,23 +23,32 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
     private final XacThucService xacThucService = new XacThucService();
     private final DonHangService donHangService = new DonHangService();
 
-    @FXML private Label lblTenThoBep;
-    @FXML private Label lblVaiTro;
-    @FXML private Label lblMoTa;
-    @FXML private Label lblThongBao;
+    @FXML
+    private Label lblTenThoBep;
+    @FXML
+    private Label lblVaiTro;
+    @FXML
+    private Label lblMoTa;
+    @FXML
+    private Label lblThongBao;
 
-    @FXML private TableView<DonDatHangDTO> tblDonBep;
-    @FXML private TableColumn<DonDatHangDTO, Integer> colMaDon;
-    @FXML private TableColumn<DonDatHangDTO, String> colNgayNhan;
-    @FXML private TableColumn<DonDatHangDTO, String> colTenKhach;
-    @FXML private TableColumn<DonDatHangDTO, String> colTrangThai;
+    @FXML
+    private TableView<DonDatHangDTO> tblDonBep;
+    @FXML
+    private TableColumn<DonDatHangDTO, Integer> colMaDon;
+    @FXML
+    private TableColumn<DonDatHangDTO, String> colNgayNhan;
+    @FXML
+    private TableColumn<DonDatHangDTO, String> colTenKhach;
+    @FXML
+    private TableColumn<DonDatHangDTO, String> colTrangThai;
 
     private final ObservableList<DonDatHangDTO> dsDon = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
         khoiTaoDashboard(UserSession.getCurrentUser());
-        
+
         colMaDon.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getMaDon()));
         colNgayNhan.setCellValueFactory(data -> {
             LocalDateTime dt = data.getValue().getNgayGioNhanBanh();
@@ -50,7 +59,7 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
             return new ReadOnlyStringWrapper(maKH == null ? "Khách Vãng Lai" : "KH #" + maKH);
         });
         colTrangThai.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTenTrangThai()));
-        
+
         tblDonBep.setItems(dsDon);
         taiDuLieuTuDB();
     }
@@ -109,12 +118,14 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
 
     @FXML
     private void onMoTheoDoiDon() {
-        transitionTo(lblTenThoBep, "/fxml/banhang/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
+        transitionTo(lblTenThoBep, "/fxml/banhang/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366,
+                768);
     }
 
     @FXML
     private void onMoThanhPhanBanh() {
-        transitionTo(lblTenThoBep, "/fxml/kho/ThanhPhanBanhView.fxml", "H3K Bakery - Cong thuc va thanh phan", 1366, 768);
+        transitionTo(lblTenThoBep, "/fxml/kho/ThanhPhanBanhView.fxml", "H3K Bakery - Cong thuc va thanh phan", 1366,
+                768);
     }
 
     @FXML

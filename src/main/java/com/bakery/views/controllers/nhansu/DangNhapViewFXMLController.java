@@ -271,6 +271,7 @@ public class DangNhapViewFXMLController extends BaseController {
                     return;
                 }
 
+                // Không phải thu ngân → vào thẳng menu chính
                 quayLaiMenuChinh(txtTenDangNhap);
             } catch (Exception ex) {
                 hienDangNhap();
@@ -476,6 +477,7 @@ public class DangNhapViewFXMLController extends BaseController {
                         transitionTo(txtTenDangNhap, "/fxml/hethong/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
                         return;
                     }
+                    // Không phải thu ngân → vào thẳng menu chính
                     quayLaiMenuChinh(txtTenDangNhap);
                 } catch (Exception ex) {
                     hienDangNhap();

@@ -316,11 +316,7 @@ public class NhapKhoViewFXMLController extends BaseController {
 
     private void thucHienLuuTuFile(List<CTPhieuNhapDTO> dsDong, NhaCungCapDTO ncc) {
         int maNV = SessionContext.getInstance().getMaNV();
-        int maCa = SessionContext.getInstance().getMaCa();
-        if (maCa == 0) {
-            hienThiLoiLabel("⚠️ Chưa mở ca làm việc. Vui lòng mở ca trước khi nhập kho.");
-            return;
-        }
+        int maCa = SessionContext.getInstance().getMaCa(); // 0 nếu không có ca (thủ kho) — proc dùng NULLIF
         String json = nhapKhoService.buildJsonPayload(dsDong);
 
         Thread t = new Thread(() -> {
@@ -520,11 +516,7 @@ public class NhapKhoViewFXMLController extends BaseController {
         }
 
         int maNV = SessionContext.getInstance().getMaNV();
-        int maCa = SessionContext.getInstance().getMaCa();
-        if (maCa == 0) {
-            hienThiLoiLabel("⚠️ Chưa mở ca làm việc. Vui lòng mở ca trước khi nhập kho.");
-            return;
-        }
+        int maCa = SessionContext.getInstance().getMaCa(); // 0 nếu không có ca (thủ kho) — proc dùng NULLIF
 
         // Build JSON array cho procedure
         StringBuilder json = new StringBuilder("[");

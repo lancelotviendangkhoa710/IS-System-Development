@@ -1,5 +1,6 @@
 -- Procedure Tạo phiếu nhập kho
 -- Tự động tạo PHIEUTHUCHI loại 'Nhap hang' sau khi nhập lô xong (cùng transaction)
+
 CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     P_MANV          IN PHIEUNHAPKHO.MANV%TYPE,
     P_MANCC         IN PHIEUNHAPKHO.MANCC%TYPE,
@@ -7,7 +8,7 @@ CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     P_MACA          IN PHIEUTHUCHI.MACA%TYPE,
     P_MAPN_OUT      OUT PHIEUNHAPKHO.MAPN%TYPE
 )
-IS
+    IS
     V_MAPN          PHIEUNHAPKHO.MAPN%TYPE;
     V_CURRENT_MANL  NGUYENLIEU.MANL%TYPE;
     V_MALOAITHUCHI  LOAITHUCHI.MALOAITHUCHI%TYPE;
@@ -24,72 +25,66 @@ BEGIN
     FOR ROW_DATA IN (
         SELECT J.MANL, J.TENNL, J.XUATXU, J.MADVT, J.SOLUONG, J.DONGIA, J.NGAYSANXUAT, J.HANSUDUNG
         FROM JSON_TABLE(P_JSON_DATALIST, '$[*]'
-            COLUMNS (
-                MANL NUMBER PATH '$.maNL',
-                TENNL NVARCHAR2(200) PATH '$.tenNL',
-                XUATXU NVARCHAR2(100) PATH '$.xuatXu',
-                MADVT NUMBER PATH '$.maDVT',
-                SOLUONG NUMBER PATH '$.soLuong',
-                DONGIA NUMBER PATH '$.donGia',
-                NGAYSANXUAT VARCHAR2(20) PATH '$.ngaySanXuat',
-                HANSUDUNG VARCHAR2(20) PATH '$.hanSuDung'
-            )
-        ) J
-    )
-    LOOP
-        -- Kiểm tra nếu MaNL = 0 hoặc NULL → tìm theo tên trước, chỉ INSERT khi thực sự mới
-        IF ROW_DATA.MANL IS NULL OR ROW_DATA.MANL = 0 THEN
-            -- Tra cứu nguyên liệu theo tên (tránh vi phạm CK_NL_TENNL khi nhập bổ sung từ NCC cũ)
-            BEGIN
-                SELECT MANL INTO V_CURRENT_MANL
-                FROM NGUYENLIEU
-                WHERE UPPER(TRIM(TENNL)) = UPPER(TRIM(ROW_DATA.TENNL))
-                  AND THOIDIEMXOA IS NULL
-                FETCH FIRST 1 ROW ONLY;
-            EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                    -- Thực sự là nguyên liệu mới → INSERT
-                    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT)
-                    VALUES (ROW_DATA.TENNL, ROW_DATA.XUATXU, ROW_DATA.MADVT)
-                    RETURNING MANL INTO V_CURRENT_MANL;
-            END;
-        ELSE
-            -- Dùng nguyên liệu đã có sẵn (client truyền MANL hợp lệ)
-            V_CURRENT_MANL := ROW_DATA.MANL;
-        END IF;
+                        COLUMNS (
+                            MANL NUMBER PATH '$.maNL',
+                            TENNL NVARCHAR2(200) PATH '$.tenNL',
+                            XUATXU NVARCHAR2(100) PATH '$.xuatXu',
+                            MADVT NUMBER PATH '$.maDVT',
+                            SOLUONG NUMBER PATH '$.soLuong',
+                            DONGIA NUMBER PATH '$.donGia',
+                            NGAYSANXUAT VARCHAR2(20) PATH '$.ngaySanXuat',
+                            HANSUDUNG VARCHAR2(20) PATH '$.hanSuDung'
+                            )
+             ) J
+        )
+        LOOP
+            IF ROW_DATA.MANL IS NULL OR ROW_DATA.MANL = 0 THEN
+                BEGIN
+                    SELECT MANL INTO V_CURRENT_MANL
+                    FROM NGUYENLIEU
+                    WHERE UPPER(TRIM(TENNL)) = UPPER(TRIM(ROW_DATA.TENNL))
+                      AND THOIDIEMXOA IS NULL
+                        FETCH FIRST 1 ROW ONLY;
+                EXCEPTION
+                    WHEN NO_DATA_FOUND THEN
+                        INSERT INTO NGUYENLIEU (TENNL, XUATXU, MADVT)
+                        VALUES (ROW_DATA.TENNL, ROW_DATA.XUATXU, ROW_DATA.MADVT)
+                        RETURNING MANL INTO V_CURRENT_MANL;
+                END;
+            ELSE
+                V_CURRENT_MANL := ROW_DATA.MANL;
+            END IF;
 
-        -- Đưa hàng vào Lô mới
-        INSERT INTO CTPHIEUNHAP (MAPN, MANL, SOLUONG, DONGIA, SOLUONGCONLAI, NGAYSANXUAT, HANSUDUNG)
-        VALUES (
-            V_MAPN,
-            V_CURRENT_MANL,
-            ROW_DATA.SOLUONG,
-            ROW_DATA.DONGIA,
-            ROW_DATA.SOLUONG, -- SoLuongConLai ban đầu bằng đúng lượng nhập
+            INSERT INTO CTPHIEUNHAP (MAPN, MANL, SOLUONG, DONGIA, SOLUONGCONLAI, NGAYSANXUAT, HANSUDUNG)
+            VALUES (
+                       V_MAPN,
+                       V_CURRENT_MANL,
+                       ROW_DATA.SOLUONG,
+                       ROW_DATA.DONGIA,
+                       ROW_DATA.SOLUONG,
+                       CASE WHEN ROW_DATA.NGAYSANXUAT IS NOT NULL THEN TO_DATE(ROW_DATA.NGAYSANXUAT, 'YYYY-MM-DD') ELSE NULL END,
+                       CASE WHEN ROW_DATA.HANSUDUNG IS NOT NULL THEN TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD') ELSE NULL END
+                   );
+        END LOOP;
 
-            -- 3. Xử lý an toàn cho Date (Chống lỗi khi truyền chuỗi rỗng)
-            CASE WHEN ROW_DATA.NGAYSANXUAT IS NOT NULL THEN TO_DATE(ROW_DATA.NGAYSANXUAT, 'YYYY-MM-DD') ELSE NULL END,
-            CASE WHEN ROW_DATA.HANSUDUNG IS NOT NULL THEN TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD') ELSE NULL END
-        );
-    END LOOP;
-
-    -- 4. Tính tổng tiền nhập (sau LOOP → CTPHIEUNHAP đã có đủ dòng)
+    -- 4. Tính tổng tiền nhập
     SELECT NVL(SUM(SOLUONG * DONGIA), 0)
     INTO V_TONGTIENNHAP
     FROM CTPHIEUNHAP
     WHERE MAPN = V_MAPN;
 
-    -- 5. Lấy mã loại thu chi 'Nhap hang' — SELECT động, không hardcode ID
+    -- 5. Lấy mã loại thu chi 'Nhap hang'
     SELECT MALOAITHUCHI INTO V_MALOAITHUCHI
     FROM LOAITHUCHI
     WHERE TENLOAITHUCHI = N'Nhap hang'
       AND PHANLOAI = 'Chi'
       AND THOIDIEMXOA IS NULL
-    FETCH FIRST 1 ROW ONLY;
+        FETCH FIRST 1 ROW ONLY;
 
-    -- 6. Tạo phiếu chi nhập hàng tương ứng (cùng transaction)
+    -- 6. Tạo phiếu chi nhập hàng
+    --    FIX: NULLIF(P_MACA, 0) — thủ kho không có ca (maCa=0) → lưu NULL thay vì FK fail
     INSERT INTO PHIEUTHUCHI (MALOAITHUCHI, SOTIEN, MANV, MACA, MAPN, GHICHU)
-    VALUES (V_MALOAITHUCHI, V_TONGTIENNHAP, P_MANV, P_MACA, V_MAPN,
+    VALUES (V_MALOAITHUCHI, V_TONGTIENNHAP, P_MANV, NULLIF(P_MACA, 0), V_MAPN,
             N'Tự động — Nhập kho phiếu #' || V_MAPN);
 
     -- 7. Ghi log hoạt động nhân viên

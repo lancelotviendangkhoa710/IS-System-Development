@@ -51,6 +51,7 @@ PROMPT [3/6] Tạo functions...
 -- ── BƯỚC 4: Triggers ─────────────────────────────────────────
 PROMPT [4/6] Tạo triggers...
 @@04_triggers/03_trg_stock_recipe/trg_avgcost_tolstock.sql
+@@04_triggers/03_trg_stock_recipe/trg_update_product_cost_on_nl_change.sql
 @@04_triggers/03_trg_stock_recipe/trg_check_hygienic_food.sql
 @@04_triggers/03_trg_stock_recipe/trg_materials_export.sql
 @@04_triggers/03_trg_stock_recipe/trg_prohibit_expired_scam.sql

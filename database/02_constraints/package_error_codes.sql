@@ -179,6 +179,10 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
     -- Xuat huy nguyen lieu hong (dung trong PROC_XUATNGUYENLIEUHO NG)
     ERR_XUAT_HUY_NL                 CONSTANT NUMBER := -20321;
 
+    -- Loi cap nhat gia von san pham khi gia von trung binh nguyen lieu thay doi
+    -- (dung trong TRG_CAPNHATGIASP_KHIGIAVONNL)
+    ERR_CAPNHATGIASP_KHIGIAVONNL    CONSTANT NUMBER := -20322;
+
     -- Nha cung cap
     ERR_NCC_THEM_HE_THONG           CONSTANT NUMBER := -20315;
     ERR_NCC_KHONG_TON_TAI_CN        CONSTANT NUMBER := -20316;
