@@ -318,11 +318,11 @@ public class BaoCaoViewFXMLController extends BaseController {
             VBox itemBox = new VBox(4);
             HBox titleRow = new HBox();
             Label lblName = new Label(entry.getKey());
-            lblName.setStyle("-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #1b1c1a;");
+            lblName.getStyleClass().add("best-seller-name");
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
             Label lblQty = new Label(entry.getValue() + " cái");
-            lblQty.setStyle("-fx-text-fill: #D85A30; -fx-font-weight: bold; -fx-font-size: 11px;");
+            lblQty.getStyleClass().add("best-seller-qty");
             titleRow.getChildren().addAll(lblName, spacer, lblQty);
 
             ProgressBar progress = new ProgressBar((double) entry.getValue() / maxQty);
