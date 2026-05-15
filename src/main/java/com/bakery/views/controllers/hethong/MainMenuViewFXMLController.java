@@ -142,11 +142,12 @@ public class MainMenuViewFXMLController {
         // Tong quan
         capNhatTrangThaiNut(btnTongQuan, coQuyen(PhanQuyenService.TinhNangHeThong.TONG_QUAN));
 
-        // Ban hang (gom POS + Theo doi don vao 1 nut)
-        boolean coQuyenBanHangTong = coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS)
-                || coQuyen(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG);
-        capNhatTrangThaiNut(btnBanHang, coQuyenBanHangTong);
-        anNutDieuHuong(btnTheoDoiDon);
+        // Ban hang: POS → hien btnBanHang; chi THEO_DOI (Tho Bep) → hien btnTheoDoiDon rieng
+        boolean coQuyenPos = coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS);
+        boolean coQuyenTheoDoi = coQuyen(PhanQuyenService.TinhNangHeThong.THEO_DOI_DON_HANG);
+        capNhatTrangThaiNut(btnBanHang, coQuyenPos);
+        // Tho Bep: co THEO_DOI nhung khong co POS → hien nut rieng "Theo doi don hang"
+        capNhatTrangThaiNut(btnTheoDoiDon, coQuyenTheoDoi && !coQuyenPos);
         capNhatTrangThaiNut(btnKhachHang, coQuyen(PhanQuyenService.TinhNangHeThong.KHACH_HANG));
 
         // San pham — 1 nut gom 4 module
@@ -456,7 +457,7 @@ public class MainMenuViewFXMLController {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Cập nhật thông tin cá nhân");
-        dialog.setHeaderText("Thay đổi thông tin và nhập mật khẩu mới để lưu.");
+        dialog.setHeaderText("Cập nhật thông tin cá nhân.\nMật khẩu mới là tùy chọn — để trống nếu không muốn đổi.");
         dialog.getDialogPane().setContent(form);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         dialog.initOwner(lblTenNguoiDung.getScene().getWindow());

@@ -2,7 +2,10 @@ package com.bakery.services.kho;
 
 import com.bakery.model.dao.kho.CongThucDAO;
 import com.bakery.model.dao.kho.PhieuXuatKhoDAO;
+import com.bakery.model.dao.hethong.CauHinhGioiHanDAO;
+import com.bakery.model.dto.hethong.CauHinhGioiHanDTO;
 import com.bakery.services.BaseService;
+import java.time.LocalDate;
 
 /**
  * Service quản lý luồng Xuất kho Sản xuất (UC41).
@@ -13,10 +16,12 @@ public class XuatKhoSanXuatService extends BaseService {
 
     private final PhieuXuatKhoDAO phieuXuatKhoDAO;
     private final CongThucDAO congThucDAO;
+    private final CauHinhGioiHanDAO cauHinhGioiHanDAO;
 
     public XuatKhoSanXuatService() {
-        this.phieuXuatKhoDAO = new PhieuXuatKhoDAO();
-        this.congThucDAO      = new CongThucDAO();
+        this.phieuXuatKhoDAO  = new PhieuXuatKhoDAO();
+        this.congThucDAO       = new CongThucDAO();
+        this.cauHinhGioiHanDAO = new CauHinhGioiHanDAO();
     }
 
     /**
@@ -51,5 +56,17 @@ public class XuatKhoSanXuatService extends BaseService {
     public double tinhSoLuongKhaDung(int maSP) throws Exception {
         if (maSP <= 0) return 0;
         return congThucDAO.tinhSoLuongKhaDung(maSP);
+    }
+
+    /**
+     * Lấy giới hạn sản xuất và số bánh đã làm trong ngày chỉ định.
+     * @param ngay ngày cần kiểm tra (thường là LocalDate.now())
+     * @return int[]{gioiHanSoBanh, soBanhDaNhan};
+     *         nếu chưa có cấu hình → {Integer.MAX_VALUE, 0} (đồng nghĩa không giới hạn)
+     */
+    public int[] layGioiHanVaDaLam(LocalDate ngay) throws Exception {
+        CauHinhGioiHanDTO dto = cauHinhGioiHanDAO.layTheoNgay(ngay);
+        if (dto == null) return new int[]{Integer.MAX_VALUE, 0};
+        return new int[]{dto.getGioiHanSoBanh(), dto.getSoBanhDaNhan()};
     }
 }

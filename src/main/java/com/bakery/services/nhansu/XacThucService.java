@@ -314,6 +314,11 @@ public class XacThucService {
             throw new NgoaiLeXacThuc(MaLoiXacThuc.LOI_XAC_THUC_DU_LIEU, "Địa chỉ email không hợp lệ.");
         }
         nhanVienDAO.capNhatEmail(session.getMaNhanVien(), emailChuan);
+        // Đồng bộ email mới vào UserSession để UI hiển thị ngay
+        NhanVienDTO nhanVienMoi = nhanVienDAO.timNhanVienTheoMa(session.getMaNhanVien());
+        if (nhanVienMoi != null) {
+            UserSession.setCurrentUser(nhanVienMoi);
+        }
     }
 
     public List<VaiTroDTO> layDanhSachVaiTroDangHoatDong() throws Exception {
@@ -368,10 +373,15 @@ public class XacThucService {
             throw new Exception("Số điện thoại phải từ 9 đến 15 ký tự.");
         }
 
-        String matKhauMoiHopLe = validatePassword(matKhauMoi, "Mật khẩu mới");
-        String xacNhanHopLe = validatePassword(xacNhanMatKhauMoi, "Xác nhận mật khẩu mới");
-        if (!matKhauMoiHopLe.equals(xacNhanHopLe)) {
-            throw new Exception("Mật khẩu mới và xác nhận mật khẩu mới không khớp.");
+        // Đổi mật khẩu chỉ khi người dùng thực sự nhập mật khẩu mới (không bắt buộc)
+        boolean doiMatKhau = matKhauMoi != null && !matKhauMoi.isBlank();
+        String matKhauMoiHopLe = null;
+        if (doiMatKhau) {
+            matKhauMoiHopLe = validatePassword(matKhauMoi, "Mật khẩu mới");
+            String xacNhanHopLe = validatePassword(xacNhanMatKhauMoi, "Xác nhận mật khẩu mới");
+            if (!matKhauMoiHopLe.equals(xacNhanHopLe)) {
+                throw new Exception("Mật khẩu mới và xác nhận mật khẩu mới không khớp.");
+            }
         }
 
         boolean updatedInfo = nhanVienDAO.capNhatThongTinCaNhan(
@@ -383,12 +393,14 @@ public class XacThucService {
             throw new Exception("Không thể cập nhật thông tin cá nhân.");
         }
 
-        boolean updatedPassword = nhanVienDAO.doiMatKhau(
-                session.getMaNhanVien(),
-                PasswordUtils.hash(matKhauMoiHopLe)
-        );
-        if (!updatedPassword) {
-            throw new Exception("Không thể cập nhật mật khẩu mới.");
+        if (doiMatKhau) {
+            boolean updatedPassword = nhanVienDAO.doiMatKhau(
+                    session.getMaNhanVien(),
+                    PasswordUtils.hash(matKhauMoiHopLe)
+            );
+            if (!updatedPassword) {
+                throw new Exception("Không thể cập nhật mật khẩu mới.");
+            }
         }
 
         // Đồng bộ cache session/user sau khi lưu DB.
