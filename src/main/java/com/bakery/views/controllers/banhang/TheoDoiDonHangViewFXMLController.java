@@ -63,6 +63,9 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     private final TaoDonHangViewFXMLController dialogFactory = new TaoDonHangViewFXMLController();
     private final List<String> danhSachTrangThai = new ArrayList<>();
 
+    /** true khi view được nhúng trong tab Bếp — tự động tải đơn tùy chỉnh chưa hoàn thành. */
+    private boolean bepMode = false;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         khoiTaoComboTheoDoi();
@@ -77,6 +80,31 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         });
 
         presenter.taiDuLieuBanDau();
+
+        // Nếu được gọn trong tab Bếp: tải ngay đơn tùy chỉnh chưa hoàn thành sau khi scene sẵn sàng
+        panelChuaDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && bepMode) {
+                javafx.application.Platform.runLater(this::taiDonBep);
+            }
+        });
+    }
+
+    /**
+     * Kích hoạt chế độ Bếp: tự động tải đơn tùy chỉnh chưa hoàn thành.
+     * Gọi bởi BepViewFXMLController sau khi fx:include sẵn sàng.
+     */
+    public void setBepMode(boolean bepMode) {
+        this.bepMode = bepMode;
+        if (bepMode && panelChuaDon != null) {
+            javafx.application.Platform.runLater(this::taiDonBep);
+        }
+    }
+
+    /** Tải danh sách đơn bánh tùy chỉnh chưa hoàn thành — chế độ Bếp. */
+    private void taiDonBep() {
+        if (presenter != null) {
+            presenter.taiDonBepTuyChinhChuaHoanThanh();
+        }
     }
 
     @FXML

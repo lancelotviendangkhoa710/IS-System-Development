@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    BanHangView.fxml — Shell màn hình Bán hàng với 2 tab.
+    Tab 1: POS tạo đơn (DonHangView)
+    Tab 2: Theo dõi tiến độ đơn hàng (TheoDoiDonHangView)
+    Controller: BanHangViewFXMLController (chỉ xử lý header + tab selection)
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.banhang.BanHangViewFXMLController"
+      styleClass="bg-app" spacing="0">
+
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <!-- Header chung -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <padding><Insets bottom="16"/></padding>
+        <VBox spacing="4">
+            <Label text="🛒 Bán hàng" styleClass="lbl-title-screen"/>
+            <Label text="Tạo đơn POS · Theo dõi tiến độ đơn hàng" styleClass="lbl-body"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
+
+    <!-- TabPane chứa 2 phân hệ bán hàng -->
+    <TabPane fx:id="tabPaneBanHang" VBox.vgrow="ALWAYS"
+             tabClosingPolicy="UNAVAILABLE"
+             styleClass="modern-tab-pane">
+
+        <!-- Tab 1: Tạo đơn POS -->
+        <Tab text="🛒  Tạo đơn POS" fx:id="tabTaoDon">
+            <fx:include source="DonHangView.fxml"/>
+        </Tab>
+
+        <!-- Tab 2: Theo dõi đơn hàng -->
+        <Tab text="📋  Theo dõi đơn hàng" fx:id="tabTheoDoiDon">
+            <fx:include source="TheoDoiDonHangView.fxml"/>
+        </Tab>
+
+    </TabPane>
+</VBox>

@@ -101,9 +101,12 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- 3. Insert Đơn Hàng Gốc (Đã kèm TONGTIENHDBAN)
+    -- 3. Insert Đơn Hàng Gốc — TIENDACOC = 0 để tránh vi phạm CK_DON_THANHTOAN
+    --    Oracle check constraint ngay tại dòng INSERT này. Nếu gán TIENDACOC = P_TIENDACOC
+    --    cùng lúc, có thể xảy ra TIENDACOC > TONGTIENHDBAN do precision/trigger chưa chạy.
+    --    Giải pháp: gán TIENDACOC = 0 (luôn pass: TONGTIENHDBAN >= 0), sau đó UPDATE ở Step 4.5.
     INSERT INTO DONDATHANG (NGAYGIONHANBANH, MAKH, MANV_LAP, MATRANGTHAI, TONGTIENHDBAN, TIENDACOC, HINHTHUCNHAN, DIACHIGIAO)
-    VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, NVL(V_TONGTIEN, 0), NVL(P_TIENDACOC, 0), P_HINHTHUCNHAN, P_DIACHIGIAO)
+    VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, NVL(V_TONGTIEN, 0), 0, P_HINHTHUCNHAN, P_DIACHIGIAO)
     RETURNING MADON INTO P_MADON_OUT;
 
     -- 4. Đẩy chi tiết — iterate collection (IMP-10: không parse JSON_TABLE lại)
@@ -121,6 +124,12 @@ BEGIN
                     V_TAB(I).MANHAN, V_TAB(I).MATRANGTRI);
         END IF;
     END LOOP;
+
+    -- 4.5. Gán TIENDACOC sau khi toàn bộ chi tiết đã insert
+    --      TONGTIENHDBAN đã ổn định (trigger không thay đổi thêm) → constraint luôn pass.
+    UPDATE DONDATHANG
+    SET TIENDACOC = NVL(P_TIENDACOC, 0)
+    WHERE MADON = P_MADON_OUT;
 
     -- 5. Ghi nhận lịch sử tạo đơn
     INSERT INTO LICHSUDONHANG (MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT)

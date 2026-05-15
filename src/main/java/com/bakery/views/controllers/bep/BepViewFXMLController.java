@@ -1,6 +1,7 @@
 package com.bakery.views.controllers.bep;
 
 import com.bakery.views.controllers.BaseController;
+import com.bakery.views.controllers.banhang.TheoDoiDonHangViewFXMLController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -18,13 +19,19 @@ public class BepViewFXMLController extends BaseController {
 
     @FXML private Tab tabXuatKho;
     @FXML private Tab tabDonHangBep;
-    @FXML private Tab tabKds;
     @FXML private Tab tabCauHinhGioiHan;
+
+    /** Injected tự động bởi FXMLLoader — tương ứng fx:id="theoDoiDonHangBep" trong FXML. */
+    @FXML private TheoDoiDonHangViewFXMLController theoDoiDonHangBepController;
 
     @FXML
     public void initialize() {
         if (tabPaneBep != null && tabXuatKho != null) {
             tabPaneBep.getSelectionModel().select(tabXuatKho);
+        }
+        // Kích hoạt chế độ Bếp: tự động hiển thị đơn tùy chỉnh chưa hoàn thành
+        if (theoDoiDonHangBepController != null) {
+            theoDoiDonHangBepController.setBepMode(true);
         }
     }
 
@@ -36,7 +43,6 @@ public class BepViewFXMLController extends BaseController {
         if (tabPaneBep == null) return;
         Tab target = switch (tabKey.toLowerCase()) {
             case "donhangbep" -> tabDonHangBep;
-            case "kds"        -> tabKds;
             case "cauhinhgioihan", "gioihan" -> tabCauHinhGioiHan;
             default           -> tabXuatKho;
         };

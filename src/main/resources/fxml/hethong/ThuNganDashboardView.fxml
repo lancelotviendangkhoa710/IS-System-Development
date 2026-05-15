@@ -96,12 +96,17 @@
 
                 <HBox spacing="16.0" alignment="CENTER_LEFT">
                     <Button mnemonicParsing="false" styleClass="btn-primary" style="-fx-padding: 12px 24px; -fx-font-size: 16px;" text="🛒 Mở quầy POS" onAction="#handleNavPOS"/>
-                    <Button mnemonicParsing="false" styleClass="btn-secondary" style="-fx-padding: 12px 24px; -fx-font-size: 16px;" text="🎂 Tạo đơn đặc biệt" onAction="#handleNavCustomOrders"/>
+                    <Button mnemonicParsing="false" styleClass="btn-secondary" style="-fx-padding: 12px 24px; -fx-font-size: 16px;" text="🎂 Theo dõi đơn đặt bánh" onAction="#handleNavCustomOrders"/>
                 </HBox>
             </VBox> <!-- End Overview Pane -->
 
-            <!-- Placeholder for other panes -> Add more panes as needed based on use cases (Not entirely filled yet, MVP state) -->
-            <VBox fx:id="panePlaceholder" spacing="24.0" visible="false">
+            <!-- 2. THEO DÕI ĐƠN HÀNG PANE (pre-loaded via fx:include) -->
+            <VBox fx:id="paneTheoDoiDon" visible="false" managed="false" VBox.vgrow="ALWAYS">
+                <fx:include source="../banhang/TheoDoiDonHangView.fxml"/>
+            </VBox>
+
+            <!-- 3. Placeholder cho các pane khác -->
+            <VBox fx:id="panePlaceholder" spacing="24.0" visible="false" managed="false">
                 <Label fx:id="lblPlaceholderMessage" text="Module đang tải..." style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
             </VBox>
 

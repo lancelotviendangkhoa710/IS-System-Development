@@ -78,11 +78,7 @@ public class ThanhToanService {
         int maTrangThaiHoanThanh = layMaTrangThaiHoanThanh();
         request.setMaTrangThai(maTrangThaiHoanThanh);
 
-        // Fix CK_DON_THANHTOAN: PROC_TAODONHANG tính TONGTIENHDBAN = SUM(soLuong ×
-        // donGia) từ JSON
-        // — donGia là giá gốc chưa nhân thuế.
-        // TIENDACOC phải <= TONGTIENHDBAN nên phải set bằng tổng tiền gốc (không nhân
-        // 1.085).
+
         double tongTienGoc = tinhTienGoc(request);
         request.setTienDaCoc(tongTienGoc);
 

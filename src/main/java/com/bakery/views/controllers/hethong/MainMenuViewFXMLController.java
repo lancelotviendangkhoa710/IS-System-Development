@@ -232,7 +232,9 @@ public class MainMenuViewFXMLController {
             return;
         }
         setActiveNavButton(btnBanHang);
-        loadView(coQuyenPos ? "/fxml/banhang/DonHangView.fxml" : "/fxml/banhang/TheoDoiDonHangView.fxml");
+        // Có quyền POS → load BanHangView (TabPane: POS + Theo dõi đơn)
+        // Chỉ có THEO_DOI → load thẳng TheoDoiDonHangView
+        loadView(coQuyenPos ? "/fxml/banhang/BanHangView.fxml" : "/fxml/banhang/TheoDoiDonHangView.fxml");
     }
 
     @FXML

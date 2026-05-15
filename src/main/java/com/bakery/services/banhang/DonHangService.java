@@ -169,4 +169,12 @@ public class DonHangService {
             maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, trangThaiFilter);
         return list != null ? list : java.util.List.of();
     }
+
+    /**
+     * Lấy danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình bếp.
+     * Delegate sang DonHangDAO qua TheoDoiDonService.
+     */
+    public List<DonDatHangDTO> layDonBepCoTuyChinhChuaHoanThanh() throws Exception {
+        return theoDoiDonService.layDonCoTuyChinhChuaHoanThanh();
+    }
 }

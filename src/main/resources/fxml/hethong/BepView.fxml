@@ -23,7 +23,7 @@
         <padding><Insets bottom="16"/></padding>
         <VBox spacing="4">
             <Label text="👨‍🍳 Quản lý Bếp" styleClass="lbl-title-screen"/>
-            <Label text="Xuất kho · Đơn hàng bếp · Màn hình KDS" styleClass="lbl-body"/>
+            <Label text="Xuất kho · Đơn hàng bếp · Giới hạn nhận đơn" styleClass="lbl-body"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
@@ -41,15 +41,10 @@
 
         <!-- Tab 2: Đơn hàng bếp -->
         <Tab text="👨‍🍳  Đơn hàng bếp" fx:id="tabDonHangBep">
-            <fx:include source="../banhang/TheoDoiDonHangView.fxml"/>
+            <fx:include fx:id="theoDoiDonHangBep" source="../banhang/TheoDoiDonHangView.fxml"/>
         </Tab>
 
-        <!-- Tab 3: Màn hình bếp (KDS) -->
-        <Tab text="🖥  Màn hình bếp (KDS)" fx:id="tabKds">
-            <fx:include source="ThoBepDashboardView.fxml"/>
-        </Tab>
-
-        <!-- Tab 4: Cấu hình giới hạn nhận đơn -->
+        <!-- Tab 3: Cấu hình giới hạn nhận đơn -->
         <Tab text="⚙  Giới hạn nhận đơn" fx:id="tabCauHinhGioiHan">
             <fx:include source="CauHinhGioiHanDonView.fxml"/>
         </Tab>

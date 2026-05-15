@@ -285,6 +285,42 @@ public class DonHangDAO extends BaseDAO {
         return list;
     }
 
+    /**
+     * Lấy danh sách đơn có bánh tùy chỉnh (CTDONTUYCHINH) và chưa hoàn thành/hủy.
+     * Dùng cho màn hình bếp — hiển thị đơn cần sản xuất bánh custom.
+     */
+    public List<DonDatHangDTO> layDonCoTuyChinhChuaHoanThanh() throws Exception {
+        List<DonDatHangDTO> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, " +
+                     "DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN, DDH.TIENDACOC " +
+                     "FROM DONDATHANG DDH " +
+                     "JOIN TRANGTHAIDON TT ON DDH.MATRANGTHAI = TT.MATRANGTHAI " +
+                     "JOIN CTDONTUYCHINH CTTC ON DDH.MADON = CTTC.MADON " +
+                     "WHERE UPPER(TT.TENTRANGTHAI) NOT IN (UPPER(N'Hoàn thành'), UPPER(N'Hủy')) " +
+                     "ORDER BY DDH.NGAYGIONHANBANH ASC, DDH.MADON ASC";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                DonDatHangDTO dto = new DonDatHangDTO();
+                dto.setMaDon(rs.getInt("MADON"));
+                int maKH = rs.getInt("MAKH");
+                if (!rs.wasNull()) dto.setMaKH(maKH);
+                dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
+                dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
+                if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
+                    dto.setNgayGioNhanBanh(rs.getTimestamp("NGAYGIONHANBANH").toLocalDateTime());
+                }
+                dto.setTongTienHDBan(rs.getBigDecimal("TONGTIENHDBAN"));
+                dto.setTienDaCoc(rs.getBigDecimal("TIENDACOC"));
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            handleException("layDonCoTuyChinhChuaHoanThanh", e);
+        }
+        return list;
+    }
+
     private String taoJsonChiTiet(List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) {
         StringBuilder json = new StringBuilder("[");
         boolean hasItem = false;

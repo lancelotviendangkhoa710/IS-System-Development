@@ -592,6 +592,20 @@ public class DonHangPresenter {
         timKiemDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
 
+    /**
+     * Tải danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình bếp.
+     * Không phụ thuộc vào bộ lọc ngày/trạng thái của user.
+     */
+    public void taiDonBepTuyChinhChuaHoanThanh() {
+        try {
+            List<DonDatHangDTO> dsDon = orderService.layDonBepCoTuyChinhChuaHoanThanh();
+            view.hienThiDanhSachDonTheoDoi(dsDon != null ? dsDon : new ArrayList<>());
+        } catch (Exception e) {
+            view.hienThiLoiTraCuu("Lỗi tải đơn bếp: " + e.getMessage());
+        }
+    }
+
+
     private void lamMoiTrangThai() {
         gioHangItems.clear();
         lamMoiKhachHang();

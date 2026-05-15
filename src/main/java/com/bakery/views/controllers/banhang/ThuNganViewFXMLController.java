@@ -42,6 +42,8 @@ public class ThuNganViewFXMLController {
     @FXML private Button btnMenuCustomers;
     @FXML private Button btnMenuHistory;
 
+    @FXML private VBox paneTheoDoiDon;
+
     @FXML private VBox paneOverview;
     @FXML private VBox panePlaceholder;
     @FXML private Label lblPlaceholderMessage;
@@ -93,16 +95,24 @@ public class ThuNganViewFXMLController {
         }
     }
 
+    /** Ẩn tất cả content pane trước khi show pane mới. */
+    private void anTatCaPane() {
+        paneOverview.setVisible(false);
+        paneOverview.setManaged(false);
+        if (paneTheoDoiDon != null) { paneTheoDoiDon.setVisible(false); paneTheoDoiDon.setManaged(false); }
+        panePlaceholder.setVisible(false);
+        panePlaceholder.setManaged(false);
+    }
+
     @FXML
     private void handleNavOverview() {
         resetMenuStyles();
         btnMenuOverview.getStyleClass().add("active");
-        lblHeaderTitle.setText("Tong quan giao dich");
+        lblHeaderTitle.setText("Tổng quan giao dịch");
 
+        anTatCaPane();
         paneOverview.setVisible(true);
         paneOverview.setManaged(true);
-        panePlaceholder.setVisible(false);
-        panePlaceholder.setManaged(false);
 
         lblTotalRevenue.setText("0 đ");
         lblTotalInvoices.setText("0");
@@ -116,7 +126,15 @@ public class ThuNganViewFXMLController {
 
     @FXML
     private void handleNavCustomOrders() {
-        moScene(btnMenuCustomOrders, "/fxml/banhang/TheoDoiDonHangView.fxml", "H3K Bakery - Theo doi don hang", 1366, 768);
+        resetMenuStyles();
+        btnMenuCustomOrders.getStyleClass().add("active");
+        lblHeaderTitle.setText("Theo dõi đơn hàng");
+
+        anTatCaPane();
+        if (paneTheoDoiDon != null) {
+            paneTheoDoiDon.setVisible(true);
+            paneTheoDoiDon.setManaged(true);
+        }
     }
 
     @FXML

@@ -62,24 +62,28 @@ public class ThoBepDashboardViewFXMLController extends BaseController {
 
         tblDonBep.setItems(dsDon);
         taiDuLieuTuDB();
+        // Auto-refresh mỗi 30s — tự stop khi màn hình bị thay thế (BaseController)
+        batDauAutoRefresh(tblDonBep, this::taiDuLieuTuDB, 30);
     }
 
-    // Tải danh sách đơn đang sản xuất từ DB
+    // Tải danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy từ DB
     private void taiDuLieuTuDB() {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             try {
-                List<DonDatHangDTO> list = donHangService.layDanhSachDonTheoDoi(
-                        null, null, null, null, null, "Đang sản xuất");
+                List<DonDatHangDTO> list = donHangService.layDonBepCoTuyChinhChuaHoanThanh();
                 Platform.runLater(() -> {
                     dsDon.setAll(list != null ? list : java.util.Collections.emptyList());
-                    if (dsDon.isEmpty()) {
-                        lblThongBao.setText("Không có đơn nào đang sản xuất.");
-                    }
+                    lblThongBao.setText(dsDon.isEmpty()
+                            ? "Không có đơn tùy chỉnh nào cần sản xuất."
+                            : "Cập nhật lần cuối: " + java.time.LocalTime.now().format(
+                                    java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
                 });
             } catch (Exception e) {
-                Platform.runLater(() -> lblThongBao.setText("Lỗi tải đơn hàng: " + e.getMessage()));
+                Platform.runLater(() -> lblThongBao.setText("Lỗi tải đơn hàng bếp: " + e.getMessage()));
             }
-        }).start();
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML

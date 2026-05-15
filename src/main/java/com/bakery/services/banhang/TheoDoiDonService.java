@@ -41,4 +41,13 @@ public class TheoDoiDonService {
             LocalTime gioTu, LocalTime gioDen) throws Exception {
         return layDanhSachDonTheoDoi(maDonSearch, null, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
+
+    /** Lấy đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình bếp. */
+    public List<DonDatHangDTO> layDonCoTuyChinhChuaHoanThanh() throws Exception {
+        try {
+            return donHangDAO.layDonCoTuyChinhChuaHoanThanh();
+        } catch (SQLException e) {
+            throw new Exception("Không thể tải đơn tùy chỉnh cho bếp: " + e.getMessage(), e);
+        }
+    }
 }

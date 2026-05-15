@@ -268,8 +268,24 @@ public class QuanLyDonHangService {
             request.setDiaChiGiao(null);
         if (request.getNgayGioNhanBanh() == null)
             throw new IllegalArgumentException("Ngày giờ nhận bánh bắt buộc nhập.");
-        if (request.getNgayGioNhanBanh().isBefore(LocalDateTime.now()))
-            throw new IllegalArgumentException("Ngày giờ nhận bánh không được nằm trong quá khứ.");
+
+        // Validate thời gian theo loại sản phẩm trong đơn
+        boolean coTuychinh = request.getItems().stream()
+                .anyMatch(YeuCauChiTietDonHangDTO::isCustom);
+        if (coTuychinh) {
+            // Bánh tùy chỉnh cần ít nhất 1 ngày chuẩn bị → nhận từ 9:00 sáng ngày hôm sau
+            LocalDateTime gioiHanTuychinh = java.time.LocalDate.now().plusDays(1).atTime(9, 0);
+            if (request.getNgayGioNhanBanh().isBefore(gioiHanTuychinh))
+                throw new IllegalArgumentException(
+                        "Đơn có bánh tùy chỉnh phải đặt giờ nhận từ 9:00 sáng ngày hôm sau trở đi"
+                        + " (cần ít nhất 1 ngày để chuẩn bị).");
+        } else {
+            // Bánh bán sẵn: đặt trước ít nhất 3 tiếng
+            LocalDateTime gioiHanBanSan = LocalDateTime.now().plusHours(3);
+            if (request.getNgayGioNhanBanh().isBefore(gioiHanBanSan))
+                throw new IllegalArgumentException(
+                        "Đơn bánh bán sẵn phải đặt giờ nhận ít nhất 3 tiếng kể từ hiện tại.");
+        }
 
         List<YeuCauChiTietDonHangDTO> items = request.getItems();
         if (items == null || items.isEmpty())
