@@ -3292,8 +3292,8 @@
 
 /* Brand inside glass */
 .login-glass-card .login-brand-giant {
-    -fx-font-size: 56px;
-    font-size: 56px;
+    -fx-font-size: 68px;
+    font-size: 68px;
     -fx-font-weight: 800;
     font-weight: 800;
     -fx-font-style: italic;
@@ -3302,11 +3302,11 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
 }
 .login-glass-card .login-brand-name {
-    -fx-font-size: 15px;
-    font-size: 15px;
-    -fx-font-weight: 600;
-    font-weight: 600;
-    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-size: 20px;
+    font-size: 20px;
+    -fx-font-weight: 700;
+    font-weight: 700;
+    -fx-text-fill: rgba(255,255,255,0.92);
     -fx-letter-spacing: 2px;
 }
 .login-glass-subtitle {

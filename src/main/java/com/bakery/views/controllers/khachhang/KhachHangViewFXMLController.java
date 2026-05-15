@@ -6,6 +6,7 @@ import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.khachhang.KhachHangPresenter;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.DialogHelper;
+import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.controllers.banhang.KhachHangDialogViewFXMLController;
@@ -20,7 +21,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -81,6 +81,8 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         applyFilter();
     }
 
+    private static final String TIER_TAT_CA = "Tất cả hạng";
+
     /** Nhận List<HangThanhVienDTO> từ Presenter — cập nhật cache và ComboBox lọc. */
     @Override
     public void hienThiDanhSachHang(List<HangThanhVienDTO> dsHang) {
@@ -92,9 +94,18 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
                 .filter(java.util.Objects::nonNull)
                 .sorted()
                 .toList();
-        cbTierFilter.getItems().setAll(tenHangList);
+
+        // Luôn có "Tất cả hạng" làm item đầu tiên để user có thể reset filter
+        java.util.List<String> allItems = new java.util.ArrayList<>();
+        allItems.add(TIER_TAT_CA);
+        allItems.addAll(tenHangList);
+        cbTierFilter.getItems().setAll(allItems);
+
+        // Giữ lại lựa chọn cũ nếu còn hợp lệ
         if (current != null && cbTierFilter.getItems().contains(current)) {
             cbTierFilter.setValue(current);
+        } else {
+            cbTierFilter.setValue(TIER_TAT_CA);
         }
         // Refresh bảng để cột điểm tính lại ngưỡng thăng hạng
         if (!allCustomers.isEmpty()) applyFilter();
@@ -202,33 +213,16 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         presenter.chuyenCheDoThungRac(!dangCheDoChuaXoa);
     }
 
-    /** Mở FileChooser, cho phép user chọn nơi lưu, rồi xuất Excel. */
+    /** Xuất danh sách khách hàng ra Excel — lưu tự động vào thư mục report/. */
     @FXML
     private void onExportExcelClicked() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Xuất danh sách khách hàng ra Excel");
-        fc.setInitialFileName("DanhSachKhachHang.xlsx");
-        fc.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Excel (.xlsx)", "*.xlsx"));
-
-        // Lấy window của bất kỳ node nào trong Scene hiện tại
-        javafx.stage.Window ownerWindow = customerTable.getScene() != null
-                ? customerTable.getScene().getWindow() : null;
-        File tepTin = fc.showSaveDialog(ownerWindow);
-
-        if (tepTin == null) return; // user bấm Cancel
-
-        // Đảm bảo có đuôi .xlsx
-        if (!tepTin.getName().toLowerCase().endsWith(".xlsx")) {
-            tepTin = new File(tepTin.getAbsolutePath() + ".xlsx");
-        }
-
+        File tepTin = ReportPathUtils.buildExcelPath("DanhSachKhachHang", "KH");
         presenter.xuatExcel(tepTin);
     }
 
     @FXML
     private void onClearFilterClicked() {
-        if (cbTierFilter != null) cbTierFilter.setValue(null);
+        if (cbTierFilter != null) cbTierFilter.setValue(TIER_TAT_CA);
         if (searchField != null)  searchField.clear();
         applyFilter();
     }
@@ -275,7 +269,9 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     /** Lọc client-side theo từ khóa tìm kiếm và hạng thành viên. */
     private void applyFilter() {
         String keyword = searchField != null ? searchField.getText().trim().toLowerCase() : "";
-        String tier    = cbTierFilter != null ? cbTierFilter.getValue() : null;
+        String tierRaw = cbTierFilter != null ? cbTierFilter.getValue() : null;
+        // "Tất cả hạng" = không lọc theo hạng
+        String tier = (tierRaw == null || TIER_TAT_CA.equals(tierRaw)) ? null : tierRaw;
 
         java.util.List<KhachHangDTO> filtered = allCustomers.stream()
                 .filter(kh -> {
@@ -359,10 +355,15 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
             KhachHangDialogViewFXMLController controller = loader.getController();
             if (kh != null) controller.khoiTaoChinhSua(kh);
 
+            Scene scene = new Scene(root);
+            // Load CSS để dialog-header, btn-success, lbl-body-bold hiển thị đúng
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle(kh == null ? "Thêm Khách Hàng" : "Chỉnh sửa Khách Hàng");
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
             stage.showAndWait();
 
             if (controller.getKetQua() != null) presenter.taiDuLieu();

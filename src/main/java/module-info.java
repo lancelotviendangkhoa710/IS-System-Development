@@ -1,42 +1,36 @@
-module BakeryManagementSystem {
+/**
+ * BakeryManagementSystem — JPMS module descriptor.
+ *
+ * Khai báo dạng "open module" để cho phép reflection từ JavaFX (FXML) và JasperReports
+ * (unnamed legacy JAR) mà không cần liệt kê từng `opens` riêng lẻ.
+ *
+ * JasperReports 6.21.3 không có Automatic-Module-Name nên là unnamed module.
+ * Các IDE sẽ không báo lỗi với "open module" vì reflection được phép từ mọi module.
+ * Compile: --add-reads BakeryManagementSystem=ALL-UNNAMED (đã khai báo trong pom.xml).
+ */
+open module BakeryManagementSystem {
+    // ── Java SE ───────────────────────────────────────────────────────────────
     requires java.datatransfer;
     requires transitive java.sql;
+
+    // ── JavaFX ────────────────────────────────────────────────────────────────
     requires transitive javafx.base;
     requires transitive javafx.controls;
     requires transitive javafx.fxml;
     requires transitive javafx.graphics;
-    requires java.desktop;
-    requires javafx.swing;
-    requires org.apache.pdfbox;
+
+    // ── Third-party named modules ─────────────────────────────────────────────
     requires org.apache.poi.poi;
     requires org.apache.poi.ooxml;
     requires jbcrypt;
     requires jakarta.mail;
-    // JasperReports — unnamed module legacy JAR, truy cập qua --add-reads ALL-UNNAMED trong pom.xml
 
-    // Mở gói cho JavaFX reflection (FXML binding, Platform.runLater, Scene graph)
-    opens com.bakery.main to javafx.graphics;
-    opens com.bakery.views.controllers to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.banhang to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.baocao to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.hethong to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.khachhang to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.kho to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.bep to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.nhansu to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.views.controllers.taichinh to javafx.fxml, javafx.graphics, javafx.controls;
-    opens com.bakery.model.dto to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.banhang to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.baocao to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.hethong to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.khachhang to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.kho to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.nhansu to javafx.base, javafx.fxml;
-    opens com.bakery.model.dto.taichinh to javafx.base, javafx.fxml;
-    opens com.bakery.presenters to javafx.fxml, javafx.graphics;
-    opens com.bakery.utils to jbcrypt;
-    opens com.bakery.services to javafx.fxml;
+    // ── JasperReports (automatic module từ jasperreports-6.21.3.jar) ──────────
+    // Tên automatic module = tên JAR bỏ version và extension: "jasperreports"
+    // Compile dùng --add-reads BakeryManagementSystem=ALL-UNNAMED (pom.xml) để handle transitive deps.
+    requires jasperreports;
 
+    // ── Exports ───────────────────────────────────────────────────────────────
     exports com.bakery.main;
     exports com.bakery.model.dto;
     exports com.bakery.model.dto.banhang;

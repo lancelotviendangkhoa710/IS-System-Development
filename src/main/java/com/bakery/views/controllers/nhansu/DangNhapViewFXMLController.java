@@ -8,6 +8,12 @@ import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.services.nhansu.XacThucService;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -24,6 +30,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.util.Duration;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -44,6 +51,10 @@ public class DangNhapViewFXMLController extends BaseController {
     @FXML private VBox subNhapUsername;
     @FXML private VBox subNhapOtp;
     @FXML private VBox subMatKhauMoi;
+
+    // Brand labels để apply animation
+    @FXML private Label lblBrandGiant;
+    @FXML private Label lblBrandName;
 
     // Fields Quên mật khẩu OTP
     @FXML private TextField txtQmkTenDangNhap;
@@ -102,6 +113,54 @@ public class DangNhapViewFXMLController extends BaseController {
         if (txtQmkMatKhauMoi != null && txtQmkMatKhauMoiVisible != null && btnToggleQmkMatKhau != null) {
             bindPasswordToggle(txtQmkMatKhauMoi, txtQmkMatKhauMoiVisible, btnToggleQmkMatKhau);
         }
+        chayAnimationTieuDe();
+    }
+
+    /** Slide-in + fade-in cho tiêu đề H3K và tên tiệm bánh khi màn hình khởi động. */
+    private void chayAnimationTieuDe() {
+        if (lblBrandGiant == null || lblBrandName == null) return;
+
+        // Ẩn sẵn trước khi chạy
+        lblBrandGiant.setOpacity(0);
+        lblBrandGiant.setTranslateY(-30);
+        lblBrandName.setOpacity(0);
+        lblBrandName.setTranslateY(-15);
+
+        // --- Animation cho "H3K" ---
+        FadeTransition fadeGiant = new FadeTransition(Duration.millis(600), lblBrandGiant);
+        fadeGiant.setFromValue(0);
+        fadeGiant.setToValue(1);
+
+        TranslateTransition slideGiant = new TranslateTransition(Duration.millis(600), lblBrandGiant);
+        slideGiant.setFromY(-30);
+        slideGiant.setToY(0);
+
+        ScaleTransition scaleGiant = new ScaleTransition(Duration.millis(600), lblBrandGiant);
+        scaleGiant.setFromX(0.85);
+        scaleGiant.setFromY(0.85);
+        scaleGiant.setToX(1.0);
+        scaleGiant.setToY(1.0);
+
+        ParallelTransition animGiant = new ParallelTransition(fadeGiant, slideGiant, scaleGiant);
+
+        // --- Animation cho "La Boulangerie H3K" (bắt đầu sau 200ms) ---
+        FadeTransition fadeName = new FadeTransition(Duration.millis(500), lblBrandName);
+        fadeName.setFromValue(0);
+        fadeName.setToValue(1);
+
+        TranslateTransition slideName = new TranslateTransition(Duration.millis(500), lblBrandName);
+        slideName.setFromY(-15);
+        slideName.setToY(0);
+
+        ParallelTransition animName = new ParallelTransition(fadeName, slideName);
+
+        // Chạy: H3K trước, tên tiệm sau 200ms
+        SequentialTransition sequence = new SequentialTransition(
+                animGiant,
+                new PauseTransition(Duration.millis(80)),
+                animName
+        );
+        sequence.play();
     }
 
     public void setLoginInfo(String message) {
@@ -177,8 +236,28 @@ public class DangNhapViewFXMLController extends BaseController {
             hienQmkLoi2("Vui lòng nhập mã OTP 6 số.");
             return;
         }
-        // OTP hợp lệ → tiếp tục bước đặt mật khẩu mới
-        hienQmkBuoc3();
+
+        // Verify OTP thực sự với DB — không cho qua bước 3 nếu sai
+        btnXacNhanOtp.setDisable(true);
+        hienQmkLoi2("");
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                xacThucService.xacMinhOtp(qmkTenDangNhapDangReset, otp);
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            btnXacNhanOtp.setDisable(false);
+            hienQmkBuoc3();
+        });
+        task.setOnFailed(e -> {
+            btnXacNhanOtp.setDisable(false);
+            hienQmkLoi2(resolveErrorMessage(task.getException()));
+        });
+        startBackgroundTask(task);
     }
 
     @FXML

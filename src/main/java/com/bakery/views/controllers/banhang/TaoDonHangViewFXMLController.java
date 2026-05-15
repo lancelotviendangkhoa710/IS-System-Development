@@ -411,8 +411,12 @@ public class TaoDonHangViewFXMLController implements IDonHangDialogFactory {
             if (fxmlUrl == null) throw new RuntimeException("Không tìm thấy KhachHangDialog.fxml");
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
             javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
+
+            // Load CSS để dialog hiển thị đúng style (dialog-header, btn-success, v.v.)
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
             KhachHangDialogViewFXMLController controller = loader.getController();
-            
             if (kh != null) {
                 controller.khoiTaoChinhSua(kh);
             }

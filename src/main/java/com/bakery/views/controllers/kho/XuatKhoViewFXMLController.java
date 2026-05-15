@@ -8,6 +8,8 @@ import com.bakery.model.dto.kho.PhieuXuatKhoDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.services.kho.XuatKhoSanXuatService;
 import com.bakery.services.nhansu.PhanQuyenService;
+import com.bakery.utils.JasperReportUtils;
+import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
@@ -21,6 +23,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
+import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -33,6 +36,7 @@ public class XuatKhoViewFXMLController extends BaseController {
 
     @FXML private Label lblTitle;
     @FXML private Button btnXoa;
+    @FXML private Button btnInPhieu; // in phiếu xuất đang chọn bằng JasperReports
     @FXML private TableView<PhieuXuatKhoDTO> tblData;
     @FXML private TableColumn<PhieuXuatKhoDTO, String> colDate;
     @FXML private TableColumn<PhieuXuatKhoDTO, String> colUser;
@@ -62,7 +66,7 @@ public class XuatKhoViewFXMLController extends BaseController {
         capNhatQuyenXoa();
     }
 
-    /** Task 3: Chỉ Admin/Quản lý được thấy nút Xóa phiếu xuất. */
+    /** Chỉ Admin/Quản lý được thấy nút Xóa phiếu xuất. */
     private void capNhatQuyenXoa() {
         if (btnXoa == null) return;
         PhanQuyenService svc = new PhanQuyenService();
@@ -74,6 +78,11 @@ public class XuatKhoViewFXMLController extends BaseController {
             btnXoa.setDisable(true);
             tblData.getSelectionModel().selectedItemProperty().addListener(
                     (obs, old, nv) -> btnXoa.setDisable(nv == null));
+        }
+        // Nút In phiếu: enable khi có dòng được chọn
+        if (btnInPhieu != null) {
+            tblData.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, old, nv) -> btnInPhieu.setDisable(nv == null));
         }
     }
 
@@ -504,4 +513,54 @@ public class XuatKhoViewFXMLController extends BaseController {
     }
 
     private static String nvl(String s) { return s != null ? s : "—"; }
+
+    // ── In phiếu xuất kho bằng JasperReports ──────────────────────────────────────
+
+    /**
+     * Handler cho nút "🖨 In phiếu" — xuất phiếu xuất kho đang chọn sang PDF.
+     * Vì PhieuXuatKhoDTO không có CTPHIEUXUAT riêng, mỗi phiếu xuất chỉ có 1 dòng hàng hóa.
+     * Row = {tenHang, loaiHang, soLuong, donVi, ghiChu}.
+     */
+    @FXML
+    private void onInPhieuXuat() {
+        PhieuXuatKhoDTO phieu = tblData.getSelectionModel().getSelectedItem();
+        if (phieu == null) {
+            hienThiLoiLabel("Vui lòng chọn phiếu xuất cần in.");
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                String maPhieu   = String.valueOf(phieu.getMaPX());
+                String ngayXuat  = phieu.getNgayXuat() != null
+                        ? phieu.getNgayXuat().format(FMT) : "—";
+                String lyDo      = nvl(phieu.getLyDoXuat());
+                String nguoiXuat = nvl(phieu.getTenNhanVien());
+                String ghiChu    = "Lý do: " + lyDo;
+
+                // Phiếu xuất chỉ có 1 dòng tổng hợp
+                java.util.List<String[]> rows = new java.util.ArrayList<>();
+                rows.add(new String[]{
+                    "(Xem chi tiết trong hệ thống)", // tenHang
+                    lyDo,                               // loaiHang
+                    "—",                               // soLuong
+                    "—",                               // donVi
+                    ""                                  // ghiChu
+                });
+
+                File outputFile = ReportPathUtils.buildPdfPath("PhieuXuat", "PX-" + maPhieu);
+
+                JasperReportUtils.xuatPhieuXuatKhoPDF(
+                        outputFile, maPhieu, ngayXuat, lyDo, nguoiXuat, ghiChu, rows);
+
+                javafx.application.Platform.runLater(() ->
+                        hienThiThongTin("In phiếu xuất thành công",
+                                "PDF đã lưu tại:\n" + outputFile.getAbsolutePath()));
+
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        hienThiThongBaoLoi("Lỗi in phiếu xuất", e.getMessage()));
+            }
+        }, "in-phieu-xuat-jasper").start();
+    }
 }

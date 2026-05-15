@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD Report Design//EN"
+        "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<!-- Phiếu nhập kho H3K Bakery -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+                  http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="phieu_nhap_kho"
+              pageWidth="595" pageHeight="842"
+              columnWidth="535" leftMargin="30" rightMargin="30"
+              topMargin="30" bottomMargin="30"
+              uuid="c3d4e5f6-a7b8-9012-cdef-123456789012">
+
+    <!-- ═══ PARAMETERS ══════════════════════════════════════════════════════ -->
+    <parameter name="P_MA_PHIEU"      class="java.lang.String">
+        <defaultValueExpression><![CDATA["—"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_NGAY_NHAP"     class="java.lang.String">
+        <defaultValueExpression><![CDATA["—"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_NHA_CUNG_CAP"  class="java.lang.String">
+        <defaultValueExpression><![CDATA["—"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_NGUOI_NHAP"    class="java.lang.String">
+        <defaultValueExpression><![CDATA["—"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_TONG_TIEN"     class="java.lang.String">
+        <defaultValueExpression><![CDATA["0 ₫"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_TONG_DONG"     class="java.lang.String">
+        <defaultValueExpression><![CDATA["0"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="P_NGAY_IN"       class="java.lang.String">
+        <defaultValueExpression><![CDATA["—"]]></defaultValueExpression>
+    </parameter>
+
+    <!-- ═══ FIELDS ══════════════════════════════════════════════════════════ -->
+    <field name="STT"        class="java.lang.String"/>
+    <field name="TEN_NL"     class="java.lang.String"/>
+    <field name="SO_LUONG"   class="java.lang.String"/>
+    <field name="DON_GIA"    class="java.lang.String"/>
+    <field name="THANH_TIEN" class="java.lang.String"/>
+    <field name="HAN_SD"     class="java.lang.String"/>
+    <field name="GHI_CHU"    class="java.lang.String"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TITLE BAND — Header phiếu nhập                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <title>
+        <band height="190" splitType="Stretch">
+            <!-- Nền header xanh (màu kho) -->
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="60" backcolor="#185FA5" uuid="faafcbcb-0685-429e-bc6e-c048fbcc37ce"/>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
+            </rectangle>
+
+            <!-- Tên thương hiệu -->
+            <staticText>
+                <reportElement x="10" y="6" width="515" height="28" forecolor="#FFFFFF" uuid="5f8c9143-bc29-4f54-98f9-af14de4636c8"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[🍞  H3K BAKERY — PHIẾU NHẬP KHO]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="10" y="34" width="515" height="20" forecolor="#CCE4FF" uuid="4f013710-a643-4233-9111-7d7b2daca8e7"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="9" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Chứng từ nhập kho nguyên liệu — Nội bộ H3K Bakery]]></text>
+            </staticText>
+
+            <!-- Đường kẻ -->
+            <line>
+                <reportElement x="0" y="64" width="535" height="1" forecolor="#185FA5" uuid="fed42310-b97b-4aac-8f5b-f3e6daf6583b"/>
+                <graphicElement><pen lineWidth="1.5"/></graphicElement>
+            </line>
+
+            <!-- ── Thông tin phiếu (2 cột) ────────────────────────────── -->
+            <!-- Cột trái -->
+            <staticText>
+                <reportElement x="0" y="72" width="100" height="16" forecolor="#555555" uuid="c652831b-7f90-4c59-a871-0f59e5d6b329"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Số phiếu:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="100" y="72" width="165" height="16" forecolor="#D85A30" uuid="9c07d19e-39a7-4bd0-9a43-63205640ce85"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA["#" + $P{P_MA_PHIEU}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="92" width="100" height="16" forecolor="#555555" uuid="1d5b2498-470d-487b-9b64-c416f8b24992"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Ngày nhập:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="100" y="92" width="165" height="16" uuid="42ea3fa4-0901-42d6-92d2-1922b3ce5b66"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{P_NGAY_NHAP}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="112" width="100" height="16" forecolor="#555555" uuid="3b6f9c4b-27ec-41d6-80fa-d1f57742fe2b"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Người nhập:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="100" y="112" width="165" height="16" uuid="e730c8ac-9b74-4f8f-88d9-e703e34514a6"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{P_NGUOI_NHAP}]]></textFieldExpression>
+            </textField>
+
+            <!-- Cột phải -->
+            <staticText>
+                <reportElement x="270" y="72" width="120" height="16" forecolor="#555555" uuid="023e29d2-2096-4822-9734-5c482b7799bd"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Nhà cung cấp:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="390" y="72" width="145" height="16" uuid="77a625b6-7287-4fbc-842d-a70d00921a08"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{P_NHA_CUNG_CAP}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="270" y="92" width="120" height="16" forecolor="#555555" uuid="3fe4d23c-af78-4a6b-8837-2121986e3401"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Tổng số dòng:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="390" y="92" width="145" height="16" uuid="207e70c2-a19e-43e5-aff2-1a3af2000cc5"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{P_TONG_DONG} + " nguyên liệu"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="270" y="112" width="120" height="16" forecolor="#555555" uuid="2b6dca52-a2e0-4ca0-a97e-c7e7a4d1eec8"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Ngày in:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="390" y="112" width="145" height="16" uuid="9f46fb16-615c-45b1-a228-a99739b4745e"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{P_NGAY_IN}]]></textFieldExpression>
+            </textField>
+
+            <!-- Tổng tiền nổi bật -->
+            <rectangle>
+                <reportElement x="0" y="138" width="535" height="36" backcolor="#E8F4FF" uuid="93a78d56-9763-417f-9217-2b2a909a0057"/>
+                <graphicElement><pen lineWidth="0.5" lineColor="#185FA5"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="10" y="148" width="200" height="18" forecolor="#185FA5" uuid="04365ccc-83fc-4439-b393-d4d5b909da2c"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="11" isBold="true"/></textElement>
+                <text><![CDATA[TỔNG GIÁ TRỊ LÔ HÀNG:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="210" y="148" width="315" height="18" forecolor="#D85A30" uuid="48284e1a-d3f5-467c-9bb4-102f022837a4"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="14" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{P_TONG_TIEN}]]></textFieldExpression>
+            </textField>
+
+            <!-- Đường kẻ cuối header -->
+            <line>
+                <reportElement x="0" y="178" width="535" height="1" forecolor="#185FA5" uuid="54da7118-44cc-490d-b3ed-7fa9fb8e98d9"/>
+                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+            </line>
+        </band>
+    </title>
+
+    <!-- ═══ COLUMN HEADER ═══════════════════════════════════════════════════ -->
+    <columnHeader>
+        <band height="22">
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="22" backcolor="#185FA5" uuid="7acb8e0b-f43c-4b76-96db-b660797b8b5d"/>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="2"   y="3" width="28"  height="16" forecolor="#FFFFFF" uuid="2d135227-6481-41ed-b348-118288b05f6b"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <text><![CDATA[STT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="30"  y="3" width="175" height="16" forecolor="#FFFFFF" uuid="be6feb5a-1724-4d60-a688-895aa4666871"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <text><![CDATA[TÊN NGUYÊN LIỆU]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="205" y="3" width="60"  height="16" forecolor="#FFFFFF" uuid="86244349-3d9d-4699-8fb2-4b5126ec3854"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <text><![CDATA[SỐ LƯỢNG]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="265" y="3" width="80"  height="16" forecolor="#FFFFFF" uuid="70b8dd29-985f-419a-a6dd-158250044e85"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <text><![CDATA[ĐƠN GIÁ (₫)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="345" y="3" width="85"  height="16" forecolor="#FFFFFF" uuid="6b54c4a4-6ee4-4e04-803e-e0452a0d2c4a"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <text><![CDATA[THÀNH TIỀN (₫)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="430" y="3" width="103" height="16" forecolor="#FFFFFF" uuid="dc170ef9-5134-469f-94fc-d437b6d8de12"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <text><![CDATA[HẠN SỬ DỤNG]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- ═══ DETAIL ══════════════════════════════════════════════════════════ -->
+    <detail>
+        <band height="18" splitType="Stretch">
+            <rectangle>
+                <reportElement x="0" y="0" width="535" height="18" backcolor="#F0F9FF" uuid="05953521-3cb1-4886-90e4-28890afa7a07">
+                    <printWhenExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></printWhenExpression>
+                </reportElement>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
+            </rectangle>
+            <textField isBlankWhenNull="true">
+                <reportElement x="2"   y="2" width="28"  height="14" uuid="844c5162-9b70-4be2-9e83-7b54cb8dfb88"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{STT}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="30"  y="2" width="175" height="14" uuid="d118424d-95f9-4cea-9c1b-5a0199c72836"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{TEN_NL}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="205" y="2" width="60"  height="14" uuid="24489335-9282-45c8-a7c8-f7286d961a04"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{SO_LUONG}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="265" y="2" width="80"  height="14" uuid="83dfb3c8-9ad5-4a88-a675-f6c18177c960"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{DON_GIA}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="345" y="2" width="85"  height="14" uuid="e764a252-2ee8-4773-b5fa-592b8b3b91d9"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{THANH_TIEN}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="430" y="2" width="103" height="14" uuid="807f6a5d-8bca-44c5-afa0-24c59bfc128f"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{HAN_SD}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="17" width="535" height="1" forecolor="#D6EAFF" uuid="e3ee6944-8bef-408b-8dfc-f2c7fbcc2b19"/>
+            </line>
+        </band>
+    </detail>
+
+    <!-- ═══ PAGE FOOTER ══════════════════════════════════════════════════════ -->
+    <pageFooter>
+        <band height="24" splitType="Stretch">
+            <line>
+                <reportElement x="0" y="0" width="535" height="1" forecolor="#185FA5" uuid="3dce1450-9042-43ee-955b-0096bc36e94b"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="4" width="267" height="16" forecolor="#A8A29E" uuid="04d52315-0ca1-44b1-9706-7a2fb39a9714"/>
+                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <text><![CDATA[H3K Bakery Management System — Phiếu nhập kho]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="268" y="4" width="267" height="16" forecolor="#A8A29E" uuid="2f283009-e4d9-42ce-8d90-185bd573167d"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+                <textFieldExpression><![CDATA["Trang " + $V{PAGE_NUMBER} + " / " + $V{PAGE_COUNT}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <!-- ═══ SUMMARY — Chữ ký ════════════════════════════════════════════════ -->
+    <summary>
+        <band height="80" splitType="Prevent">
+            <line>
+                <reportElement x="0" y="10" width="535" height="1" forecolor="#185FA5" uuid="8c1bfa28-20e3-4b9b-b874-c06a1c5e7596"/>
+            </line>
+            <!-- Chữ ký bên trái -->
+            <staticText>
+                <reportElement x="0" y="18" width="167" height="14" forecolor="#555555" uuid="31d00456-5f93-4f4a-b8a4-e70362aeafd4"/>
+                <textElement textAlignment="Center"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Người lập phiếu]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="32" width="167" height="12" forecolor="#888888" uuid="ae4699f8-bede-428d-9005-6f3d3bc30c8c"/>
+                <textElement textAlignment="Center"><font fontName="DejaVu Sans" size="8" isItalic="true"/></textElement>
+                <text><![CDATA[(Ký, ghi rõ họ tên)]]></text>
+            </staticText>
+
+            <!-- Chữ ký giữa -->
+            <staticText>
+                <reportElement x="184" y="18" width="167" height="14" forecolor="#555555" uuid="e7743051-136c-4a90-bac9-7430dd5e56a4"/>
+                <textElement textAlignment="Center"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Thủ kho]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="184" y="32" width="167" height="12" forecolor="#888888" uuid="cebcb7c5-6408-4819-8572-c116153407d0"/>
+                <textElement textAlignment="Center"><font fontName="DejaVu Sans" size="8" isItalic="true"/></textElement>
+                <text><![CDATA[(Ký, ghi rõ họ tên)]]></text>
+            </staticText>
+
+            <!-- Chữ ký phải -->
+            <staticText>
+                <reportElement x="368" y="18" width="167" height="14" forecolor="#555555" uuid="aaa0e495-6e3e-4e73-a4b2-3fb3c187f2d2"/>
+                <textElement textAlignment="Center"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
+                <text><![CDATA[Giám đốc / Quản lý]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="368" y="32" width="167" height="12" forecolor="#888888" uuid="03a2de1f-b4a2-4fa5-be00-8a14f16d6cae"/>
+                <textElement textAlignment="Center"><font fontName="DejaVu Sans" size="8" isItalic="true"/></textElement>
+                <text><![CDATA[(Ký, đóng dấu)]]></text>
+            </staticText>
+        </band>
+    </summary>
+
+    <!-- ═══ NO DATA ══════════════════════════════════════════════════════════ -->
+    <noData>
+        <band height="40">
+            <staticText>
+                <reportElement x="0" y="8" width="535" height="24" forecolor="#A8A29E" uuid="71f43b63-dfd1-4fca-b555-970fef926b15"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="11" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Phiếu nhập không có chi tiết lô hàng.]]></text>
+            </staticText>
+        </band>
+    </noData>
+
+</jasperReport>

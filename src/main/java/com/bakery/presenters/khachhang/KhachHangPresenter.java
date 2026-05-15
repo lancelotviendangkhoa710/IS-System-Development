@@ -295,7 +295,8 @@ public class KhachHangPresenter {
 
         task.setOnSucceeded(event -> {
             view.batTatTrangThaiBan(false);
-            view.hienThiThanhCong("Thành công", "Đã xuất Excel.");
+            view.hienThiThanhCong("Xuất Excel thành công",
+                    "Danh sách khách hàng đã lưu tại:\n" + tepTin.getAbsolutePath());
         });
         task.setOnFailed(event -> {
             view.batTatTrangThaiBan(false);

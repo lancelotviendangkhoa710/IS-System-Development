@@ -8,28 +8,18 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -371,56 +361,7 @@ public class BaoCaoViewFXMLController extends BaseController {
         colTrangThai.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[4]));
     }
 
-    @FXML
-    private void onTaiBaoCaoNhanh() {
-        String loaiStr = cbLoaiBaoCao.getValue() != null ? cbLoaiBaoCao.getValue() : "BaoCao";
-        LocalDate ngay = dpNgayBaoCao.getValue() != null ? dpNgayBaoCao.getValue() : LocalDate.now();
-        String suffix = loaiStr + "_" + ngay.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-        File outputFile = ReportPathUtils.buildPdfPath("ThongKe", suffix);
-
-        // Chụp toàn bộ tab Thống kê kinh doanh → PDF
-        new Thread(() -> {
-            try {
-                // Snapshot phải chạy trên FX thread
-                javafx.application.Platform.runLater(() -> {
-                    try {
-                        // Lấy ScrollPane trong tab thống kê để snapshot
-                        javafx.scene.Node tabContent = tabThongKeKinhDoanh.getContent();
-                        WritableImage snapshot = tabContent.snapshot(
-                                new javafx.scene.SnapshotParameters(), null);
-                        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
-
-                        // Ghi PDF trong background
-                        new Thread(() -> {
-                            try (PDDocument doc = new PDDocument()) {
-                                float w = (float) snapshot.getWidth();
-                                float h = (float) snapshot.getHeight();
-                                PDPage page = new PDPage(new PDRectangle(w, h));
-                                doc.addPage(page);
-                                PDImageXObject img = LosslessFactory.createFromImage(doc, bufferedImage);
-                                try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
-                                    cs.drawImage(img, 0, 0, w, h);
-                                }
-                                doc.save(outputFile);
-                                javafx.application.Platform.runLater(() ->
-                                    hienThiThongTin("Xuất PDF thành công",
-                                        "Báo cáo đã lưu tại:\n" + outputFile.getAbsolutePath()));
-                            } catch (Exception ex) {
-                                javafx.application.Platform.runLater(() ->
-                                    hienThiThongBaoLoi("Lỗi", "Không thể lưu PDF: " + ex.getMessage()));
-                            }
-                        }, "export-pdf-baocao").start();
-
-                    } catch (Exception ex) {
-                        hienThiThongBaoLoi("Lỗi snapshot", ex.getMessage());
-                    }
-                });
-            } catch (Exception e) {
-                javafx.application.Platform.runLater(() ->
-                    hienThiThongBaoLoi("Lỗi", "Không thể xuất PDF: " + e.getMessage()));
-            }
-        }, "export-pdf-trigger").start();
-    }
+    // onTaiBaoCaoNhanh đã được xóa — thay thế bởi Jasper PDF/Excel
 
 
     // ── JasperReports: Xuất PDF chuyên nghiệp ───────────────────────────────
@@ -504,6 +445,66 @@ public class BaoCaoViewFXMLController extends BaseController {
                         "Không thể xuất " + (excel ? "Excel" : "PDF") + ": " + e.getMessage()));
             }
         }, "jasper-export").start();
+    }
+
+    /**
+     * Xuất báo cáo lịch sử mua hàng (chi tiết giao dịch) sang PDF.
+     * Template: /reports/lich_su_mua_hang.jrxml
+     */
+    @FXML
+    private void onXuatLichSuMuaHang() {
+        String loaiStr  = cbLoaiBaoCao.getValue() != null ? cbLoaiBaoCao.getValue() : "Ngày";
+        LocalDate ngay  = dpNgayBaoCao.getValue() != null ? dpNgayBaoCao.getValue() : LocalDate.now();
+
+        String loai     = "DAY";
+        String giaTri   = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        if ("Tháng".equals(loaiStr)) { loai = "MONTH"; giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy")); }
+        else if ("Quý".equals(loaiStr))  { loai = "QUARTER"; giaTri = ((ngay.getMonthValue()-1)/3+1) + "/" + ngay.getYear(); }
+        else if ("Năm".equals(loaiStr))  { loai = "YEAR";  giaTri = String.valueOf(ngay.getYear()); }
+
+        String tieuDe   = "Lịch sử mua hàng — " + loaiStr + " " + giaTri;
+        String nguoiXuat = UserSession.getCurrentUser() != null
+                ? UserSession.getCurrentUser().getHoTen() : "Hệ thống";
+        String suffix    = "LichSu_" + ngay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        File outputFile  = ReportPathUtils.buildPdfPath("LichSuMuaHang", suffix);
+        final String finalLoai = loai;
+        final String finalGiaTri = giaTri;
+
+        new Thread(() -> {
+            try {
+                // getChiTietGiaoDich trả về {maDon, tenKhach, monHang, soTien, trangThai}
+                // → cần bổ sung ngayMua và soLuong — dùng maDon và ngày kỳ làm placeholder
+                List<String[]> raw = thongKeService.getChiTietGiaoDich(finalLoai, finalGiaTri);
+                double tongTien = thongKeService.getDoanhThu(finalLoai, finalGiaTri);
+
+                // Map sang format lịch sử: {maDon, ngayMua, tenKhach, monHang, soLuong, soTien, trangThai}
+                java.util.List<String[]> rows = new java.util.ArrayList<>();
+                for (String[] r : raw) {
+                    rows.add(new String[]{
+                        r.length > 0 ? r[0] : "",   // maDon
+                        finalGiaTri,                  // ngayMua (kỳ báo cáo)
+                        r.length > 1 ? r[1] : "",   // tenKhach
+                        r.length > 2 ? r[2] : "",   // monHang
+                        "1",                          // soLuong placeholder
+                        r.length > 3 ? r[3] : "",   // soTien
+                        r.length > 4 ? r[4] : ""    // trangThai
+                    });
+                }
+
+                JasperReportUtils.xuatLichSuMuaHangPDF(
+                        outputFile, tieuDe, finalGiaTri, finalGiaTri,
+                        String.valueOf(rows.size()),
+                        String.format("%,.0f ₫", tongTien),
+                        nguoiXuat, rows);
+
+                javafx.application.Platform.runLater(() ->
+                    hienThiThongTin("Xuất lịch sử thành công",
+                        "PDF đã lưu tại:\n" + outputFile.getAbsolutePath()));
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                    hienThiThongBaoLoi("Lỗi xuất lịch sử", e.getMessage()));
+            }
+        }, "jasper-lichsu").start();
     }
 
     @FXML

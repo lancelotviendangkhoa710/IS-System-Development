@@ -10,6 +10,8 @@ import com.bakery.model.dto.kho.PhieuNhapKhoDTO;
 import com.bakery.services.kho.NhapKhoService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.DialogHelper;
+import com.bakery.utils.JasperReportUtils;
+import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
@@ -27,6 +29,7 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,7 +42,8 @@ public class NhapKhoViewFXMLController extends BaseController {
 
     // ── Header row (từ FXML cũ — dùng lại fx:id) ──────────────────────
     @FXML private Label lblTitle;
-    @FXML private Button btnXoa;  // Task 3: chỉ visible với Admin/Quản lý
+    @FXML private Button btnXoa;     // chỉ visible với Admin/Quản lý
+    @FXML private Button btnInPhieu; // in phiếu nhập đang chọn bằng JasperReports
     @FXML private TableView<PhieuNhapKhoDTO> tblData;
     @FXML
     private TableColumn<PhieuNhapKhoDTO, String> colDate;
@@ -71,7 +75,7 @@ public class NhapKhoViewFXMLController extends BaseController {
         capNhatQuyenXoa();
     }
 
-    /** Task 3: Kiểm tra vai trò, hiện/ẩn btnXoa theo RBAC. */
+    /** Kiểm tra vai trò, hiện/ẩn btnXoa theo RBAC. */
     private void capNhatQuyenXoa() {
         if (btnXoa == null) return;
         PhanQuyenService svc = new PhanQuyenService();
@@ -80,10 +84,14 @@ public class NhapKhoViewFXMLController extends BaseController {
         btnXoa.setVisible(coQuyen);
         btnXoa.setManaged(coQuyen);
         if (coQuyen) {
-            // Chỉ enable khi đã chọn dòng trong bảng
             btnXoa.setDisable(true);
             tblData.getSelectionModel().selectedItemProperty().addListener(
                     (obs, old, nv) -> btnXoa.setDisable(nv == null));
+        }
+        // Nút In phiếu: enable khi có dòng được chọn
+        if (btnInPhieu != null) {
+            tblData.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, old, nv) -> btnInPhieu.setDisable(nv == null));
         }
     }
 
@@ -579,4 +587,67 @@ public class NhapKhoViewFXMLController extends BaseController {
     private static String escapeJson(String s) {
         return s == null ? "" : s.replace("\"", "\\\"");
     }
+
+    // ── In phiếu nhập kho bằng JasperReports ────────────────────────────────
+
+    /**
+     * Handler cho nút "In phiếu" — xuất phiếu nhập kho đang chọn sang PDF.
+     * Chạy DB query + compile/fill Jasper trên background thread, mở dialog kết quả trên FX thread.
+     */
+    @FXML
+    private void onInPhieuNhap() {
+        PhieuNhapKhoDTO phieu = tblData.getSelectionModel().getSelectedItem();
+        if (phieu == null) {
+            hienThiLoiLabel("Vui lòng chọn phiếu nhập cần in.");
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                // Lấy chi tiết lô hàng từ DB
+                List<CTPhieuNhapDTO> chiTiet = nhapKhoDAO.layChiTietPhieuNhap(phieu.getMaPN());
+
+                // Map DTO → String[] row cho Jasper
+                // row = {tenNL, soLuong, donGia, thanhTien, hanSuDung, ghiChu}
+                List<String[]> rows = new ArrayList<>();
+                for (CTPhieuNhapDTO ct : chiTiet) {
+                    double sl   = ct.getSoLuong();
+                    double dg   = ct.getDonGia() != null ? ct.getDonGia().doubleValue() : 0.0;
+                    double tt   = sl * dg;
+                    String hanSD = ct.getHanSuDung() != null
+                            ? ct.getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "—";
+                    rows.add(new String[]{
+                        nvl(ct.getTenNL()),
+                        FMT_TIEN.format(sl),
+                        FMT_TIEN.format(dg) + " đ",
+                        FMT_TIEN.format(tt) + " đ",
+                        hanSD,
+                        "" // ghi chú (không có trong DTO hiện tại)
+                    });
+                }
+
+                String maPhieu   = String.valueOf(phieu.getMaPN());
+                String ngayNhap  = phieu.getNgayNhap() != null
+                        ? phieu.getNgayNhap().format(FMT) : "—";
+                String ncc       = nvl(phieu.getTenNhaCungCap());
+                String nguoiNhap = nvl(phieu.getTenNhanVien());
+                String tongTien  = phieu.getTongTienNhap() != null
+                        ? FMT_TIEN.format(phieu.getTongTienNhap()) + " đ" : "0 đ";
+
+                File outputFile = ReportPathUtils.buildPdfPath("PhieuNhap", "PN-" + maPhieu);
+
+                JasperReportUtils.xuatPhieuNhapKhoPDF(
+                        outputFile, maPhieu, ngayNhap, ncc, nguoiNhap, tongTien, rows);
+
+                javafx.application.Platform.runLater(() ->
+                        hienThiThongTin("In phiếu thành công",
+                                "PDF đã lưu tại:\n" + outputFile.getAbsolutePath()));
+
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        hienThiThongBaoLoi("Lỗi in phiếu nhập", e.getMessage()));
+            }
+        }, "in-phieu-nhap-jasper").start();
+    }
 }
+

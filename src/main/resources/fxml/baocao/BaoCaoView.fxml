@@ -43,17 +43,20 @@
                                     <ComboBox fx:id="cbLoaiBaoCao" prefWidth="100" promptText="Ngày" styleClass="combo-box"/>
                                     <DatePicker fx:id="dpNgayBaoCao" prefWidth="140"/>
                                     <Region HBox.hgrow="ALWAYS"/>
-                                    <Button text="⬇  Tải báo cáo" onAction="#onTaiBaoCaoNhanh"
-                                            styleClass="btn-success" style="-fx-font-weight: bold;"/>
                                     <Button id="btnXuatJasperPDF"
-                                            text="📄  Xuất PDF (Jasper)"
+                                            text="📄  Xuất PDF"
                                             onAction="#onXuatJasperPDF"
                                             styleClass="btn-primary"
                                             style="-fx-font-weight: bold;"/>
                                     <Button id="btnXuatJasperExcel"
-                                            text="📊  Xuất Excel (Jasper)"
+                                            text="📊  Xuất Excel"
                                             onAction="#onXuatJasperExcel"
                                             styleClass="btn-reset"
+                                            style="-fx-font-weight: bold;"/>
+                                    <Button id="btnXuatLichSu"
+                                            text="🧾  Lịch sử mua hàng"
+                                            onAction="#onXuatLichSuMuaHang"
+                                            styleClass="btn-secondary"
                                             style="-fx-font-weight: bold;"/>
                                 </HBox>
 

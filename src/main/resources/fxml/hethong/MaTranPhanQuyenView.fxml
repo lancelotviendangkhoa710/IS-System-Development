@@ -28,61 +28,21 @@
         <Separator/>
     </VBox>
 
-    <!-- Tab pane -->
-    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE"
-             styleClass="modern-tab-pane">
 
-        <!-- TAB 1: Gán vai trò cho nhân viên -->
-        <Tab text="👤  Nhân viên &amp; Vai trò">
-            <VBox spacing="16" style="-fx-padding: 16 0 0 0;">
+    <!-- Toolbar: Tìm kiếm + Lưu -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <TextField fx:id="txtTimNhanVien" promptText="Tìm nhân viên..." prefWidth="260"/>
+        <Button text="🔍 Tìm" onAction="#onTimKiemNhanVien" styleClass="btn-secondary"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="💾 Lưu thay đổi" onAction="#onLuuPhanVaiTro" styleClass="btn-success"/>
+    </HBox>
 
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <TextField fx:id="txtTimNhanVien" promptText="Tìm nhân viên..." prefWidth="260"/>
-                    <Button text="🔍 Tìm" onAction="#onTimKiemNhanVien" styleClass="btn-secondary"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="💾 Lưu thay đổi" onAction="#onLuuPhanVaiTro" styleClass="btn-success"/>
-                </HBox>
+    <!-- Ma trận Nhân viên × Vai trò -->
+    <VBox styleClass="card" VBox.vgrow="ALWAYS">
+        <ScrollPane fx:id="scrollMatrix" fitToWidth="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent;"/>
+    </VBox>
 
-                <VBox styleClass="card" VBox.vgrow="ALWAYS">
-                    <ScrollPane fx:id="scrollMatrix" fitToWidth="true" VBox.vgrow="ALWAYS"
-                                style="-fx-background-color: transparent; -fx-background: transparent;"/>
-                </VBox>
+    <Label fx:id="lblStatusVaiTro" text="Đang tải..." styleClass="lbl-small-bold"/>
 
-                <Label fx:id="lblStatusVaiTro" text="Đang tải..." styleClass="lbl-small-bold"/>
-            </VBox>
-        </Tab>
-
-        <!-- TAB 2: Quyền chi tiết theo vai trò -->
-        <Tab text="🔐  Quyền chức năng">
-            <VBox spacing="16" style="-fx-padding: 16 0 0 0;" VBox.vgrow="ALWAYS">
-
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <Label text="Vai trò:" styleClass="lbl-body-bold"/>
-                    <ComboBox fx:id="cbVaiTro" prefWidth="220"/>
-                    <Button text="📋 Tải quyền" onAction="#onTaiQuyenVaiTro" styleClass="btn-secondary"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="💾 Lưu quyền" onAction="#onLuuQuyenChucNang" styleClass="btn-success"/>
-                </HBox>
-
-                <TableView fx:id="tblChucNang" VBox.vgrow="ALWAYS" editable="true">
-                    <columns>
-                        <TableColumn fx:id="colTenCN"  text="Chức năng"   prefWidth="220"/>
-                        <TableColumn fx:id="colModule" text="Module"       prefWidth="140"/>
-                        <TableColumn fx:id="colView"   text="Xem"          prefWidth="70"/>
-                        <TableColumn fx:id="colAdd"    text="Thêm"         prefWidth="70"/>
-                        <TableColumn fx:id="colEdit"   text="Sửa"          prefWidth="70"/>
-                        <TableColumn fx:id="colDel"    text="Xóa"          prefWidth="70"/>
-                        <TableColumn fx:id="colDown"   text="Tải xuống"    prefWidth="90"/>
-                    </columns>
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                    </columnResizePolicy>
-                </TableView>
-
-                <Label fx:id="lblStatusChucNang" text="Chọn vai trò để xem quyền."
-                       styleClass="lbl-small-bold"/>
-            </VBox>
-        </Tab>
-
-    </TabPane>
 </VBox>

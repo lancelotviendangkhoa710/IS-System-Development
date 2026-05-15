@@ -55,17 +55,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- jasperreports-fonts: chứa DejaVu Sans/Serif hỗ trợ Unicode (tiếng Việt) -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-fonts</artifactId>
+            <version>6.21.3</version>
+        </dependency>
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
             <version>2.1.7</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.30</version>
-        </dependency>
-
+        <!-- PDFBox đã được xóa — thay thế hoàn toàn bởi JasperReports 6.21.3 -->
         <!-- ── Excel ──────────────────────────────────────────────────────── -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -177,6 +178,9 @@
                     <mainClass>com.bakery.main.App</mainClass>
                     <options>
                         <option>-Dfile.encoding=UTF-8</option>
+                        <!-- JasperReports là unnamed module — cần add-reads để runtime truy cập được -->
+                        <option>--add-reads</option>
+                        <option>BakeryManagementSystem=ALL-UNNAMED</option>
                     </options>
                 </configuration>
             </plugin>

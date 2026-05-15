@@ -73,13 +73,19 @@ BEGIN
     FROM CTPHIEUNHAP
     WHERE MAPN = V_MAPN;
 
-    -- 5. Lấy mã loại thu chi 'Nhap hang'
-    SELECT MALOAITHUCHI INTO V_MALOAITHUCHI
-    FROM LOAITHUCHI
-    WHERE TENLOAITHUCHI = N'Nhap hang'
-      AND PHANLOAI = 'Chi'
-      AND THOIDIEMXOA IS NULL
+    -- 5. Lấy mã loại thu chi 'Nhap hang' — guard riêng để NO_DATA_FOUND có thông báo rõ nghĩa
+    BEGIN
+        SELECT MALOAITHUCHI INTO V_MALOAITHUCHI
+        FROM LOAITHUCHI
+        WHERE UPPER(TRIM(TENLOAITHUCHI)) = UPPER(TRIM(N'Nhap hang'))
+          AND PHANLOAI = 'Chi'
+          AND THOIDIEMXOA IS NULL
         FETCH FIRST 1 ROW ONLY;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEU_NHAP_KHO,
+                N'Lỗi cấu hình: Không tìm thấy loại thu chi "Nhap hang" trong bảng LOAITHUCHI. Hãy chạy lại script_insert_data.sql.');
+    END;
 
     -- 6. Tạo phiếu chi nhập hàng
     --    FIX: NULLIF(P_MACA, 0) — thủ kho không có ca (maCa=0) → lưu NULL thay vì FK fail

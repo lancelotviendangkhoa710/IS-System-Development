@@ -43,8 +43,10 @@ public class App extends Application {
 
         primaryStage.setTitle("H3K Bakery - Đăng nhập");
         primaryStage.setResizable(true);
-        primaryStage.setMinWidth(1280);
-        primaryStage.setMinHeight(720);
+        primaryStage.setMinWidth(900);
+        primaryStage.setMinHeight(620);
+        primaryStage.setWidth(1100);
+        primaryStage.setHeight(700);
         primaryStage.centerOnScreen();
         primaryStage.setScene(scene);
         // Cảnh báo khi đóng cửa sổ chính

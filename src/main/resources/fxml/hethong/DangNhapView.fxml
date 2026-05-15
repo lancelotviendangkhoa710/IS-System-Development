@@ -16,30 +16,30 @@
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.bakery.views.controllers.nhansu.DangNhapViewFXMLController"
-           prefWidth="1280" prefHeight="720">
+           prefWidth="1100" prefHeight="680">
 
-    <!-- Layer 1: Background Image (@ URL resolved by FXML loader) -->
-    <ImageView fx:id="bgImageView" fitWidth="1280" fitHeight="720"
+    <!-- Layer 1: Background Image — fitWidth/fitHeight bound to scene in App.java -->
+    <ImageView fx:id="bgImageView"
                preserveRatio="false" smooth="true">
         <image>
             <Image url="@../../images/login.png"/>
         </image>
     </ImageView>
 
-    <!-- Layer 2: Dark overlay -->
+    <!-- Layer 2: Light overlay (giảm từ 0.48 → 0.25 để hình nền sáng hơn) -->
     <Region maxWidth="Infinity" maxHeight="Infinity"
-            style="-fx-background-color: rgba(0, 0, 0, 0.48);"/>
+            style="-fx-background-color: rgba(0, 0, 0, 0.25);"/>
 
     <!-- ── Layer 3: Glass Form Panel (centered) ── -->
     <VBox styleClass="login-glass-card"
-          prefWidth="460" maxWidth="460"
+          prefWidth="390" maxWidth="390"
           alignment="CENTER" spacing="0"
           StackPane.alignment="CENTER">
 
         <!-- Brand header -->
-        <VBox alignment="CENTER" spacing="6" style="-fx-padding: 36 40 24 40;">
-            <Label text="H3K" styleClass="login-brand-giant"/>
-            <Label text="La Boulangerie H3K" styleClass="login-brand-name"/>
+        <VBox alignment="CENTER" spacing="5" style="-fx-padding: 24 32 16 32;">
+            <Label fx:id="lblBrandGiant" text="H3K" styleClass="login-brand-giant"/>
+            <Label fx:id="lblBrandName" text="La Boulangerie H3K" styleClass="login-brand-name"/>
             <Label text="Hệ thống quản lý tiệm bánh" styleClass="login-glass-subtitle"/>
         </VBox>
 
@@ -49,7 +49,7 @@
 
         <!-- Form Content Area — tất cả panels nằm trong StackPane này -->
         <StackPane alignment="TOP_CENTER" VBox.vgrow="ALWAYS"
-                   style="-fx-padding: 28 40 36 40;">
+                   style="-fx-padding: 20 32 28 32;">
 
             <!-- ── Panel 1: Start Screen ── -->
             <VBox fx:id="panelStartScreen" alignment="CENTER" spacing="16">

@@ -249,6 +249,35 @@ public class XacThucService {
     }
 
     /**
+     * Chỉ kiểm tra OTP có hợp lệ không — KHÔNG thay đổi mật khẩu.
+     * Dùng tại bước 2 của UI (sau khi nhập OTP, trước khi nhập mật khẩu mới).
+     *
+     * @param tenDangNhap Tên đăng nhập đang reset
+     * @param otpCode     Mã OTP 6 số người dùng nhập
+     * @throws NgoaiLeXacThuc nếu OTP sai hoặc hết hạn
+     */
+    public void xacMinhOtp(String tenDangNhap, String otpCode) throws Exception {
+        String usernameDaChuanHoa = validateUsername(tenDangNhap);
+
+        String[] info = nhanVienDAO.layEmailVaMaTaiKhoanTheoUsername(usernameDaChuanHoa);
+        if (info == null) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.THONG_TIN_DANG_NHAP_SAI, "Tài khoản không tồn tại.");
+        }
+        int maTaiKhoan = Integer.parseInt(info[0]);
+
+        String tokenValue = OTP_PREFIX + (otpCode == null ? "" : otpCode.trim());
+        AccountTokenDTO otpToken = accountTokenDAO.timTheoGiaTri(tokenValue);
+        if (otpToken == null || otpToken.getMaTaiKhoan() != maTaiKhoan) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.OTP_SAI, "Mã xác nhận không chính xác.");
+        }
+        if (!otpToken.conHieuLuc()) {
+            throw new NgoaiLeXacThuc(MaLoiXacThuc.OTP_HET_HAN,
+                    "Mã xác nhận đã hết hạn. Vui lòng yêu cầu mã mới.");
+        }
+        // OTP hợp lệ — không thực hiện thêm thao tác nào
+    }
+
+    /**
      * Xác minh OTP và đặt lại mật khẩu mới.
      * Không yêu cầu session đăng nhập.
      *

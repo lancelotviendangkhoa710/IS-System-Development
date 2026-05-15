@@ -33,17 +33,17 @@ public class EmailService {
             Properties cfg = new Properties();
             cfg.load(in);
 
-            smtpProps.put("mail.smtp.host",                cfg.getProperty("mail.smtp.host"));
-            smtpProps.put("mail.smtp.port",                cfg.getProperty("mail.smtp.port"));
-            smtpProps.put("mail.smtp.auth",                cfg.getProperty("mail.smtp.auth"));
-            smtpProps.put("mail.smtp.starttls.enable",     cfg.getProperty("mail.smtp.starttls.enable"));
-            smtpProps.put("mail.smtp.connectiontimeout",   cfg.getProperty("mail.smtp.connectiontimeout", "5000"));
-            smtpProps.put("mail.smtp.timeout",             cfg.getProperty("mail.smtp.timeout", "5000"));
+            smtpProps.put("mail.smtp.host", cfg.getProperty("mail.smtp.host"));
+            smtpProps.put("mail.smtp.port", cfg.getProperty("mail.smtp.port"));
+            smtpProps.put("mail.smtp.auth", cfg.getProperty("mail.smtp.auth"));
+            smtpProps.put("mail.smtp.starttls.enable", cfg.getProperty("mail.smtp.starttls.enable"));
+            smtpProps.put("mail.smtp.connectiontimeout", cfg.getProperty("mail.smtp.connectiontimeout", "5000"));
+            smtpProps.put("mail.smtp.timeout", cfg.getProperty("mail.smtp.timeout", "5000"));
 
-            senderEmail     = cfg.getProperty("mail.sender.email");
-            senderPassword  = cfg.getProperty("mail.sender.password");
-            senderName      = cfg.getProperty("mail.sender.name", "H3K BAKERY SYSTEM");
-            otpSubject      = cfg.getProperty("mail.otp.subject", "Mã xác nhận đặt lại mật khẩu");
+            senderEmail = cfg.getProperty("mail.sender.email");
+            senderPassword = cfg.getProperty("mail.sender.password");
+            senderName = cfg.getProperty("mail.sender.name", "H3K BAKERY SYSTEM");
+            otpSubject = cfg.getProperty("mail.otp.subject", "Verify OTP code to reset password");
             otpExpireMinutes = Integer.parseInt(cfg.getProperty("mail.otp.expire.minutes", "10"));
 
         } catch (IOException e) {
@@ -55,7 +55,8 @@ public class EmailService {
     public static EmailService getInstance() {
         if (instance == null) {
             synchronized (EmailService.class) {
-                if (instance == null) instance = new EmailService();
+                if (instance == null)
+                    instance = new EmailService();
             }
         }
         return instance;
@@ -63,8 +64,9 @@ public class EmailService {
 
     /**
      * Gửi email OTP đặt lại mật khẩu.
-     * @param toEmail  Địa chỉ email người nhận
-     * @param otpCode  Mã OTP 6 số
+     * 
+     * @param toEmail Địa chỉ email người nhận
+     * @param otpCode Mã OTP 6 số
      * @throws MessagingException nếu gửi thất bại
      */
     public void guiEmailOtp(String toEmail, String otpCode) throws MessagingException {
@@ -76,12 +78,12 @@ public class EmailService {
         });
 
         try {
-            Message message = new MimeMessage(session);
+            MimeMessage message = new MimeMessage(session);
             InternetAddress from = new InternetAddress(senderEmail);
             from.setPersonal(senderName, "UTF-8");
             message.setFrom(from);
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject(otpSubject);
+            message.setSubject(otpSubject, "UTF-8");
             message.setContent(xayDungNoiDungHtml(otpCode), "text/html; charset=UTF-8");
             Transport.send(message);
         } catch (java.io.UnsupportedEncodingException e) {
@@ -112,7 +114,8 @@ public class EmailService {
                         Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.
                     </p>
                 </div>
-                """.formatted(otpCode, otpExpireMinutes);
+                """
+                .formatted(otpCode, otpExpireMinutes);
     }
 
     public int getOtpExpireMinutes() {

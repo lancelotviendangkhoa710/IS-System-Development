@@ -9,8 +9,8 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bakery.views.controllers.banhang.TaoDonHangViewFXMLController"
-            minWidth="600" minHeight="550"
-            style="-fx-background-color: #FDFBF7;">
+            minWidth="500" minHeight="700"
+            styleClass="bg-surface">
 
     <fx:define>
         <ToggleGroup fx:id="tgOrderFlow"/>
@@ -47,8 +47,8 @@
                                 onAction="#onTimKhach"/>
                     </HBox>
                     <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <Button text="＋ Thêm KH" onAction="#onThemKhachHang" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
-                        <Button text="✏ Sửa KH" onAction="#onSuaKhachHang" style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 6; -fx-font-size: 11px;"/>
+                        <Button text="+ Them KH" onAction="#onThemKhachHang" styleClass="btn-success"/>
+                        <Button text="Sua KH" onAction="#onSuaKhachHang" styleClass="btn-secondary"/>
                     </HBox>
 
                     <Label text="Khách hàng:" GridPane.columnIndex="0" GridPane.rowIndex="2"
@@ -202,7 +202,7 @@
             <Button fx:id="btnBack" text="← Quay lại"
                     styleClass="btn-secondary"
                     visible="false" disable="true"
-                    onAction="# "/>
+                    onAction="#onBack"/>
             <Button fx:id="btnNext" text="Tiếp theo →"
                     styleClass="btn-primary"
                     onAction="#onNext"/>
