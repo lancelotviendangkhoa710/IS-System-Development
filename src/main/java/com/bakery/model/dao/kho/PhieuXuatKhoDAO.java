@@ -1,6 +1,7 @@
 package com.bakery.model.dao.kho;
 
 import com.bakery.model.dao.BaseDAO;
+import com.bakery.model.dto.kho.CTPhieuXuatDTO;
 import com.bakery.model.dto.kho.PhieuXuatKhoDTO;
 
 import java.sql.*;
@@ -125,5 +126,65 @@ public class PhieuXuatKhoDAO extends BaseDAO {
             handleException("xuatSaiSotBanh", e);
             throw e;
         }
+    }
+
+    /**
+     * Lấy toàn bộ chi tiết phiếu xuất theo maPX.
+     * Gộp 2 nguồn: CTPHIEUXUAT_NL (nguyên liệu) + CTPHIEUXUAT_TP (thành phẩm).
+     */
+    public List<CTPhieuXuatDTO> layChiTietPhieuXuat(int maPX) throws Exception {
+        List<CTPhieuXuatDTO> list = new ArrayList<>();
+
+        // ── Nguyên liệu xuất ──────────────────────────────────────────────────
+        String sqlNL =
+            "SELECT NL.TENNL, DVT.TENDVT, CX.SOLUONG " +
+            "FROM CTPHIEUXUAT_NL CX " +
+            "JOIN CTPHIEUNHAP   CTN ON CTN.MALO  = CX.MALO " +
+            "JOIN NGUYENLIEU    NL  ON NL.MANL   = CTN.MANL " +
+            "JOIN DONVITINH     DVT ON DVT.MADVT = NL.MADVT " +
+            "WHERE CX.MAPX = ?";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sqlNL)) {
+            ps.setInt(1, maPX);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CTPhieuXuatDTO dto = new CTPhieuXuatDTO();
+                    dto.setLoai("NL");
+                    dto.setTenHang(rs.getString("TENNL"));
+                    dto.setDonViTinh(rs.getString("TENDVT"));
+                    dto.setSoLuong(rs.getDouble("SOLUONG"));
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layChiTietPhieuXuat[NL]", e);
+        }
+
+        // ── Thành phẩm (bánh) xuất ────────────────────────────────────────────
+        String sqlTP =
+            "SELECT SP.TENSP, CT.SOLUONG, CT.DONGIAVON " +
+            "FROM CTPHIEUXUAT_TP CT " +
+            "JOIN SANPHAM SP ON SP.MASP = CT.MASP " +
+            "WHERE CT.MAPX = ?";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sqlTP)) {
+            ps.setInt(1, maPX);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CTPhieuXuatDTO dto = new CTPhieuXuatDTO();
+                    dto.setLoai("TP");
+                    dto.setTenHang(rs.getString("TENSP"));
+                    dto.setDonViTinh("cái");
+                    dto.setSoLuong(rs.getDouble("SOLUONG"));
+                    java.math.BigDecimal giaVon = rs.getBigDecimal("DONGIAVON");
+                    dto.setDonGiaVon(giaVon);
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layChiTietPhieuXuat[TP]", e);
+        }
+
+        return list;
     }
 }

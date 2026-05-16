@@ -3,6 +3,7 @@ package com.bakery.views.controllers.kho;
 import com.bakery.model.dao.kho.NguyenLieuDAO;
 import com.bakery.model.dao.kho.PhieuXuatKhoDAO;
 import com.bakery.model.dao.kho.SanPhamDAO;
+import com.bakery.model.dto.kho.CTPhieuXuatDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.PhieuXuatKhoDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
@@ -13,15 +14,21 @@ import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.time.format.DateTimeFormatter;
@@ -526,19 +533,85 @@ public class XuatKhoViewFXMLController extends BaseController {
     // ── Xem chi tiết phiếu xuất ────────────────────────────────────────────
 
     /**
-     * Hiển thị dialog tóm tắt phiếu xuất (phiếu xuất không có bảng chi tiết riêng —
-     * thông tin nằm ngay trong PhieuXuatKhoDTO).
+     * Hiển thị dialog chi tiết phiếu xuất — load NL + TP từ DB, hiển bảng đầy đủ.
      */
     private void hienThiDialogChiTietPhieuXuat(PhieuXuatKhoDTO phieu) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Chi tiết phiếu xuất #" + phieu.getMaPX());
-        alert.setHeaderText("Phiếu xuất kho #" + phieu.getMaPX());
-        String nd = "Ngày xuất : " + (phieu.getNgayXuat() != null ? phieu.getNgayXuat().format(FMT) : "—") + "\n"
-                  + "Lý do    : " + nvl(phieu.getLyDoXuat()) + "\n"
-                  + "Người xuất: " + nvl(phieu.getTenNhanVien());
-        alert.setContentText(nd);
-        injectDialogCss(alert);
-        alert.showAndWait();
+        // ── Tải dữ liệu từ DB ────────────────────────────────────────────────
+        java.util.List<CTPhieuXuatDTO> dsChiTiet = new java.util.ArrayList<>();
+        try {
+            dsChiTiet = new PhieuXuatKhoDAO().layChiTietPhieuXuat(phieu.getMaPX());
+        } catch (Exception e) {
+            hienThiLoiLabel("Không tải được chi tiết phiếu xuất: " + e.getMessage());
+        }
+
+        // ── Header label ────────────────────────────────────────────────
+        String header = "Ðơn #" + phieu.getMaPX()
+            + "  |  Ngày xuất: " + (phieu.getNgayXuat() != null ? phieu.getNgayXuat().format(FMT) : "—")
+            + "  |  Lý do: " + nvl(phieu.getLyDoXuat())
+            + "  |  Người xuất: " + nvl(phieu.getTenNhanVien());
+
+        // ── TableView ────────────────────────────────────────────────
+        TableView<CTPhieuXuatDTO> tbl = new TableView<>();
+
+        TableColumn<CTPhieuXuatDTO, String> colLoai = new TableColumn<>("Loại");
+        colLoai.setCellValueFactory(c -> new SimpleStringProperty(
+            "NL".equals(c.getValue().getLoai()) ? "Nguyên liệu" : "Thành phẩm"));
+        colLoai.setPrefWidth(110);
+
+        TableColumn<CTPhieuXuatDTO, String> colTen = new TableColumn<>("Tên hàng");
+        colTen.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenHang()));
+        colTen.setPrefWidth(200);
+
+        TableColumn<CTPhieuXuatDTO, String> colDVT = new TableColumn<>("ĐVT");
+        colDVT.setCellValueFactory(c -> new SimpleStringProperty(nvl(c.getValue().getDonViTinh())));
+        colDVT.setPrefWidth(70);
+
+        TableColumn<CTPhieuXuatDTO, Double> colSL = new TableColumn<>("Số lượng");
+        colSL.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getSoLuong()));
+        colSL.setPrefWidth(90);
+
+        TableColumn<CTPhieuXuatDTO, String> colGia = new TableColumn<>("Đơn giá vốn");
+        colGia.setCellValueFactory(c -> {
+            if (c.getValue().getDonGiaVon() == null) return new SimpleStringProperty("—");
+            return new SimpleStringProperty(FMT_TIEN.format(c.getValue().getDonGiaVon()) + " đ");
+        });
+        colGia.setPrefWidth(120);
+
+        tbl.getColumns().addAll(colLoai, colTen, colDVT, colSL, colGia);
+        tbl.setItems(FXCollections.observableArrayList(dsChiTiet));
+        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tbl.setMaxHeight(340);
+        if (dsChiTiet.isEmpty())
+            tbl.setPlaceholder(new Label("Phiếu xuất này chưa có dữ liệu chi tiết."));
+
+        // ── Layout ────────────────────────────────────────────────
+        Label lblHeader = new Label(header);
+        lblHeader.getStyleClass().add("lbl-body-bold");
+        lblHeader.setWrapText(true);
+
+        Label lblTitle2 = new Label("📊 Chi tiết xuất kho");
+        lblTitle2.getStyleClass().add("lbl-title-card");
+
+        Button btnDong = new Button("❌ Đóng");
+        btnDong.getStyleClass().add("btn-secondary");
+
+        HBox footer = new HBox(btnDong);
+        footer.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+
+        VBox root = new VBox(10, lblHeader, new Separator(), lblTitle2, tbl, new Separator(), footer);
+        root.setPadding(new Insets(16));
+        root.getStyleClass().add("bg-app");
+
+        Scene scene = new Scene(root, 640, 460);
+        java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Chi tiết phiếu xuất #" + phieu.getMaPX());
+        stage.setScene(scene);
+        btnDong.setOnAction(e -> stage.close());
+        stage.showAndWait();
     }
 
     // ── In phiếu xuất kho bằng JasperReports ──────────────────────────────────────
