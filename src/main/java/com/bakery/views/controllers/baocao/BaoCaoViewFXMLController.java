@@ -154,7 +154,7 @@ public class BaoCaoViewFXMLController extends BaseController {
             return; // Đã chạy rồi
         }
         tonKhoRefreshTimeline = new Timeline(
-            new KeyFrame(Duration.seconds(60), evt -> {
+            new KeyFrame(Duration.seconds(5), evt -> {
                 // Chỉ refresh nếu tab vẫn đang active
                 if (tabPaneBaoCao != null && tabPaneBaoCao.getSelectionModel().getSelectedItem() == tabTonKho) {
                     onXemBaoCaoTonKho();

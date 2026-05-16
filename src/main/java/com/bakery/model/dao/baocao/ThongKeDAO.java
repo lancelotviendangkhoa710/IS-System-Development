@@ -489,4 +489,44 @@ public class ThongKeDAO extends BaseDAO {
         }
         return result;
     }
+
+    /**
+     * Dashboard — Thống kê 7 ngày gần nhất: doanh thu, số đơn hoàn thành, số đơn hủy.
+     * Trả List String[5]: {ngay_dd_mm, doanhThu, donHoanThanh, donHuy, tongDon}
+     */
+    public List<String[]> getThongKeTheoNgay() throws Exception {
+        List<String[]> result = new ArrayList<>();
+        String sql =
+            "SELECT TO_CHAR(TRUNC(D.NGAYLAP), 'DD/MM') AS NGAY, " +
+            "  NVL(SUM(H.TONGTIENTHANHTOAN), 0) AS DOANH_THU, " +
+            "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
+            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) LIKE '%HOAN THANH%') " +
+            "    THEN D.MADON END) AS DON_HOAN_THANH, " +
+            "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
+            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) LIKE '%HUY%') " +
+            "    THEN D.MADON END) AS DON_HUY, " +
+            "  COUNT(DISTINCT D.MADON) AS TONG_DON " +
+            "FROM DONDATHANG D " +
+            "LEFT JOIN HOADON H ON H.MADON = D.MADON " +
+            "WHERE D.NGAYLAP >= TRUNC(SYSDATE) - 6 " +
+            "GROUP BY TRUNC(D.NGAYLAP) " +
+            "ORDER BY TRUNC(D.NGAYLAP) ASC";
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                result.add(new String[]{
+                    rs.getString("NGAY"),
+                    String.format("%.0f", rs.getDouble("DOANH_THU")),
+                    String.valueOf(rs.getInt("DON_HOAN_THANH")),
+                    String.valueOf(rs.getInt("DON_HUY")),
+                    String.valueOf(rs.getInt("TONG_DON"))
+                });
+            }
+        } catch (SQLException e) {
+            handleException("getThongKeTheoNgay", e);
+        }
+        return result;
+    }
 }

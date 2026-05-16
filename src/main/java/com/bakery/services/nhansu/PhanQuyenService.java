@@ -91,6 +91,9 @@ public class PhanQuyenService {
     /**
      * Tính năng được cấp dựa trên module từ CSDL (VAITRO_CHUCNANG).
      * Mỗi SystemModule ánh xạ sang một tập TinhNangHeThong tương ứng.
+     *
+     * QUAN TRỌNG: BAN_HANG_POS chỉ được cấp khi ChucNang thực sự là POS
+     * (không phải "Theo dõi đơn hàng" dù cùng MODULE='POS' trong DB).
      */
     public Set<TinhNangHeThong> layTinhNangDuocCap(NhanVienDTO nhanVien) {
         EnumSet<TinhNangHeThong> tinhNang = EnumSet.copyOf(TINH_NANG_MAC_DINH);
@@ -99,13 +102,22 @@ public class PhanQuyenService {
         // Nguồn sự thật từ DB — VAITRO_CHUCNANG → SystemModule
         Set<SystemModule> modules = layModulesDuocCap(nhanVien);
 
+        // Lấy danh sách ChucNangDTO để phân biệt POS vs Theo dõi đơn hàng
+        boolean coChucNangPosThucSu = coChucNangPosThucSu(nhanVien);
+
         if (modules.contains(SystemModule.BAN_HANG)) {
-            tinhNang.addAll(EnumSet.of(
-                    TinhNangHeThong.BAN_HANG_POS,
-                    TinhNangHeThong.THEO_DOI_DON_HANG,
-                    TinhNangHeThong.QUAN_LY_CA_LAM_VIEC,
-                    TinhNangHeThong.THU_CHI
-            ));
+            // BAN_HANG_POS chỉ cấp khi chức năng thực sự là POS, không phải chỉ "Theo dõi đơn"
+            if (coChucNangPosThucSu) {
+                tinhNang.addAll(EnumSet.of(
+                        TinhNangHeThong.BAN_HANG_POS,
+                        TinhNangHeThong.THEO_DOI_DON_HANG,
+                        TinhNangHeThong.QUAN_LY_CA_LAM_VIEC,
+                        TinhNangHeThong.THU_CHI
+                ));
+            } else {
+                // Có MODULE=BAN_HANG nhưng chỉ là theo dõi đơn (ví dụ: Thợ bếp)
+                tinhNang.add(TinhNangHeThong.THEO_DOI_DON_HANG);
+            }
         }
         if (modules.contains(SystemModule.KHACH_HANG)) {
             tinhNang.add(TinhNangHeThong.KHACH_HANG);
@@ -155,9 +167,36 @@ public class PhanQuyenService {
                     TinhNangHeThong.THANH_PHAN_BANH      // Cau hinh thanh phan banh
             ));
         }
-        // BAO_CAO không tự cấp CAU_HINH_GIOI_HAN_DON — đã handle ở block laQuanLy
 
         return tinhNang;
+    }
+
+    /**
+     * Kiểm tra user có chức năng POS thực sự (bán hàng tại quầy) không.
+     * Phân biệt với "Theo dõi đơn hàng" (cùng MODULE=POS trong DB nhưng
+     * không được phép mở màn hình BanHangView).
+     *
+     * Logic: đọc danh sách ChucNangDTO, tìm chức năng có tên chứa "POS",
+     * "BÁN HÀNG", "LẬP HÓA ĐƠN" — không phải chỉ "THEO DÕI".
+     */
+    private boolean coChucNangPosThucSu(NhanVienDTO nhanVien) {
+        if (nhanVien == null) return false;
+        try {
+            PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
+            if (info == null) return false;
+            for (ChucNangDTO cn : info.getDanhSachChucNang()) {
+                if (!cn.isCanView()) continue; // Bỏ qua chức năng không có quyền xem
+                String ten = chuanHoa(cn.getTenChucNang());
+                // Chỉ cấp POS thực sự khi tên chứa "POS" hoặc "BAN HANG" hoặc "LAP HOA DON"
+                // NHƯNG không phải "THEO DOI" đơn thuần
+                if (chuaMotTrong(ten, "POS", "BAN HANG", "LAP HOA DON", "BILL", "CASHIER")) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[PhanQuyenService] Loi kiem tra POS: " + e.getMessage());
+        }
+        return false;
     }
 
     public boolean coTinhNang(NhanVienDTO nhanVien, TinhNangHeThong tinhNang) {

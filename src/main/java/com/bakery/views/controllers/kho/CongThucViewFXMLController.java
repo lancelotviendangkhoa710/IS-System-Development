@@ -38,6 +38,7 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @FXML private TextField               txtDinhMuc;
     @FXML private Label                   lblTongGiaVon;
     @FXML private Label                   lblSanPhamDangCauHinh; // hiện tên SP đang cấu hình
+    @FXML private Label                   lblDonViTinh;           // hiện DVT ngay cạnh ô định mức
 
     private final ObservableList<CongThucDTO> dsCongThuc = FXCollections.observableArrayList();
     private CongThucPresenter presenter;
@@ -92,6 +93,14 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
                 return dvt.isEmpty() ? nl.getTenNL() : nl.getTenNL() + " (" + dvt + ")";
             }
             @Override public NguyenLieuDTO fromString(String s) { return null; }
+        });
+
+        // Cập nhật label DVT ngay cạnh ô định mức khi chọn nguyên liệu
+        cmbNguyenLieu.valueProperty().addListener((obs, oldNL, newNL) -> {
+            if (lblDonViTinh != null) {
+                lblDonViTinh.setText(newNL != null && !newNL.getTenDVT().isEmpty()
+                        ? newNL.getTenDVT() : "");
+            }
         });
     }
 

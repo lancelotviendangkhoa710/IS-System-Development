@@ -13,6 +13,9 @@ import com.bakery.presenters.banhang.DonHangPresenter;
 import com.bakery.services.banhang.DonHangService;
 import com.bakery.utils.DialogHelper;
 import com.bakery.views.interfaces.banhang.IDonHangView;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -26,6 +29,7 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.text.Normalizer;
+import java.util.logging.Logger;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,14 +47,22 @@ import java.util.ResourceBundle;
  */
 public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializable {
 
-    @FXML private TextField txtTimMaDon;
-    @FXML private TextField txtTimKhachHang;
-    @FXML private DatePicker dpNgayTheoDoi;
-    @FXML private ComboBox<String> cbGioTu;
-    @FXML private ComboBox<String> cbGioDen;
-    @FXML private ComboBox<String> cbLocTrangThaiTheoDoi;
-    @FXML private Label lblThongBao;
-    @FXML private VBox panelChuaDon;
+    @FXML
+    private TextField txtTimMaDon;
+    @FXML
+    private TextField txtTimKhachHang;
+    @FXML
+    private DatePicker dpNgayTheoDoi;
+    @FXML
+    private ComboBox<String> cbGioTu;
+    @FXML
+    private ComboBox<String> cbGioDen;
+    @FXML
+    private ComboBox<String> cbLocTrangThaiTheoDoi;
+    @FXML
+    private Label lblThongBao;
+    @FXML
+    private VBox panelChuaDon;
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
     private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -59,11 +71,19 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         FMT_TIEN.setMaximumFractionDigits(0);
     }
 
+    private static final Logger LOGGER = Logger.getLogger(TheoDoiDonHangViewFXMLController.class.getName());
+
+    /** Timeline auto-refresh: cả bepMode và chế độ theo dõi thường. */
+    private Timeline autoRefreshTimeline;
+
     private DonHangPresenter presenter;
     private final TaoDonHangViewFXMLController dialogFactory = new TaoDonHangViewFXMLController();
     private final List<String> danhSachTrangThai = new ArrayList<>();
 
-    /** true khi view được nhúng trong tab Bếp — tự động tải đơn tùy chỉnh chưa hoàn thành. */
+    /**
+     * true khi view được nhúng trong tab Bếp — tự động tải đơn tùy chỉnh chưa hoàn
+     * thành.
+     */
     private boolean bepMode = false;
 
     @Override
@@ -76,18 +96,57 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         panelChuaDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 dialogFactory.setOwnerWindow(newScene.getWindow());
+                // bepMode: tải ngay đơn chưa hoàn thành khi scene sẵn sàng
+                if (bepMode) javafx.application.Platform.runLater(this::taiDonBep);
+                batDauAutoRefresh();
+            } else {
+                dungAutoRefresh();
             }
         });
 
         presenter.taiDuLieuBanDau();
-
-        // Nếu được gọn trong tab Bếp: tải ngay đơn tùy chỉnh chưa hoàn thành sau khi scene sẵn sàng
-        panelChuaDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null && bepMode) {
-                javafx.application.Platform.runLater(this::taiDonBep);
-            }
-        });
     }
+
+    // ── AUTO-REFRESH ────────────────────────────────────────────────────────
+
+    /**
+     * Bật auto-refresh 10s.
+     * - bepMode: gọi lại {@link #taiDonBep()} để lấy đơn chưa hoàn thành.
+     * - Chế độ thường: gọi lại {@link #onTimKiemDon()} để refresh kết quả tìm kiếm.
+     * Phòng chống memory leak: tự stop khi scene bị remove.
+     */
+    private void batDauAutoRefresh() {
+        dungAutoRefresh(); // dọn timer cũ nếu có
+        autoRefreshTimeline = new Timeline(new KeyFrame(
+                javafx.util.Duration.seconds(10),
+                evt -> {
+                    try {
+                        if (bepMode)
+                            taiDonBep();
+                        else
+                            onTimKiemDon();
+                    } catch (Exception ex) {
+                        LOGGER.warning("[AutoRefresh] Loi refresh don hang: " + ex.getMessage());
+                    }
+                }));
+        autoRefreshTimeline.setCycleCount(Animation.INDEFINITE);
+        autoRefreshTimeline.play();
+        LOGGER.info("[AutoRefresh] Bat dau polling 10s — TheoDoiDonHangViewFXMLController (bepMode=" + bepMode + ")");
+    }
+
+    /** Dừng timer an toàn. */
+    private void dungAutoRefresh() {
+        if (autoRefreshTimeline != null) {
+            autoRefreshTimeline.stop();
+            autoRefreshTimeline = null;
+        }
+    }
+
+    /** Gọi bởi BepViewFXMLController khi tab Đơn hàng bếp được chọn. */
+    public void batDauAutoRefreshPublic() { batDauAutoRefresh(); }
+
+    /** Gọi bởi BepViewFXMLController khi rời khỏi tab Đơn hàng bếp. */
+    public void dungAutoRefreshPublic() { dungAutoRefresh(); }
 
     /**
      * Kích hoạt chế độ Bếp: tự động tải đơn tùy chỉnh chưa hoàn thành.
@@ -109,13 +168,15 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
 
     @FXML
     private void onTimKiemDon() {
-        if (presenter == null) return;
+        if (presenter == null)
+            return;
         String maDonRaw = txtTimMaDon.getText() == null ? "" : txtTimMaDon.getText().trim();
         // Validate mã đơn: nếu nhập thì phải là số nguyên dương
         if (!maDonRaw.isEmpty()) {
             try {
                 int ma = Integer.parseInt(maDonRaw);
-                if (ma <= 0) throw new NumberFormatException();
+                if (ma <= 0)
+                    throw new NumberFormatException();
             } catch (NumberFormatException e) {
                 lblThongBao.getStyleClass().setAll("lbl-danger");
                 lblThongBao.setText("Mã đơn không hợp lệ — phải là số nguyên dương.");
@@ -124,11 +185,12 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         }
         lblThongBao.getStyleClass().setAll("lbl-small-bold");
         lblThongBao.setText("");
-        String tenKH  = txtTimKhachHang.getText() == null ? "" : txtTimKhachHang.getText().trim();
-        LocalDate ngay   = dpNgayTheoDoi.getValue();
-        LocalTime gioTu  = parseGioTheoDoi(cbGioTu.getValue());
+        String tenKH = txtTimKhachHang.getText() == null ? "" : txtTimKhachHang.getText().trim();
+        LocalDate ngay = dpNgayTheoDoi.getValue();
+        LocalTime gioTu = parseGioTheoDoi(cbGioTu.getValue());
         LocalTime gioDen = parseGioTheoDoi(cbGioDen.getValue());
-        presenter.timKiemDonTheoDoi(maDonRaw.isEmpty() ? null : maDonRaw, tenKH, ngay, gioTu, gioDen, layTrangThaiFilterTuUI());
+        presenter.timKiemDonTheoDoi(maDonRaw.isEmpty() ? null : maDonRaw, tenKH, ngay, gioTu, gioDen,
+                layTrangThaiFilterTuUI());
     }
 
     @FXML
@@ -183,7 +245,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     }
 
     private String dinhDangTien(java.math.BigDecimal amount) {
-        if (amount == null) return FMT_TIEN.format(0) + " đ";
+        if (amount == null)
+            return FMT_TIEN.format(0) + " đ";
         return FMT_TIEN.format(amount.doubleValue()) + " đ";
     }
 
@@ -204,7 +267,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
 
         Label lblKhach = new Label("Khách: " + (don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH()));
         lblKhach.getStyleClass().add("lbl-small");
-        Label lblNgayNhan = new Label("Nhận lúc: " + (don.getNgayGioNhanBanh() == null ? "N/A" : don.getNgayGioNhanBanh().format(FMT_NGAY_GIO)));
+        Label lblNgayNhan = new Label("Nhận lúc: "
+                + (don.getNgayGioNhanBanh() == null ? "N/A" : don.getNgayGioNhanBanh().format(FMT_NGAY_GIO)));
         lblNgayNhan.getStyleClass().add("lbl-small");
         Label lblTongTien = new Label("Tổng: " + dinhDangTien(don.getTongTienHDBan()));
         lblTongTien.getStyleClass().add("lbl-primary");
@@ -219,7 +283,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         Button btnCapNhat = new Button("Cập nhật");
         btnCapNhat.getStyleClass().add("btn-primary");
         btnCapNhat.setOnAction(event -> {
-            if (presenter == null || cbTrangThai.getValue() == null) return;
+            if (presenter == null || cbTrangThai.getValue() == null)
+                return;
             presenter.capNhatTrangThai(String.valueOf(don.getMaDon()), cbTrangThai.getValue(), don.getTenTrangThai());
         });
 
@@ -238,7 +303,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
             btnHuyDon.setDisable(true);
         }
         btnHuyDon.setOnAction(event -> {
-            if (presenter != null) presenter.huyDonHang(String.valueOf(don.getMaDon()));
+            if (presenter != null)
+                presenter.huyDonHang(String.valueOf(don.getMaDon()));
         });
 
         action.getChildren().addAll(cbTrangThai, btnCapNhat, btnChiTiet, btnHuyDon);
@@ -247,14 +313,22 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     }
 
     private String mapStyleTrangThai(String trangThai) {
-        if (trangThai == null) return "badge-new";
-        String normalized = Normalizer.normalize(trangThai, Normalizer.Form.NFD).replaceAll("\\p{M}", "").toUpperCase(Locale.ROOT);
-        if (normalized.contains("HOAN THANH")) return "badge-done";
-        if (normalized.contains("HUY")) return "badge-cancelled";
-        if (normalized.contains("DANG SAN XUAT")) return "badge-processing";
-        if (normalized.contains("CHO GIAO")) return "badge-shipping";
-        if (normalized.contains("CHO KHACH LAY")) return "badge-pickup";
-        if (normalized.contains("DA COC")) return "badge-deposited";
+        if (trangThai == null)
+            return "badge-new";
+        String normalized = Normalizer.normalize(trangThai, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
+                .toUpperCase(Locale.ROOT);
+        if (normalized.contains("HOAN THANH"))
+            return "badge-done";
+        if (normalized.contains("HUY"))
+            return "badge-cancelled";
+        if (normalized.contains("DANG SAN XUAT"))
+            return "badge-processing";
+        if (normalized.contains("CHO GIAO"))
+            return "badge-shipping";
+        if (normalized.contains("CHO KHACH LAY"))
+            return "badge-pickup";
+        if (normalized.contains("DA COC"))
+            return "badge-deposited";
         return "badge-new";
     }
 
@@ -277,7 +351,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         String noiDung = "Mã đơn: #" + order.getMaDon() + "\n"
                 + "Trạng thái: " + order.getTenTrangThai() + "\n"
                 + "Khách hàng: " + (order.getMaKH() == null ? "Khách lẻ" : "KH #" + order.getMaKH()) + "\n"
-                + "Thời gian nhận: " + (order.getNgayGioNhanBanh() == null ? "N/A" : order.getNgayGioNhanBanh().format(FMT_NGAY_GIO)) + "\n"
+                + "Thời gian nhận: "
+                + (order.getNgayGioNhanBanh() == null ? "N/A" : order.getNgayGioNhanBanh().format(FMT_NGAY_GIO)) + "\n"
                 + "Tổng tiền: " + dinhDangTien(order.getTongTienHDBan()) + "\n"
                 + "Đã cọc: " + dinhDangTien(order.getTienDaCoc());
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -287,22 +362,83 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         alert.showAndWait();
     }
 
-    @Override public void hienThiLoiTraCuu(String msg) { lblThongBao.getStyleClass().setAll("lbl-danger"); lblThongBao.setText(msg); }
-    @Override public void hienThiThongBaoTraCuu(String msg) { lblThongBao.getStyleClass().setAll("lbl-success"); lblThongBao.setText(msg); }
-    @Override public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) { lblThongBao.getStyleClass().setAll("lbl-info"); lblThongBao.setText("KQ: " + kh + " | " + tt + " | " + dinhDangTien(tongTien)); }
+    @Override
+    public void hienThiLoiTraCuu(String msg) {
+        lblThongBao.getStyleClass().setAll("lbl-danger");
+        lblThongBao.setText(msg);
+    }
 
-    @Override public void lamMoiBangGioHang(List<CTDonHangDTO> items, List<SanPhamDTO> originData) {}
-    @Override public void lamMoiBaoCaoTien(double tongHang, double giamGia, double tongThanhToan, double minCoc, double conLai, double tienThua, boolean isThieuTienThua) {}
-    @Override public void batTatNutThanhToan(boolean state) {}
-    @Override public void hienThiThongTinKhach(String text, boolean isVip) {}
-    @Override public void capNhatKhachHangHienTai(KhachHangDTO kh) {}
-    @Override public void hienThiDanhSachSanPham(List<SanPhamDTO> ds, Map<Integer, String> dict) {}
-    @Override public void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo, List<CotBanhDTO> cotBanh, List<NhanBanhDTO> nhanBanh, List<KieuTrangTriDTO> trangTri) {}
-    @Override public void hienThiLoi(String msg) {}
-    @Override public void hienThiThanhCong(String msg) {}
-    @Override public void lamMoiForm() {}
-    @Override public void inPhieuHoaDon(String tieuDe, HoaDonDTO hd, DonDatHangDTO don, List<CTDonHangDTO> cart, List<SanPhamDTO> data, double pGiam, double khachDua, double tienThua, boolean laDonCoc) {}
-    @Override public void inHoaDonHoanThanh(DonDatHangDTO don, HoaDonDTO hd, List<CTDonHangDTO> dsItems, double khachDua, double tienThua, boolean laDonCoc) {}
-    @Override public LocalDateTime getNgayGioNhanBanh() { return LocalDateTime.now(); }
-    @Override public double getTongThanhToanHienTai() { return 0; }
+    @Override
+    public void hienThiThongBaoTraCuu(String msg) {
+        lblThongBao.getStyleClass().setAll("lbl-success");
+        lblThongBao.setText(msg);
+    }
+
+    @Override
+    public void hienThiKetQuaTraCuu(String kh, String tt, double tongTien) {
+        lblThongBao.getStyleClass().setAll("lbl-info");
+        lblThongBao.setText("KQ: " + kh + " | " + tt + " | " + dinhDangTien(tongTien));
+    }
+
+    @Override
+    public void lamMoiBangGioHang(List<CTDonHangDTO> items, List<SanPhamDTO> originData) {
+    }
+
+    @Override
+    public void lamMoiBaoCaoTien(double tongHang, double giamGia, double tongThanhToan, double minCoc, double conLai,
+            double tienThua, boolean isThieuTienThua) {
+    }
+
+    @Override
+    public void batTatNutThanhToan(boolean state) {
+    }
+
+    @Override
+    public void hienThiThongTinKhach(String text, boolean isVip) {
+    }
+
+    @Override
+    public void capNhatKhachHangHienTai(KhachHangDTO kh) {
+    }
+
+    @Override
+    public void hienThiDanhSachSanPham(List<SanPhamDTO> ds, Map<Integer, String> dict) {
+    }
+
+    @Override
+    public void hienThiDuLieuTuyChinh(List<SanPhamDTO> spTuyChinh, List<KichCoBanhDTO> kichCo, List<CotBanhDTO> cotBanh,
+            List<NhanBanhDTO> nhanBanh, List<KieuTrangTriDTO> trangTri) {
+    }
+
+    @Override
+    public void hienThiLoi(String msg) {
+    }
+
+    @Override
+    public void hienThiThanhCong(String msg) {
+    }
+
+    @Override
+    public void lamMoiForm() {
+    }
+
+    @Override
+    public void inPhieuHoaDon(String tieuDe, HoaDonDTO hd, DonDatHangDTO don, List<CTDonHangDTO> cart,
+            List<SanPhamDTO> data, double pGiam, double khachDua, double tienThua, boolean laDonCoc) {
+    }
+
+    @Override
+    public void inHoaDonHoanThanh(DonDatHangDTO don, HoaDonDTO hd, List<CTDonHangDTO> dsItems, double khachDua,
+            double tienThua, boolean laDonCoc) {
+    }
+
+    @Override
+    public LocalDateTime getNgayGioNhanBanh() {
+        return LocalDateTime.now();
+    }
+
+    @Override
+    public double getTongThanhToanHienTai() {
+        return 0;
+    }
 }

@@ -62,5 +62,11 @@ public class ThongKeService {
         List<String[]> res = thongKeDAO.getNguyenLieuSapHet();
         return res != null ? res : List.of();
     }
+
+    /** Dashboard — Thống kê 7 ngày gần nhất: doanh thu, đơn hoàn thành, đơn hủy. */
+    public List<String[]> getThongKeTheoNgay() throws Exception {
+        List<String[]> res = thongKeDAO.getThongKeTheoNgay();
+        return res != null ? res : List.of();
+    }
 }
 

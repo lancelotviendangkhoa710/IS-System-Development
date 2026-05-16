@@ -2,267 +2,218 @@ package com.bakery.views.controllers.hethong;
 
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.services.baocao.ThongKeService;
-import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.utils.UserSession;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import javafx.fxml.Initializable;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.util.Duration;
 
-import java.util.EnumSet;
+import java.net.URL;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 /**
- * Controller cho Dashboard (Trang chủ).
- * Mọi dữ liệu được lấy từ DB. Không có Mock Data.
+ * Dashboard mới — hiển thị biểu đồ doanh thu 7 ngày + bảng thống kê theo ngày.
+ * Không còn card điều hướng — navigation qua AppShell sidebar.
  */
-public class DashboardController {
-    @FXML private Label lblBannerName;
-    @FXML private Label lblThongBao;
-    @FXML private FlowPane flowBestSellersMenu;
-    @FXML private Button btnTaoDonHang;
-    @FXML private Button btnQuanLyCa;
-    @FXML private Button btnBanHangCard;
-    @FXML private Button btnKhoCard;
-    @FXML private Button btnNhanSuCard;
-    @FXML private Button btnBaoCaoCard;
-    @FXML private Button btnKdsCard;
-    @FXML private Button btnAuditLogsCard;
+public class DashboardController implements Initializable {
 
-    @FXML private VBox cardBanHang;
-    @FXML private VBox cardKho;
-    @FXML private VBox cardNhanSu;
-    @FXML private VBox cardBaoCao;
-    @FXML private VBox cardKds;
-    @FXML private VBox cardAuditLogs;
+    private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
+    private static final NumberFormat NF_TIEN = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
 
+    static { NF_TIEN.setMaximumFractionDigits(0); }
+
+    // ── FXML ────────────────────────────────────────────────────────────────
+    @FXML private Label    lblBannerName;
+    @FXML private Label    lblThongBao;
+    @FXML private Label    lblCapNhatChart;
+    @FXML private Label    lblCapNhatBang;
+
+    @FXML private LineChart<String, Number>    chartDoanhThu;
+    @FXML private CategoryAxis               axisNgay;
+    @FXML private NumberAxis                 axisDoanhThu;
+
+    @FXML private TableView<String[]>        tblThongKe;
+    @FXML private TableColumn<String[], String> colNgay;
+    @FXML private TableColumn<String[], String> colDoanhThu;
+    @FXML private TableColumn<String[], String> colDonHoanThanh;
+    @FXML private TableColumn<String[], String> colDonHuy;
+    @FXML private TableColumn<String[], String> colTongDon;
+
+    // ── State ────────────────────────────────────────────────────────────────
     private final ThongKeService thongKeService = new ThongKeService();
-    private final PhanQuyenService phanQuyenService = new PhanQuyenService();
-    private Set<PhanQuyenService.TinhNangHeThong> tinhNangDuocCap =
-            EnumSet.noneOf(PhanQuyenService.TinhNangHeThong.class);
+    private final ObservableList<String[]> dsThongKe = FXCollections.observableArrayList();
 
-    @FXML
-    public void initialize() {
-        NhanVienDTO currentUser = UserSession.getCurrentUser();
-        if (currentUser != null) {
-            lblBannerName.setText(currentUser.getHoTen() != null ? currentUser.getHoTen() : currentUser.getTenDangNhap());
-        } else {
-            lblBannerName.setText("Quản trị viên (Demo)");
-        }
-        tinhNangDuocCap = phanQuyenService.layTinhNangDuocCap(currentUser);
-        apDungPhanQuyenManHinh();
-        loadBestSellers();
-        kiemTraCanhBaoTonKho();   // UC43: cảnh báo tồn kho sau khi đăng nhập
+    /** Timeline animation pulse cho BarChart — chạy liên tục để chart sinh động. */
+    private Timeline animationTimeline;
+
+    // ── Lifecycle ────────────────────────────────────────────────────────────
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        khoiTaoTable();
+        khoiTaoChart();
+        hienThiTenUser();
+        taiDuLieuAsync();
+        batDauAnimationChart();
     }
 
-    // UC43 — Kiểm tra và hiển thị cảnh báo nguyên liệu dưới mức an toàn
-    private void kiemTraCanhBaoTonKho() {
+    // ── Setup ────────────────────────────────────────────────────────────────
+
+    private void hienThiTenUser() {
+        NhanVienDTO user = UserSession.getCurrentUser();
+        if (lblBannerName != null && user != null) {
+            lblBannerName.setText(user.getHoTen() != null ? user.getHoTen() : user.getTenDangNhap());
+        }
+    }
+
+    private void khoiTaoChart() {
+        axisNgay.setLabel("Ngày");
+        axisDoanhThu.setLabel("Doanh thu (đ)");
+        axisDoanhThu.setForceZeroInRange(true);
+        axisDoanhThu.setTickLabelFormatter(new javafx.util.StringConverter<Number>() {
+            @Override public String toString(Number n) {
+                if (n == null) return "0";
+                double v = n.doubleValue();
+                if (v >= 1_000_000) return NF_TIEN.format(v / 1_000_000) + "M";
+                if (v >= 1_000)     return NF_TIEN.format(v / 1_000) + "K";
+                return NF_TIEN.format(v);
+            }
+            @Override public Number fromString(String s) { return 0; }
+        });
+        chartDoanhThu.setLegendVisible(false);
+        chartDoanhThu.setAnimated(true);
+        chartDoanhThu.setCreateSymbols(true);
+    }
+
+    private void khoiTaoTable() {
+        colNgay.setCellValueFactory(c -> new SimpleStringProperty(c.getValue()[0]));
+        colDoanhThu.setCellValueFactory(c -> {
+            try {
+                double v = Double.parseDouble(c.getValue()[1]);
+                return new SimpleStringProperty(NF_TIEN.format(v) + " đ");
+            } catch (NumberFormatException e) {
+                return new SimpleStringProperty(c.getValue()[1]);
+            }
+        });
+        colDonHoanThanh.setCellValueFactory(c -> new SimpleStringProperty(c.getValue()[2]));
+        colDonHuy.setCellValueFactory(c -> new SimpleStringProperty(c.getValue()[3]));
+        colTongDon.setCellValueFactory(c -> new SimpleStringProperty(c.getValue()[4]));
+        tblThongKe.setItems(dsThongKe);
+        tblThongKe.setPlaceholder(new Label("Đang tải dữ liệu..."));
+    }
+
+    // ── Data Loading ─────────────────────────────────────────────────────────
+
+    /**
+     * Load dữ liệu thống kê từ DB trên background thread.
+     * Cập nhật UI trên FX thread qua Platform.runLater().
+     */
+    private void taiDuLieuAsync() {
         Thread t = new Thread(() -> {
             try {
-                java.util.Map<String, Long> tongHop = thongKeService.getTonKhoTongHop();
-                java.util.List<String[]>    sapHet  = thongKeService.getNguyenLieuSapHet();
-
-                long soHet    = tongHop.getOrDefault("HET_HANG", 0L);
-                long soSapHet = tongHop.getOrDefault("SAP_HET",  0L);
-
-                if (soHet == 0 && soSapHet == 0) return; // không cần cảnh báo
-
-                // Tạo thông điệp cảnh báo
-                StringBuilder sb = new StringBuilder();
-                if (soHet > 0)    sb.append("⛔ ").append(soHet).append(" NL hết hàng  ");
-                if (soSapHet > 0) sb.append("⚠ ").append(soSapHet).append(" NL sắp hết");
-
-                // Tạo tooltip liệt kê chi tiết 10 NL tệ nhất
-                StringBuilder tip = new StringBuilder("Nguyên liệu dưới mức an toàn:\n");
-                for (String[] row : sapHet) {
-                    tip.append("• ").append(row[0])
-                       .append(": ").append(row[1]).append("/").append(row[2])
-                       .append(" ").append(row[3]).append("\n");
-                }
-                final String msg     = sb.toString().trim();
-                final String tooltip = tip.toString();
-
-                javafx.application.Platform.runLater(() -> {
+                List<String[]> dsRaw = thongKeService.getThongKeTheoNgay();
+                Platform.runLater(() -> {
+                    capNhatChart(dsRaw);
+                    capNhatBang(dsRaw);
+                    String gio = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
+                    if (lblCapNhatChart != null) lblCapNhatChart.setText("Cập nhật lúc " + gio);
+                    if (lblCapNhatBang  != null) lblCapNhatBang.setText("Cập nhật lúc " + gio);
+                    if (lblThongBao    != null) lblThongBao.setText("");
+                });
+            } catch (Exception ex) {
+                LOGGER.warning("[Dashboard] Loi tai du lieu: " + ex.getMessage());
+                Platform.runLater(() -> {
                     if (lblThongBao != null) {
-                        lblThongBao.setText(msg);
-                        lblThongBao.getStyleClass().removeAll("lbl-success");
-                        if (!lblThongBao.getStyleClass().contains("lbl-danger"))
-                            lblThongBao.getStyleClass().add("lbl-danger");
-                        javafx.scene.control.Tooltip tp = new javafx.scene.control.Tooltip(tooltip);
-                        tp.setWrapText(true);
-                        tp.setPrefWidth(320);
-                        javafx.scene.control.Tooltip.install(lblThongBao, tp);
+                        lblThongBao.getStyleClass().setAll("lbl-danger");
+                        lblThongBao.setText("⚠ Không thể tải dữ liệu thống kê: " + ex.getMessage());
                     }
                 });
-            } catch (Exception e) {
-                System.err.println("[DashboardController] kiemTraCanhBaoTonKho: " + e.getMessage());
             }
-        }, "dashboard-canh-bao-tonkho");
+        }, "dash-load");
         t.setDaemon(true);
         t.start();
     }
 
-    private void loadBestSellers() {
-        if (flowBestSellersMenu == null) return;
-        flowBestSellersMenu.getChildren().clear();
+    private void capNhatChart(List<String[]> dsRaw) {
+        // Map ngày → doanh thu từ data DB
+        Map<String, Double> mapData = new LinkedHashMap<>();
+        for (String[] row : dsRaw) {
+            try { mapData.put(row[0], Double.parseDouble(row[1])); }
+            catch (NumberFormatException ignored) {}
+        }
 
-        try {
-            Map<String, Integer> top5 = thongKeService.getTop5BanChay();
+        // Pre-fill đủ 7 nhãn ngày (DD/MM) để trục X luôn hiện đủ
+        DateTimeFormatter fmtNhan = DateTimeFormatter.ofPattern("dd/MM");
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Doanh thu");
+        for (int i = 6; i >= 0; i--) {
+            String nhan = LocalDate.now().minusDays(i).format(fmtNhan);
+            series.getData().add(new XYChart.Data<>(nhan, mapData.getOrDefault(nhan, 0.0)));
+        }
+        chartDoanhThu.getData().setAll(series);
+    }
 
-            if (top5 == null || top5.isEmpty()) {
-                if (lblThongBao != null) {
-                    lblThongBao.setText("Chưa có dữ liệu bán hàng để hiển thị.");
-                }
-                return;
+    private void capNhatBang(List<String[]> dsRaw) {
+        dsThongKe.setAll(dsRaw);
+        tblThongKe.setPlaceholder(new Label("Không có dữ liệu trong 7 ngày gần nhất."));
+    }
+
+    // ── Animation ─────────────────────────────────────────────────────────────
+
+    /**
+     * Animation pulse liên tục: mỗi 3s, fade-out → fade-in toàn bộ chart
+     * để tạo hiệu ứng "đang live". Gọi 1 lần trong initialize().
+     */
+    private void batDauAnimationChart() {
+        if (chartDoanhThu == null) return;
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(600), chartDoanhThu);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.6);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(600), chartDoanhThu);
+        fadeIn.setFromValue(0.6);
+        fadeIn.setToValue(1.0);
+
+        SequentialTransition pulse = new SequentialTransition(fadeOut, fadeIn);
+
+        // Lặp lại mỗi 3 giây để chart "thở"
+        animationTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(3), evt -> pulse.playFromStart())
+        );
+        animationTimeline.setCycleCount(Animation.INDEFINITE);
+        animationTimeline.play();
+
+        // Tự dừng khi chart bị remove khỏi scene (AppShell thay nội dung)
+        chartDoanhThu.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene == null && animationTimeline != null) {
+                animationTimeline.stop();
+                LOGGER.info("[Dashboard] Animation dừng — scene removed.");
             }
-
-            for (Map.Entry<String, Integer> entry : top5.entrySet()) {
-                VBox card = new VBox(10);
-                card.getStyleClass().add("best-seller-card");
-                card.setPrefWidth(200);
-                card.setMinWidth(180);
-                card.setAlignment(javafx.geometry.Pos.CENTER);
-
-                Label lblIcon = new Label(getIconForProduct(entry.getKey()));
-                lblIcon.getStyleClass().add("best-seller-icon");
-
-                Label lblName = new Label(entry.getKey());
-                lblName.getStyleClass().add("best-seller-name");
-                lblName.setWrapText(true);
-                lblName.setAlignment(javafx.geometry.Pos.CENTER);
-
-                Label lblQty = new Label(entry.getValue() + " đã bán");
-                lblQty.getStyleClass().add("best-seller-qty");
-
-                card.getChildren().addAll(lblIcon, lblName, lblQty);
-                flowBestSellersMenu.getChildren().add(card);
-            }
-        } catch (Exception e) {
-            System.err.println("Lỗi tải dashboard: " + e.getMessage());
-        }
-    }
-
-    private String getIconForProduct(String name) {
-        if (name.contains("Bánh Kem")) return "🎂";
-        if (name.contains("Croissant")) return "🥐";
-        if (name.contains("Bánh Mì")) return "🍞";
-        if (name.contains("Tiramisu")) return "🍰";
-        if (name.contains("Su Kem")) return "🧁";
-        return "🥐";
-    }
-
-    @FXML
-    private void onMoBanHang() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS, "đặt hàng POS")) return;
-        AppShellController.getInstance().loadView("/fxml/banhang/DonHangView.fxml");
-    }
-
-    @FXML
-    private void onMoKho() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN, "kho")) return;
-        AppShellController.getInstance().loadView("/fxml/kho/KhoView.fxml");
-    }
-
-    @FXML
-    private void onMoNhanSu() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAN_SU, "nhân sự")) return;
-        AppShellController.getInstance().loadView("/fxml/nhansu/QuanLyNhanVienView.fxml");
-    }
-
-    @FXML
-    private void onMoBaoCao() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH, "báo cáo")) return;
-        AppShellController.getInstance().loadView("/fxml/baocao/BaoCaoView.fxml");
-    }
-
-    @FXML
-    private void onQuanLyCa() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC, "quản lý ca")) return;
-        try {
-            boolean caoDangMo = com.bakery.utils.SessionContext.getInstance().isCaoDangMo();
-            String fxmlPath = caoDangMo ? "/fxml/hethong/DoiSoatDongCaView.fxml" : "/fxml/hethong/MoCaView.fxml";
-            String title    = caoDangMo ? "H3K Bakery - Dong ca" : "H3K Bakery - Mo ca";
-
-            java.net.URL fxmlUrl = getClass().getResource(fxmlPath);
-            if (fxmlUrl == null) { lblThongBao.setText("Khong tim thay FXML: " + fxmlPath); return; }
-
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
-
-            javafx.stage.Stage dialog = new javafx.stage.Stage();
-            dialog.setTitle(title);
-            dialog.setScene(scene);
-            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            if (lblThongBao.getScene() != null)
-                dialog.initOwner(lblThongBao.getScene().getWindow());
-            dialog.setResizable(false);
-            dialog.showAndWait();
-        } catch (Exception ex) {
-            lblThongBao.setText("Loi mo quan ly ca: " + ex.getMessage());
-        }
-    }
-
-    @FXML
-    private void onMoLichSuHeThong() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG, "nhật ký hệ thống")) return;
-        AppShellController.getInstance().loadView("/fxml/hethong/LichSuHeThongView.fxml");
-    }
-
-    @FXML
-    private void onMoKds() {
-        if (!yeuCauTruyCap(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP, "màn hình KDS")) return;
-        AppShellController.getInstance().loadView("/fxml/hethong/ThoBepDashboardView.fxml");
-    }
-
-    @FXML
-    private void onModuleChuaSanSang() {
-        if (lblThongBao != null) {
-            lblThongBao.setText("Chức năng đang phát triển.");
-        }
-    }
-
-    private void apDungPhanQuyenManHinh() {
-        capNhatTinhNang(null, coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS), btnTaoDonHang);
-        capNhatTinhNang(cardBanHang, coQuyen(PhanQuyenService.TinhNangHeThong.BAN_HANG_POS), btnBanHangCard);
-        capNhatTinhNang(cardKho, coQuyen(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN), btnKhoCard);
-        capNhatTinhNang(cardNhanSu, coQuyen(PhanQuyenService.TinhNangHeThong.NHAN_SU), btnNhanSuCard);
-        capNhatTinhNang(cardBaoCao, coQuyen(PhanQuyenService.TinhNangHeThong.BAO_CAO_KINH_DOANH), btnBaoCaoCard);
-        capNhatTinhNang(cardKds, coQuyen(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP), btnKdsCard);
-        capNhatTinhNang(cardAuditLogs, coQuyen(PhanQuyenService.TinhNangHeThong.NHAT_KY_HE_THONG), btnAuditLogsCard);
-        capNhatTinhNang(null, coQuyen(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC), btnQuanLyCa);
-    }
-
-    private void capNhatTinhNang(VBox card, boolean duocCapQuyen, Button... danhSachNut) {
-        if (card != null) {
-            card.setDisable(!duocCapQuyen);
-            card.setOpacity(duocCapQuyen ? 1.0 : 0.45);
-        }
-        if (danhSachNut == null) {
-            return;
-        }
-        for (Button nut : danhSachNut) {
-            if (nut != null) {
-                nut.setDisable(!duocCapQuyen);
-                nut.setOpacity(duocCapQuyen ? 1.0 : 0.45);
-            }
-        }
-    }
-
-    private boolean coQuyen(PhanQuyenService.TinhNangHeThong tinhNang) {
-        return tinhNangDuocCap != null && tinhNangDuocCap.contains(tinhNang);
-    }
-
-    private boolean yeuCauTruyCap(PhanQuyenService.TinhNangHeThong tinhNang, String tenTinhNang) {
-        if (coQuyen(tinhNang)) {
-            return true;
-        }
-        if (lblThongBao != null) {
-            lblThongBao.setText("Bạn không có quyền truy cập " + tenTinhNang + ".");
-        }
-        return false;
+        });
     }
 }

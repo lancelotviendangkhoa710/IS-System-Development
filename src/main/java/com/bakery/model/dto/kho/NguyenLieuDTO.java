@@ -16,6 +16,8 @@ public class NguyenLieuDTO {
     private Integer phienBan;
     private LocalDateTime thoiDiemXoa;
     private Integer maNX;
+    /** Hệ số quy đổi: 1 đơn vị nhập = hesoQuydoi đơn vị cơ bản. Mặc định = 1.0 (không quy đổi). */
+    private Double hesoQuydoi = 1.0;
 
     public NguyenLieuDTO() {}
 
@@ -68,4 +70,7 @@ public class NguyenLieuDTO {
 
     public Integer getMaNX() { return maNX; }
     public void setMaNX(Integer maNX) { this.maNX = maNX; }
+
+    public Double getHesoQuydoi() { return hesoQuydoi != null ? hesoQuydoi : 1.0; }
+    public void setHesoQuydoi(Double hesoQuydoi) { this.hesoQuydoi = hesoQuydoi != null ? hesoQuydoi : 1.0; }
 }

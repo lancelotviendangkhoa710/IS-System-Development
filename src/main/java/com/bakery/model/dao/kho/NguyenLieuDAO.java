@@ -23,7 +23,7 @@ public class NguyenLieuDAO extends BaseDAO {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "SELECT NL.MANL, NL.TENNL, NL.XUATXU, NL.MADVT, DVT.TENDVT, " +
                 "NL.GIAVONTRUNGBINH, NL.MUCTONANTOAN, NL.SOLUONGTONTONG, " +
-                "NL.DATCHUANVSATTP, NL.PHIENBAN, NL.THOIDIEMXOA, NL.MANX " +
+                "NL.DATCHUANVSATTP, NL.PHIENBAN, NL.THOIDIEMXOA, NL.MANX, NL.HESOQUYDOI " +
                 "FROM NGUYENLIEU NL " +
                 "LEFT JOIN DONVITINH DVT ON DVT.MADVT = NL.MADVT " +
                 "WHERE NL.THOIDIEMXOA IS NULL " +
@@ -45,7 +45,7 @@ public class NguyenLieuDAO extends BaseDAO {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "SELECT NL.MANL, NL.TENNL, NL.XUATXU, NL.MADVT, DVT.TENDVT, " +
                 "NL.GIAVONTRUNGBINH, NL.MUCTONANTOAN, NL.SOLUONGTONTONG, " +
-                "NL.DATCHUANVSATTP, NL.PHIENBAN, NL.THOIDIEMXOA, NL.MANX " +
+                "NL.DATCHUANVSATTP, NL.PHIENBAN, NL.THOIDIEMXOA, NL.MANX, NL.HESOQUYDOI " +
                 "FROM NGUYENLIEU NL " +
                 "LEFT JOIN DONVITINH DVT ON DVT.MADVT = NL.MADVT " +
                 "WHERE NL.THOIDIEMXOA IS NULL " +
@@ -70,7 +70,7 @@ public class NguyenLieuDAO extends BaseDAO {
      * @return mã nguyên liệu vừa tạo (>= 1), hoặc -1 nếu lỗi
      */
     public int themNguyenLieu(NguyenLieuDTO dto, int maNv) throws Exception {
-        String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setString(1, dto.getTenNL());
@@ -78,6 +78,7 @@ public class NguyenLieuDAO extends BaseDAO {
             cstmt.setDouble(3, dto.getMucTonAnToan());
             cstmt.setInt(4, dto.getMaDVT());
             cstmt.registerOutParameter(5, Types.NUMERIC);
+            cstmt.setDouble(6, dto.getHesoQuydoi()); // Hệ số quy đổi
             cstmt.execute();
             return cstmt.getInt(5);
         } catch (SQLException e) {
@@ -88,7 +89,7 @@ public class NguyenLieuDAO extends BaseDAO {
 
     /** Cập nhật nguyên liệu qua PROC_SUA_NGUYENLIEU. */
     public boolean capNhatNguyenLieu(NguyenLieuDTO dto) throws Exception {
-        String sql = "{CALL PROC_SUA_NGUYENLIEU(?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_SUA_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
              CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, dto.getMaNL());
@@ -96,6 +97,7 @@ public class NguyenLieuDAO extends BaseDAO {
             cstmt.setString(3, dto.getXuatXu());
             cstmt.setInt(4, dto.getMaDVT());
             cstmt.setDouble(5, dto.getMucTonAnToan());
+            cstmt.setDouble(6, dto.getHesoQuydoi()); // Hệ số quy đổi
             cstmt.execute();
             return true;
         } catch (SQLException e) {
@@ -123,13 +125,14 @@ public class NguyenLieuDAO extends BaseDAO {
     }
 
     /**
-     * Thêm nguyên liệu + phiếu nhập đầu tiên trong 1 transaction.
+     * Thêm nguyên liệu + phiếu nhập đầu tiên trong 1 transaction (có quy đổi đơn vị).
+     * soLuong = số lượng theo đơn vị nhập, Procedure tự nhân hesoQuydoi để lưu đơn vị cơ bản.
      * @return int[]{maNL, maPN}
      */
     public int[] themNguyenLieuVaNhapKho(NguyenLieuDTO dto, int maNCC, int maNV,
                                           double soLuong, double donGia,
                                           java.sql.Date ngaySanXuat, java.sql.Date hanSuDung) throws Exception {
-        String sql = "{CALL PROC_THEM_NGUYENLIEU_VA_NHAP_KHO(?,?,?,?,?,?,?,?,?,?,?,?)}";
+        String sql = "{CALL PROC_THEM_NGUYENLIEU_VA_NHAP_KHO(?,?,?,?,?,?,?,?,?,?,?,?,?)}";
         try (Connection conn = moKetNoi();
              CallableStatement cs = conn.prepareCall(sql)) {
             cs.setString(1, dto.getTenNL());
@@ -144,6 +147,7 @@ public class NguyenLieuDAO extends BaseDAO {
             if (hanSuDung != null) cs.setDate(10, hanSuDung); else cs.setNull(10, Types.DATE);
             cs.registerOutParameter(11, Types.NUMERIC);
             cs.registerOutParameter(12, Types.NUMERIC);
+            cs.setDouble(13, dto.getHesoQuydoi()); // Hệ số quy đổi
             cs.execute();
             return new int[]{cs.getInt(11), cs.getInt(12)};
         } catch (SQLException e) {
@@ -170,6 +174,11 @@ public class NguyenLieuDAO extends BaseDAO {
         }
         int maNX = rs.getInt("MANX");
         if (!rs.wasNull()) dto.setMaNX(maNX);
+        // Hệ số quy đổi — mặc định 1.0 nếu cột chưa có (backward-compat)
+        try {
+            double heso = rs.getDouble("HESOQUYDOI");
+            dto.setHesoQuydoi(rs.wasNull() ? 1.0 : heso);
+        } catch (SQLException ignored) { dto.setHesoQuydoi(1.0); }
         return dto;
     }
 }

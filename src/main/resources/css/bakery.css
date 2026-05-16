@@ -3571,3 +3571,69 @@
 .dialog-pane .graphic-container {
     -fx-padding: 16 0 0 20;
 }
+
+/* ─── DASHBOARD — LineChart xanh lá ─── */
+
+/* Đường line xanh lá */
+.dash-chart .chart-series-line {
+    -fx-stroke: #16A34A;
+    -fx-stroke-width: 2.5px;
+}
+
+/* Điểm dữ liệu (symbol) xanh lá, viền trắng */
+.dash-chart .chart-line-symbol {
+    -fx-background-color: #16A34A, white;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+}
+
+/* Vùng fill dưới đường (area) — nếu dùng AreaChart sau này */
+.dash-chart .chart-series-area-fill {
+    -fx-fill: rgba(22, 163, 74, 0.1);
+}
+
+/* Legend dot */
+.dash-chart .chart-legend-item-symbol {
+    -fx-background-color: #16A34A;
+}
+
+/* Plot background trắng sạch */
+.dash-chart .chart-plot-background {
+    -fx-background-color: #FAFAFA;
+}
+
+/* Horizontal grid lines nhạt */
+.dash-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #E5E7EB;
+    -fx-stroke-dash-array: 4 4;
+}
+.dash-chart .chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+/* Tick label trục X — đủ chỗ, không bị cắt */
+.dash-chart .axis:bottom .axis-label,
+.dash-chart .axis:left .axis-label {
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 11px;
+}
+.dash-chart .axis .tick-label {
+    -fx-text-fill: #374151;
+    -fx-font-size: 11px;
+}
+
+/* ─── DASHBOARD — Bảng chi tiết header màu đen ─── */
+.dash-table .column-header {
+    -fx-background-color: #F3F4F6;
+    -fx-border-color: transparent transparent #D1D5DB transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.dash-table .column-header .label {
+    -fx-text-fill: #111827;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+.dash-table .column-header-background {
+    -fx-background-color: #F3F4F6;
+}

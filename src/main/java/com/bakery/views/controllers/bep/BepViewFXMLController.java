@@ -9,20 +9,30 @@ import javafx.scene.control.TabPane;
 
 /**
  * BepViewFXMLController — Shell cho màn hình Quản lý Bếp.
- * Chỉ quản lý header và TabPane. Mỗi tab chứa FXML con riêng với controller riêng.
+ * Chỉ quản lý header và TabPane. Mỗi tab chứa FXML con riêng với controller
+ * riêng.
  * Không xử lý dữ liệu trực tiếp — điều phối chọn tab theo yêu cầu từ MainMenu.
  */
 public class BepViewFXMLController extends BaseController {
 
-    @FXML private TabPane tabPaneBep;
-    @FXML private Label lblThongBao;
+    @FXML
+    private TabPane tabPaneBep;
+    @FXML
+    private Label lblThongBao;
 
-    @FXML private Tab tabXuatKho;
-    @FXML private Tab tabDonHangBep;
-    @FXML private Tab tabCauHinhGioiHan;
+    @FXML
+    private Tab tabXuatKho;
+    @FXML
+    private Tab tabDonHangBep;
+    @FXML
+    private Tab tabCauHinhGioiHan;
 
-    /** Injected tự động bởi FXMLLoader — tương ứng fx:id="theoDoiDonHangBep" trong FXML. */
-    @FXML private TheoDoiDonHangViewFXMLController theoDoiDonHangBepController;
+    /**
+     * Injected tự động bởi FXMLLoader — tương ứng fx:id="theoDoiDonHangBep" trong
+     * FXML.
+     */
+    @FXML
+    private TheoDoiDonHangViewFXMLController theoDoiDonHangBepController;
 
     @FXML
     public void initialize() {
@@ -33,18 +43,29 @@ public class BepViewFXMLController extends BaseController {
         if (theoDoiDonHangBepController != null) {
             theoDoiDonHangBepController.setBepMode(true);
         }
+
+        // Start/stop auto-refresh 10s của tab Đơn hàng bếp theo tab đang active
+        if (tabPaneBep != null && tabDonHangBep != null) {
+            tabPaneBep.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, oldTab, newTab) -> {
+                        if (theoDoiDonHangBepController == null)
+                            return;
+                        if (newTab == tabDonHangBep) {
+                            theoDoiDonHangBepController.batDauAutoRefreshPublic();
+                        } else {
+                            theoDoiDonHangBepController.dungAutoRefreshPublic();
+                        }
+                    });
+        }
     }
 
-    /**
-     * Được gọi từ MainMenuViewFXMLController để chuyển sang tab cụ thể.
-     * Ví dụ: controller.chuyenTab("donhangbep")
-     */
     public void chuyenTab(String tabKey) {
-        if (tabPaneBep == null) return;
+        if (tabPaneBep == null)
+            return;
         Tab target = switch (tabKey.toLowerCase()) {
             case "donhangbep" -> tabDonHangBep;
             case "cauhinhgioihan", "gioihan" -> tabCauHinhGioiHan;
-            default           -> tabXuatKho;
+            default -> tabXuatKho;
         };
         if (target != null) {
             tabPaneBep.getSelectionModel().select(target);

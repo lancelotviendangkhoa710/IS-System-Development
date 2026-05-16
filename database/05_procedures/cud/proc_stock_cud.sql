@@ -1,5 +1,6 @@
 -- Procedure Tạo phiếu nhập kho
 -- Tự động tạo PHIEUTHUCHI loại 'Nhap hang' sau khi nhập lô xong (cùng transaction)
+-- FIX: Áp dụng HESOQUYDOI — lưu số lượng đơn vị CƠ BẢN vào CTPHIEUNHAP
 
 CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     P_MANV          IN PHIEUNHAPKHO.MANV%TYPE,
@@ -13,6 +14,8 @@ CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     V_CURRENT_MANL  NGUYENLIEU.MANL%TYPE;
     V_MALOAITHUCHI  LOAITHUCHI.MALOAITHUCHI%TYPE;
     V_TONGTIENNHAP  PHIEUTHUCHI.SOTIEN%TYPE;
+    V_HESOQUYDOI    NGUYENLIEU.HESOQUYDOI%TYPE;
+    V_SOLUONG_COSO  NUMBER(10,2);
 BEGIN
     -- 1. Khởi tạo chứng từ gốc
     INSERT INTO PHIEUNHAPKHO (MANV, MANCC, NGAYNHAP)
@@ -55,23 +58,40 @@ BEGIN
                 V_CURRENT_MANL := ROW_DATA.MANL;
             END IF;
 
+            -- FIX: Lấy hệ số quy đổi của nguyên liệu để tính số lượng đơn vị cơ bản
+            -- NVL = 1 để backward-compat với NL cũ chưa có HESOQUYDOI
+            BEGIN
+                SELECT NVL(HESOQUYDOI, 1) INTO V_HESOQUYDOI
+                FROM NGUYENLIEU
+                WHERE MANL = V_CURRENT_MANL;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN V_HESOQUYDOI := 1;
+            END;
+
+            -- Số lượng cơ bản = số lượng nhập × hệ số quy đổi
+            V_SOLUONG_COSO := ROW_DATA.SOLUONG * NVL(V_HESOQUYDOI, 1);
+
             INSERT INTO CTPHIEUNHAP (MAPN, MANL, SOLUONG, DONGIA, SOLUONGCONLAI, NGAYSANXUAT, HANSUDUNG)
             VALUES (
                        V_MAPN,
                        V_CURRENT_MANL,
-                       ROW_DATA.SOLUONG,
+                       V_SOLUONG_COSO,      -- FIX: lưu đơn vị CƠ BẢN (sau quy đổi)
                        ROW_DATA.DONGIA,
-                       ROW_DATA.SOLUONG,
+                       V_SOLUONG_COSO,      -- FIX: SOLUONGCONLAI cũng theo đơn vị cơ bản
                        CASE WHEN ROW_DATA.NGAYSANXUAT IS NOT NULL THEN TO_DATE(ROW_DATA.NGAYSANXUAT, 'YYYY-MM-DD') ELSE NULL END,
                        CASE WHEN ROW_DATA.HANSUDUNG IS NOT NULL THEN TO_DATE(ROW_DATA.HANSUDUNG, 'YYYY-MM-DD') ELSE NULL END
                    );
         END LOOP;
 
-    -- 4. Tính tổng tiền nhập
-    SELECT NVL(SUM(SOLUONG * DONGIA), 0)
+    -- 4. Tính tổng tiền nhập (dựa trên soLuong gốc × donGia để phản ánh đúng hóa đơn)
+    -- Dùng lại JSON để tính theo soLuong nhập thực tế (chưa quy đổi) × donGia
+    SELECT NVL(SUM(J.SOLUONG * J.DONGIA), 0)
     INTO V_TONGTIENNHAP
-    FROM CTPHIEUNHAP
-    WHERE MAPN = V_MAPN;
+    FROM JSON_TABLE(P_JSON_DATALIST, '$[*]'
+             COLUMNS (
+                 SOLUONG NUMBER PATH '$.soLuong',
+                 DONGIA  NUMBER PATH '$.donGia'
+             )) J;
 
     -- 5. Lấy mã loại thu chi 'Nhap hang' — guard riêng để NO_DATA_FOUND có thông báo rõ nghĩa
     BEGIN
@@ -105,6 +125,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHIEU_NHAP_KHO, N'Lỗi hệ thống khi nhập kho vật tư: ' || SQLERRM);
 END;
 /
+
 
 -- Procedure Hủy nhập kho
 CREATE OR REPLACE PROCEDURE PROC_HUYPHIEUNHAPKHO (

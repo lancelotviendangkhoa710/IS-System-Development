@@ -1,15 +1,18 @@
--- Procedure thêm nguyên liệu
+-- ============================================================
+-- Procedure thêm nguyên liệu (có hệ số quy đổi)
+-- ============================================================
 CREATE OR REPLACE PROCEDURE PROC_THEM_NGUYENLIEU (
     P_TENNL IN NGUYENLIEU.TENNL%type,
     P_XUATXU IN NGUYENLIEU.XUATXU%type,
     P_MUCTONANTOAN IN NGUYENLIEU.MUCTONANTOAN%type,
     P_MADVT IN DONVITINH.MADVT%type,
-    P_MANL_OUT OUT NGUYENLIEU.MANL%type
+    P_MANL_OUT OUT NGUYENLIEU.MANL%type,
+    P_HESOQUYDOI IN NGUYENLIEU.HESOQUYDOI%type DEFAULT 1
 )
 IS
 BEGIN
-    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MUCTONANTOAN, MADVT, THOIDIEMXOA, MANX)
-    VALUES (P_TENNL, P_XUATXU, P_MUCTONANTOAN, P_MADVT, NULL, NULL)
+    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MUCTONANTOAN, MADVT, HESOQUYDOI, THOIDIEMXOA, MANX)
+    VALUES (P_TENNL, P_XUATXU, P_MUCTONANTOAN, P_MADVT, NVL(P_HESOQUYDOI, 1), NULL, NULL)
     RETURNING MANL INTO P_MANL_OUT;
     COMMIT;
 EXCEPTION
@@ -19,22 +22,26 @@ EXCEPTION
 END;
 /
 
--- Procedure sửa nguyên liệu
+-- ============================================================
+-- Procedure sửa nguyên liệu (có hệ số quy đổi)
+-- ============================================================
 CREATE OR REPLACE PROCEDURE PROC_SUA_NGUYENLIEU (
     P_MANL IN NGUYENLIEU.MANL%type,
     P_TENNL IN NGUYENLIEU.TENNL%type,
     P_XUATXU IN NGUYENLIEU.XUATXU%type,
     P_MADVT IN NGUYENLIEU.MADVT%type,
-    P_MUCTONANTOAN IN NGUYENLIEU.MUCTONANTOAN%type
+    P_MUCTONANTOAN IN NGUYENLIEU.MUCTONANTOAN%type,
+    P_HESOQUYDOI IN NGUYENLIEU.HESOQUYDOI%type DEFAULT NULL
 )
 IS
 BEGIN
     UPDATE NGUYENLIEU
-    SET TENNL = NVL(P_TENNL, TENNL),
-        XUATXU = NVL(P_XUATXU, XUATXU),
-        MADVT = NVL(P_MADVT, MADVT),
-        MUCTONANTOAN = NVL(P_MUCTONANTOAN, MUCTONANTOAN),
-        PHIENBAN = PHIENBAN + 1
+    SET TENNL         = NVL(P_TENNL, TENNL),
+        XUATXU        = NVL(P_XUATXU, XUATXU),
+        MADVT         = NVL(P_MADVT, MADVT),
+        MUCTONANTOAN  = NVL(P_MUCTONANTOAN, MUCTONANTOAN),
+        HESOQUYDOI    = NVL(P_HESOQUYDOI, HESOQUYDOI),
+        PHIENBAN      = PHIENBAN + 1
     WHERE MANL = P_MANL;
 
     IF SQL%ROWCOUNT = 0 THEN
@@ -50,7 +57,12 @@ EXCEPTION
 END;
 /
 
--- Procedure Thêm nguyên liệu kèm nhập kho lần đầu (atomic)
+-- ============================================================
+-- Procedure Thêm nguyên liệu kèm nhập kho lần đầu (atomic, có quy đổi)
+-- P_SOLUONG  = số lượng theo đơn vị nhập (VD: 2 Thùng)
+-- P_HESOQUYDOI = hệ số quy đổi (VD: 4320 → 2 Thùng = 8640 ml)
+-- CTPHIEUNHAP.SOLUONG lưu số lượng đơn vị cơ bản (sau quy đổi)
+-- ============================================================
 CREATE OR REPLACE PROCEDURE PROC_THEM_NGUYENLIEU_VA_NHAP_KHO (
     P_TENNL        IN NGUYENLIEU.TENNL%TYPE,
     P_XUATXU      IN NGUYENLIEU.XUATXU%TYPE,
@@ -63,15 +75,20 @@ CREATE OR REPLACE PROCEDURE PROC_THEM_NGUYENLIEU_VA_NHAP_KHO (
     P_NGAYSANXUAT  IN CTPHIEUNHAP.NGAYSANXUAT%TYPE,
     P_HANSUDUNG    IN CTPHIEUNHAP.HANSUDUNG%TYPE,
     P_MANL_OUT     OUT NGUYENLIEU.MANL%TYPE,
-    P_MAPN_OUT     OUT PHIEUNHAPKHO.MAPN%TYPE
+    P_MAPN_OUT     OUT PHIEUNHAPKHO.MAPN%TYPE,
+    P_HESOQUYDOI   IN NGUYENLIEU.HESOQUYDOI%TYPE DEFAULT 1
 )
 IS
-    V_MANL NGUYENLIEU.MANL%TYPE;
-    V_MAPN PHIEUNHAPKHO.MAPN%TYPE;
+    V_MANL            NGUYENLIEU.MANL%TYPE;
+    V_MAPN            PHIEUNHAPKHO.MAPN%TYPE;
+    V_SOLUONG_COSO    NUMBER(10,2);
 BEGIN
-    -- 1. Tạo bản ghi nguyên liệu
-    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MUCTONANTOAN, MADVT, THOIDIEMXOA, MANX)
-    VALUES (P_TENNL, P_XUATXU, P_MUCTONANTOAN, P_MADVT, NULL, NULL)
+    -- Quy đổi: số lượng cơ bản = số lượng nhập × hệ số
+    V_SOLUONG_COSO := P_SOLUONG * NVL(P_HESOQUYDOI, 1);
+
+    -- 1. Tạo bản ghi nguyên liệu (lưu HESOQUYDOI)
+    INSERT INTO NGUYENLIEU (TENNL, XUATXU, MUCTONANTOAN, MADVT, HESOQUYDOI, THOIDIEMXOA, MANX)
+    VALUES (P_TENNL, P_XUATXU, P_MUCTONANTOAN, P_MADVT, NVL(P_HESOQUYDOI, 1), NULL, NULL)
     RETURNING MANL INTO V_MANL;
 
     -- 2. Tạo phiếu nhập kho (gắn NCC)
@@ -79,10 +96,10 @@ BEGIN
     VALUES (P_MANV, P_MANCC, SYSDATE)
     RETURNING MAPN INTO V_MAPN;
 
-    -- 3. Tạo chi tiết lô — trigger TRG_GIAVONTRUNGBINH_SOLUONGTONTONG
-    --    sẽ tự tính lại GIAVONTRUNGBINH và SOLUONGTONTONG trên NGUYENLIEU
+    -- 3. Tạo chi tiết lô — lưu số lượng đơn vị CƠ BẢN (sau quy đổi)
+    --    trigger TRG_GIAVONTRUNGBINH_SOLUONGTONTONG sẽ tự tính lại GIAVONTRUNGBINH và SOLUONGTONTONG
     INSERT INTO CTPHIEUNHAP (MAPN, MANL, SOLUONG, DONGIA, SOLUONGCONLAI, NGAYSANXUAT, HANSUDUNG)
-    VALUES (V_MAPN, V_MANL, P_SOLUONG, P_DONGIA, P_SOLUONG, P_NGAYSANXUAT, P_HANSUDUNG);
+    VALUES (V_MAPN, V_MANL, V_SOLUONG_COSO, P_DONGIA, V_SOLUONG_COSO, P_NGAYSANXUAT, P_HANSUDUNG);
 
     -- 4. Ghi log
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
@@ -100,7 +117,9 @@ EXCEPTION
 END;
 /
 
--- Procedure Xóa nguyên liệu
+-- ============================================================
+-- Procedure Xóa nguyên liệu (giữ nguyên, không thay đổi)
+-- ============================================================
 CREATE OR REPLACE PROCEDURE PROC_XOA_NGUYENLIEU(
     P_MANL IN NGUYENLIEU.MANL%type,
     P_MANX IN NHANVIEN.MANV%type
