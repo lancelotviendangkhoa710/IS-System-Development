@@ -368,7 +368,7 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     /**
      * Xuất báo cáo kinh doanh sang PDF bằng JasperReports.
-     * Template: /reports/bao_cao_kinh_doanh.jrxml
+     * Template: /reports/bao_cao/bao_cao_kinh_doanh.jrxml
      */
     @FXML
     private void onXuatJasperPDF() {
@@ -449,7 +449,7 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     /**
      * Xuất báo cáo lịch sử mua hàng (chi tiết giao dịch) sang PDF.
-     * Template: /reports/lich_su_mua_hang.jrxml
+     * Template: /reports/khach_hang/lich_su_mua_hang.jrxml
      */
     @FXML
     private void onXuatLichSuMuaHang() {

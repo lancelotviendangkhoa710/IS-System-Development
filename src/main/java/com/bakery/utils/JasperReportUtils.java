@@ -19,7 +19,13 @@ import java.util.*;
  * Tiện ích xuất báo cáo chuyên nghiệp bằng JasperReports.
  * <p>
  * Hỗ trợ xuất sang PDF và Excel (.xlsx) từ template .jrxml.
- * Tất cả report template đặt trong {@code /reports/} trên classpath.
+ * Template được tổ chức trong {@code /reports/} theo subfolder:
+ * <ul>
+ *   <li>{@code /reports/hoa_don/}    — Hóa đơn bán hàng</li>
+ *   <li>{@code /reports/bao_cao/}    — Báo cáo kinh doanh</li>
+ *   <li>{@code /reports/kho/}        — Phiếu nhập/xuất kho</li>
+ *   <li>{@code /reports/khach_hang/} — Lịch sử mua hàng</li>
+ * </ul>
  */
 public final class JasperReportUtils {
 
@@ -83,7 +89,7 @@ public final class JasperReportUtils {
 
     /**
      * Xuất hóa đơn bán hàng sang PDF — thay thế PDFBox snapshot.
-     * Template: {@code /reports/hoa_don_ban_hang.jrxml} (khổ A5)
+     * Template: {@code /reports/hoa_don/hoa_don_ban_hang.jrxml} (khổ A5)
      *
      * @param outputFile      File PDF đích
      * @param maHoaDon        Mã hóa đơn (ví dụ "#INV-123")
@@ -108,7 +114,7 @@ public final class JasperReportUtils {
             String tongThanhToan, String tienKhachDua, String tienThua, String docChu,
             List<String[]> rows) throws JRException {
 
-        InputStream stream = loadTemplate("/reports/hoa_don_ban_hang.jrxml");
+        InputStream stream = loadTemplate("/reports/hoa_don/hoa_don_ban_hang.jrxml");
         JasperReport report = JasperCompileManager.compileReport(stream);
 
         Map<String, Object> params = new HashMap<>();
@@ -147,7 +153,7 @@ public final class JasperReportUtils {
 
     /**
      * Xuất báo cáo lịch sử mua hàng sang PDF.
-     * Template: {@code /reports/lich_su_mua_hang.jrxml}
+     * Template: {@code /reports/khach_hang/lich_su_mua_hang.jrxml}
      *
      * @param outputFile File PDF đích
      * @param tieuDe     Tiêu đề báo cáo
@@ -165,7 +171,7 @@ public final class JasperReportUtils {
             String tongDon, String tongTien, String nguoiXuat,
             List<String[]> rows) throws JRException {
 
-        InputStream stream = loadTemplate("/reports/lich_su_mua_hang.jrxml");
+        InputStream stream = loadTemplate("/reports/khach_hang/lich_su_mua_hang.jrxml");
         JasperReport report = JasperCompileManager.compileReport(stream);
 
         Map<String, Object> params = new HashMap<>();
@@ -202,7 +208,7 @@ public final class JasperReportUtils {
 
     /**
      * Xuất phiếu nhập kho sang PDF.
-     * Template: {@code /reports/phieu_nhap_kho.jrxml}
+     * Template: {@code /reports/kho/phieu_nhap_kho.jrxml}
      *
      * @param outputFile  File PDF đích
      * @param maPhieu     Mã phiếu nhập
@@ -219,7 +225,7 @@ public final class JasperReportUtils {
             String nguoiNhap, String tongTien,
             List<String[]> rows) throws JRException {
 
-        InputStream stream = loadTemplate("/reports/phieu_nhap_kho.jrxml");
+        InputStream stream = loadTemplate("/reports/kho/phieu_nhap_kho.jrxml");
         JasperReport report = JasperCompileManager.compileReport(stream);
 
         Map<String, Object> params = new HashMap<>();
@@ -255,7 +261,7 @@ public final class JasperReportUtils {
 
     /**
      * Xuất phiếu xuất kho sang PDF.
-     * Template: {@code /reports/phieu_xuat_kho.jrxml}
+     * Template: {@code /reports/kho/phieu_xuat_kho.jrxml}
      *
      * @param outputFile File PDF đích
      * @param maPhieu    Mã phiếu xuất
@@ -272,7 +278,7 @@ public final class JasperReportUtils {
             String nguoiXuat, String ghiChu,
             List<String[]> rows) throws JRException {
 
-        InputStream stream = loadTemplate("/reports/phieu_xuat_kho.jrxml");
+        InputStream stream = loadTemplate("/reports/kho/phieu_xuat_kho.jrxml");
         JasperReport report = JasperCompileManager.compileReport(stream);
 
         Map<String, Object> params = new HashMap<>();
@@ -314,7 +320,7 @@ public final class JasperReportUtils {
             String tongGiaoDich, String nguoiXuat,
             List<String[]> chiTietRows) throws JRException {
 
-        InputStream jrxmlStream = loadTemplate("/reports/bao_cao_kinh_doanh.jrxml");
+        InputStream jrxmlStream = loadTemplate("/reports/bao_cao/bao_cao_kinh_doanh.jrxml");
         JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
 
         Map<String, Object> params = new HashMap<>();
