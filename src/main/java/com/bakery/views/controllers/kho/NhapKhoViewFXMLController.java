@@ -111,6 +111,15 @@ public class NhapKhoViewFXMLController extends BaseController {
         colStatus.setCellValueFactory(c -> new SimpleStringProperty("Phiếu #" + c.getValue().getMaPN()));
         tblData.setItems(danhSach);
         tblData.setPlaceholder(new Label("Chưa có phiếu nhập nào."));
+        // Double-click dòng → xem chi tiết lô hàng
+        tblData.setRowFactory(tv -> {
+            TableRow<PhieuNhapKhoDTO> row = new TableRow<>();
+            row.setOnMouseClicked(evt -> {
+                if (evt.getClickCount() == 2 && !row.isEmpty())
+                    onXemChiTietPhieuNhap(row.getItem());
+            });
+            return row;
+        });
     }
 
     private void taiDuLieu() {
@@ -278,17 +287,23 @@ public class NhapKhoViewFXMLController extends BaseController {
         colTen.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenNL()));
 
         TableColumn<CTPhieuNhapDTO, String> colSL = new TableColumn<>("Số lượng");
-        colSL.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
+        colSL.setCellValueFactory(c -> {
+            double sl = c.getValue().getSoLuong();
+            String txt = (sl == (long) sl) ? String.valueOf((long) sl) : String.valueOf(sl);
+            return new SimpleStringProperty(txt);
+        });
         colSL.setPrefWidth(90);
 
         TableColumn<CTPhieuNhapDTO, String> colDG = new TableColumn<>("Đơn giá");
         colDG.setCellValueFactory(c -> new SimpleStringProperty(
-                c.getValue().getDonGia() != null ? c.getValue().getDonGia().toPlainString() : "0"));
-        colDG.setPrefWidth(100);
+                c.getValue().getDonGia() != null
+                        ? FMT_TIEN.format(c.getValue().getDonGia()) + " đ" : "0 đ"));
+        colDG.setPrefWidth(110);
 
         TableColumn<CTPhieuNhapDTO, String> colHSD = new TableColumn<>("Hạn sử dụng");
         colHSD.setCellValueFactory(c -> new SimpleStringProperty(
-                c.getValue().getHanSuDung() != null ? c.getValue().getHanSuDung().toString() : "—"));
+                c.getValue().getHanSuDung() != null
+                        ? c.getValue().getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "—"));
         colHSD.setPrefWidth(120);
 
         tblPreview.getColumns().addAll(colTen, colSL, colDG, colHSD);
@@ -478,7 +493,8 @@ public class NhapKhoViewFXMLController extends BaseController {
 
         TableColumn<CTPhieuNhapDTO, String> colDG = editableNumberColumn("Đơn giá (đ)", 110);
         colDG.setCellValueFactory(c -> new SimpleStringProperty(
-                c.getValue().getDonGia() != null ? c.getValue().getDonGia().toPlainString() : "0"));
+                c.getValue().getDonGia() != null
+                        ? c.getValue().getDonGia().stripTrailingZeros().toPlainString() : "0"));
         colDG.setOnEditCommit(e -> {
             try {
                 e.getRowValue().setDonGia(new java.math.BigDecimal(e.getNewValue()));
@@ -586,6 +602,83 @@ public class NhapKhoViewFXMLController extends BaseController {
 
     private static String escapeJson(String s) {
         return s == null ? "" : s.replace("\"", "\\\"");
+    }
+
+    // ── Xem chi tiết phiếu nhập ────────────────────────────────────────────
+
+    /** Tải chi tiết phiếu nhập trên background thread rồi hiển thị dialog. */
+    private void onXemChiTietPhieuNhap(PhieuNhapKhoDTO phieu) {
+        new Thread(() -> {
+            try {
+                List<CTPhieuNhapDTO> chiTiet = nhapKhoDAO.layChiTietPhieuNhap(phieu.getMaPN());
+                javafx.application.Platform.runLater(() ->
+                        hienThiDialogChiTietPhieuNhap(phieu, chiTiet));
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        hienThiLoiLabel("Lỗi tải chi tiết phiếu #" + phieu.getMaPN() + ": " + e.getMessage()));
+            }
+        }, "xem-chi-tiet-phieu-nhap").start();
+    }
+
+    /** Dialog xem chi tiết lô hàng của một phiếu nhập. */
+    @SuppressWarnings("unchecked")
+    private void hienThiDialogChiTietPhieuNhap(PhieuNhapKhoDTO phieu, List<CTPhieuNhapDTO> chiTiet) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Chi tiết phiếu nhập #" + phieu.getMaPN());
+        dialog.setHeaderText(
+                "NCC: " + nvl(phieu.getTenNhaCungCap()) +
+                " | Người nhập: " + nvl(phieu.getTenNhanVien()) +
+                " | Ngày: " + (phieu.getNgayNhap() != null ? phieu.getNgayNhap().format(FMT) : "—"));
+
+        TableView<CTPhieuNhapDTO> tbl = new TableView<>(FXCollections.observableArrayList(chiTiet));
+        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tbl.setPrefHeight(300);
+        tbl.setPlaceholder(new Label("Phiếu này chưa có chi tiết lô hàng."));
+
+        TableColumn<CTPhieuNhapDTO, String> cTen = new TableColumn<>("Nguyên liệu");
+        cTen.setCellValueFactory(c -> new SimpleStringProperty(nvl(c.getValue().getTenNL())));
+
+        TableColumn<CTPhieuNhapDTO, String> cSL = new TableColumn<>("Số lượng");
+        cSL.setCellValueFactory(c -> {
+            double sl = c.getValue().getSoLuong();
+            return new SimpleStringProperty((sl == (long) sl) ? String.valueOf((long) sl) : String.valueOf(sl));
+        });
+        cSL.setPrefWidth(90);
+
+        TableColumn<CTPhieuNhapDTO, String> cDG = new TableColumn<>("Đơn giá");
+        cDG.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getDonGia() != null
+                        ? FMT_TIEN.format(c.getValue().getDonGia()) + " đ" : "—"));
+        cDG.setPrefWidth(120);
+
+        TableColumn<CTPhieuNhapDTO, String> cTT = new TableColumn<>("Thành tiền");
+        cTT.setCellValueFactory(c -> {
+            double sl = c.getValue().getSoLuong();
+            double dg = c.getValue().getDonGia() != null ? c.getValue().getDonGia().doubleValue() : 0.0;
+            return new SimpleStringProperty(FMT_TIEN.format(sl * dg) + " đ");
+        });
+        cTT.setPrefWidth(130);
+
+        TableColumn<CTPhieuNhapDTO, String> cHSD = new TableColumn<>("Hạn sử dụng");
+        cHSD.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getHanSuDung() != null
+                        ? c.getValue().getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "—"));
+        cHSD.setPrefWidth(110);
+
+        tbl.getColumns().addAll(cTen, cSL, cDG, cTT, cHSD);
+
+        Label lblTong = new Label("Tổng tiền phiếu: " +
+                (phieu.getTongTienNhap() != null ? FMT_TIEN.format(phieu.getTongTienNhap()) + " đ" : "—"));
+        lblTong.getStyleClass().addAll("lbl-body-bold");
+
+        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(12, tbl, lblTong);
+        content.setPadding(new javafx.geometry.Insets(16));
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setPrefWidth(750);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) dialog.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        dialog.showAndWait();
     }
 
     // ── In phiếu nhập kho bằng JasperReports ────────────────────────────────

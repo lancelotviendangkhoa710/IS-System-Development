@@ -58,7 +58,7 @@ public class PhieuNhapKhoDAO extends BaseDAO {
                 while (rs.next()) {
                     CTPhieuNhapDTO dto = new CTPhieuNhapDTO();
                     dto.setMaLo(rs.getInt("MALO"));
-                    dto.setMaPN(rs.getInt("MAPN"));
+                    dto.setMaPN(maPN); // dùng tham số method — MAPN không có trong SELECT
                     dto.setMaNL(rs.getInt("MANL"));
                     dto.setTenNL(rs.getString("TENNL"));
                     dto.setSoLuong(rs.getDouble("SOLUONG"));

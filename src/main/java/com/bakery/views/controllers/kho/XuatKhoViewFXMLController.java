@@ -100,6 +100,15 @@ public class XuatKhoViewFXMLController extends BaseController {
                 new SimpleStringProperty("Phiếu #" + c.getValue().getMaPX()));
         tblData.setItems(danhSach);
         tblData.setPlaceholder(new Label("Chưa có phiếu xuất nào."));
+        // Double-click dòng → xem chi tiết phiếu xuất
+        tblData.setRowFactory(tv -> {
+            TableRow<PhieuXuatKhoDTO> row = new TableRow<>();
+            row.setOnMouseClicked(evt -> {
+                if (evt.getClickCount() == 2 && !row.isEmpty())
+                    hienThiDialogChiTietPhieuXuat(row.getItem());
+            });
+            return row;
+        });
     }
 
     private void taiDuLieu() {
@@ -513,6 +522,24 @@ public class XuatKhoViewFXMLController extends BaseController {
     }
 
     private static String nvl(String s) { return s != null ? s : "—"; }
+
+    // ── Xem chi tiết phiếu xuất ────────────────────────────────────────────
+
+    /**
+     * Hiển thị dialog tóm tắt phiếu xuất (phiếu xuất không có bảng chi tiết riêng —
+     * thông tin nằm ngay trong PhieuXuatKhoDTO).
+     */
+    private void hienThiDialogChiTietPhieuXuat(PhieuXuatKhoDTO phieu) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Chi tiết phiếu xuất #" + phieu.getMaPX());
+        alert.setHeaderText("Phiếu xuất kho #" + phieu.getMaPX());
+        String nd = "Ngày xuất : " + (phieu.getNgayXuat() != null ? phieu.getNgayXuat().format(FMT) : "—") + "\n"
+                  + "Lý do    : " + nvl(phieu.getLyDoXuat()) + "\n"
+                  + "Người xuất: " + nvl(phieu.getTenNhanVien());
+        alert.setContentText(nd);
+        injectDialogCss(alert);
+        alert.showAndWait();
+    }
 
     // ── In phiếu xuất kho bằng JasperReports ──────────────────────────────────────
 

@@ -16,7 +16,6 @@ import com.bakery.views.interfaces.banhang.IDonHangView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -71,9 +70,11 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         FMT_TIEN.setMaximumFractionDigits(0);
     }
 
-    private static final Logger LOGGER = Logger.getLogger(TheoDoiDonHangViewFXMLController.class.getName());
+    private static final List<String> TRANG_THAI_THEO_THU_TU = List.of(
+            "Mới đặt", "Đã cọc", "Đang sản xuất", "Chờ giao", "Chờ khách lấy", "Hoàn thành");
 
-    /** Timeline auto-refresh: cả bepMode và chế độ theo dõi thường. */
+    private static final List<String> TRANG_THAI_KET_THUC = List.of("Hoàn thành", "Hủy", "Hoàn hàng");
+    private static final Logger LOGGER = Logger.getLogger(TheoDoiDonHangViewFXMLController.class.getName());
     private Timeline autoRefreshTimeline;
 
     private DonHangPresenter presenter;
@@ -96,9 +97,16 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         panelChuaDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 dialogFactory.setOwnerWindow(newScene.getWindow());
-                // bepMode: tải ngay đơn chưa hoàn thành khi scene sẵn sàng
-                if (bepMode) javafx.application.Platform.runLater(this::taiDonBep);
-                batDauAutoRefresh();
+                if (bepMode) {
+                    // bepMode: tải đơn bếp khi scene sẵn sàng
+                    javafx.application.Platform.runLater(this::taiDonBep);
+                } else {
+                    // Chế độ thường: tải đơn lần đầu ngay khi scene gắn vào
+                    // (taiDuLieuBanDau chỉ khởi tạo lastSearch*, không query DB đơn)
+                    javafx.application.Platform.runLater(() -> presenter.taiDonLanDau());
+                }
+                // bepMode: BepViewFXMLController điều khiển start/stop qua tab selection
+                if (!bepMode) batDauAutoRefresh();
             } else {
                 dungAutoRefresh();
             }
@@ -124,7 +132,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
                         if (bepMode)
                             taiDonBep();
                         else
-                            onTimKiemDon();
+                            // Dùng last search để refresh đúng kết quả hiện tại
+                            presenter.refreshLastSearch();
                     } catch (Exception ex) {
                         LOGGER.warning("[AutoRefresh] Loi refresh don hang: " + ex.getMessage());
                     }
@@ -143,10 +152,14 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     }
 
     /** Gọi bởi BepViewFXMLController khi tab Đơn hàng bếp được chọn. */
-    public void batDauAutoRefreshPublic() { batDauAutoRefresh(); }
+    public void batDauAutoRefreshPublic() {
+        batDauAutoRefresh();
+    }
 
     /** Gọi bởi BepViewFXMLController khi rời khỏi tab Đơn hàng bếp. */
-    public void dungAutoRefreshPublic() { dungAutoRefresh(); }
+    public void dungAutoRefreshPublic() {
+        dungAutoRefresh();
+    }
 
     /**
      * Kích hoạt chế độ Bếp: tự động tải đơn tùy chỉnh chưa hoàn thành.
@@ -199,7 +212,9 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     }
 
     private void khoiTaoComboTheoDoi() {
-        dpNgayTheoDoi.setValue(LocalDate.now());
+        // DatePicker để TRỐNG — nghĩa là không lọc theo ngày (hiển thị tất cả)
+        // User chủ động chọn ngày nếu muốn thu hẹp kết quả
+        dpNgayTheoDoi.setValue(null);
         cbGioTu.getItems().clear();
         cbGioDen.getItems().clear();
         cbGioTu.getItems().add("Tất cả");
@@ -250,21 +265,32 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         return FMT_TIEN.format(amount.doubleValue()) + " đ";
     }
 
+    /**
+     * Tạo card hiển thị một đơn hàng trong danh sách theo dõi.
+     *
+     * Logic chuyển trạng thái:
+     * - Thứ tự cố định: Mới đặt → Đã cọc → Đang sản xuất → Chờ giao → Chờ khách lấy
+     * → Hoàn thành
+     * - Chỉ được tiến (index tăng), không lùi, cho phép nhảy cóc
+     * - Nút gần nhất (bước kế tiếp) style btn-primary, các nút nhảy cóc style
+     * btn-outline
+     * - Đơn đã kết thúc (Hoàn thành / Hủy / Hoàn hàng) không hiển thị nút chuyển
+     */
     private Node taoCardTheoDoi(DonDatHangDTO don) {
         VBox card = new VBox(10);
         card.getStyleClass().add("order-card");
 
+        // ── Header: mã đơn + badge trạng thái ──
         HBox header = new HBox(8);
         Label lblMaDon = new Label("#" + don.getMaDon());
         lblMaDon.getStyleClass().add("lbl-body-bold");
-
         Label badge = new Label(don.getTenTrangThai() == null ? "N/A" : don.getTenTrangThai());
         badge.getStyleClass().addAll("badge", mapStyleTrangThai(don.getTenTrangThai()));
-
         Region pushRight = new Region();
         HBox.setHgrow(pushRight, Priority.ALWAYS);
         header.getChildren().addAll(lblMaDon, pushRight, badge);
 
+        // ── Info ──
         Label lblKhach = new Label("Khách: " + (don.getMaKH() == null ? "Khách lẻ" : "KH #" + don.getMaKH()));
         lblKhach.getStyleClass().add("lbl-small");
         Label lblNgayNhan = new Label("Nhận lúc: "
@@ -273,41 +299,48 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         Label lblTongTien = new Label("Tổng: " + dinhDangTien(don.getTongTienHDBan()));
         lblTongTien.getStyleClass().add("lbl-primary");
 
+        // ── Actions ──
         HBox action = new HBox(8);
         action.setAlignment(Pos.CENTER_LEFT);
-        ComboBox<String> cbTrangThai = new ComboBox<>();
-        cbTrangThai.setItems(FXCollections.observableArrayList(danhSachTrangThai));
-        cbTrangThai.setValue(don.getTenTrangThai());
-        cbTrangThai.setPrefWidth(180);
+        action.getStyleClass().add("card-actions");
 
-        Button btnCapNhat = new Button("Cập nhật");
-        btnCapNhat.getStyleClass().add("btn-primary");
-        btnCapNhat.setOnAction(event -> {
-            if (presenter == null || cbTrangThai.getValue() == null)
-                return;
-            presenter.capNhatTrangThai(String.valueOf(don.getMaDon()), cbTrangThai.getValue(), don.getTenTrangThai());
-        });
+        String ttHienTai = don.getTenTrangThai() == null ? "" : don.getTenTrangThai();
+        boolean daKetThuc = TRANG_THAI_KET_THUC.contains(ttHienTai);
 
+        if (!daKetThuc) {
+            int viTriHT = TRANG_THAI_THEO_THU_TU.indexOf(ttHienTai);
+            // Thêm nút cho mỗi trạng thái cao hơn hiện tại (nhảy cóc được)
+            if (viTriHT >= 0) {
+                for (int i = viTriHT + 1; i < TRANG_THAI_THEO_THU_TU.size(); i++) {
+                    final String ttMuc = TRANG_THAI_THEO_THU_TU.get(i);
+                    Button btn = new Button("→ " + ttMuc);
+                    // Bước kế tiếp: primary. Nhảy cóc: outline
+                    btn.getStyleClass().add(i == viTriHT + 1 ? "btn-primary" : "btn-outline");
+                    btn.setOnAction(e -> {
+                        if (presenter != null)
+                            presenter.capNhatTrangThai(
+                                    String.valueOf(don.getMaDon()), ttMuc, ttHienTai);
+                    });
+                    action.getChildren().add(btn);
+                }
+            }
+
+            // Hủy đơn — chỉ hiển thị khi chưa kết thúc
+            Button btnHuyDon = new Button("Hủy đơn");
+            btnHuyDon.getStyleClass().add("btn-danger");
+            btnHuyDon.setOnAction(event -> {
+                if (presenter != null)
+                    presenter.huyDonHang(String.valueOf(don.getMaDon()));
+            });
+            action.getChildren().add(btnHuyDon);
+        }
+
+        // Chi tiết — luôn hiển thị
         Button btnChiTiet = new Button("Chi tiết");
         btnChiTiet.getStyleClass().add("btn-secondary");
         btnChiTiet.setOnAction(event -> showOrderDetails(don));
+        action.getChildren().add(btnChiTiet);
 
-        Button btnHuyDon = new Button("Hủy đơn");
-        btnHuyDon.getStyleClass().add("btn-danger");
-        // Task 7: Khóa toàn bộ controls khi đơn đã kết thúc (Hoàn thành / Hủy)
-        String tt = don.getTenTrangThai() == null ? "" : don.getTenTrangThai();
-        boolean daKetThuc = tt.contains("Ho\u00e0n th\u00e0nh") || tt.contains("H\u1ee7y");
-        if (daKetThuc) {
-            cbTrangThai.setDisable(true);
-            btnCapNhat.setDisable(true);
-            btnHuyDon.setDisable(true);
-        }
-        btnHuyDon.setOnAction(event -> {
-            if (presenter != null)
-                presenter.huyDonHang(String.valueOf(don.getMaDon()));
-        });
-
-        action.getChildren().addAll(cbTrangThai, btnCapNhat, btnChiTiet, btnHuyDon);
         card.getChildren().addAll(header, lblKhach, lblNgayNhan, lblTongTien, action);
         return card;
     }
