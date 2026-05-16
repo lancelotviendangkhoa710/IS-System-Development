@@ -280,11 +280,8 @@ public class QuanLyDonHangService {
                         "Đơn có bánh tùy chỉnh phải đặt giờ nhận từ 9:00 sáng ngày hôm sau trở đi"
                         + " (cần ít nhất 1 ngày để chuẩn bị).");
         } else {
-            // Bánh bán sẵn: đặt trước ít nhất 3 tiếng
-            LocalDateTime gioiHanBanSan = LocalDateTime.now().plusHours(3);
-            if (request.getNgayGioNhanBanh().isBefore(gioiHanBanSan))
-                throw new IllegalArgumentException(
-                        "Đơn bánh bán sẵn phải đặt giờ nhận ít nhất 3 tiếng kể từ hiện tại.");
+            // Bánh bán sẵn: không giới hạn thời gian đặt trước
+            // (thanh toán POS trực tiếp, giờ nhận = ngay lúc này)
         }
 
         List<YeuCauChiTietDonHangDTO> items = request.getItems();
