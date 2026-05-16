@@ -103,7 +103,14 @@ public class DonHangPresenter {
                     orderService.layDanhSachNhanBanh(), orderService.layDanhSachKieuTrangTri());
 
             view.taiDanhSachTrangThai(new ArrayList<>(mapTrangThaiMoi.keySet()));
-            timKiemDonTheoDoi(null, null, LocalDate.now(), null, null, "ALL");
+            // Khởi tạo lastSearch* với giá trị mặc định (không lọc ngày, chưa hoàn thành)
+            lastSearchMaDon = null;
+            lastSearchTenKhach = null;
+            lastSearchNgay = null;
+            lastSearchTu = null;
+            lastSearchDen = null;
+            lastSearchTrangThai = "NOT_COMPLETED";
+            // Không gọi timKiemDonTheoDoi ở đây — để controller gọi sau khi scene sẵn sàng
         } catch (Exception e) {
             System.err.println("[DonHangPresenter] Lỗi tải dữ liệu ban đầu: " + e.getMessage());
             view.hienThiLoi("Lỗi tải dữ liệu ban đầu: " + e.getMessage() + ". Đang sử dụng dữ liệu ảo.");
@@ -309,6 +316,14 @@ public class DonHangPresenter {
 
         try {
             if (req.orderType() == IDonHangDialogFactory.LoaiDonHang.IMMEDIATE) {
+                // Giỏ hàng có bánh tùy chỉnh → KHÔNG thể thanh toán ngay
+                boolean coTuyChinh = gioHangItems.stream().anyMatch(YeuCauChiTietDonHangDTO::isCustom);
+                if (coTuyChinh) {
+                    view.hienThiLoi(
+                        "Giỏ hàng có bánh tùy chỉnh cần ít nhất 1 ngày chuẩn bị.\n" +
+                        "Vui lòng chọn hình thức ĐẶT HÀNG và điền ngày giờ nhận bánh.");
+                    return;
+                }
                 xuLyThanhToanNgay(req, tongTienPhaiTra);
             } else {
                 xuLyDatTruoc(req, tongTienPhaiTra);
@@ -593,6 +608,24 @@ public class DonHangPresenter {
     }
 
     /**
+     * Refresh lại kết quả tìm kiếm cuối cùng — dùng cho auto-refresh timer.
+     * Không đọc lại UI state, tránh bug trắng màn khi DatePicker trống.
+     */
+    public void refreshLastSearch() {
+        timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
+                lastSearchTu, lastSearchDen, lastSearchTrangThai);
+    }
+
+    /**
+     * Tải danh sách đơn lần đầu khi màn hình được gắn vào scene.
+     * Gọi bởi controller trong sceneProperty listener để đảm bảo lastSearch* đã được khoi tao.
+     */
+    public void taiDonLanDau() {
+        timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
+                lastSearchTu, lastSearchDen, lastSearchTrangThai);
+    }
+
+    /**
      * Tải danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình bếp.
      * Không phụ thuộc vào bộ lọc ngày/trạng thái của user.
      */
@@ -631,6 +664,18 @@ public class DonHangPresenter {
             }
         }
         return true;
+    }
+
+    // ── Public accessors cho View layer (dùng trong dialog chi tiết đơn) ──
+
+    /** Lấy danh sách bánh bán sẵn của đơn — dùng cho dialog Chi tiết đơn. */
+    public List<CTDonHangDTO> layChiTietBanSan(int maDon) throws Exception {
+        return orderService.layChiTietDonHang(maDon);
+    }
+
+    /** Lấy danh sách bánh tùy chỉnh của đơn — dùng cho dialog Chi tiết đơn. */
+    public List<CTDonTuyChinhDTO> layChiTietTuyChinh(int maDon) throws Exception {
+        return orderService.layChiTietTuyChinh(maDon);
     }
 
 }

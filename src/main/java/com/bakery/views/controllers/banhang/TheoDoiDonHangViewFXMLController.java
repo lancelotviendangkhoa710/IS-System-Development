@@ -2,6 +2,7 @@ package com.bakery.views.controllers.banhang;
 
 import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.model.dto.banhang.CTDonHangDTO;
+import com.bakery.model.dto.banhang.CTDonTuyChinhDTO;
 import com.bakery.model.dto.kho.CotBanhDTO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.banhang.HoaDonDTO;
@@ -16,15 +17,21 @@ import com.bakery.views.interfaces.banhang.IDonHangView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.text.Normalizer;
@@ -381,19 +388,113 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
 
     @Override
     public void showOrderDetails(DonDatHangDTO order) {
-        String noiDung = "Mã đơn: #" + order.getMaDon() + "\n"
-                + "Trạng thái: " + order.getTenTrangThai() + "\n"
-                + "Khách hàng: " + (order.getMaKH() == null ? "Khách lẻ" : "KH #" + order.getMaKH()) + "\n"
-                + "Thời gian nhận: "
-                + (order.getNgayGioNhanBanh() == null ? "N/A" : order.getNgayGioNhanBanh().format(FMT_NGAY_GIO)) + "\n"
-                + "Tổng tiền: " + dinhDangTien(order.getTongTienHDBan()) + "\n"
-                + "Đã cọc: " + dinhDangTien(order.getTienDaCoc());
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("Chi tiết đơn hàng");
-        alert.setContentText(noiDung);
-        DialogHelper.applyBakeryTheme(alert);
-        alert.showAndWait();
+        // Tiêu đề header
+        String header = "Chi tiết đơn #" + order.getMaDon()
+                + "  —  " + order.getTenTrangThai()
+                + "  |  Khách: " + (order.getMaKH() == null ? "Khách lẻ" : "KH #" + order.getMaKH())
+                + "  |  Nhận: "
+                + (order.getNgayGioNhanBanh() == null ? "N/A" : order.getNgayGioNhanBanh().format(FMT_NGAY_GIO))
+                + "  |  Tổng: " + dinhDangTien(order.getTongTienHDBan())
+                + "  —  Đã cọc: " + dinhDangTien(order.getTienDaCoc());
+
+        // Lấy chi tiết từ presenter
+        List<CTDonHangDTO> banSan = new ArrayList<>();
+        List<CTDonTuyChinhDTO> tuyChinh = new ArrayList<>();
+        if (presenter != null) {
+            try {
+                banSan = presenter.layChiTietBanSan(order.getMaDon());
+            } catch (Exception ignored) {}
+            try {
+                tuyChinh = presenter.layChiTietTuyChinh(order.getMaDon());
+            } catch (Exception ignored) {}
+        }
+
+        // ─── Bảng bánh bán sẵn ─────────────────────────────────────
+        TableView<CTDonHangDTO> tblBanSan = new TableView<>();
+        TableColumn<CTDonHangDTO, String> colTenSP = new TableColumn<>("Sản phẩm");
+        colTenSP.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty("SP #" + c.getValue().getMaSP()));
+        colTenSP.setPrefWidth(180);
+        TableColumn<CTDonHangDTO, Integer> colSL = new TableColumn<>("Số lượng");
+        colSL.setCellValueFactory(c -> new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getSoLuong()));
+        colSL.setPrefWidth(80);
+        TableColumn<CTDonHangDTO, String> colGia = new TableColumn<>("Đơn giá");
+        colGia.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(dinhDangTien(c.getValue().getDonGia())));
+        colGia.setPrefWidth(110);
+        TableColumn<CTDonHangDTO, String> colTT = new TableColumn<>("Thành tiền");
+        colTT.setCellValueFactory(c -> {
+            double tt = (c.getValue().getDonGia() != null ? c.getValue().getDonGia().doubleValue() : 0) * c.getValue().getSoLuong();
+            return new javafx.beans.property.SimpleStringProperty(dinhDangTien(tt));
+        });
+        colTT.setPrefWidth(120);
+        tblBanSan.getColumns().addAll(colTenSP, colSL, colGia, colTT);
+        tblBanSan.setItems(FXCollections.observableArrayList(banSan));
+        tblBanSan.setMaxHeight(150);
+        tblBanSan.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        if (banSan.isEmpty()) tblBanSan.setPlaceholder(new Label("Không có sản phẩm bán sẵn"));
+
+        // ─── Bảng bánh tùy chỉnh ──────────────────────────────────────
+        TableView<CTDonTuyChinhDTO> tblTuyChinh = new TableView<>();
+        TableColumn<CTDonTuyChinhDTO, String> colTcTen = new TableColumn<>("Bánh tùy chỉnh (SP#)");
+        colTcTen.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty("SP #" + c.getValue().getMaSP()));
+        colTcTen.setPrefWidth(160);
+        TableColumn<CTDonTuyChinhDTO, Integer> colTcSL = new TableColumn<>("SL");
+        colTcSL.setCellValueFactory(c -> new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getSoLuong()));
+        colTcSL.setPrefWidth(50);
+        TableColumn<CTDonTuyChinhDTO, String> colTcGia = new TableColumn<>("Đơn giá");
+        colTcGia.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(dinhDangTien(c.getValue().getDonGia())));
+        colTcGia.setPrefWidth(110);
+        TableColumn<CTDonTuyChinhDTO, String> colTcLoiChuc = new TableColumn<>("Lời chúc");
+        colTcLoiChuc.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+                nvl(c.getValue().getLoiChucTrenBanh())));
+        colTcLoiChuc.setPrefWidth(140);
+        TableColumn<CTDonTuyChinhDTO, String> colTcGhiChu = new TableColumn<>("Ghi chú");
+        colTcGhiChu.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+                nvl(c.getValue().getGhiChuThoBanh())));
+        colTcGhiChu.setPrefWidth(150);
+        tblTuyChinh.getColumns().addAll(colTcTen, colTcSL, colTcGia, colTcLoiChuc, colTcGhiChu);
+        tblTuyChinh.setItems(FXCollections.observableArrayList(tuyChinh));
+        tblTuyChinh.setMaxHeight(150);
+        tblTuyChinh.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        if (tuyChinh.isEmpty()) tblTuyChinh.setPlaceholder(new Label("Không có bánh tùy chỉnh"));
+
+        // ─── Layout dialog ────────────────────────────────────────────
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(16));
+        root.getStyleClass().add("bg-app");
+
+        Label lblHeader = new Label(header);
+        lblHeader.getStyleClass().add("lbl-body-bold");
+        lblHeader.setWrapText(true);
+
+        Label lblBanSan = new Label("🛒 Bánh bán sẵn");
+        lblBanSan.getStyleClass().add("lbl-title-card");
+        Label lblTuyChinh = new Label("✨ Bánh tùy chỉnh");
+        lblTuyChinh.getStyleClass().add("lbl-title-card");
+
+        Button btnDong = new Button("❌ Đóng");
+        btnDong.getStyleClass().add("btn-secondary");
+
+        HBox footer = new HBox(btnDong);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+
+        root.getChildren().addAll(lblHeader, new Separator(),
+                lblBanSan, tblBanSan,
+                lblTuyChinh, tblTuyChinh,
+                new Separator(), footer);
+
+        Scene scene = new Scene(root, 680, 520);
+        URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Chi tiết đơn #" + order.getMaDon());
+        stage.setScene(scene);
+        btnDong.setOnAction(e -> stage.close());
+        stage.showAndWait();
     }
+
+    private static String nvl(String s) { return s != null && !s.isBlank() ? s : "—"; }
 
     @Override
     public void hienThiLoiTraCuu(String msg) {
