@@ -143,7 +143,7 @@
         </VBox>
 
         <!-- Panel phải: Giỏ hàng (35%) -->
-        <VBox prefWidth="320" minWidth="280" spacing="12">
+        <VBox prefWidth="430" minWidth="380" spacing="12">
 
             <!-- Giỏ hàng -->
             <VBox styleClass="card" spacing="8" VBox.vgrow="ALWAYS">
@@ -152,10 +152,10 @@
                            styleClass="table-view">
                     <columns>
                         <TableColumn fx:id="colTenSP" text="Sản phẩm" prefWidth="120"/>
-                        <TableColumn fx:id="colSoLuong" text="SL" prefWidth="40"/>
-                        <TableColumn fx:id="colDonGia" text="Đơn giá" prefWidth="80"/>
-                        <TableColumn fx:id="colThanhTien" text="Thành tiền" prefWidth="90"/>
-                        <TableColumn fx:id="colXoa" text="" prefWidth="40"/>
+                        <TableColumn fx:id="colSoLuong" text="SL" prefWidth="120"/>
+                        <TableColumn fx:id="colDonGia" text="Đơn giá" prefWidth="85"/>
+                        <TableColumn fx:id="colThanhTien" text="Thành tiền" prefWidth="65"/>
+                        <TableColumn fx:id="colXoa" text="" prefWidth="36"/>
                     </columns>
                     <placeholder>
                         <Label text="Chưa có sản phẩm nào" styleClass="lbl-body"/>
@@ -193,8 +193,8 @@
             <Label fx:id="lblThongBao" text="" wrapText="true"
                    styleClass="lbl-small-bold" maxWidth="Infinity"/>
             <Button fx:id="btnThanhToan"
-                    text="💳 Tạo đơn &amp; Thanh toán"
-                    styleClass="btn-primary"
+                    text="✅ Tạo đơn &amp; Thanh toán"
+                    styleClass="btn-success"
                     maxWidth="Infinity"
                     disable="true"
                     onAction="#onThanhToan"/>
