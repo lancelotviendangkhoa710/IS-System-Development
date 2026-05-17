@@ -25,6 +25,8 @@ public class BepViewFXMLController extends BaseController {
     @FXML
     private Tab tabDonHangBep;
     @FXML
+    private Tab tabKiemKe;
+    @FXML
     private Tab tabCauHinhGioiHan;
 
     /**
@@ -43,20 +45,7 @@ public class BepViewFXMLController extends BaseController {
         if (theoDoiDonHangBepController != null) {
             theoDoiDonHangBepController.setBepMode(true);
         }
-
-        // Start/stop auto-refresh 10s của tab Đơn hàng bếp theo tab đang active
-        if (tabPaneBep != null && tabDonHangBep != null) {
-            tabPaneBep.getSelectionModel().selectedItemProperty().addListener(
-                    (obs, oldTab, newTab) -> {
-                        if (theoDoiDonHangBepController == null)
-                            return;
-                        if (newTab == tabDonHangBep) {
-                            theoDoiDonHangBepController.batDauAutoRefreshPublic();
-                        } else {
-                            theoDoiDonHangBepController.dungAutoRefreshPublic();
-                        }
-                    });
-        }
+        // Auto-refresh đã bị TẮT ở màn hình bếp — nhân viên bếp tự F5 khi cần.
     }
 
     public void chuyenTab(String tabKey) {
@@ -64,6 +53,7 @@ public class BepViewFXMLController extends BaseController {
             return;
         Tab target = switch (tabKey.toLowerCase()) {
             case "donhangbep" -> tabDonHangBep;
+            case "kiemkekho", "kiemke", "kho" -> tabKiemKe;
             case "cauhinhgioihan", "gioihan" -> tabCauHinhGioiHan;
             default -> tabXuatKho;
         };

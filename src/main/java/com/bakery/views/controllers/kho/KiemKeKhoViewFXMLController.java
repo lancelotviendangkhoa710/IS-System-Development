@@ -27,16 +27,17 @@ public class KiemKeKhoViewFXMLController extends BaseController {
 
     @FXML private Label lblTitle;
     @FXML private TableView<TonKhoRow> tblData;
-    @FXML private TableColumn<TonKhoRow, String> colDate;   // tái dùng fx:id làm "Loại"
-    @FXML private TableColumn<TonKhoRow, String> colUser;   // tái dùng fx:id làm "Tên"
-    @FXML private TableColumn<TonKhoRow, String> colContent;// tái dùng fx:id làm "Tồn kho"
-    @FXML private TableColumn<TonKhoRow, String> colStatus; // tái dùng fx:id làm "Trạng thái"
+    @FXML private TableColumn<TonKhoRow, String> colDate;    // tai dung: "Loai"
+    @FXML private TableColumn<TonKhoRow, String> colUser;    // tai dung: "Ten hang"
+    @FXML private TableColumn<TonKhoRow, String> colDonVi;   // Don vi tinh
+    @FXML private TableColumn<TonKhoRow, String> colContent; // tai dung: "Ton kho"
+    @FXML private TableColumn<TonKhoRow, String> colStatus;  // "Trang thai"
 
     private static final NumberFormat FMT = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
     static { FMT.setMaximumFractionDigits(2); }
 
-    /** Row hiển thị tổng hợp tồn kho — gộp NL lẫn SP. */
-    public record TonKhoRow(String loai, String ten, String tonKho, String trangThai) {}
+    /** Row hien thi tong hop ton kho — gop NL lan SP. */
+    public record TonKhoRow(String loai, String ten, String donViTinh, String tonKho, String trangThai) {}
 
     private final NguyenLieuDAO nguyenLieuDAO = new NguyenLieuDAO();
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
@@ -56,6 +57,9 @@ public class KiemKeKhoViewFXMLController extends BaseController {
         colUser.setText("Tên hàng");
         colUser.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().ten()));
 
+        colDonVi.setText("Đơn vị tính");
+        colDonVi.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().donViTinh()));
+
         colContent.setText("Tồn kho");
         colContent.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().tonKho()));
 
@@ -74,20 +78,21 @@ public class KiemKeKhoViewFXMLController extends BaseController {
                 List<NguyenLieuDTO> dsNL = nguyenLieuDAO.layTatCaNguyenLieu();
                 for (NguyenLieuDTO nl : dsNL) {
                     double ton = nl.getSoLuongTonTong();
-                    String trang = ton <= 0 ? "⛔ Hết hàng"
-                            : ton <= nl.getMucTonAnToan() ? "⚠ Sắp hết" : "✅ Đủ hàng";
+                    String trang = ton <= 0 ? "\u26D4 Hết hàng"
+                            : ton <= nl.getMucTonAnToan() ? "\u26A0 Sắp hết" : "\u2705 Đủ hàng";
+                    String dvt = nl.getTenDVT().isBlank() ? "---" : nl.getTenDVT();
                     data.add(new TonKhoRow("Nguyên liệu", nl.getTenNL(),
-                            FMT.format(ton), trang));
+                            dvt, FMT.format(ton), trang));
                 }
 
                 // --- Thành phẩm ---
                 List<SanPhamDTO> dsSP = sanPhamDAO.layTatCaSanPhamQuanLy();
                 for (SanPhamDTO sp : dsSP) {
                     double ton = sp.getSoLuongTon();
-                    String trang = ton <= 0 ? "⛔ Hết hàng"
-                            : ton < 5 ? "⚠ Sắp hết" : "✅ Đủ hàng";
+                    String trang = ton <= 0 ? "\u26D4 Hết hàng"
+                            : ton < 5 ? "\u26A0 Sắp hết" : "\u2705 Đủ hàng";
                     data.add(new TonKhoRow("Thành phẩm", sp.getTenSP(),
-                            FMT.format(ton) + " cái", trang));
+                            "cái", FMT.format(ton), trang));
                 }
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() ->

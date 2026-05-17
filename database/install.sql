@@ -41,7 +41,6 @@ PROMPT [3/6] Tạo functions...
 @@03_functions/func_customprice.sql
 @@03_functions/func_fefo.sql
 @@03_functions/func_idealcash.sql
-@@03_functions/func_maxnumbercake.sql
 @@03_functions/func_measureability.sql
 @@03_functions/func_profit_paymethod.sql
 @@03_functions/func_profitgross.sql

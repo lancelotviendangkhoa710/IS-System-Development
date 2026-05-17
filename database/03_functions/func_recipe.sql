@@ -1,4 +1,7 @@
--- Hàm chuyển đổi tỷ lệ công thức làm bánh
+-- Hàm chuyển đổi tỷ lệ công thức làm bánh theo số lượng cần làm
+-- Input:  P_MASP              — mã sản phẩm
+--         P_SOLUONGBANHCANLAM — số bánh cần làm
+-- Output: Cursor các nguyên liệu kèm TONG số lượng cần xuất kho
 CREATE OR REPLACE FUNCTION FUNC_CHUYENDOITYLECONGTHUC(
     P_MASP IN SANPHAM.MASP%type,
     P_SOLUONGBANHCANLAM IN CONGTHUC.SOLUONGTIEUHAO%type
@@ -7,17 +10,22 @@ IS
     V_REFCURSOR SYS_REFCURSOR;
 BEGIN
     OPEN V_REFCURSOR FOR
-        SELECT C.MANL, N.TENNL, D.TENDVT,
-            (C.SOLUONGTIEUHAO * P_SOLUONGBANHCANLAM) AS TONGSOLUONGCANXUAT
+        SELECT C.MANL,
+               N.TENNL,
+               DVT.TENDVT,
+               (C.SOLUONGTIEUHAO * P_SOLUONGBANHCANLAM) AS TONGSOLUONGCANXUAT
         FROM CONGTHUC C
-        JOIN NGUYENLIEU N ON C.MANL = N.MANL
-        JOIN DONVITINH D ON N.MADVT = D.MADVT
-        WHERE C.MASP = P_MASP;
-        
+        JOIN NGUYENLIEU N   ON C.MANL       = N.MANL
+        JOIN DONVITINH  DVT ON N.MADVT      = DVT.MADVT
+        WHERE C.MASP = P_MASP
+        ORDER BY N.TENNL;
+
     RETURN V_REFCURSOR;
 EXCEPTION
     WHEN OTHERS THEN
-        OPEN V_REFCURSOR FOR SELECT -1 AS MANL, 'Lỗi' AS TENNL, 0 AS TONGSOLUONGCANXUAT, '' AS TENDVT FROM DUAL WHERE 1=0;
+        OPEN V_REFCURSOR FOR
+            SELECT -1 AS MANL, 'Lỗi' AS TENNL, '' AS TENDVT, 0 AS TONGSOLUONGCANXUAT
+            FROM DUAL WHERE 1=0;
         RETURN V_REFCURSOR;
 END;
 /

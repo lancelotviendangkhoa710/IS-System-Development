@@ -31,6 +31,21 @@ public class SanPhamPresenter {
         }
     }
 
+    /**
+     * Query danh mục trực tiếp từ DB — dùng khi mở dialog Thêm/Sửa sản phẩm
+     * để đảm bảo danh mục vừa thêm cũng xuất hiện trong ComboBox.
+     */
+    public Map<Integer, String> layDanhMucFresh() {
+        try {
+            Map<Integer, String> fresh = sanPhamService.layMapDanhMucSanPham();
+            view.hienThiDanhSachDanhMuc(fresh); // cập nhật cache luôn
+            return fresh;
+        } catch (Exception e) {
+            view.hienThiLoi("Lỗi tải danh mục: " + e.getMessage());
+            return java.util.Map.of();
+        }
+    }
+
     public void taiDanhSachSanPham() {
         try {
             List<SanPhamDTO> ds = sanPhamService.layDanhSachSanPhamQuanLy();

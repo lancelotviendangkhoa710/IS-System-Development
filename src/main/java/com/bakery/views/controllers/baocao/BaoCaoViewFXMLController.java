@@ -35,6 +35,7 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private Label lblChenhLechDoanhThu;
     @FXML private Label lblLoiNhuan;
     @FXML private Label lblTongDon;
+    @FXML private Label lblKhachHang;
     @FXML private VBox vboxBestSellers;
     @FXML private PieChart revenuePieChart;
     @FXML private BarChart<String, Number> revenueBarChart;
@@ -252,8 +253,12 @@ public class BaoCaoViewFXMLController extends BaseController {
             double doanhThu = thongKeService.getDoanhThu(loai, giaTri);
             double giaVon   = thongKeService.getGiaVon(loai, giaTri);
             double loiNhuan = doanhThu - giaVon;
+            int tongDon      = thongKeService.getTongDon(loai, giaTri);
+            int khachTichDiem = thongKeService.getKhachTichDiem(loai, giaTri);
             lblDoanhThu.setText(String.format("%,.0fđ", doanhThu));
             lblLoiNhuan.setText(String.format("%,.0fđ", loiNhuan));
+            if (lblTongDon   != null) lblTongDon.setText(String.valueOf(tongDon));
+            if (lblKhachHang != null) lblKhachHang.setText(String.valueOf(khachTichDiem));
 
             updateChart(loai, giaTri);
             updateCategoryCharts(loai, giaTri);

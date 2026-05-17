@@ -181,4 +181,72 @@ public class NguyenLieuDAO extends BaseDAO {
         } catch (SQLException ignored) { dto.setHesoQuydoi(1.0); }
         return dto;
     }
+
+    /**
+     * Gọi FUNC_TONKHOTOITHIEU() — DB trả danh sách NL có tồn ≤ mức an toàn.
+     *
+     * Logic tính ngưỡng nằm hoàn toàn ở DB → thay đổi ngưỡng chỉ cần sửa function,
+     * Java không cần deploy lại.
+     *
+     * @return danh sách NguyenLieuDTO với các field: maNL, tenNL, tenDVT,
+     *         soLuongTonTong (= tồn hiện tại), mucTonAnToan (= ngưỡng)
+     */
+    public List<NguyenLieuDTO> layCanhBaoTonKhoToiThieu() throws Exception {
+        List<NguyenLieuDTO> list = new ArrayList<>();
+        String sql = "BEGIN ? := FUNC_TONKHOTOITHIEU(); END;";
+        try (Connection conn = moKetNoi();
+             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+            cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
+            cs.execute();
+            try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(1)) {
+                while (rs != null && rs.next()) {
+                    NguyenLieuDTO dto = new NguyenLieuDTO();
+                    dto.setMaNL(rs.getInt("MANL"));
+                    dto.setTenNL(rs.getString("TENNL"));
+                    dto.setSoLuongTonTong(rs.getDouble("SOLUONGTONTONG"));
+                    dto.setMucTonAnToan(rs.getDouble("MUCTONANTOAN"));
+                    dto.setTenDVT(rs.getString("TENDVT"));
+                    list.add(dto);
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            handleException("layCanhBaoTonKhoToiThieu", e);
+        }
+        return list;
+    }
+
+    /**
+     * Gọi FUNC_XACDINHPHIEUNHAPFEFO(P_MANL) — DB trả các lô còn hàng theo thứ tự FEFO.
+     *
+     * Dùng để hiển thị lô ưu tiên xuất trong UI kế hoạch / thủ kho kiểm tra.
+     * (Thực tế xuất kho vẫn do PROC_XUATKHOSANXUAT xử lý trong transaction.)
+     *
+     * @param maNL mã nguyên liệu
+     * @return list CTPhieuNhapDTO sắp xếp FEFO: mãLô, soLuongConLai, hanSuDung, donGia
+     */
+    public List<com.bakery.model.dto.kho.CTPhieuNhapDTO> layLoHangFEFO(int maNL) throws Exception {
+        List<com.bakery.model.dto.kho.CTPhieuNhapDTO> list = new ArrayList<>();
+        String sql = "BEGIN ? := FUNC_XACDINHPHIEUNHAPFEFO(?); END;";
+        try (Connection conn = moKetNoi();
+             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+            cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
+            cs.setInt(2, maNL);
+            cs.execute();
+            try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(1)) {
+                while (rs != null && rs.next()) {
+                    com.bakery.model.dto.kho.CTPhieuNhapDTO dto =
+                            new com.bakery.model.dto.kho.CTPhieuNhapDTO();
+                    dto.setMaLo(rs.getInt("MALO"));
+                    dto.setSoLuongConLai(rs.getDouble("SOLUONGCONLAI"));
+                    if (rs.getDate("HANSUDUNG") != null)
+                        dto.setHanSuDung(rs.getDate("HANSUDUNG").toLocalDate());
+                    dto.setDonGia(rs.getBigDecimal("DONGIA"));
+                    list.add(dto);
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            handleException("layLoHangFEFO", e);
+        }
+        return list;
+    }
 }

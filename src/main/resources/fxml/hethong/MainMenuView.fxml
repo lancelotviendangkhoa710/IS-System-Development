@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -18,12 +19,12 @@
 
     <!-- SIDEBAR -->
     <left>
-        <VBox fx:id="vboxSidebar" styleClass="dash-sidebar" prefWidth="240">
+        <VBox fx:id="vboxSidebar" styleClass="dash-sidebar" prefWidth="200">
             <!-- Header with Toggle -->
             <HBox fx:id="hboxLogo" alignment="CENTER_LEFT" spacing="10" styleClass="dash-logo-box">
                 <children>
                     <Button fx:id="btnToggleSidebar" text="☰" onAction="#onToggleSidebar" styleClass="icon-btn" />
-                    <Label fx:id="lblLogoText" text="H3K Bakery" styleClass="dash-logo-text"/>
+                    <Label fx:id="lblLogoText" text="H3K BAKERY" styleClass="dash-logo-text"/>
                 </children>
             </HBox>
 
@@ -77,6 +78,16 @@
                     </VBox>
                 </content>
             </ScrollPane>
+
+            <!-- Nút Mở/Đóng Ca — chỉ hiển thị cho Thu Ngân (QUAN_LY_CA_LAM_VIEC) -->
+            <Button fx:id="btnQuanLyCa"
+                    text="🔓 Mở / Đóng Ca"
+                    onAction="#onQuanLyCa"
+                    styleClass="btn-primary"
+                    maxWidth="Infinity"
+                    managed="false" visible="false">
+                <VBox.margin><Insets top="8" right="12" bottom="12" left="12"/></VBox.margin>
+            </Button>
         </VBox>
     </left>
 
@@ -93,6 +104,14 @@
                             <Label fx:id="lblTenNguoiDung" text="User Name" styleClass="dash-user-name"/>
                             <Label fx:id="lblVaiTro" text="ROLE ACCESS" styleClass="dash-user-role"/>
                         </VBox>
+                        <!-- Chi hien khi user co > 1 vai tro -->
+                        <Button fx:id="btnDoiVaiTro"
+                                text="🔄"
+                                styleClass="dash-icon-btn"
+                                onAction="#onDoiVaiTro"
+                                managed="false" visible="false">
+                            <tooltip><Tooltip text="Đổi vai trò làm việc"/></tooltip>
+                        </Button>
                         <Button fx:id="btnAvatar"
                                 text="👤"
                                 styleClass="dash-icon-btn"

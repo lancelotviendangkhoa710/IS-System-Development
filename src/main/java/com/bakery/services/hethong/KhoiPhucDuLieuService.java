@@ -3,6 +3,7 @@ package com.bakery.services.hethong;
 import com.bakery.model.dao.hethong.KhoiPhucDuLieuDAO;
 import com.bakery.model.dto.hethong.KhoiPhucDuLieuDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
+import com.bakery.services.nhansu.NhanVienService;
 import com.bakery.utils.UserSession;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class KhoiPhucDuLieuService {
     public static final int NGUONG_NGAY_XOA = 120;
 
     private final KhoiPhucDuLieuDAO dao = new KhoiPhucDuLieuDAO();
+    private final NhanVienService nhanVienService = new NhanVienService();
 
     /**
      * Lấy danh sách bản ghi đã xóa mềm, lọc theo loại.
@@ -39,6 +41,17 @@ public class KhoiPhucDuLieuService {
         if (dto == null || dto.getMaDoiTuong() == null || dto.getTenBang() == null) {
             throw new Exception("Thông tin bản ghi không hợp lệ.");
         }
+
+        // Nhân viên thôi việc: dispatch sang NhanVienService (dùng PROC_SUA_NHANVIEN)
+        if ("NHANVIEN".equalsIgnoreCase(dto.getTenBang())) {
+            int maNV = Integer.parseInt(dto.getMaDoiTuong());
+            boolean ok = nhanVienService.khoiPhucNhanVien(maNV);
+            if (!ok) {
+                throw new Exception("Không thể khôi phục nhân viên mã " + maNV + ".");
+            }
+            return;
+        }
+
         dao.khoiPhuc(dto.getTenBang(), dto.getTenCotXoa(), dto.getMaDoiTuong(), layMaNvHienTai());
     }
 

@@ -8,6 +8,7 @@ public class CongThucDTO {
     // Thông tin JOIN từ NGUYENLIEU — chỉ dùng để hiển thị, không ghi DB
     private String tenNguyenLieu;
     private double donGia;
+    private String tenDVT; // đơn vị tính từ DONVITINH
 
     public CongThucDTO() {}
 
@@ -31,6 +32,9 @@ public class CongThucDTO {
 
     public double getDonGia() { return donGia; }
     public void setDonGia(double donGia) { this.donGia = donGia; }
+
+    public String getTenDVT() { return tenDVT != null ? tenDVT : ""; }
+    public void setTenDVT(String tenDVT) { this.tenDVT = tenDVT; }
 
     /** Thành tiền = định mức × đơn giá nguyên liệu */
     public double tinhThanhTien() { return soLuongTieuHao * donGia; }

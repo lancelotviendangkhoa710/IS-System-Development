@@ -36,6 +36,8 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @FXML
     private TableColumn<NguyenLieuDTO, String> colXuatXu;
     @FXML
+    private TableColumn<NguyenLieuDTO, String> colDVT;
+    @FXML
     private TableColumn<NguyenLieuDTO, Double> colMucTon;
 
     @FXML
@@ -134,7 +136,22 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         colTenNL.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenNL()));
         colXuatXu.setCellValueFactory(c -> new SimpleStringProperty(
                 c.getValue().getXuatXu() != null ? c.getValue().getXuatXu() : "Việt Nam"));
+        // Cột ĐV Tính — hiển thị rõ đơn vị (Kg, gram, cái...)
+        if (colDVT != null) {
+            colDVT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenDVT()));
+        }
+        // Mức tồn an toàn kèm đơn vị — VD: "5.0 Kg", "200 gram"
         colMucTon.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getMucTonAnToan()).asObject());
+        colMucTon.setCellFactory(tc -> new TableCell<>() {
+            @Override protected void updateItem(Double val, boolean empty) {
+                super.updateItem(val, empty);
+                if (empty || val == null) { setText(null); return; }
+                NguyenLieuDTO nl = getTableRow() != null ? (NguyenLieuDTO) getTableRow().getItem() : null;
+                String dvt = (nl != null && !nl.getTenDVT().isEmpty()) ? " " + nl.getTenDVT() : "";
+                setText(val % 1 == 0 ? String.valueOf((long)(double)val) + dvt
+                                     : String.valueOf(val) + dvt);
+            }
+        });
         tblNguyenLieu.setItems(masterData);
     }
 

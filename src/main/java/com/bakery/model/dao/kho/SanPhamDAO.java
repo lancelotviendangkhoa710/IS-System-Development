@@ -19,8 +19,7 @@ public class SanPhamDAO extends BaseDAO {
         List<SanPhamDTO> list = new ArrayList<>();
         // JOIN CONGTHUC + NGUYENLIEU, dùng LISTAGG để gộp tên NL vào 1 chuỗi.
         // Tránh N+1 query khi hiển thị Tooltip trên màn hình POS.
-        String sql =
-                "SELECT sp.MASP, sp.MADM, sp.TENSP, " +
+        String sql = "SELECT sp.MASP, sp.MADM, sp.TENSP, " +
                 "NVL(sp.GIAVON,0) AS GIAVON, NVL(sp.GIABAN,0) AS GIABAN, " +
                 "sp.HINHANH, sp.CHOPHEPTUYCHINH, sp.THOIGIANBAOQUAN, " +
                 "NVL(sp.SOLUONGTON,0) AS SOLUONGTON, sp.PHIENBAN, " +
@@ -227,7 +226,7 @@ public class SanPhamDAO extends BaseDAO {
     }
 
     public boolean capNhatSanPham(SanPhamDTO sp) throws Exception {
-        // 9 tham số: MASP + 6 thuộc tính + GIAVON + GIABAN
+
         String sql = "{CALL PROC_SUA_SANPHAM(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {

@@ -81,7 +81,9 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
     public void navigateToMain() {
         Platform.runLater(() -> {
             try {
-                transitionTo(btnBatDau, "/fxml/hethong/MainMenuView.fxml", "H3K Bakery - Hệ thống Quản lý", 1366, 768);
+                // Phai dung quayLaiMenuChinh de load AppShell.fxml dung cach
+                // (transitionTo MainMenuView.fxml truc tiep se bi null appShellController)
+                quayLaiMenuChinh(btnBatDau);
             } catch (Exception e) {
                 hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
             }

@@ -105,15 +105,12 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
             if (newScene != null) {
                 dialogFactory.setOwnerWindow(newScene.getWindow());
                 if (bepMode) {
-                    // bepMode: tải đơn bếp khi scene sẵn sàng
+                    // bepMode: tải đơn bếp khi scene sẵn sàng — KHÔNG bật auto-refresh
                     javafx.application.Platform.runLater(this::taiDonBep);
                 } else {
-                    // Chế độ thường: tải đơn lần đầu ngay khi scene gắn vào
-                    // (taiDuLieuBanDau chỉ khởi tạo lastSearch*, không query DB đơn)
                     javafx.application.Platform.runLater(() -> presenter.taiDonLanDau());
+                    batDauAutoRefresh();
                 }
-                // bepMode: BepViewFXMLController điều khiển start/stop qua tab selection
-                if (!bepMode) batDauAutoRefresh();
             } else {
                 dungAutoRefresh();
             }
@@ -333,13 +330,21 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
             }
 
             // Hủy đơn — chỉ hiển thị khi chưa kết thúc
-            Button btnHuyDon = new Button("Hủy đơn");
-            btnHuyDon.getStyleClass().add("btn-danger");
-            btnHuyDon.setOnAction(event -> {
-                if (presenter != null)
-                    presenter.huyDonHang(String.valueOf(don.getMaDon()));
-            });
-            action.getChildren().add(btnHuyDon);
+            // Nếu đơn đang sản xuất → KHÔNG được hủy (đã cọc nguyên liệu đang chạy)
+            if ("Đang sản xuất".equalsIgnoreCase(ttHienTai)) {
+                Label lblKhongHuy = new Label("⚠ Đơn đang SX — không thể hủy");
+                lblKhongHuy.getStyleClass().add("lbl-small-bold");
+                lblKhongHuy.setStyle("-fx-text-fill: #854F0B;");
+                action.getChildren().add(lblKhongHuy);
+            } else {
+                Button btnHuyDon = new Button("Hủy đơn");
+                btnHuyDon.getStyleClass().add("btn-danger");
+                btnHuyDon.setOnAction(event -> {
+                    if (presenter != null)
+                        presenter.huyDonHang(String.valueOf(don.getMaDon()));
+                });
+                action.getChildren().add(btnHuyDon);
+            }
         }
 
         // Chi tiết — luôn hiển thị

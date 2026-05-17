@@ -47,9 +47,10 @@
 
             <TableView fx:id="tblNguyenLieu" styleClass="table-view" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="colMaNL"   text="Mã"          prefWidth="60"/>
-                    <TableColumn fx:id="colTenNL"  text="Tên nguyên liệu" prefWidth="220"/>
-                    <TableColumn fx:id="colXuatXu" text="Xuất xứ"     prefWidth="120"/>
+                    <TableColumn fx:id="colMaNL"   text="Mã"          prefWidth="50"/>
+                    <TableColumn fx:id="colTenNL"  text="Tên nguyên liệu" prefWidth="200"/>
+                    <TableColumn fx:id="colXuatXu" text="Xuất xứ"     prefWidth="100"/>
+                    <TableColumn fx:id="colDVT"    text="ĐV Tính"     prefWidth="75"/>
                     <TableColumn fx:id="colMucTon" text="Mức tồn AT"  prefWidth="100"/>
                 </columns>
                 <columnResizePolicy>

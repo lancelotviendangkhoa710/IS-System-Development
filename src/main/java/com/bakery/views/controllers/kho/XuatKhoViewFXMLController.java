@@ -50,7 +50,9 @@ public class XuatKhoViewFXMLController extends BaseController {
     @FXML private TableColumn<PhieuXuatKhoDTO, String> colContent;
     @FXML private TableColumn<PhieuXuatKhoDTO, String> colStatus;
 
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter FMT      = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final java.text.NumberFormat FMT_TIEN = java.text.NumberFormat.getIntegerInstance();
+    static { FMT_TIEN.setGroupingUsed(true); }
 
     // Hằng số lý do xuất — khớp chính xác constraint CK_PX_LYDO
     private static final String LYDO_LAM_BANH = "Lam banh";
@@ -577,9 +579,9 @@ public class XuatKhoViewFXMLController extends BaseController {
         });
         colGia.setPrefWidth(120);
 
-        tbl.getColumns().addAll(colLoai, colTen, colDVT, colSL, colGia);
+        tbl.getColumns().addAll(java.util.List.of(colLoai, colTen, colDVT, colSL, colGia));
         tbl.setItems(FXCollections.observableArrayList(dsChiTiet));
-        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         tbl.setMaxHeight(340);
         if (dsChiTiet.isEmpty())
             tbl.setPlaceholder(new Label("Phiếu xuất này chưa có dữ liệu chi tiết."));

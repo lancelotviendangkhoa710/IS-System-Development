@@ -7,12 +7,13 @@ import java.util.Set;
 
 public final class SessionContext {
     private static AuthSession currentSession;
-    
 
     private static final SessionContext INSTANCE = new SessionContext();
 
     private int maCa;
     private boolean caoDangMo;
+    private int activeVaiTroId;
+    private String activeVaiTroTen;
 
     private SessionContext() {
     }
@@ -28,6 +29,8 @@ public final class SessionContext {
     public static synchronized void clear() {
         currentSession = null;
         INSTANCE.dongCa();
+        INSTANCE.activeVaiTroId = 0;
+        INSTANCE.activeVaiTroTen = null;
     }
 
     public void dangXuat() {
@@ -48,8 +51,7 @@ public final class SessionContext {
                 String tenDangNhap,
                 String hoTen,
                 String tenVaiTro,
-                Set<String> quyen
-        ) {
+                Set<String> quyen) {
             this.maNhanVien = maNhanVien;
             this.maVaiTro = maVaiTro;
             this.tenDangNhap = tenDangNhap;
@@ -58,12 +60,29 @@ public final class SessionContext {
             this.quyen = Collections.unmodifiableSet(new LinkedHashSet<>(quyen));
         }
 
-        public int getMaNhanVien() { return maNhanVien; }
-        public int getMaVaiTro() { return maVaiTro; }
-        public String getTenDangNhap() { return tenDangNhap; }
-        public String getHoTen() { return hoTen; }
-        public String getTenVaiTro() { return tenVaiTro; }
-        public Set<String> getQuyen() { return quyen; }
+        public int getMaNhanVien() {
+            return maNhanVien;
+        }
+
+        public int getMaVaiTro() {
+            return maVaiTro;
+        }
+
+        public String getTenDangNhap() {
+            return tenDangNhap;
+        }
+
+        public String getHoTen() {
+            return hoTen;
+        }
+
+        public String getTenVaiTro() {
+            return tenVaiTro;
+        }
+
+        public Set<String> getQuyen() {
+            return quyen;
+        }
     }
 
     public static SessionContext getInstance() {
@@ -80,9 +99,37 @@ public final class SessionContext {
         this.caoDangMo = false;
     }
 
-    public int getMaNV() { return currentSession != null ? currentSession.getMaNhanVien() : 0; }
-    public String getHoTen() { return currentSession != null ? currentSession.getHoTen() : null; }
-    public int getMaVaiTro() { return currentSession != null ? currentSession.getMaVaiTro() : 0; }
-    public int getMaCa() { return maCa; }
-    public boolean isCaoDangMo() { return caoDangMo; }
+    public int getMaNV() {
+        return currentSession != null ? currentSession.getMaNhanVien() : 0;
+    }
+
+    public String getHoTen() {
+        return currentSession != null ? currentSession.getHoTen() : null;
+    }
+
+    public int getMaVaiTro() {
+        return currentSession != null ? currentSession.getMaVaiTro() : 0;
+    }
+
+    public int getMaCa() {
+        return maCa;
+    }
+
+    public boolean isCaoDangMo() {
+        return caoDangMo;
+    }
+
+    /** Lưu vai trò user đã chọn cho phiên hiện tại. */
+    public void datVaiTroHoatDong(int maVaiTro, String tenVaiTro) {
+        this.activeVaiTroId = maVaiTro;
+        this.activeVaiTroTen = tenVaiTro;
+    }
+
+    public int getActiveVaiTroId() {
+        return activeVaiTroId;
+    }
+
+    public String getActiveVaiTroTen() {
+        return activeVaiTroTen;
+    }
 }

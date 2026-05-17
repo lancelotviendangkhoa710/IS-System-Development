@@ -16,11 +16,11 @@ public class CongThucDAO extends BaseDAO {
      */
     public List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> layCongThucVaTonKho(int maSP) throws Exception {
         List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> list = new ArrayList<>();
-        String sql = "SELECT CT.MANL, NL.TENNL, NVL(DVT.TENKYVIET, DVT.TENDONVI) AS DONVITINH, " +
-                     "NVL(NL.SOLUONGTONTON, 0) AS TONKHO, CT.SOLUONGTIEUHAO " +
+        String sql = "SELECT CT.MANL, NL.TENNL, DVT.TENDVT AS DONVITINH, " +
+                     "NVL(NL.SOLUONGTONTONG, 0) AS TONKHO, CT.SOLUONGTIEUHAO " +
                      "FROM CONGTHUC CT " +
                      "JOIN NGUYENLIEU NL ON CT.MANL = NL.MANL " +
-                     "LEFT JOIN DONVITINH DVT ON NL.MADONVITINH = DVT.MADONVITINH " +
+                     "LEFT JOIN DONVITINH DVT ON NL.MADVT = DVT.MADVT " +
                      "WHERE CT.MASP = ? " +
                      "ORDER BY NL.TENNL";
         try (Connection conn = moKetNoi();
@@ -50,9 +50,11 @@ public class CongThucDAO extends BaseDAO {
     public List<CongThucDTO> layCongThucTheoSP(int maSP) throws Exception {
         List<CongThucDTO> list = new ArrayList<>();
         String sql = "SELECT CT.MASP, CT.MANL, CT.SOLUONGTIEUHAO, " +
-                     "NL.TENNL, NVL(NL.GIAVONTRUNGBINH, 0) AS DONGIA " +
+                     "NL.TENNL, NVL(NL.GIAVONTRUNGBINH, 0) AS DONGIA, " +
+                     "DVT.TENDVT " +
                      "FROM CONGTHUC CT " +
                      "JOIN NGUYENLIEU NL ON CT.MANL = NL.MANL " +
+                     "LEFT JOIN DONVITINH DVT ON DVT.MADVT = NL.MADVT " +
                      "WHERE CT.MASP = ? " +
                      "ORDER BY NL.TENNL";
         try (Connection conn = moKetNoi();
@@ -66,6 +68,7 @@ public class CongThucDAO extends BaseDAO {
                     dto.setSoLuongTieuHao(rs.getDouble("SOLUONGTIEUHAO"));
                     dto.setTenNguyenLieu(rs.getString("TENNL"));
                     dto.setDonGia(rs.getDouble("DONGIA"));
+                    dto.setTenDVT(rs.getString("TENDVT"));
                     list.add(dto);
                 }
             }
@@ -163,5 +166,44 @@ public class CongThucDAO extends BaseDAO {
             handleException("tinhSoLuongKhaDung", e);
         }
         return 0.0;
+    }
+
+    /**
+     * Gọi FUNC_CHUYENDOITYLECONGTHUC(P_MASP, P_SOLUONGBANHCANLAM).
+     *
+     * DB tính tổng NL cần xuất = định_mức × số_bánh cho từng nguyên liệu.
+     * Dùng để hiển thị "cần bao nhiêu NL" trước khi bấm Xuất kho sản xuất.
+     *
+     * @param maSP           mã sản phẩm
+     * @param soLuongCanLam  số bánh kế hoạch
+     * @return danh sách NL kèm tổng số lượng cần xuất (TONGSOLUONGCANXUAT đã được DB tính)
+     */
+    public List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> layCongThucNhanSoLuong(
+            int maSP, double soLuongCanLam) throws Exception {
+        List<com.bakery.model.dto.kho.KeHoachXuatKhoDTO> list = new ArrayList<>();
+        // Gọi SYS_REFCURSOR function qua BEGIN/END block
+        // -10 = oracle.jdbc.OracleTypes.CURSOR (tránh import driver cụ thể)
+        String sql = "BEGIN ? := FUNC_CHUYENDOITYLECONGTHUC(?, ?); END;";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
+            cs.setInt(2, maSP);
+            cs.setDouble(3, soLuongCanLam);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs != null && rs.next()) {
+                    com.bakery.model.dto.kho.KeHoachXuatKhoDTO dto =
+                            new com.bakery.model.dto.kho.KeHoachXuatKhoDTO();
+                    dto.setMaNL(rs.getInt("MANL"));
+                    dto.setTenNguyenLieu(rs.getString("TENNL"));
+                    dto.setDonViTinh(rs.getString("TENDVT"));
+                    dto.setSoLuongCanXuat(rs.getDouble("TONGSOLUONGCANXUAT"));
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("layCongThucNhanSoLuong", e);
+        }
+        return list;
     }
 }

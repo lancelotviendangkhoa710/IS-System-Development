@@ -13,8 +13,11 @@ import java.util.List;
  */
 public class KhoiPhucDuLieuDAO extends BaseDAO {
 
+    /** Label hiển thị cho nhân viên thôi việc trong ComboBox lọc. */
+    public static final String LOAI_NHAN_VIEN = "Nhân viên";
+
     /**
-     * Cấu hình bảng hỗ trợ khôi phục.
+     * Cấu hình bảng hỗ trợ khôi phục (soft-delete qua THOIDIEMXOA).
      * Mỗi phần tử: { tenBang, tenCotPK, tenCotTen, loaiHienThi }
      */
     private static final String[][] CAU_HINH_BANG = {
@@ -91,6 +94,34 @@ public class KhoiPhucDuLieuDAO extends BaseDAO {
             }
         }
 
+        // ── Nhân viên thôi việc (TRANGTHAILAMVIEC=0 thay vì THOIDIEMXOA) ──
+        if (loaiDoiTuong == null || loaiDoiTuong.isBlank()
+                || LOAI_NHAN_VIEN.equalsIgnoreCase(loaiDoiTuong)) {
+            String sqlNV = """
+                    SELECT NV.MANV, NV.HOTEN
+                    FROM NHANVIEN NV
+                    WHERE NV.TRANGTHAILAMVIEC = 0
+                    ORDER BY NV.MANV DESC
+                    """;
+            try (Connection con = moKetNoi();
+                 PreparedStatement ps = con.prepareStatement(sqlNV);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    KhoiPhucDuLieuDTO dto = new KhoiPhucDuLieuDTO();
+                    dto.setMaDoiTuong(String.valueOf(rs.getInt("MANV")));
+                    dto.setTenDoiTuong(rs.getString("HOTEN"));
+                    dto.setLoaiDoiTuong(LOAI_NHAN_VIEN);
+                    dto.setTenBang("NHANVIEN");
+                    dto.setTenCotXoa("MANV");
+                    // NV thôi việc không có THOIDIEMXOA — để null
+                    dto.setTenNhanVienXoa(null);
+                    ketQua.add(dto);
+                }
+            } catch (Exception e) {
+                System.err.println("[KhoiPhucDuLieuDAO] Lỗi đọc NV thôi việc: " + e.getMessage());
+            }
+        }
+
         return ketQua;
     }
 
@@ -159,6 +190,7 @@ public class KhoiPhucDuLieuDAO extends BaseDAO {
         for (String[] cfg : CAU_HINH_BANG) {
             loai.add(cfg[3]);
         }
+        loai.add(LOAI_NHAN_VIEN);
         return loai;
     }
 }

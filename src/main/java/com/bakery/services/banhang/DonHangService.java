@@ -104,6 +104,10 @@ public class DonHangService {
     public void huyDonVaHoanCoc(int maDon, String lyDoHuy, int maNvCapNhat, String tenTrangThaiHienTai,
             double refundAmount, int maCa)
             throws Exception {
+        // Guard: đơn đang sản xuất không được hủy
+        if ("\u0110ang s\u1ea3n xu\u1ea5t".equalsIgnoreCase(tenTrangThaiHienTai)) {
+            throw new Exception("Kh\u00f4ng th\u1ec3 h\u1ee7y \u0111\u01a1n #" + maDon + " v\u00ec \u0111\u01a1n \u0111ang trong qu\u00e1 tr\u00ecnh s\u1ea3n xu\u1ea5t.");
+        }
         donHangService.huyDonVaHoanCoc(maDon, lyDoHuy, maNvCapNhat, tenTrangThaiHienTai, refundAmount, maCa);
     }
 

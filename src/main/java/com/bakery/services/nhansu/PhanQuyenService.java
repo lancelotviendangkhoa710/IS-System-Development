@@ -4,13 +4,13 @@ import com.bakery.model.dao.nhansu.PhanQuyenDAO;
 import com.bakery.model.dto.nhansu.ChucNangDTO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.enums.SystemModule;
+import com.bakery.utils.SessionContext;
 
 import java.text.Normalizer;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 
 public class PhanQuyenService {
     private static final String ROLE_QUAN_LY = "QUAN LY";
@@ -35,23 +35,22 @@ public class PhanQuyenService {
         DANH_MUC_SAN_PHAM,
         NGUYEN_LIEU,
         CONG_THUC_SAN_XUAT,
-        THANH_PHAN_BANH,       // Quản lý thành phần bánh tùy chỉnh
+        THANH_PHAN_BANH, // Quản lý thành phần bánh tùy chỉnh
         NHAN_SU,
         PHAN_QUYEN_TAI_KHOAN,
         PHAN_QUYEN_VAI_TRO,
         BAO_CAO_KINH_DOANH,
         NHAT_KY_HE_THONG,
         KDS_MAN_HINH_BEP,
-        DON_HANG_BEP,           // Quản lý đơn hàng bếp (chỉ bánh tùy chỉnh)
-        CAU_HINH_GIOI_HAN_DON,  // Cấu hình giới hạn nhận đơn
-        KHOI_PHUC_DU_LIEU       // Khôi phục / xóa vĩnh viễn dữ liệu soft-delete
+        DON_HANG_BEP, // Quản lý đơn hàng bếp (chỉ bánh tùy chỉnh)
+        CAU_HINH_GIOI_HAN_DON, // Cấu hình giới hạn nhận đơn
+        KHOI_PHUC_DU_LIEU // Khôi phục / xóa vĩnh viễn dữ liệu soft-delete
     }
 
     /** Tính năng mặc định — mọi nhân viên đều có sau khi đăng nhập. */
     private static final EnumSet<TinhNangHeThong> TINH_NANG_MAC_DINH = EnumSet.of(
             TinhNangHeThong.TONG_QUAN,
-            TinhNangHeThong.TAI_KHOAN_CA_NHAN
-    );
+            TinhNangHeThong.TAI_KHOAN_CA_NHAN);
 
     private final PhanQuyenDAO phanQuyenDAO;
 
@@ -60,44 +59,77 @@ public class PhanQuyenService {
     }
 
     public boolean laAdmin(NhanVienDTO nhanVien) {
-        if (nhanVien == null || nhanVien.getDanhSachTenVaiTro() == null) {
-            return false;
+        if (nhanVien == null || nhanVien.getDanhSachTenVaiTro() == null) return false;
+        // Neu da chon vai tro active → chi check vai tro do
+        String tenHD = layTenVaiTroHoatDong(nhanVien);
+        if (tenHD != null) {
+            String chuan = chuanHoa(tenHD);
+            return chuaMotTrong(chuan, "ADMIN", "QUAN TRI", "QUANTRI", "QUAN TRI VIEN", "QUANTRIVIEN");
         }
+        // Chua chon → check tat ca (khong bao gom QUAN LY de tranh nham voi laQuanLy)
         for (String tenVT : nhanVien.getDanhSachTenVaiTro()) {
             String tenChuan = chuanHoa(tenVT);
-            if (chuaMotTrong(tenChuan, "ADMIN", "QUAN TRI", "QUANTRI", "QUAN TRI VIEN", "QUANTRIVIEN", "QUAN LY")) {
+            if (chuaMotTrong(tenChuan, "ADMIN", "QUAN TRI", "QUANTRI", "QUAN TRI VIEN", "QUANTRIVIEN")) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Lay ten vai tro dang hoat dong tu SessionContext.
+     * Tra ve null neu chua chon (chi co 1 vai tro hoac chua set).
+     */
+    private String layTenVaiTroHoatDong(NhanVienDTO nhanVien) {
+        if (nhanVien == null) return null;
+        int activeId = SessionContext.getInstance().getActiveVaiTroId();
+        if (activeId <= 0) return null;
+        List<Integer> maList = nhanVien.getDanhSachMaVaiTro();
+        List<String>  tenList = nhanVien.getDanhSachTenVaiTro();
+        for (int i = 0; i < Math.min(maList.size(), tenList.size()); i++) {
+            if (maList.get(i) == activeId) return tenList.get(i);
+        }
+        return null;
+    }
+
+    /** Lay danh sach maVaiTro chi gom vai tro dang hoat dong (neu da chon). */
+    private List<Integer> layDanhSachMaVaiTroHieuLuc(NhanVienDTO nhanVien) {
+        if (nhanVien == null) return List.of();
+        int activeId = SessionContext.getInstance().getActiveVaiTroId();
+        if (activeId > 0 && nhanVien.getDanhSachMaVaiTro().contains(activeId)) {
+            return List.of(activeId);
+        }
+        return nhanVien.getDanhSachMaVaiTro();
+    }
+
     public boolean laQuanLy(NhanVienDTO nhanVien) {
+        String tenHD = layTenVaiTroHoatDong(nhanVien);
+        if (tenHD != null) return chuanHoa(tenHD).contains(ROLE_QUAN_LY);
         return laVaiTro(nhanVien, ROLE_QUAN_LY);
     }
 
     public boolean laThuNgan(NhanVienDTO nhanVien) {
+        String tenHD = layTenVaiTroHoatDong(nhanVien);
+        if (tenHD != null) return chuanHoa(tenHD).contains(ROLE_THU_NGAN);
         return laVaiTro(nhanVien, ROLE_THU_NGAN);
     }
 
     public boolean laThoBep(NhanVienDTO nhanVien) {
+        String tenHD = layTenVaiTroHoatDong(nhanVien);
+        if (tenHD != null) return chuanHoa(tenHD).contains(ROLE_THO_BEP);
         return laVaiTro(nhanVien, ROLE_THO_BEP);
     }
 
     public boolean laThuKho(NhanVienDTO nhanVien) {
+        String tenHD = layTenVaiTroHoatDong(nhanVien);
+        if (tenHD != null) return chuanHoa(tenHD).contains(ROLE_THU_KHO);
         return laVaiTro(nhanVien, ROLE_THU_KHO);
     }
 
-    /**
-     * Tính năng được cấp dựa trên module từ CSDL (VAITRO_CHUCNANG).
-     * Mỗi SystemModule ánh xạ sang một tập TinhNangHeThong tương ứng.
-     *
-     * QUAN TRỌNG: BAN_HANG_POS chỉ được cấp khi ChucNang thực sự là POS
-     * (không phải "Theo dõi đơn hàng" dù cùng MODULE='POS' trong DB).
-     */
     public Set<TinhNangHeThong> layTinhNangDuocCap(NhanVienDTO nhanVien) {
         EnumSet<TinhNangHeThong> tinhNang = EnumSet.copyOf(TINH_NANG_MAC_DINH);
-        if (nhanVien == null) return tinhNang;
+        if (nhanVien == null)
+            return tinhNang;
 
         // Nguồn sự thật từ DB — VAITRO_CHUCNANG → SystemModule
         Set<SystemModule> modules = layModulesDuocCap(nhanVien);
@@ -106,14 +138,14 @@ public class PhanQuyenService {
         boolean coChucNangPosThucSu = coChucNangPosThucSu(nhanVien);
 
         if (modules.contains(SystemModule.BAN_HANG)) {
-            // BAN_HANG_POS chỉ cấp khi chức năng thực sự là POS, không phải chỉ "Theo dõi đơn"
+            // BAN_HANG_POS chỉ cấp khi chức năng thực sự là POS, không phải chỉ "Theo dõi
+            // đơn"
             if (coChucNangPosThucSu) {
                 tinhNang.addAll(EnumSet.of(
                         TinhNangHeThong.BAN_HANG_POS,
                         TinhNangHeThong.THEO_DOI_DON_HANG,
                         TinhNangHeThong.QUAN_LY_CA_LAM_VIEC,
-                        TinhNangHeThong.THU_CHI
-                ));
+                        TinhNangHeThong.THU_CHI));
             } else {
                 // Có MODULE=BAN_HANG nhưng chỉ là theo dõi đơn (ví dụ: Thợ bếp)
                 tinhNang.add(TinhNangHeThong.THEO_DOI_DON_HANG);
@@ -133,20 +165,19 @@ public class PhanQuyenService {
                     TinhNangHeThong.DANH_MUC_SAN_PHAM,
                     TinhNangHeThong.NGUYEN_LIEU,
                     TinhNangHeThong.CONG_THUC_SAN_XUAT,
-                    TinhNangHeThong.THANH_PHAN_BANH
-            ));
+                    TinhNangHeThong.THANH_PHAN_BANH));
         }
         if (modules.contains(SystemModule.NHAN_SU)) {
             tinhNang.addAll(EnumSet.of(
                     TinhNangHeThong.NHAN_SU,
                     TinhNangHeThong.PHAN_QUYEN_TAI_KHOAN,
-                    TinhNangHeThong.PHAN_QUYEN_VAI_TRO
-            ));
+                    TinhNangHeThong.PHAN_QUYEN_VAI_TRO));
         }
         if (modules.contains(SystemModule.BAO_CAO)) {
             tinhNang.add(TinhNangHeThong.BAO_CAO_KINH_DOANH);
         }
-        // Cấu hình giới hạn đơn + Lịch sử hệ thống + Khôi phục DL — chỉ dành cho Quản lý
+        // Cấu hình giới hạn đơn + Lịch sử hệ thống + Khôi phục DL — chỉ dành cho Quản
+        // lý
         if (laQuanLy(nhanVien) || laAdmin(nhanVien)) {
             tinhNang.add(TinhNangHeThong.CAU_HINH_GIOI_HAN_DON);
             tinhNang.add(TinhNangHeThong.NHAT_KY_HE_THONG);
@@ -154,17 +185,17 @@ public class PhanQuyenService {
         }
         if (modules.contains(SystemModule.NHA_BEP)) {
             // Tho Bep: full access bep + full access san pham (de cau hinh cong thuc)
-            //          + read-only kho (tab Nhap kho bi khoa boi KhoViewFXMLController)
+            // + read-only kho (tab Nhap kho bi khoa boi KhoViewFXMLController)
             tinhNang.addAll(EnumSet.of(
                     TinhNangHeThong.KDS_MAN_HINH_BEP,
                     TinhNangHeThong.THEO_DOI_DON_HANG,
                     TinhNangHeThong.DON_HANG_BEP,
                     TinhNangHeThong.XUAT_KHO,
-                    TinhNangHeThong.KHO_TONG_QUAN,      // Xem kho read-only
-                    TinhNangHeThong.SAN_PHAM,            // Full access san pham
-                    TinhNangHeThong.DANH_MUC_SAN_PHAM,  // Full access danh muc sp
+                    TinhNangHeThong.KHO_TONG_QUAN, // Xem kho read-only
+                    TinhNangHeThong.SAN_PHAM, // Full access san pham
+                    TinhNangHeThong.DANH_MUC_SAN_PHAM, // Full access danh muc sp
                     TinhNangHeThong.CONG_THUC_SAN_XUAT, // Cau hinh cong thuc
-                    TinhNangHeThong.THANH_PHAN_BANH      // Cau hinh thanh phan banh
+                    TinhNangHeThong.THANH_PHAN_BANH // Cau hinh thanh phan banh
             ));
         }
 
@@ -182,13 +213,13 @@ public class PhanQuyenService {
     private boolean coChucNangPosThucSu(NhanVienDTO nhanVien) {
         if (nhanVien == null) return false;
         try {
-            PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
+            List<Integer> dsHieuLuc = layDanhSachMaVaiTroHieuLuc(nhanVien);
+            if (dsHieuLuc.isEmpty()) return false;
+            PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(dsHieuLuc);
             if (info == null) return false;
             for (ChucNangDTO cn : info.getDanhSachChucNang()) {
-                if (!cn.isCanView()) continue; // Bỏ qua chức năng không có quyền xem
+                if (!cn.isCanView()) continue;
                 String ten = chuanHoa(cn.getTenChucNang());
-                // Chỉ cấp POS thực sự khi tên chứa "POS" hoặc "BAN HANG" hoặc "LAP HOA DON"
-                // NHƯNG không phải "THEO DOI" đơn thuần
                 if (chuaMotTrong(ten, "POS", "BAN HANG", "LAP HOA DON", "BILL", "CASHIER")) {
                     return true;
                 }
@@ -208,7 +239,8 @@ public class PhanQuyenService {
 
     /**
      * Xác định màn hình trang chủ theo vai trò.
-     * Nguyên tắc: vai trò có quyền CAO NHẤT luôn được ưu tiên (Admin > Quản lý > các vai trò chuyên biệt).
+     * Nguyên tắc: vai trò có quyền CAO NHẤT luôn được ưu tiên (Admin > Quản lý >
+     * các vai trò chuyên biệt).
      * Nếu nhân viên có đồng thời Thu Ngân + Quản lý → hiển thị màn hình Quản lý.
      */
     public String layManHinhTrangChu(NhanVienDTO nhanVien) {
@@ -256,11 +288,13 @@ public class PhanQuyenService {
         List<ChucNangDTO> danhSach;
 
         try {
-            // Sử dụng logic hợp nhất quyền từ tất cả vai trò của nhân viên
-            PhanQuyenDAO.RolePermissionInfo info = phanQuyenDAO.layPhanQuyenHopNhat(nhanVien.getDanhSachMaVaiTro());
+            // Chi lay quyen cua vai tro dang hoat dong (active role)
+            List<Integer> dsHieuLuc = layDanhSachMaVaiTroHieuLuc(nhanVien);
+            PhanQuyenDAO.RolePermissionInfo info = dsHieuLuc.isEmpty()
+                    ? null : phanQuyenDAO.layPhanQuyenHopNhat(dsHieuLuc);
             danhSach = info != null ? info.getDanhSachChucNang() : List.of();
         } catch (Exception e) {
-            System.err.println("[PhanQuyenService] Lỗi khi hợp nhất quyền: " + e.getMessage());
+            System.err.println("[PhanQuyenService] Loi khi lay quyen: " + e.getMessage());
             danhSach = List.of();
         }
 

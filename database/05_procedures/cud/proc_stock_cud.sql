@@ -1,6 +1,5 @@
 -- Procedure Tạo phiếu nhập kho
 -- Tự động tạo PHIEUTHUCHI loại 'Nhap hang' sau khi nhập lô xong (cùng transaction)
--- FIX: Áp dụng HESOQUYDOI — lưu số lượng đơn vị CƠ BẢN vào CTPHIEUNHAP
 
 CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     P_MANV          IN PHIEUNHAPKHO.MANV%TYPE,

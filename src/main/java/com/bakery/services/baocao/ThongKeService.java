@@ -68,5 +68,15 @@ public class ThongKeService {
         List<String[]> res = thongKeDAO.getThongKeTheoNgay();
         return res != null ? res : List.of();
     }
+
+    /** Tổng số đơn hàng (hóa đơn) trong kỳ — dùng cho KPI card Tổng đơn. */
+    public int getTongDon(String loai, String giaTri) throws Exception {
+        return thongKeDAO.getTongDon(loai, giaTri);
+    }
+
+    /** Số khách hàng tích điểm trong kỳ — dùng cho KPI card Khách thành viên. */
+    public int getKhachTichDiem(String loai, String giaTri) throws Exception {
+        return thongKeDAO.getKhachTichDiem(loai, giaTri);
+    }
 }
 

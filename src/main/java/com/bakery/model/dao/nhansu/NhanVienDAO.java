@@ -117,7 +117,7 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public int themNhanVien(NhanVienDTO nv) throws Exception {
-        String sqlNV = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sqlNV = "{CALL PROC_THEM_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
         int generatedId = -1;
 
         try (Connection conn = moKetNoi()) {
@@ -129,14 +129,13 @@ public class NhanVienDAO extends BaseDAO {
                     cstmt.setNull(2, java.sql.Types.DATE);
                 }
                 cstmt.setString(3, nv.getSdt());
-                cstmt.setString(4, nv.getDiaChi());
-                cstmt.setString(5, nv.getTenDangNhap());
-                cstmt.setString(6, nv.getMatKhau());
-                cstmt.setInt(7, nv.getTrangThaiLamViec());
-                cstmt.registerOutParameter(8, java.sql.Types.NUMERIC);
+                cstmt.setString(4, nv.getTenDangNhap());
+                cstmt.setString(5, nv.getMatKhau());
+                cstmt.setInt(6, nv.getTrangThaiLamViec());
+                cstmt.registerOutParameter(7, java.sql.Types.NUMERIC);
 
                 cstmt.execute();
-                generatedId = cstmt.getInt(8);
+                generatedId = cstmt.getInt(7);
             }
 
             // Gán các vai trò từ danh sách đa vai trò
@@ -159,7 +158,7 @@ public class NhanVienDAO extends BaseDAO {
     }
 
     public boolean suaNhanVien(NhanVienDTO nv) throws Exception {
-        String sqlNV = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sqlNV = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sqlNV)) {
                 cstmt.setInt(1, nv.getMaNV());
@@ -170,10 +169,9 @@ public class NhanVienDAO extends BaseDAO {
                     cstmt.setNull(3, java.sql.Types.DATE);
                 }
                 cstmt.setString(4, nv.getSdt());
-                cstmt.setString(5, nv.getDiaChi());
-                cstmt.setString(6, nv.getTenDangNhap());
-                cstmt.setString(7, nv.getMatKhau());
-                cstmt.setInt(8, nv.getTrangThaiLamViec());
+                cstmt.setString(5, nv.getTenDangNhap());
+                cstmt.setString(6, nv.getMatKhau());
+                cstmt.setInt(7, nv.getTrangThaiLamViec());
                 cstmt.execute();
             }
 
@@ -263,7 +261,7 @@ public class NhanVienDAO extends BaseDAO {
      * Không tác động vai trò và trạng thái hệ thống.
      */
     public boolean capNhatThongTinCaNhan(int maNV, String hoTen, String sdt) throws Exception {
-        String sql = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, maNV);
@@ -272,8 +270,7 @@ public class NhanVienDAO extends BaseDAO {
             cstmt.setString(4, sdt);
             cstmt.setNull(5, java.sql.Types.VARCHAR);
             cstmt.setNull(6, java.sql.Types.VARCHAR);
-            cstmt.setNull(7, java.sql.Types.VARCHAR);
-            cstmt.setNull(8, java.sql.Types.NUMERIC);
+            cstmt.setNull(7, java.sql.Types.NUMERIC);
             cstmt.execute();
             return true;
         } catch (SQLException e) {
@@ -325,16 +322,62 @@ public class NhanVienDAO extends BaseDAO {
         }
     }
 
-    /** Cho thôi việc (soft-delete): TRANGTHAILAMVIEC=0 + TRANGTHAITK=0 */
-    public boolean thoiViec(int maNV) throws Exception {
-        String sql = "{CALL PROC_THOIVIEC_NHANVIEN(?)}";
+    /** Cho thôi việc (soft-delete): TRANGTHAILAMVIEC=0 + TRANGTHAITK=0 + ghi lịch sử */
+    public boolean thoiViec(int maNV, int maNvThaoTac) throws Exception {
+        String sql = "{CALL PROC_THOIVIEC_NHANVIEN(?, ?)}";
         try (Connection conn = moKetNoi();
                 CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, maNV);
+            cstmt.setInt(2, maNvThaoTac);
             cstmt.execute();
             return true;
         } catch (SQLException e) {
             handleException("thoiViec", e);
+            return false;
+        }
+    }
+
+    /**
+     * Khôi phục nhân viên đã thôi việc — đảo ngược PROC_THOIVIEC_NHANVIEN.
+     * Dùng PROC_SUA_NHANVIEN để set TRANGTHAILAMVIEC=1, sau đó mở lại tài khoản + ghi audit.
+     */
+    public boolean khoiPhucNhanVien(int maNV, int maNvThaoTac) throws Exception {
+        String sqlNV = "{CALL PROC_SUA_NHANVIEN(?, ?, ?, ?, ?, ?, ?)}";
+        try (Connection conn = moKetNoi()) {
+            // 1. Set TRANGTHAILAMVIEC = 1 qua PROC_SUA_NHANVIEN (pass NULL giữ nguyên các field khác)
+            try (CallableStatement cstmt = conn.prepareCall(sqlNV)) {
+                cstmt.setInt(1, maNV);
+                cstmt.setNull(2, java.sql.Types.NVARCHAR);   // HOTEN — giữ nguyên
+                cstmt.setNull(3, java.sql.Types.DATE);        // NGAYSINH — giữ nguyên
+                cstmt.setNull(4, java.sql.Types.VARCHAR);     // SDT — giữ nguyên
+                cstmt.setNull(5, java.sql.Types.VARCHAR);     // TENDANGNHAP — giữ nguyên
+                cstmt.setNull(6, java.sql.Types.VARCHAR);     // MATKHAU — giữ nguyên
+                cstmt.setInt(7, 1);                           // TRANGTHAILAMVIEC = 1
+                cstmt.execute();
+            }
+
+            // 2. Mở lại tài khoản đăng nhập
+            String sqlTK = "UPDATE TAIKHOAN SET TRANGTHAITK = 1 WHERE MANV = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlTK)) {
+                pstmt.setInt(1, maNV);
+                pstmt.executeUpdate();
+            }
+
+            // 3. Ghi audit log
+            if (maNvThaoTac > 0) {
+                String sqlLog = "INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)"
+                        + " VALUES (?, 'NHAN_SU', 'Khoi phuc NV #' || TO_CHAR(?), ?)";
+                try (PreparedStatement pstmt = conn.prepareStatement(sqlLog)) {
+                    pstmt.setInt(1, maNvThaoTac);
+                    pstmt.setInt(2, maNV);
+                    pstmt.setInt(3, maNV);
+                    pstmt.executeUpdate();
+                }
+            }
+
+            return true;
+        } catch (SQLException e) {
+            handleException("khoiPhucNhanVien", e);
             return false;
         }
     }

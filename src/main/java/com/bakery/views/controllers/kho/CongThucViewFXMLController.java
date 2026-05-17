@@ -30,6 +30,7 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @FXML private TableView<CongThucDTO>            tblCongThuc;
     @FXML private TableColumn<CongThucDTO, String>  colTenNguyenLieu;
     @FXML private TableColumn<CongThucDTO, Double>  colDinhMuc;
+    @FXML private TableColumn<CongThucDTO, String>  colDVT;
     @FXML private TableColumn<CongThucDTO, Double>  colDonGia;
     @FXML private TableColumn<CongThucDTO, Double>  colThanhTien;
 
@@ -64,6 +65,10 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     private void setupTable() {
         colTenNguyenLieu.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenNguyenLieu()));
         colDinhMuc.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getSoLuongTieuHao()).asObject());
+        // Cột ĐV Tính — hiển thị đơn vị để biết "0.25" là 0.25 gram hay 0.25 kg
+        if (colDVT != null) {
+            colDVT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenDVT()));
+        }
         colDonGia.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getDonGia()).asObject());
         colDonGia.setCellFactory(tc -> new TableCell<>() {
             @Override protected void updateItem(Double v, boolean empty) {

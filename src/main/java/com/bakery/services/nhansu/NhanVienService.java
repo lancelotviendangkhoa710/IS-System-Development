@@ -6,6 +6,7 @@ import com.bakery.model.dao.nhansu.NhanVienDAO;
 import com.bakery.model.dao.nhansu.VaiTroDAO;
 import com.bakery.model.dto.nhansu.NhanVienDTO;
 import com.bakery.model.dto.nhansu.VaiTroDTO;
+import com.bakery.utils.UserSession;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,9 +35,14 @@ public class NhanVienService extends BaseService {
         return nhanVienDAO.suaNhanVien(nv);
     }
 
-    /** Cho thôi việc (soft): TRANGTHAILAMVIEC=0, TRANGTHAITK=0 — giữ lại toàn bộ lịch sử */
+    /** Cho thôi việc (soft): TRANGTHAILAMVIEC=0, TRANGTHAITK=0 — giữ lại toàn bộ lịch sử, ghi audit */
     public boolean thoiViec(int maNV) throws Exception {
-        return nhanVienDAO.thoiViec(maNV);
+        return nhanVienDAO.thoiViec(maNV, layMaNvHienTai());
+    }
+
+    /** Khôi phục nhân viên đã thôi việc: TRANGTHAILAMVIEC=1, TRANGTHAITK=1 + ghi audit */
+    public boolean khoiPhucNhanVien(int maNV) throws Exception {
+        return nhanVienDAO.khoiPhucNhanVien(maNV, layMaNvHienTai());
     }
 
     /** Xóa cứng khỏi DB — chỉ dùng cho admin khi cần dọn dữ liệu thử nghiệm */
@@ -59,6 +65,14 @@ public class NhanVienService extends BaseService {
 
     public void capNhatVaiTro(int maNV, List<Integer> dsMaVT) throws Exception {
         nhanVienDAO.capNhatVaiTroNhanVien(maNV, dsMaVT);
+    }
+
+    // ─── Private helpers ──────────────────────────────────────────────────────
+
+    /** Lấy mã NV đang đăng nhập từ session. */
+    private int layMaNvHienTai() {
+        NhanVienDTO user = UserSession.getCurrentUser();
+        return (user != null) ? user.getMaNV() : 0;
     }
 }
 

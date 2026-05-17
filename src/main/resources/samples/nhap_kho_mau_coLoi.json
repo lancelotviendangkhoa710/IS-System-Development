@@ -3,7 +3,7 @@
     "maNL": 0,
     "tenNL": "",
     "xuatXu": "Việt Nam",
-    "maDVT": 1,
+    "maDVT": 5,
     "soLuong": 20.0,
     "donGia": 15000,
     "ngaySanXuat": "",
@@ -13,7 +13,7 @@
     "maNL": 0,
     "tenNL": "Dầu thực vật",
     "xuatXu": "",
-    "maDVT": 2,
+    "maDVT": 24,
     "soLuong": 0,
     "donGia": 42000,
     "ngaySanXuat": "",
@@ -21,9 +21,9 @@
   },
   {
     "maNL": 0,
-    "tenNL": "Sô cô la đen",
+    "tenNL": "Sô cô la đen 70%",
     "xuatXu": "Pháp",
-    "maDVT": 1,
+    "maDVT": 4,
     "soLuong": 5.0,
     "donGia": -500,
     "ngaySanXuat": "2025-01-01",
@@ -31,12 +31,22 @@
   },
   {
     "maNL": 0,
-    "tenNL": "Kem tươi",
+    "tenNL": "Kem tươi (Whipping Cream)",
     "xuatXu": "Úc",
-    "maDVT": 2,
+    "maDVT": 24,
     "soLuong": 10.0,
     "donGia": 0,
     "ngaySanXuat": "2026-04-01",
     "hanSuDung": "2024-01-01"
+  },
+  {
+    "maNL": 0,
+    "tenNL": "Men nở (Instant Yeast)",
+    "xuatXu": "",
+    "maDVT": 4,
+    "soLuong": -10.0,
+    "donGia": 850,
+    "ngaySanXuat": "2025-09-01",
+    "hanSuDung": "2026-09-01"
   }
 ]

@@ -54,7 +54,7 @@
                                             styleClass="btn-reset"
                                             style="-fx-font-weight: bold;"/>
                                     <Button id="btnXuatLichSu"
-                                            text="🧾  Lịch sử mua hàng"
+                                            text="📋  Báo cáo"
                                             onAction="#onXuatLichSuMuaHang"
                                             styleClass="btn-secondary"
                                             style="-fx-font-weight: bold;"/>

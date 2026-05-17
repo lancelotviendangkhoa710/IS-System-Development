@@ -6,6 +6,7 @@ import com.bakery.model.dto.nhansu.VaiTroDTO;
 import com.bakery.services.hethong.CaLamViecService;
 import com.bakery.services.nhansu.PhanQuyenService;
 import com.bakery.services.nhansu.XacThucService;
+import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import javafx.animation.FadeTransition;
@@ -332,26 +333,26 @@ public class DangNhapViewFXMLController extends BaseController {
                 NhanVienDTO nhanVien = task.getValue();
                 UserSession.setCurrentUser(nhanVien);
 
-                // Lần đăng nhập đầu tiên với mật khẩu seed → bắt buộc đổi mật khẩu
+                // Lan dang nhap dau tien voi mat khau seed → bat buoc doi mat khau
                 if (nhanVien.isCanDoiMatKhau()) {
                     hienDialogDoiMatKhauBatBuoc(nhanVien, matKhau);
                     return;
                 }
 
-                if (phanQuyenService.laThuNgan(nhanVien)) {
-                    CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
-                    if (caHienTai != null) {
-                        com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
-                        quayLaiMenuChinh(txtTenDangNhap);
-                        return;
-                    }
-
-                    transitionTo(txtTenDangNhap, "/fxml/hethong/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                // Co nhieu vai tro → cho phep chon vai tro truoc khi vao
+                if (nhanVien.getDanhSachMaVaiTro().size() > 1) {
+                    hienDialogChonVaiTro(nhanVien);
                     return;
                 }
 
-                // Không phải thu ngân → vào thẳng menu chính
-                quayLaiMenuChinh(txtTenDangNhap);
+                // 1 vai tro → set active luon
+                if (!nhanVien.getDanhSachMaVaiTro().isEmpty()) {
+                    SessionContext.getInstance().datVaiTroHoatDong(
+                            nhanVien.getDanhSachMaVaiTro().get(0),
+                            nhanVien.getTenVaiTro());
+                }
+
+                thucHienDieuHuongSauDangNhap(nhanVien);
             } catch (Exception ex) {
                 hienDangNhap();
                 hienThiLoiLabel(resolveErrorMessage(ex));
@@ -543,21 +544,19 @@ public class DangNhapViewFXMLController extends BaseController {
             };
 
             doiMatKhauTask.setOnSucceeded(ev -> {
-                // Đóng dialog rồi điều hướng
                 dialog.getDialogPane().getScene().getWindow().hide();
                 try {
-                    if (phanQuyenService.laThuNgan(nhanVien)) {
-                        CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
-                        if (caHienTai != null) {
-                            com.bakery.utils.SessionContext.getInstance().moCa(caHienTai.getMaCa());
-                            quayLaiMenuChinh(txtTenDangNhap);
-                            return;
-                        }
-                        transitionTo(txtTenDangNhap, "/fxml/hethong/MoCaView.fxml", "H3K Bakery - Mở ca làm việc", 1366, 768);
+                    // Co nhieu vai tro → cho chon
+                    if (nhanVien.getDanhSachMaVaiTro().size() > 1) {
+                        hienDialogChonVaiTro(nhanVien);
                         return;
                     }
-                    // Không phải thu ngân → vào thẳng menu chính
-                    quayLaiMenuChinh(txtTenDangNhap);
+                    if (!nhanVien.getDanhSachMaVaiTro().isEmpty()) {
+                        SessionContext.getInstance().datVaiTroHoatDong(
+                                nhanVien.getDanhSachMaVaiTro().get(0),
+                                nhanVien.getTenVaiTro());
+                    }
+                    thucHienDieuHuongSauDangNhap(nhanVien);
                 } catch (Exception ex) {
                     hienDangNhap();
                     hienThiLoiLabel(resolveErrorMessage(ex));
@@ -573,6 +572,106 @@ public class DangNhapViewFXMLController extends BaseController {
         });
 
         dialog.showAndWait();
+    }
+
+    /**
+     * Dialog chon vai tro khi user co nhieu vai tro.
+     * Bat buoc chon, khong the dong dialog.
+     */
+    private void hienDialogChonVaiTro(NhanVienDTO nhanVien) {
+        java.util.List<Integer> maList  = nhanVien.getDanhSachMaVaiTro();
+        java.util.List<String>  tenList = nhanVien.getDanhSachTenVaiTro();
+
+        javafx.scene.control.Dialog<Integer> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Chon vai tro lam viec");
+        dialog.setHeaderText("\uD83C\uDFAD Ban co nhieu vai tro.\nVui long chon vai tro ban muon dang nhap:");
+        dialog.setOnCloseRequest(e -> e.consume()); // Khong cho dong
+        dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+        javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10);
+        vbox.setPadding(new javafx.geometry.Insets(20));
+        vbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        // Danh sach icon theo ten vai tro
+        javafx.scene.control.ToggleGroup group = new javafx.scene.control.ToggleGroup();
+        for (int i = 0; i < Math.min(maList.size(), tenList.size()); i++) {
+            final int   maVT  = maList.get(i);
+            final String tenVT = tenList.get(i);
+            String icon = layIconVaiTro(tenVT);
+
+            javafx.scene.control.RadioButton rb = new javafx.scene.control.RadioButton(icon + " " + tenVT);
+            rb.setUserData(maVT);
+            rb.setToggleGroup(group);
+            rb.getStyleClass().add("radio-button");
+            rb.setStyle("-fx-font-size: 14px; -fx-padding: 8 16;");
+            if (i == 0) rb.setSelected(true);
+            vbox.getChildren().add(rb);
+        }
+
+        dialog.getDialogPane().setContent(vbox);
+        javafx.scene.control.ButtonType btnXacNhan =
+                new javafx.scene.control.ButtonType("Xac nhan",
+                        javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().add(btnXacNhan);
+
+        // Tinh ket qua: tra ve maVaiTro duoc chon
+        dialog.setResultConverter(bt -> {
+            if (bt == btnXacNhan && group.getSelectedToggle() != null) {
+                return (Integer) group.getSelectedToggle().getUserData();
+            }
+            return null;
+        });
+
+        // Ap dung CSS neu co
+        try {
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) dialog.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        } catch (Exception ignored) {}
+
+        dialog.showAndWait().ifPresent(maChon -> {
+            // Tim ten vai tro duoc chon
+            String tenChon = "";
+            for (int i = 0; i < Math.min(maList.size(), tenList.size()); i++) {
+                if (maList.get(i).equals(maChon)) { tenChon = tenList.get(i); break; }
+            }
+            SessionContext.getInstance().datVaiTroHoatDong(maChon, tenChon);
+            try {
+                thucHienDieuHuongSauDangNhap(nhanVien);
+            } catch (Exception ex) {
+                hienDangNhap();
+                hienThiLoiLabel(resolveErrorMessage(ex));
+            }
+        });
+    }
+
+    /** Icon emoji cho tung loai vai tro. */
+    private String layIconVaiTro(String tenVaiTro) {
+        if (tenVaiTro == null) return "\uD83D\uDC64";
+        String chuan = tenVaiTro.toUpperCase(java.util.Locale.ROOT);
+        if (chuan.contains("QUAN LY") || chuan.contains("ADMIN")) return "\uD83D\uDC68\u200D\uD83D\uDCBC";
+        if (chuan.contains("THU NGAN") || chuan.contains("THUNGAN")) return "\uD83D\uDCB0";
+        if (chuan.contains("BEP") || chuan.contains("BEP"))   return "\uD83C\uDF73";
+        if (chuan.contains("KHO") || chuan.contains("KHO"))   return "\uD83D\uDCE6";
+        return "\uD83D\uDC64";
+    }
+
+    /**
+     * Dieu huong sang man hinh chinh sau khi da xac dinh vai tro hoat dong.
+     * Thu Ngan → kiem tra ca / MoCa. Con lai → AppShell.
+     */
+    private void thucHienDieuHuongSauDangNhap(NhanVienDTO nhanVien) throws Exception {
+        if (phanQuyenService.laThuNgan(nhanVien)) {
+            CaLamViecDTO caHienTai = caLamViecService.layCaHienTai(nhanVien.getMaNV());
+            if (caHienTai != null) {
+                SessionContext.getInstance().moCa(caHienTai.getMaCa());
+                quayLaiMenuChinh(txtTenDangNhap);
+                return;
+            }
+            transitionTo(txtTenDangNhap, "/fxml/hethong/MoCaView.fxml",
+                    "H3K Bakery - Mo ca lam viec", 1366, 768);
+            return;
+        }
+        quayLaiMenuChinh(txtTenDangNhap);
     }
 
     private void hienStartScreen() {
@@ -716,7 +815,9 @@ public class DangNhapViewFXMLController extends BaseController {
         visibleField.textProperty().bindBidirectional(hiddenField.textProperty());
         visibleField.setManaged(false);
         visibleField.setVisible(false);
-        toggleButton.setText("Hiện");
+        // Nếu button dùng style icon thì giữ emoji, ngược lại set text
+        boolean isIconBtn = toggleButton.getStyleClass().contains("btn-login-icon");
+        toggleButton.setText(isIconBtn ? "👁" : "Hiện");
     }
 
     private void togglePasswordField(PasswordField hiddenField, TextField visibleField, Button toggleButton) {
@@ -725,7 +826,9 @@ public class DangNhapViewFXMLController extends BaseController {
         visibleField.setManaged(!showing);
         hiddenField.setVisible(showing);
         hiddenField.setManaged(showing);
-        toggleButton.setText(showing ? "Hiện" : "Ẩn");
+        // Icon button: emoji toggle; text button: tiếng Việt
+        boolean isIconBtn = toggleButton.getStyleClass().contains("btn-login-icon");
+        toggleButton.setText(isIconBtn ? (showing ? "👁" : "🙈") : (showing ? "Hiện" : "Ẩn"));
         if (showing) {
             hiddenField.requestFocus();
             hiddenField.positionCaret(hiddenField.getText().length());

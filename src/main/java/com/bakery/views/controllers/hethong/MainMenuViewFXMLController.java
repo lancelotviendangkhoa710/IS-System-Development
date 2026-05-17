@@ -91,6 +91,10 @@ public class MainMenuViewFXMLController {
     private Button btnCauHinhGioiHan;
     @FXML
     private Button btnKhoiPhucDuLieu;
+    @FXML
+    private Button btnQuanLyCa;
+    @FXML
+    private Button btnDoiVaiTro;
 
     // ─── Misc ─────────────────────────────────────────────────────────────────
     @FXML
@@ -137,7 +141,20 @@ public class MainMenuViewFXMLController {
         if (lblBannerName != null) {
             lblBannerName.setText(lblTenNguoiDung.getText());
         }
-        lblVaiTro.setText(xayDungNhanQuyen(this.currentUser, laAdmin));
+        // Hien/an nut Doi Vai Tro (chi hien khi co > 1 vai tro)
+        boolean coNhieuVaiTro = this.currentUser.getDanhSachMaVaiTro().size() > 1;
+        if (btnDoiVaiTro != null) {
+            btnDoiVaiTro.setVisible(coNhieuVaiTro);
+            btnDoiVaiTro.setManaged(coNhieuVaiTro);
+        }
+
+        // Hien thi vai tro dang hoat dong (active role) hoac ten vai tro chinh
+        String tenVaiTroHienThi = com.bakery.utils.SessionContext.getInstance().getActiveVaiTroTen();
+        if (tenVaiTroHienThi == null || tenVaiTroHienThi.isBlank()) {
+            tenVaiTroHienThi = this.currentUser.getTenVaiTro();
+        }
+        final String tenVTFinal = tenVaiTroHienThi;
+        lblVaiTro.setText(laAdmin ? tenVTFinal + " - Full Access" : tenVTFinal + " - Role Access");
 
         // Tong quan
         capNhatTrangThaiNut(btnTongQuan, coQuyen(PhanQuyenService.TinhNangHeThong.TONG_QUAN));
@@ -188,6 +205,8 @@ public class MainMenuViewFXMLController {
         capNhatTrangThaiNut(btnCauHinhGioiHan, coQuyenCauHinh);
         // Khôi phục dữ liệu — chỉ Quản lý
         capNhatTrangThaiNut(btnKhoiPhucDuLieu, coQuyen(PhanQuyenService.TinhNangHeThong.KHOI_PHUC_DU_LIEU));
+        // Nút Mở/Đóng Ca — chỉ Thu Ngân có quyền QUAN_LY_CA_LAM_VIEC
+        capNhatTrangThaiNut(btnQuanLyCa, coQuyen(PhanQuyenService.TinhNangHeThong.QUAN_LY_CA_LAM_VIEC));
 
         // Load dashboard mac dinh
         if (contentArea != null && contentArea.getChildren().isEmpty()) {
@@ -384,7 +403,8 @@ public class MainMenuViewFXMLController {
                     btnSanPham,
                     btnKho, btnBep,
                     btnNhanSu,
-                    btnBaoCao, btnAuditLogs, btnGiamSatCa, btnCauHinhGioiHan, btnKhoiPhucDuLieu
+                    btnBaoCao, btnAuditLogs, btnGiamSatCa, btnCauHinhGioiHan, btnKhoiPhucDuLieu,
+                    btnQuanLyCa
             };
             for (Button btn : navButtons) {
                 if (btn != null)
@@ -491,7 +511,10 @@ public class MainMenuViewFXMLController {
                 if (userMoi != null) {
                     currentUser = userMoi;
                     lblTenNguoiDung.setText(userMoi.getHoTen() == null ? userMoi.getTenDangNhap() : userMoi.getHoTen());
-                    lblVaiTro.setText(xayDungNhanQuyen(currentUser, authorizationService.laAdmin(currentUser)));
+                    String tenVTHT = com.bakery.utils.SessionContext.getInstance().getActiveVaiTroTen();
+                    if (tenVTHT == null || tenVTHT.isBlank()) tenVTHT = userMoi.getTenVaiTro();
+                    boolean isAdm = authorizationService.laAdmin(userMoi);
+                    lblVaiTro.setText(isAdm ? tenVTHT + " - Full Access" : tenVTHT + " - Role Access");
                     if (lblBannerName != null)
                         lblBannerName.setText(lblTenNguoiDung.getText());
                     if (btnAvatar != null)
@@ -525,7 +548,12 @@ public class MainMenuViewFXMLController {
     @FXML
     private void onDangXuat() {
         // Thu ngan: neu ca dang mo thi mo thang dialog Dong ca (khong hien alert).
-        if (currentUser != null && authorizationService.laThuNgan(currentUser)
+        // Check toan bo vai tro (khong loc theo active) vi ca la thuc the vat ly.
+        boolean coVaiTroThuNgan = this.currentUser != null
+                && this.currentUser.getDanhSachTenVaiTro() != null
+                && this.currentUser.getDanhSachTenVaiTro().stream()
+                .anyMatch(t -> t != null && t.toUpperCase().contains("THU NGAN"));
+        if (coVaiTroThuNgan
                 && com.bakery.utils.SessionContext.getInstance().isCaoDangMo()) {
             dungWatchdog();
             Stage owner = (Stage) lblTenNguoiDung.getScene().getWindow();
@@ -685,14 +713,86 @@ public class MainMenuViewFXMLController {
         return false;
     }
 
-    private String xayDungNhanQuyen(NhanVienDTO nhanVien, boolean laAdmin) {
-        if (nhanVien == null)
-            return "Role Access";
-        String tenVaiTro = nhanVien.getTenVaiTro();
-        if (tenVaiTro != null && !tenVaiTro.isBlank()) {
-            return laAdmin ? tenVaiTro + " - Full Access" : tenVaiTro + " - Role Access";
+    /** Doi vai tro lam viec ngay trong app — chi hien khi user co > 1 vai tro. */
+    @FXML
+    private void onDoiVaiTro() {
+        if (currentUser == null) return;
+
+        // Khong cho doi vai tro khi ca dang mo (tranh mat trang thai ca)
+        if (com.bakery.utils.SessionContext.getInstance().isCaoDangMo()) {
+            if (lblThongBao != null)
+                lblThongBao.setText("⚠️ Vui long dong ca truoc khi doi vai tro.");
+            return;
         }
-        return laAdmin ? "Admin Access" : "Role Access";
+
+        java.util.List<Integer> maList  = currentUser.getDanhSachMaVaiTro();
+        java.util.List<String>  tenList = currentUser.getDanhSachTenVaiTro();
+        int activeId = com.bakery.utils.SessionContext.getInstance().getActiveVaiTroId();
+
+        javafx.scene.control.Dialog<Integer> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Doi vai tro lam viec");
+        dialog.setHeaderText("🔄 Chon vai tro ban muon chuyen sang:");
+        dialog.initOwner(lblTenNguoiDung.getScene().getWindow());
+
+        javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10);
+        vbox.setPadding(new javafx.geometry.Insets(20));
+        vbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        javafx.scene.control.ToggleGroup group = new javafx.scene.control.ToggleGroup();
+        for (int i = 0; i < Math.min(maList.size(), tenList.size()); i++) {
+            final int    maVT  = maList.get(i);
+            final String tenVT = tenList.get(i);
+            String icon = layIconVaiTro(tenVT);
+            javafx.scene.control.RadioButton rb =
+                    new javafx.scene.control.RadioButton(icon + " " + tenVT);
+            rb.setUserData(maVT);
+            rb.setToggleGroup(group);
+            rb.setStyle("-fx-font-size: 14px; -fx-padding: 8 16;");
+            if (maVT == activeId) rb.setSelected(true);
+            else if (group.getSelectedToggle() == null) rb.setSelected(true);
+            vbox.getChildren().add(rb);
+        }
+
+        dialog.getDialogPane().setContent(vbox);
+        javafx.scene.control.ButtonType btnOk =
+                new javafx.scene.control.ButtonType("Chuyen vai tro",
+                        javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(btnOk,
+                javafx.scene.control.ButtonType.CANCEL);
+        dialog.setResultConverter(bt -> {
+            if (bt == btnOk && group.getSelectedToggle() != null)
+                return (Integer) group.getSelectedToggle().getUserData();
+            return null;
+        });
+
+        try {
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) dialog.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        } catch (Exception ignored) {}
+
+        dialog.showAndWait().ifPresent(maChon -> {
+            if (maChon == activeId) return; // Khong thay doi
+            String tenChon = "";
+            for (int i = 0; i < Math.min(maList.size(), tenList.size()); i++) {
+                if (maList.get(i).equals(maChon)) { tenChon = tenList.get(i); break; }
+            }
+            // Cap nhat active role va refresh toan bo sidebar/permissions
+            com.bakery.utils.SessionContext.getInstance().datVaiTroHoatDong(maChon, tenChon);
+            khoiTaoThongTinDangNhap(currentUser);
+            if (lblThongBao != null)
+                lblThongBao.setText("✅ Da chuyen sang vai tro: " + tenChon);
+        });
+    }
+
+    /** Icon emoji cho tung loai vai tro (dung trong dialog). */
+    private String layIconVaiTro(String tenVaiTro) {
+        if (tenVaiTro == null) return "👤";
+        String chuan = tenVaiTro.toUpperCase(java.util.Locale.ROOT);
+        if (chuan.contains("QUAN LY") || chuan.contains("ADMIN")) return "👨\u200D💼";
+        if (chuan.contains("THU NGAN")) return "💰";
+        if (chuan.contains("BEP"))     return "🍳";
+        if (chuan.contains("KHO"))     return "📦";
+        return "👤";
     }
 
     // ─── Watchdog ─────────────────────────────────────────────────────────────

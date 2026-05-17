@@ -298,10 +298,13 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     private void setupActionsColumn() {
         if (colActions == null) return;
         colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button btnHanhDong = new Button();
+            private final Button btnHanhDong  = new Button();
+            private final Button btnXoa       = new Button("🗑 Xóa");
+            private final HBox   hboxActions  = new HBox(6, btnHanhDong, btnXoa);
 
             {
                 btnHanhDong.getStyleClass().add("btn-secondary");
+                btnXoa.getStyleClass().add("btn-danger");
             }
 
             @Override
@@ -313,13 +316,17 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
                 }
                 KhachHangDTO kh = getTableView().getItems().get(getIndex());
                 if (dangCheDoChuaXoa) {
+                    // Chế độ thùng rác: chỉ nút Khôi phục
                     btnHanhDong.setText("♻ Khôi phục");
                     btnHanhDong.setOnAction(e -> xacNhanKhoiPhuc(kh));
+                    setGraphic(btnHanhDong);
                 } else {
+                    // Chế độ bình thường: Lịch sử + Xóa
                     btnHanhDong.setText("📋 Lịch sử");
                     btnHanhDong.setOnAction(e -> presenter.xemLichSuMuaHang(kh));
+                    btnXoa.setOnAction(e -> xacNhanXoa(kh));
+                    setGraphic(hboxActions);
                 }
-                setGraphic(btnHanhDong);
             }
         });
     }
@@ -333,6 +340,23 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         DialogHelper.applyBakeryTheme(confirm);
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.OK) presenter.khoiPhucKhachHang(kh.getMaKH());
+        });
+    }
+
+    /** Hiển thị dialog xác nhận trước khi xóa mềm khách hàng. */
+    private void xacNhanXoa(KhachHangDTO kh) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Xóa khách hàng \"" + kh.getHoTen() + "\"?\n"
+                + "Khách hàng sẽ vào thùng rác và có thể khôi phục sau.",
+                ButtonType.OK, ButtonType.CANCEL);
+        confirm.setTitle("Xác nhận xóa khách hàng");
+        DialogHelper.applyBakeryTheme(confirm);
+        confirm.showAndWait().ifPresent(btn -> {
+            if (btn == ButtonType.OK) {
+                var user = UserSession.getCurrentUser();
+                int maNV = (user != null) ? user.getMaNV() : 0;
+                presenter.xoaKhachHang(kh.getMaKH(), maNV);
+            }
         });
     }
 

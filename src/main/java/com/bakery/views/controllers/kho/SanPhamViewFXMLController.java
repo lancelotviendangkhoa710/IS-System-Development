@@ -160,7 +160,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
             Parent root = loader.load();
 
             ThemSanPhamDialogController dialogCtrl = loader.getController();
-            dialogCtrl.khoiTaoDanhMuc(currentDanhMucMap);
+            dialogCtrl.khoiTaoDanhMuc(presenter.layDanhMucFresh());
 
             Stage stage = new Stage();
             stage.setTitle("Thêm sản phẩm mới");
@@ -192,7 +192,7 @@ public class SanPhamViewFXMLController extends BaseController implements ISanPha
             Parent root = loader.load();
 
             SuaSanPhamDialogController dialogCtrl = loader.getController();
-            dialogCtrl.khoiTao(selected, currentDanhMucMap);
+            dialogCtrl.khoiTao(selected, presenter.layDanhMucFresh());
 
             Stage stage = new Stage();
             stage.setTitle("Sửa sản phẩm");

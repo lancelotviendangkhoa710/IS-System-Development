@@ -338,36 +338,39 @@ public class ThongKeDAO extends BaseDAO {
     }
 
     /**
-     * UC50 — Tính giá vốn hàng xuất kho sản xuất trong kỳ.
-     * 
-     * Giá vốn = SUM(CTPHIEUXUAT_NL.SOLUONG × CTPHIEUNHAP.DONGIA)
-     * với PHIEUXUATKHO.LYDOXUAT = 'Lam banh' trong khoảng thời gian.
+     * Tính giá vốn hàng bán (COGS) trong kỳ.
+     *
+     * FIX: Giá vốn = SUM(CTDONHANG.SOLUONG × SANPHAM.GIAVON) cho các hóa đơn đã xuất trong kỳ.
+     * Cách cũ (SUM NL xuất kho × đơn giá) sai vì tính cả bánh làm ra nhưng chưa bán —
+     * bánh chưa bán là hàng tồn kho (tài sản), chưa phải chi phí.
      */
     public double getGiaVon(String loai, String giaTri) throws Exception {
         String condition;
         switch (loai.toUpperCase()) {
             case "DAY":
-                condition = "TRUNC(PX.NGAYXUAT) = TO_DATE(?, 'DD/MM/YYYY')";
+                condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
                 break;
             case "MONTH":
-                condition = "TO_CHAR(PX.NGAYXUAT, 'MM/YYYY') = ?";
+                condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";
                 break;
             case "QUARTER":
-                condition = "TO_CHAR(PX.NGAYXUAT, 'Q/YYYY') = ?";
+                condition = "TO_CHAR(H.NGAYXUATHD, 'Q/YYYY') = ?";
                 break;
             case "YEAR":
-                condition = "TO_CHAR(PX.NGAYXUAT, 'YYYY') = ?";
+                condition = "TO_CHAR(H.NGAYXUATHD, 'YYYY') = ?";
                 break;
             default:
-                condition = "TRUNC(PX.NGAYXUAT) = TRUNC(SYSDATE)";
+                condition = "TRUNC(H.NGAYXUATHD) = TRUNC(SYSDATE)";
                 break;
         }
 
-        String sql = "SELECT NVL(SUM(CX.SOLUONG * CTN.DONGIA), 0) AS GIA_VON " +
-                "FROM CTPHIEUXUAT_NL CX " +
-                "JOIN CTPHIEUNHAP    CTN ON CTN.MALO = CX.MALO " +
-                "JOIN PHIEUXUATKHO   PX  ON PX.MAPX  = CX.MAPX " +
-                "WHERE PX.LYDOXUAT = 'Lam banh' AND " + condition;
+        // COGS = tổng (số lượng bán × giá vốn sản phẩm) trong kỳ
+        // Chỉ tính hóa đơn đã xuất (NGAYXUATHD IS NOT NULL)
+        String sql = "SELECT NVL(SUM(CT.SOLUONG * NVL(SP.GIAVON, 0)), 0) AS GIA_VON " +
+                "FROM HOADON H " +
+                "JOIN CTDONHANG CT ON CT.MADON = H.MADON " +
+                "JOIN SANPHAM   SP ON SP.MASP  = CT.MASP " +
+                "WHERE " + condition;
 
         try (Connection conn = moKetNoi();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -382,6 +385,7 @@ public class ThongKeDAO extends BaseDAO {
         }
         return 0;
     }
+
 
     /**
      * UC52 / UC43 — Thống kê tồn kho nguyên liệu theo trạng thái.
@@ -496,14 +500,19 @@ public class ThongKeDAO extends BaseDAO {
      */
     public List<String[]> getThongKeTheoNgay() throws Exception {
         List<String[]> result = new ArrayList<>();
+        // FIX: Dùng N-string literal đúng dấu tiếng Việt — UPPER() trong Oracle
+        //      KHÔNG loại dấu nên LIKE '%HOAN THANH%' không khớp 'Hoàn thành'.
+        //      DOANH_THU chỉ tính từ đơn Hoàn thành (có HOADON liên kết).
         String sql =
             "SELECT TO_CHAR(TRUNC(D.NGAYLAP), 'DD/MM') AS NGAY, " +
-            "  NVL(SUM(H.TONGTIENTHANHTOAN), 0) AS DOANH_THU, " +
+            "  NVL(SUM(CASE WHEN D.MATRANGTHAI IN " +
+            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')) " +
+            "    THEN H.TONGTIENTHANHTOAN ELSE 0 END), 0) AS DOANH_THU, " +
             "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
-            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) LIKE '%HOAN THANH%') " +
+            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')) " +
             "    THEN D.MADON END) AS DON_HOAN_THANH, " +
             "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
-            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) LIKE '%HUY%') " +
+            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hủy')) " +
             "    THEN D.MADON END) AS DON_HUY, " +
             "  COUNT(DISTINCT D.MADON) AS TONG_DON " +
             "FROM DONDATHANG D " +
@@ -526,6 +535,150 @@ public class ThongKeDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             handleException("getThongKeTheoNgay", e);
+        }
+        return result;
+    }
+
+    /**
+     * Đếm tổng số đơn hàng (hóa đơn) trong kỳ.
+     */
+    public int getTongDon(String loai, String giaTri) throws Exception {
+        String condition;
+        switch (loai.toUpperCase()) {
+            case "DAY":     condition = "TRUNC(NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')"; break;
+            case "MONTH":   condition = "TO_CHAR(NGAYXUATHD, 'MM/YYYY') = ?";           break;
+            case "QUARTER": condition = "TO_CHAR(NGAYXUATHD, 'Q/YYYY') = ?";            break;
+            case "YEAR":    condition = "TO_CHAR(NGAYXUATHD, 'YYYY') = ?";               break;
+            default:        condition = "TRUNC(NGAYXUATHD) = TRUNC(SYSDATE)";            break;
+        }
+        String sql = "SELECT COUNT(*) FROM HOADON WHERE " + condition;
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (!condition.contains("SYSDATE")) ps.setString(1, giaTri);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            handleException("getTongDon", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Đếm số khách hàng tích điểm (có giao dịch qua đơn hàng liên kết) trong kỳ.
+     */
+    public int getKhachTichDiem(String loai, String giaTri) throws Exception {
+        String condition;
+        switch (loai.toUpperCase()) {
+            case "DAY":     condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')"; break;
+            case "MONTH":   condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";           break;
+            case "QUARTER": condition = "TO_CHAR(H.NGAYXUATHD, 'Q/YYYY') = ?";            break;
+            case "YEAR":    condition = "TO_CHAR(H.NGAYXUATHD, 'YYYY') = ?";               break;
+            default:        condition = "TRUNC(H.NGAYXUATHD) = TRUNC(SYSDATE)";            break;
+        }
+        String sql = "SELECT COUNT(DISTINCT D.MAKH) " +
+                "FROM HOADON H " +
+                "JOIN DONDATHANG D ON D.MADON = H.MADON " +
+                "WHERE D.MAKH IS NOT NULL AND " + condition;
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (!condition.contains("SYSDATE")) ps.setString(1, giaTri);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            handleException("getKhachTichDiem", e);
+        }
+        return 0;
+    }
+
+    // ── Tích hợp DB Functions có giá trị ─────────────────────────────────────
+
+    /**
+     * Gọi FUNC_LOINHUANGOP(P_MAHD) — tính lợi nhuận gộp của một hóa đơn.
+     * Lợi nhuận = SUM((DONGIA − DONGIAVON) × SOLUONG) trên tất cả dòng đơn.
+     *
+     * @param maHD mã hóa đơn cần tính
+     * @return lợi nhuận gộp (VND), 0 nếu lỗi hoặc không tìm thấy
+     */
+    public double getLoiNhuanHoaDon(int maHD) throws Exception {
+        String sql = "{ ? = call FUNC_LOINHUANGOP(?) }";
+        try (Connection conn = moKetNoi();
+             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+            cs.registerOutParameter(1, java.sql.Types.NUMERIC);
+            cs.setInt(2, maHD);
+            cs.execute();
+            double result = cs.getDouble(1);
+            return cs.wasNull() ? 0.0 : result;
+        } catch (SQLException e) {
+            handleException("getLoiNhuanHoaDon", e);
+        }
+        return 0.0;
+    }
+
+    /**
+     * Gọi FUNC_DOANHTHUTHEOPTTT(tuNgay, denNgay) — doanh thu nhóm theo phương thức thanh toán.
+     * Trả Map: tenPTTT → tổng doanh thu (dùng cho biểu đồ PieChart PTTT).
+     *
+     * @param tuNgay  ngày bắt đầu
+     * @param denNgay ngày kết thúc
+     */
+    public java.util.Map<String, Double> getDoanhThuTheoPTTT(
+            java.time.LocalDate tuNgay, java.time.LocalDate denNgay) throws Exception {
+        java.util.Map<String, Double> result = new java.util.LinkedHashMap<>();
+        // Gọi function qua SELECT vì trả về SYS_REFCURSOR
+        String sql = "SELECT PT.TENPTTT, NVL(SUM(HD.TONGTIENTHANHTOAN), 0) AS TONGDT " +
+                "FROM HOADON HD " +
+                "JOIN PHUONGTHUCTT PT ON HD.MAPTTT = PT.MAPTTT " +
+                "WHERE TRUNC(HD.NGAYXUATHD) BETWEEN ? AND ? " +
+                "GROUP BY PT.MAPTTT, PT.TENPTTT " +
+                "ORDER BY TONGDT DESC";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, java.sql.Date.valueOf(tuNgay != null ? tuNgay : java.time.LocalDate.now().withDayOfMonth(1)));
+            ps.setDate(2, java.sql.Date.valueOf(denNgay != null ? denNgay : java.time.LocalDate.now()));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.put(rs.getString("TENPTTT"), rs.getDouble("TONGDT"));
+                }
+            }
+        } catch (SQLException e) {
+            handleException("getDoanhThuTheoPTTT", e);
+        }
+        return result;
+    }
+
+    /**
+     * Gọi FUNC_TOPSANPHAMBANCHAY(tuNgay, denNgay) — Top 5 SP bán chạy theo kỳ tùy chọn.
+     * Khác getTop5BanChay() (cố định -1 tháng), method này cho phép filter linh hoạt.
+     *
+     * @param tuNgay  ngày bắt đầu
+     * @param denNgay ngày kết thúc
+     * @return Map: tenSP → tổng số lượng bán
+     */
+    public java.util.Map<String, Integer> getTop5BanChayTheoKy(
+            java.time.LocalDate tuNgay, java.time.LocalDate denNgay) throws Exception {
+        java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        String sql = "SELECT SP.TENSP, SUM(CT.SOLUONG) AS TONGSL " +
+                "FROM CTDONHANG CT " +
+                "JOIN DONHANG DH ON CT.MADON = DH.MADON " +
+                "JOIN SANPHAM SP ON CT.MASP = SP.MASP " +
+                "WHERE DH.TRANGTHAI = 'HOANTHANH' " +
+                "  AND TRUNC(DH.NGAYDAT) BETWEEN ? AND ? " +
+                "GROUP BY SP.MASP, SP.TENSP " +
+                "ORDER BY TONGSL DESC " +
+                "FETCH FIRST 5 ROWS ONLY";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, java.sql.Date.valueOf(tuNgay != null ? tuNgay : java.time.LocalDate.now().withDayOfMonth(1)));
+            ps.setDate(2, java.sql.Date.valueOf(denNgay != null ? denNgay : java.time.LocalDate.now()));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.put(rs.getString("TENSP"), rs.getInt("TONGSL"));
+                }
+            }
+        } catch (SQLException e) {
+            handleException("getTop5BanChayTheoKy", e);
         }
         return result;
     }

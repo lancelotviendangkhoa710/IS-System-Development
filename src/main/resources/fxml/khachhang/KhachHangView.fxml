@@ -71,7 +71,7 @@
                                     <TableColumn fx:id="colRegDate" prefWidth="120" text="Ngày đăng ký" />
                                     <TableColumn fx:id="colPoints" prefWidth="100" text="Điểm" />
                                     <TableColumn fx:id="colTier" prefWidth="120" text="Hạng" />
-                                    <TableColumn fx:id="colActions" prefWidth="150" text="Thao tác" />
+                                    <TableColumn fx:id="colActions" prefWidth="210" text="Thao tác" />
                                 </columns>
                                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                             </TableView>

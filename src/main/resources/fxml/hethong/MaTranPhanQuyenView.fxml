@@ -16,8 +16,7 @@
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="16">
         <VBox spacing="4">
-            <Label text="PHÂN QUYỀN HỆ THỐNG" styleClass="lbl-title-screen"/>
-            <Label text="Quản lý vai trò nhân viên và quyền truy cập từng chức năng" styleClass="lbl-small"/>
+            <Label text="Phân quyền hệ thống" styleClass="lbl-title-screen"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="↺ Làm mới" onAction="#onRefresh" styleClass="btn-secondary"/>

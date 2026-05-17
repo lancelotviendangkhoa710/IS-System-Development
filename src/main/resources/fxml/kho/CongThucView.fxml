@@ -28,10 +28,11 @@
             <Label text="Công thức nguyên liệu" styleClass="lbl-title-card"/>
             <TableView fx:id="tblCongThuc" styleClass="table-view" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="colTenNguyenLieu" text="Nguyên liệu" prefWidth="220"/>
-                    <TableColumn fx:id="colDinhMuc"       text="Định mức"    prefWidth="100"/>
-                    <TableColumn fx:id="colDonGia"        text="Đơn giá"     prefWidth="120"/>
-                    <TableColumn fx:id="colThanhTien"     text="Thành tiền"  prefWidth="130"/>
+                    <TableColumn fx:id="colTenNguyenLieu" text="Nguyên liệu" prefWidth="200"/>
+                    <TableColumn fx:id="colDinhMuc"       text="Định mức"    prefWidth="90"/>
+                    <TableColumn fx:id="colDVT"            text="ĐV Tính"     prefWidth="80"/>
+                    <TableColumn fx:id="colDonGia"        text="Đơn giá"     prefWidth="110"/>
+                    <TableColumn fx:id="colThanhTien"     text="Thành tiền"  prefWidth="120"/>
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>

@@ -18,7 +18,7 @@
            fx:controller="com.bakery.views.controllers.nhansu.DangNhapViewFXMLController"
            prefWidth="1100" prefHeight="680">
 
-    <!-- Layer 1: Background Image — fitWidth/fitHeight bound to scene in App.java -->
+    <!-- Layer 1: Background Image -->
     <ImageView fx:id="bgImageView"
                preserveRatio="false" smooth="true">
         <image>
@@ -26,39 +26,44 @@
         </image>
     </ImageView>
 
-    <!-- Layer 2: Light overlay (giảm từ 0.48 → 0.25 để hình nền sáng hơn) -->
+    <!-- Layer 2: Dark overlay (0.18) -->
     <Region maxWidth="Infinity" maxHeight="Infinity"
-            style="-fx-background-color: rgba(0, 0, 0, 0.25);"/>
+            style="-fx-background-color: rgba(0, 0, 0, 0.18);"/>
 
-    <!-- ── Layer 3: Glass Form Panel (centered) ── -->
+    <!-- ── Layer 3: Glassmorphism Form Card (centered) ── -->
     <VBox styleClass="login-glass-card"
-          prefWidth="390" maxWidth="390"
+          prefWidth="420" maxWidth="450" maxHeight="580"
           alignment="CENTER" spacing="0"
-          StackPane.alignment="CENTER">
+          StackPane.alignment="CENTER_RIGHT">
+        <StackPane.margin><Insets right="60"/></StackPane.margin>
 
         <!-- Brand header -->
-        <VBox alignment="CENTER" spacing="5" style="-fx-padding: 24 32 16 32;">
+        <VBox alignment="CENTER" spacing="3">
+            <padding><Insets top="20" right="36" bottom="14" left="36"/></padding>
             <Label fx:id="lblBrandGiant" text="H3K" styleClass="login-brand-giant"/>
+            <Region prefHeight="4"/>
             <Label fx:id="lblBrandName" text="La Boulangerie H3K" styleClass="login-brand-name"/>
             <Label text="Hệ thống quản lý tiệm bánh" styleClass="login-glass-subtitle"/>
         </VBox>
 
         <!-- Divider -->
         <Region prefHeight="1" maxWidth="Infinity"
-                style="-fx-background-color: rgba(255,255,255,0.18);"/>
+                style="-fx-background-color: rgba(255,255,255,0.12);"/>
 
-        <!-- Form Content Area — tất cả panels nằm trong StackPane này -->
-        <StackPane alignment="TOP_CENTER" VBox.vgrow="ALWAYS"
-                   style="-fx-padding: 20 32 28 32;">
+        <!-- Form Content Area — all panels in this StackPane -->
+        <StackPane alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
+            <padding><Insets top="20" right="32" bottom="24" left="32"/></padding>
 
             <!-- ── Panel 1: Start Screen ── -->
-            <VBox fx:id="panelStartScreen" alignment="CENTER" spacing="16">
+            <VBox fx:id="panelStartScreen" alignment="CENTER" spacing="0">
                 <Label text="Chào mừng trở lại 👋" styleClass="login-glass-title"/>
+                <Region prefHeight="8"/>
                 <Label text="Vui lòng đăng nhập để tiếp tục"
                        styleClass="login-glass-body" wrapText="true"/>
-                <Region prefHeight="8"/>
+                <Region prefHeight="20"/>
                 <Button text="Đăng nhập" styleClass="btn-login-primary"
                         maxWidth="Infinity" onAction="#onMoDangNhap"/>
+                <Region prefHeight="12"/>
                 <Button text="🔑  Quên mật khẩu?" styleClass="btn-login-ghost"
                         maxWidth="Infinity" onAction="#onMoQuenMatKhau"/>
             </VBox>
@@ -66,21 +71,25 @@
             <!-- ── Panel 2: Login Form ── -->
             <VBox fx:id="panelLogin" alignment="TOP_LEFT" spacing="14"
                   visible="false" managed="false">
-                <Label text="Đăng nhập" styleClass="login-glass-title"/>
-                <Label text="Nhập thông tin tài khoản của bạn"
-                       styleClass="login-glass-body" wrapText="true"/>
-                <Region prefHeight="4"/>
 
-                <VBox spacing="6">
-                    <Label text="Tên đăng nhập"
-                           style="-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;"/>
+                <!-- Title block -->
+                <VBox spacing="0">
+                    <Label text="Đăng nhập" styleClass="login-glass-title"/>
+                    <Region prefHeight="8"/>
+                    <Label text="Nhập thông tin tài khoản của bạn"
+                           styleClass="login-glass-body" wrapText="true"/>
+                </VBox>
+
+                <!-- Username field group -->
+                <VBox spacing="8">
+                    <Label text="Tên đăng nhập" styleClass="login-glass-label"/>
                     <TextField fx:id="txtTenDangNhap" styleClass="login-glass-input"
                                promptText="Nhập tên đăng nhập..."/>
                 </VBox>
 
-                <VBox spacing="6">
-                    <Label text="Mật khẩu"
-                           style="-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;"/>
+                <!-- Password field group -->
+                <VBox spacing="8">
+                    <Label text="Mật khẩu" styleClass="login-glass-label"/>
                     <HBox spacing="8" alignment="CENTER_LEFT">
                         <StackPane HBox.hgrow="ALWAYS">
                             <PasswordField fx:id="txtMatKhau" styleClass="login-glass-input"
@@ -94,40 +103,48 @@
                     </HBox>
                 </VBox>
 
-                <Button fx:id="btnDangNhap" text="Đăng nhập"
-                        styleClass="btn-login-primary" maxWidth="Infinity"
-                        onAction="#onDangNhap"/>
-                <Button text="🔑  Quên mật khẩu?" styleClass="btn-login-ghost"
-                        maxWidth="Infinity" onAction="#onMoQuenMatKhau"/>
-                <Label fx:id="lblThongBao" styleClass="login-glass-error"
-                       wrapText="true" maxWidth="Infinity"/>
+                <!-- Actions: button → forgot → error (12px gaps) -->
+                <VBox spacing="0">
+                    <Button fx:id="btnDangNhap" text="Đăng nhập"
+                            styleClass="btn-login-primary" maxWidth="Infinity"
+                            onAction="#onDangNhap"/>
+                    <Region prefHeight="12"/>
+                    <Button text="🔑  Quên mật khẩu?" styleClass="btn-login-ghost"
+                            maxWidth="Infinity" onAction="#onMoQuenMatKhau"/>
+                    <Region prefHeight="8"/>
+                    <Label fx:id="lblThongBao" styleClass="login-glass-error"
+                           wrapText="true" maxWidth="Infinity"/>
+                </VBox>
 
-                <Region VBox.vgrow="ALWAYS" minHeight="8"/>
+                <Region VBox.vgrow="ALWAYS" minHeight="2"/>
                 <Button text="← Quay lại" styleClass="btn-login-ghost"
                         maxWidth="Infinity" onAction="#onQuayVeStart"/>
             </VBox>
 
             <!-- ── Panel 3: Register Form ── -->
-            <VBox fx:id="panelRegister" alignment="TOP_LEFT" spacing="10"
+            <VBox fx:id="panelRegister" alignment="TOP_LEFT" spacing="14"
                   visible="false" managed="false">
-                <Label text="Đăng ký" styleClass="login-glass-title"/>
-                <Label text="Tạo tài khoản nhân viên mới"
-                       styleClass="login-glass-body"/>
-                <Region prefHeight="2"/>
 
-                <VBox spacing="5">
+                <VBox spacing="0">
+                    <Label text="Đăng ký" styleClass="login-glass-title"/>
+                    <Region prefHeight="10"/>
+                    <Label text="Tạo tài khoản nhân viên mới"
+                           styleClass="login-glass-body"/>
+                </VBox>
+
+                <VBox spacing="8">
                     <Label text="Họ tên nhân viên" styleClass="login-glass-label"/>
                     <TextField fx:id="txtRegisterHoTen" styleClass="login-glass-input"/>
                 </VBox>
-                <VBox spacing="5">
+                <VBox spacing="8">
                     <Label text="Tên đăng nhập" styleClass="login-glass-label"/>
                     <TextField fx:id="txtRegisterTenDangNhap" styleClass="login-glass-input"/>
                 </VBox>
-                <VBox spacing="5">
+                <VBox spacing="8">
                     <Label text="Số điện thoại" styleClass="login-glass-label"/>
                     <TextField fx:id="txtRegisterSoDienThoai" styleClass="login-glass-input"/>
                 </VBox>
-                <VBox spacing="5">
+                <VBox spacing="8">
                     <Label text="Mật khẩu" styleClass="login-glass-label"/>
                     <HBox spacing="8" alignment="CENTER_LEFT">
                         <StackPane HBox.hgrow="ALWAYS">
@@ -142,12 +159,12 @@
                                 onAction="#onToggleRegisterMatKhau"/>
                     </HBox>
                 </VBox>
-                <VBox spacing="5">
+                <VBox spacing="8">
                     <Label text="Vai trò" styleClass="login-glass-label"/>
                     <ComboBox fx:id="cboRegisterVaiTro" maxWidth="Infinity"
                               styleClass="login-glass-input"/>
                 </VBox>
-                <VBox spacing="5">
+                <VBox spacing="8">
                     <Label text="Mã xác nhận của quản lý" styleClass="login-glass-label"/>
                     <TextField fx:id="txtRegisterMaXacNhan" styleClass="login-glass-input"/>
                 </VBox>
@@ -162,16 +179,18 @@
             </VBox>
 
             <!-- ── Panel 4: Quên mật khẩu (OTP Flow) ── -->
-            <!-- Bước được quản lý bằng visibility của từng sub-section bên trong -->
-            <VBox fx:id="panelQuenMatKhau" alignment="TOP_LEFT" spacing="14"
+            <VBox fx:id="panelQuenMatKhau" alignment="TOP_LEFT" spacing="20"
                   visible="false" managed="false">
 
                 <!-- Sub 1: Nhập tên đăng nhập -->
-                <VBox fx:id="subNhapUsername" alignment="TOP_LEFT" spacing="14">
-                    <Label text="🔑 Quên mật khẩu" styleClass="login-glass-title"/>
-                    <Label text="Nhập tên đăng nhập để nhận mã OTP qua email"
-                           styleClass="login-glass-body" wrapText="true"/>
-                    <VBox spacing="6">
+                <VBox fx:id="subNhapUsername" alignment="TOP_LEFT" spacing="20">
+                    <VBox spacing="0">
+                        <Label text="🔑 Quên mật khẩu" styleClass="login-glass-title"/>
+                        <Region prefHeight="10"/>
+                        <Label text="Nhập tên đăng nhập để nhận mã OTP qua email"
+                               styleClass="login-glass-body" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="8">
                         <Label text="Tên đăng nhập" styleClass="login-glass-label"/>
                         <TextField fx:id="txtQmkTenDangNhap" styleClass="login-glass-input"
                                    promptText="Nhập tên đăng nhập..."/>
@@ -184,11 +203,14 @@
                 </VBox>
 
                 <!-- Sub 2: Nhập OTP -->
-                <VBox fx:id="subNhapOtp" alignment="TOP_LEFT" spacing="14"
+                <VBox fx:id="subNhapOtp" alignment="TOP_LEFT" spacing="20"
                       visible="false" managed="false">
-                    <Label text="✉️ Nhập mã xác nhận" styleClass="login-glass-title"/>
-                    <Label fx:id="lblQmkEmailHint" styleClass="login-glass-body" wrapText="true"/>
-                    <VBox spacing="6">
+                    <VBox spacing="0">
+                        <Label text="✉️ Nhập mã xác nhận" styleClass="login-glass-title"/>
+                        <Region prefHeight="10"/>
+                        <Label fx:id="lblQmkEmailHint" styleClass="login-glass-body" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="8">
                         <Label text="Mã OTP (6 số)" styleClass="login-glass-label"/>
                         <TextField fx:id="txtQmkOtp" styleClass="login-glass-input"
                                    promptText="Nhập mã 6 số..."/>
@@ -203,10 +225,10 @@
                 </VBox>
 
                 <!-- Sub 3: Đặt mật khẩu mới -->
-                <VBox fx:id="subMatKhauMoi" alignment="TOP_LEFT" spacing="14"
+                <VBox fx:id="subMatKhauMoi" alignment="TOP_LEFT" spacing="20"
                       visible="false" managed="false">
                     <Label text="🔒 Đặt mật khẩu mới" styleClass="login-glass-title"/>
-                    <VBox spacing="6">
+                    <VBox spacing="8">
                         <Label text="Mật khẩu mới" styleClass="login-glass-label"/>
                         <HBox spacing="8" alignment="CENTER_LEFT">
                             <StackPane HBox.hgrow="ALWAYS">
@@ -216,11 +238,11 @@
                                            styleClass="login-glass-input" visible="false"
                                            managed="false" maxWidth="Infinity"/>
                             </StackPane>
-                            <Button fx:id="btnToggleQmkMatKhau" text="Hiện"
+                            <Button fx:id="btnToggleQmkMatKhau" text="👁"
                                     styleClass="btn-login-icon" onAction="#onToggleQmkMatKhau"/>
                         </HBox>
                     </VBox>
-                    <VBox spacing="6">
+                    <VBox spacing="8">
                         <Label text="Xác nhận mật khẩu mới" styleClass="login-glass-label"/>
                         <PasswordField fx:id="txtQmkXacNhan"
                                       styleClass="login-glass-input"/>
@@ -232,7 +254,7 @@
                            wrapText="true" maxWidth="Infinity"/>
                 </VBox>
 
-                <Region VBox.vgrow="ALWAYS" minHeight="8"/>
+                <Region VBox.vgrow="ALWAYS" minHeight="4"/>
                 <Button text="← Quay lại" styleClass="btn-login-ghost"
                         maxWidth="Infinity" onAction="#onQuayVeStart"/>
             </VBox>
