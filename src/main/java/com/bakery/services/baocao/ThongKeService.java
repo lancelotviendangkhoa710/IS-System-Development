@@ -78,5 +78,14 @@ public class ThongKeService {
     public int getKhachTichDiem(String loai, String giaTri) throws Exception {
         return thongKeDAO.getKhachTichDiem(loai, giaTri);
     }
+    /** Dashboard KPI — Doanh thu hôm nay. */
+    public double getDoanhThuHomNay() throws Exception {
+        return thongKeDAO.getDoanhThuHomNay();
+    }
+
+    /** Dashboard KPI — Tổng số đơn hôm nay. */
+    public int getTongSoDonHomNay() throws Exception {
+        return thongKeDAO.getTongSoDonHomNay();
+    }
 }
 

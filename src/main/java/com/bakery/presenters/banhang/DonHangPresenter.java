@@ -348,6 +348,11 @@ public class DonHangPresenter {
         request.setDiaChiGiao(null);
         request.setItems(new ArrayList<>(gioHangItems));
 
+        // Bug 2 Fix: truyền MAPTTT từ hình thức thanh toán dialog xuống Service
+        // Service sử dụng MAPTTT này để quyết định có tạo phiếu thu tiền mặt không
+        int maPTTT = orderService.layMaPTTTTheoHinhThuc(req.hinhThucThanhToan());
+        request.setMaPTTT(maPTTT);
+
         HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua());
         view.hienThiThanhCong("Đã thanh toán! Mã HĐ: #" + hd.getMaHD());
         view.inPhieuHoaDon("HÓA ĐƠN BÁN LẺ",

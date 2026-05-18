@@ -1,6 +1,7 @@
 package com.bakery.services.banhang;
 
 import com.bakery.model.dao.banhang.HoaDonDAO;
+import com.bakery.model.dao.banhang.PhuongThucTTDAO;
 import com.bakery.model.dao.hethong.LoaiThuChiDAO;
 import com.bakery.model.dao.hethong.PhieuThuChiDAO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
@@ -17,16 +18,21 @@ import java.sql.SQLException;
  */
 public class ThanhToanService {
 
+    /** Thuế VAT mặc định — đổi 1 chỗ áp dụng toàn service. */
+    private static final double THUE_VAT = 0.085;
+
     private final HoaDonDAO hoaDonDAO;
     private final QuanLyDonHangService quanLyDonHangService;
     private final PhieuThuChiDAO phieuThuChiDAO;
     private final LoaiThuChiDAO loaiThuChiDAO;
+    private final PhuongThucTTDAO phuongThucTTDAO;
 
     public ThanhToanService() {
         this.hoaDonDAO = new HoaDonDAO();
         this.quanLyDonHangService = new QuanLyDonHangService();
         this.phieuThuChiDAO = new PhieuThuChiDAO();
         this.loaiThuChiDAO = new LoaiThuChiDAO();
+        this.phuongThucTTDAO = new PhuongThucTTDAO();
     }
 
     public ThanhToanService(HoaDonDAO hoaDonDAO, QuanLyDonHangService quanLyDonHangService,
@@ -35,6 +41,7 @@ public class ThanhToanService {
         this.quanLyDonHangService = quanLyDonHangService;
         this.phieuThuChiDAO = phieuThuChiDAO;
         this.loaiThuChiDAO = new LoaiThuChiDAO();
+        this.phuongThucTTDAO = new PhuongThucTTDAO();
     }
 
     public double tinhTienHoaDon(YeuCauTaoDonHangDTO request) {
@@ -43,7 +50,7 @@ public class ThanhToanService {
         double subtotal = request.getItems().stream()
                 .mapToDouble(i -> i.getDonGia() * i.getSoLuong())
                 .sum();
-        return subtotal * 1.085;
+        return subtotal * (1 + THUE_VAT);
     }
 
     /**
@@ -85,8 +92,10 @@ public class ThanhToanService {
         // 4. Tạo đơn hàng
         int maDon = quanLyDonHangService.taoDonHang(request);
 
-        // 5. Tạo hóa đơn bán lẻ (tienGoc = tongTienGoc trước thuế)
-        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTienGoc, tongTien, "BAN_LE");
+        // 5. Tạo hóa đơn bán lẻ
+        // Bug 2 Fix: đọc MAPTTT từ request (do Presenter truyền từ hình thức thanh toán UI)
+        int maPTTT = request.getMaPTTT() > 0 ? request.getMaPTTT() : layMaPTTTTienMat();
+        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTienGoc, tongTien, "BAN_LE", maPTTT);
 
         int maHD = hoaDonDAO.themHoaDonMoi(hd);
         if (maHD <= 0)
@@ -97,7 +106,10 @@ public class ThanhToanService {
             hoaDonDAO.thanhToanVaThangHang(maHD, request.getMaKH(), tongTien);
 
             // 6.1 Tạo phiếu thu đi kèm (Sổ quỹ)
-            taoPhieuThuChiTuHoaDon(maHD, tongTien, "Thu tiền bán lẻ HD" + maHD);
+            // Bug 2 Fix: CHỈ tạo phiếu thu khi thanh toán bằng tiền mặt
+            if (isTienMat(hd.getMaPTTT())) {
+                taoPhieuThuChiTuHoaDon(maHD, tongTien, "Thu tiền bán lẻ HD" + maHD);
+            }
 
         } catch (SQLException e) {
             throw new Exception("Thanh toán thất bại: " + e.getMessage(), e);
@@ -135,7 +147,10 @@ public class ThanhToanService {
                 hoaDonDAO.thanhToanVaThangHang(maHD, donHang.getMaKH(), tongTien);
 
                 // Tạo phiếu thu đi kèm (Sổ quỹ)
-                taoPhieuThuChiTuHoaDon(maHD, tongTienConLai, "Thu tiền đơn hàng HD" + maHD);
+                // Bug 2 Fix: chỉ tạo phiếu thu khi tiền mặt
+                if (isTienMat(hd.getMaPTTT())) {
+                    taoPhieuThuChiTuHoaDon(maHD, tongTienConLai, "Thu tiền đơn hàng HD" + maHD);
+                }
 
                 return hoaDonDAO.layHoaDonTheoMa(maHD);
             }
@@ -158,13 +173,21 @@ public class ThanhToanService {
      * @param loaiHD  Loại hóa đơn: BAN_LE, DAT_HANG
      */
     public HoaDonDTO taoHoaDonDTO(int maDon, double tienGoc, double soTien, String loaiHD) {
+        return taoHoaDonDTO(maDon, tienGoc, soTien, loaiHD, layMaPTTTTienMat());
+    }
+
+    /**
+     * Overload chính — nhận maPTTT rõ ràng từ request.
+     * Bug 2 Fix: không hardcode tiền mặt — Presenter truyền đúng MAPTTT xuống.
+     */
+    public HoaDonDTO taoHoaDonDTO(int maDon, double tienGoc, double soTien, String loaiHD, int maPTTT) {
         HoaDonDTO hd = new HoaDonDTO();
         hd.setMaDon(maDon);
         hd.setMaCa(SessionContext.getInstance().getMaCa());
-        hd.setThueVAT(8.5); // Mặc định 8.5%
+        hd.setThueVAT(THUE_VAT * 100);
         hd.setTienHangGoc(java.math.BigDecimal.valueOf(tienGoc));
         hd.setTongTienThanhToan(java.math.BigDecimal.valueOf(soTien));
-        hd.setMaPTTT(1); // Mặc định Tiền mặt
+        hd.setMaPTTT(maPTTT);
         hd.setLoaiHD(loaiHD);
         return hd;
     }
@@ -239,5 +262,34 @@ public class ThanhToanService {
                 .mapToInt(tt -> tt.getMaTrangThai())
                 .findFirst()
                 .orElseThrow(() -> new Exception("Không tìm thấy trạng thái HOÀN_THÀNH."));
+    }
+
+    /**
+     * Task 1.4: Tra cứu MAPTTT Tiền mặt động từ DB.
+     * Fallback về 1 chỉ khi DB không có bản ghi PHUONGTHUCTT nào phù hợp.
+     */
+    private int layMaPTTTTienMat() {
+        try {
+            int ma = phuongThucTTDAO.layMaTheoTen("Tiền mặt");
+            if (ma == -1) ma = phuongThucTTDAO.layMaTheoTen("tien mat");
+            if (ma == -1) ma = phuongThucTTDAO.layMaTheoTen("mặt");
+            if (ma != -1) return ma;
+        } catch (Exception e) {
+            System.err.println("[ThanhToanService] layMaPTTTTienMat fallback: " + e.getMessage());
+        }
+        return 1; // Fallback môi trường test
+    }
+
+    /**
+     * Bug 2 Fix: Kiểm tra maPTTT có phải tiền mặt không — lazy cache 1 lần đầu.
+     * Chỉ tạo phiếu thu khi thanh toán bằng tiền mặt thực sự.
+     */
+    private volatile int cachedMaPTTTTienMat = 0;
+
+    private boolean isTienMat(int maPTTT) {
+        if (cachedMaPTTTTienMat == 0) {
+            cachedMaPTTTTienMat = layMaPTTTTienMat();
+        }
+        return maPTTT == cachedMaPTTTTienMat;
     }
 }

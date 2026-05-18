@@ -65,6 +65,24 @@ public class PhieuThuChiDAO extends BaseDAO {
         return -1;
     }
 
+    /**
+     * Tìm mã loại thu chi theo tên — không cần Connection bên ngoài.
+     * Khôi phục: ThanhToanService dùng để tra MALOAITHUCHI động thay vì hardcode.
+     */
+    public int layMaLoaiTheoTen(String tenLoai) throws Exception {
+        String sql = "SELECT MALOAITHUCHI FROM LOAITHUCHI WHERE UPPER(TENLOAITHUCHI) = UPPER(?)";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tenLoai);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            handleException("layMaLoaiTheoTen", e);
+        }
+        return -1;
+    }
+
     public List<PhieuThuChiDTO> layTheoMaCa(int maCa) throws Exception {
         List<PhieuThuChiDTO> ds = new ArrayList<>();
         String sql = "SELECT p.MAPHIEUTC, p.NGAYTAO, p.MALOAITHUCHI, p.SOTIEN, "
@@ -161,22 +179,37 @@ public class PhieuThuChiDAO extends BaseDAO {
     }
 
     /**
-     * Tìm mã loại thu chi theo tên (ví dụ: 'Bán hàng', 'Nhập hàng').
+     * Task 2.3: Tính tổng thu/chi trực tiếp tại DB — tránh load toàn bộ phiếu lên Java.
+     * Filter CANCELLED nhất quán với DB (UPPER) thay vì so sánh string Java.
+     *
+     * @param maCa mã ca cần tổng hợp (0 = toàn bộ ca)
+     * @return BigDecimal[2] = {tongThu, tongChi}
      */
-    public int layMaLoaiTheoTen(String tenLoai) throws Exception {
-        String sql = "SELECT MALOAITHUCHI FROM LOAITHUCHI WHERE UPPER(TENLOAITHUCHI) = UPPER(?)";
+    public java.math.BigDecimal[] tinhTongThuChi(int maCa) throws Exception {
+        String sql = "SELECT " +
+            "  NVL(SUM(CASE WHEN l.PHANLOAI = 'Thu' " +
+            "    AND UPPER(NVL(p.TRANGTHAI, 'active')) != 'CANCELLED' THEN p.SOTIEN END), 0) AS TONG_THU, " +
+            "  NVL(SUM(CASE WHEN l.PHANLOAI = 'Chi' " +
+            "    AND UPPER(NVL(p.TRANGTHAI, 'active')) != 'CANCELLED' THEN p.SOTIEN END), 0) AS TONG_CHI " +
+            "FROM PHIEUTHUCHI p " +
+            "JOIN LOAITHUCHI l ON p.MALOAITHUCHI = l.MALOAITHUCHI " +
+            (maCa > 0 ? "WHERE p.MACA = ?" : "");
         try (Connection conn = moKetNoi();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenLoai);
+            if (maCa > 0) ps.setInt(1, maCa);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1);
+                    return new java.math.BigDecimal[]{
+                        rs.getBigDecimal("TONG_THU"),
+                        rs.getBigDecimal("TONG_CHI")
+                    };
                 }
             }
         } catch (SQLException e) {
-            handleException("layMaLoaiTheoTen", e);
+            handleException("tinhTongThuChi", e);
         }
-        return -1;
+        return new java.math.BigDecimal[]{java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO};
     }
 
 }
+

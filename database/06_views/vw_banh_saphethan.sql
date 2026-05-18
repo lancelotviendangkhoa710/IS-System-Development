@@ -1,4 +1,10 @@
 -- View Bánh thành phẩm sắp hết hạn và đã hết hạn — phục vụ cảnh báo Dashboard
+-- =============================================================================
+-- TÍCH HỢP JAVA (TODO): Tạo BangDieuKhienDAO.layBanhSapHetHan() SELECT từ view này.
+-- Use-case: Widget cảnh báo trên Dashboard — hiển thị số lượng bánh sắp hết hạn.
+-- Không xóa view: đang chờ implement feature Dashboard Alert.
+-- Caller dự kiến: BangDieuKhienDAO → BangDieuKhienService → DashboardPresenter
+-- =============================================================================
 CREATE OR REPLACE VIEW V_BANH_SAPHETHAN AS
 SELECT
     ME.MAME,

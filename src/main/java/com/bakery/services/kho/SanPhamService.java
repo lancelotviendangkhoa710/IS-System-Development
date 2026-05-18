@@ -1,4 +1,5 @@
 package com.bakery.services.kho;
+
 import com.bakery.model.dto.banhang.YeuCauChiTietDonHangDTO;
 import com.bakery.services.BaseService;
 
@@ -14,21 +15,23 @@ import java.util.Map;
 
 /** Service quản lý Sản phẩm, Danh mục và tính giá vốn BOM. */
 public class SanPhamService extends BaseService {
+    private static final double HE_SO_GIA_BAN = 2.0;
+    private static final long DON_VI_LAM_TRON = 1_000L;
 
     private final SanPhamDAO sanPhamDAO;
     private final DanhMucSPDAO danhMucSPDAO;
     private final CongThucDAO congThucDAO;
 
     public SanPhamService() {
-        this.sanPhamDAO  = new SanPhamDAO();
+        this.sanPhamDAO = new SanPhamDAO();
         this.danhMucSPDAO = new DanhMucSPDAO();
-        this.congThucDAO  = new CongThucDAO();
+        this.congThucDAO = new CongThucDAO();
     }
 
     public SanPhamService(SanPhamDAO sanPhamDAO, DanhMucSPDAO danhMucSPDAO, CongThucDAO congThucDAO) {
-        this.sanPhamDAO   = sanPhamDAO;
+        this.sanPhamDAO = sanPhamDAO;
         this.danhMucSPDAO = danhMucSPDAO;
-        this.congThucDAO  = congThucDAO;
+        this.congThucDAO = congThucDAO;
     }
 
     /** Lấy tất cả sản phẩm đang được bán trên POS. */
@@ -52,6 +55,7 @@ public class SanPhamService extends BaseService {
     /**
      * Kiểm tra tồn kho realtime cho từng sản phẩm trong giỏ hàng.
      * Bỏ qua bánh tùy chỉnh (custom) vì là sản xuất theo yêu cầu.
+     * 
      * @return Danh sách thông báo thiếu hàng (rỗng = đủ tồn)
      */
     public List<String> kiemTraTonKhoGioHang(List<YeuCauChiTietDonHangDTO> gioHang) throws Exception {
@@ -93,7 +97,7 @@ public class SanPhamService extends BaseService {
 
     public int themSanPham(SanPhamDTO sp) throws Exception {
         validateSanPham(sp);
-        dieuChinhGia(sp);   // tính giaVon/giaBan nếu chưa có
+        dieuChinhGia(sp); // tính giaVon/giaBan nếu chưa có
         int maSPMoi = sanPhamDAO.themSanPham(sp);
         if (maSPMoi <= 0) {
             throw new Exception("Thêm sản phẩm thất bại do lỗi CSDL.");
@@ -103,7 +107,7 @@ public class SanPhamService extends BaseService {
 
     public void capNhatSanPham(SanPhamDTO sp) throws Exception {
         validateSanPham(sp);
-        dieuChinhGia(sp);   // tính lại giaVon/giaBan
+        dieuChinhGia(sp);
         boolean success = sanPhamDAO.capNhatSanPham(sp);
         if (!success) {
             throw new Exception("Cập nhật sản phẩm thất bại do lỗi CSDL.");
@@ -144,9 +148,9 @@ public class SanPhamService extends BaseService {
         return congThucDAO.tinhTongGiaVon(maSP);
     }
 
-    /** Công thức: giaBan = ROUND(giaVon × 2, -3) */
+    /** Công thức: giaBan = ROUND(giaVon × HE_SO_GIA_BAN, -3). */
     public long tinhGiaBan(double giaVon) {
-        return Math.round((giaVon * 2) / 1000.0) * 1000L;
+        return Math.round((giaVon * HE_SO_GIA_BAN) / DON_VI_LAM_TRON) * DON_VI_LAM_TRON;
     }
 
     /**
@@ -161,8 +165,8 @@ public class SanPhamService extends BaseService {
         if (sp.getGiaBan() <= 0) {
             sp.setGiaBan(tinhGiaBan(sp.getGiaVon()));
         } else {
-            // Luôn làm tròn đến nghìn gần nhất dù user đã nhập
-            sp.setGiaBan(Math.round(sp.getGiaBan() / 1000.0) * 1000L);
+            // Luôn làm tròn đến DON_VI_LAM_TRON gần nhất dù user đã nhập
+            sp.setGiaBan(Math.round((double) sp.getGiaBan() / DON_VI_LAM_TRON) * DON_VI_LAM_TRON);
         }
     }
 }

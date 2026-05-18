@@ -1,3 +1,10 @@
+-- Phiếu hẹn lấy bánh — tổng hợp bánh tùy chỉnh và bánh đặt trước theo ngày hẹn
+-- =============================================================================
+-- TÍCH HỢP JAVA (TODO): Tạo PhieuHenDAO.layPhieuHenTheoNgay(LocalDate) SELECT từ view này.
+-- Use-case: In/hiển thị phiếu hẹn lấy bánh — NV cửa hàng biết đơn nào cần chuẩn bị hôm nay.
+-- Không xóa view: đang chờ implement feature Phiếu hẹn.
+-- Caller dự kiến: PhieuHenDAO → PhieuHenService → PhieuHenPresenter
+-- =============================================================================
 CREATE OR REPLACE VIEW VW_PHIEU_HEN_LAY_BANH AS
 -- PHẦN 1: LẤY BÁNH TÙY CHỈNH (CUSTOM CAKES)
 SELECT

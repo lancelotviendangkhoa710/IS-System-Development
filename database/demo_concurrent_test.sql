@@ -1,19 +1,4 @@
--- ==========================================
--- SCRIPT DEMO XỬ LÝ ĐỒNG THỜI
--- Mở 2 session SQL Developer (hoặc SQL*Plus) để chạy song song
--- DBMS_LOCK.SLEEP dùng để giả lập delay, giúp 2 session xen kẽ nhau
--- ==========================================
 
--- ===== CẤP QUYỀN (chạy 1 lần bằng SYS) =====
--- GRANT EXECUTE ON DBMS_LOCK TO <schema_user>;
-
--- ============================================================
--- DEMO 1: LOST UPDATE — Bán hàng đồng thời
--- Minh họa: 2 thu ngân bán cùng 1 sản phẩm
--- ============================================================
-
--- ****** SESSION 1 (Thu ngân A) ******
--- Bước 1: Kiểm tra tồn kho trước test
 SELECT MASP, TENSP, SOLUONGTON FROM SANPHAM WHERE MASP = 5;
 
 -- Bước 2: Bắt đầu transaction, lock sản phẩm

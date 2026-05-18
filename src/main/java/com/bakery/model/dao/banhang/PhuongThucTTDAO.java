@@ -40,4 +40,28 @@ public class PhuongThucTTDAO extends BaseDAO {
         return ds;
     }
 
+    /**
+     * Tra cứu MAPTTT động theo từ khóa tên — tuân thủ rule CẤM hardcode ID.
+     * Tìm kiếm LIKE không phân biệt hoa thường.
+     *
+     * @param tuKhoa từ khóa tên (VD: "Tiền mặt", "tien mat", "mặt")
+     * @return MAPTTT nếu tìm thấy, -1 nếu không tìm thấy
+     */
+    public int layMaTheoTen(String tuKhoa) throws Exception {
+        String sql = "SELECT MAPTTT FROM PHUONGTHUCTT "
+                + "WHERE UPPER(TENPTTT) LIKE '%' || UPPER(?) || '%' "
+                + "AND THOIDIEMXOA IS NULL "
+                + "FETCH FIRST 1 ROW ONLY";
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, tuKhoa);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("MAPTTT");
+            }
+        } catch (SQLException e) {
+            handleException("layMaTheoTen", e);
+        }
+        return -1;
+    }
+
 }

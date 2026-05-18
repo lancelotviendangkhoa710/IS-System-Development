@@ -1441,8 +1441,8 @@
 }
 
 .dash-logo-text {
-    -fx-font-size: 28px;
-    font-size: 28px;
+    -fx-font-size: 17px;
+    font-size: 17px;
     -fx-font-weight: 900;
     font-weight: 900;
     -fx-font-style: italic;
@@ -1655,6 +1655,41 @@
     -fx-font-weight: 800;
     font-weight: 800;
     -fx-text-fill: #111827;
+}
+
+/* Top 5 row item */
+.top5-row {
+    -fx-background-color: white;
+    -fx-border-color: #FEF3C7;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 12;
+}
+.top5-row:hover {
+    -fx-background-color: #FFFBEB;
+}
+.top5-rank {
+    -fx-font-size: 20px;
+    -fx-min-width: 36;
+    -fx-alignment: CENTER;
+}
+.top5-name {
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1C1917;
+}
+.top5-qty {
+    -fx-font-size: 12px;
+    -fx-text-fill: #78716C;
+}
+.top5-revenue {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: #92400E;
+}
+/* Banner decoration label */
+.dash-banner-deco {
+    -fx-font-size: 56px;
+    -fx-opacity: 0.18;
 }
 
 /* Banner */

@@ -2,9 +2,6 @@ package com.bakery.utils;
 
 import java.text.Normalizer;
 
-/**
- * Tiện ích xử lý chuỗi dùng chung toàn hệ thống.
- */
 public class StringUtil {
 
     public static String chuanHoa(String raw) {

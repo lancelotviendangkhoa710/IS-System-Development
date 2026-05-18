@@ -15,7 +15,6 @@ public class DialogHelper {
 
     /**
      * Gắn bakery.css vào DialogPane — áp dụng Amber theme cho mọi Alert/Dialog.
-     * Gọi ngay sau khi tạo Alert/Dialog, trước khi showAndWait().
      */
     public static void applyBakeryTheme(Dialog<?> dialog) {
         URL css = DialogHelper.class.getResource("/css/bakery.css");

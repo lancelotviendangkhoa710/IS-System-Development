@@ -7,27 +7,70 @@
 <VBox xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.bakery.views.controllers.kho.ThemCongThucDialogController"
-      spacing="0" prefWidth="460">
+      spacing="0" prefWidth="520">
 
     <!-- Header -->
     <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
-        <Label text="➕ Thêm nguyên liệu vào công thức" styleClass="dialog-header-title"/>
+        <Label text="➕ Thêm nguyên liệu mới vào công thức" styleClass="dialog-header-title"/>
     </HBox>
 
     <!-- Body -->
     <VBox styleClass="dialog-body" spacing="16" VBox.vgrow="ALWAYS">
 
+        <!-- ── SECTION 1: Thông tin nguyên liệu mới ── -->
+        <Label text="Thông tin nguyên liệu mới" styleClass="lbl-section-title"/>
+
         <VBox spacing="6">
-            <Label text="Nguyên liệu: *" styleClass="lbl-body-bold"/>
-            <ComboBox fx:id="cmbNguyenLieu" maxWidth="Infinity"
-                      promptText="Chọn nguyên liệu..." styleClass="combo-box"/>
+            <Label text="Tên nguyên liệu: *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtTenNL" promptText="VD: Bột mì số 8" styleClass="text-field"/>
         </VBox>
+
+        <HBox spacing="16">
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Đơn vị tính: *" styleClass="lbl-body-bold"/>
+                <ComboBox fx:id="cmbDonViTinh" maxWidth="Infinity"
+                          promptText="Chọn đơn vị..." styleClass="combo-box"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Xuất xứ:" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtXuatXu" promptText="VD: Việt Nam" styleClass="text-field"/>
+            </VBox>
+        </HBox>
+
+        <!-- Separator -->
+        <Separator/>
+
+        <!-- ── SECTION 2: Nhập kho lần đầu ── -->
+        <Label text="Nhập kho lần đầu *" styleClass="lbl-section-title"/>
+
+        <VBox spacing="6">
+            <Label text="Nhà cung cấp: *" styleClass="lbl-body-bold"/>
+            <ComboBox fx:id="cmbNhaCungCap" maxWidth="Infinity"
+                      promptText="Chọn nhà cung cấp..." styleClass="combo-box"/>
+        </VBox>
+
+        <HBox spacing="16">
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Số lượng nhập: *" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtSoLuong" promptText="VD: 50" styleClass="text-field"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Đơn giá (VNĐ): *" styleClass="lbl-body-bold"/>
+                <TextField fx:id="txtDonGia" promptText="VD: 25000" styleClass="text-field"/>
+            </VBox>
+        </HBox>
+
+        <!-- Separator -->
+        <Separator/>
+
+        <!-- ── SECTION 3: Định mức trong công thức ── -->
+        <Label text="Định mức trong công thức *" styleClass="lbl-section-title"/>
 
         <VBox spacing="6">
             <Label text="Định mức tiêu hao: *" styleClass="lbl-body-bold"/>
             <HBox spacing="8" alignment="CENTER_LEFT">
                 <TextField fx:id="txtDinhMuc" promptText="VD: 0.25" styleClass="text-field" HBox.hgrow="ALWAYS"/>
-                <Label fx:id="lblDonVi" text="" styleClass="lbl-body-bold" minWidth="40"/>
+                <Label fx:id="lblDonVi" text="" styleClass="lbl-body-bold" minWidth="50"/>
             </HBox>
         </VBox>
 

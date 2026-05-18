@@ -91,14 +91,14 @@ public class ThongKeDAO extends BaseDAO {
 
     public Map<String, Integer> getTop5BanChay() throws Exception {
         Map<String, Integer> result = new LinkedHashMap<>();
-        // In Oracle 12c+ we can use FETCH FIRST 5 ROWS ONLY
-        // Assuming we join CTDONHANG, SANPHAM, DONDATHANG, HOADON to get completed
-        // sales
+        // Chỉ tính đơn HOÀN THÀNH — filter qua TRANGTHAIDON để tránh đếm đơn Hủy
         String sql = "SELECT S.TENSP, SUM(C.SOLUONG) AS TONG " +
                 "FROM CTDONHANG C " +
                 "JOIN SANPHAM S ON C.MASP = S.MASP " +
                 "JOIN DONDATHANG D ON C.MADON = D.MADON " +
-                "GROUP BY S.TENSP " +
+                "JOIN TRANGTHAIDON TT ON TT.MATRANGTHAI = D.MATRANGTHAI " +
+                "WHERE UPPER(TT.TENTRANGTHAI) = UPPER(N'Hoàn thành') " +
+                "GROUP BY S.MASP, S.TENSP " +
                 "ORDER BY TONG DESC " +
                 "FETCH FIRST 5 ROWS ONLY";
         try (Connection conn = moKetNoi();
@@ -109,12 +109,6 @@ public class ThongKeDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             handleException("getTop5BanChay", e);
-            // Fallback for earlier testing or if no data
-            result.put("Sourdough Loaf", 842);
-            result.put("Butter Croissant", 765);
-            result.put("Cinnamon Bun", 520);
-            result.put("Rye Batard", 412);
-            result.put("Almond Croissant", 280);
         }
         return result;
     }
@@ -340,9 +334,9 @@ public class ThongKeDAO extends BaseDAO {
     /**
      * Tính giá vốn hàng bán (COGS) trong kỳ.
      *
-     * FIX: Giá vốn = SUM(CTDONHANG.SOLUONG × SANPHAM.GIAVON) cho các hóa đơn đã xuất trong kỳ.
-     * Cách cũ (SUM NL xuất kho × đơn giá) sai vì tính cả bánh làm ra nhưng chưa bán —
-     * bánh chưa bán là hàng tồn kho (tài sản), chưa phải chi phí.
+     * FIX Task 1.1: Dùng CT.DONGIAVON (snapshot tại thời điểm bán) thay vì SP.GIAVON (giá hiện tại).
+     * SP.GIAVON thay đổi theo thời gian → báo cáo kỳ cũ sẽ sai khi giá vốn NL thay đổi.
+     * CT.DONGIAVON được freeze bởi trigger TRG_ASSIGN_PRICE tại thời điểm tạo đơn.
      */
     public double getGiaVon(String loai, String giaTri) throws Exception {
         String condition;
@@ -364,12 +358,11 @@ public class ThongKeDAO extends BaseDAO {
                 break;
         }
 
-        // COGS = tổng (số lượng bán × giá vốn sản phẩm) trong kỳ
-        // Chỉ tính hóa đơn đã xuất (NGAYXUATHD IS NOT NULL)
-        String sql = "SELECT NVL(SUM(CT.SOLUONG * NVL(SP.GIAVON, 0)), 0) AS GIA_VON " +
+        // COGS = SUM(số lượng × giá vốn snapshot tại thời điểm bán)
+        // Dùng CT.DONGIAVON — không JOIN SANPHAM để tránh đọc giá hiện tại
+        String sql = "SELECT NVL(SUM(CT.SOLUONG * NVL(CT.DONGIAVON, 0)), 0) AS GIA_VON " +
                 "FROM HOADON H " +
                 "JOIN CTDONHANG CT ON CT.MADON = H.MADON " +
-                "JOIN SANPHAM   SP ON SP.MASP  = CT.MASP " +
                 "WHERE " + condition;
 
         try (Connection conn = moKetNoi();
@@ -617,8 +610,8 @@ public class ThongKeDAO extends BaseDAO {
     }
 
     /**
-     * Gọi FUNC_DOANHTHUTHEOPTTT(tuNgay, denNgay) — doanh thu nhóm theo phương thức thanh toán.
-     * Trả Map: tenPTTT → tổng doanh thu (dùng cho biểu đồ PieChart PTTT).
+     * Task 2.4: Gọi FUNC_DOANHTHUTHEOPTTT(tuNgay, denNgay) thay vì inline SQL trùng lặp.
+     * Function trả SYS_REFCURSOR — dùng CallableStatement với OracleTypes.CURSOR.
      *
      * @param tuNgay  ngày bắt đầu
      * @param denNgay ngày kết thúc
@@ -626,20 +619,18 @@ public class ThongKeDAO extends BaseDAO {
     public java.util.Map<String, Double> getDoanhThuTheoPTTT(
             java.time.LocalDate tuNgay, java.time.LocalDate denNgay) throws Exception {
         java.util.Map<String, Double> result = new java.util.LinkedHashMap<>();
-        // Gọi function qua SELECT vì trả về SYS_REFCURSOR
-        String sql = "SELECT PT.TENPTTT, NVL(SUM(HD.TONGTIENTHANHTOAN), 0) AS TONGDT " +
-                "FROM HOADON HD " +
-                "JOIN PHUONGTHUCTT PT ON HD.MAPTTT = PT.MAPTTT " +
-                "WHERE TRUNC(HD.NGAYXUATHD) BETWEEN ? AND ? " +
-                "GROUP BY PT.MAPTTT, PT.TENPTTT " +
-                "ORDER BY TONGDT DESC";
+        java.time.LocalDate tu  = tuNgay  != null ? tuNgay  : java.time.LocalDate.now().withDayOfMonth(1);
+        java.time.LocalDate den = denNgay != null ? denNgay : java.time.LocalDate.now();
+        String sql = "BEGIN ? := FUNC_DOANHTHUTHEOPTTT(?, ?); END;";
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setDate(1, java.sql.Date.valueOf(tuNgay != null ? tuNgay : java.time.LocalDate.now().withDayOfMonth(1)));
-            ps.setDate(2, java.sql.Date.valueOf(denNgay != null ? denNgay : java.time.LocalDate.now()));
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    result.put(rs.getString("TENPTTT"), rs.getDouble("TONGDT"));
+             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.setDate(2, java.sql.Date.valueOf(tu));
+            cs.setDate(3, java.sql.Date.valueOf(den));
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs != null && rs.next()) {
+                    result.put(rs.getString("TENPTTT"), rs.getDouble("TONGDOANHTHU"));
                 }
             }
         } catch (SQLException e) {
@@ -650,7 +641,8 @@ public class ThongKeDAO extends BaseDAO {
 
     /**
      * Gọi FUNC_TOPSANPHAMBANCHAY(tuNgay, denNgay) — Top 5 SP bán chạy theo kỳ tùy chọn.
-     * Khác getTop5BanChay() (cố định -1 tháng), method này cho phép filter linh hoạt.
+     * FIX Task 1.2: Thay inline SQL sai tên bảng (DONHANG không tồn tại) bằng
+     * FUNC_TOPSANPHAMBANCHAY — function đã filter đúng trạng thái HOÀN THÀNH.
      *
      * @param tuNgay  ngày bắt đầu
      * @param denNgay ngày kết thúc
@@ -659,22 +651,18 @@ public class ThongKeDAO extends BaseDAO {
     public java.util.Map<String, Integer> getTop5BanChayTheoKy(
             java.time.LocalDate tuNgay, java.time.LocalDate denNgay) throws Exception {
         java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
-        String sql = "SELECT SP.TENSP, SUM(CT.SOLUONG) AS TONGSL " +
-                "FROM CTDONHANG CT " +
-                "JOIN DONHANG DH ON CT.MADON = DH.MADON " +
-                "JOIN SANPHAM SP ON CT.MASP = SP.MASP " +
-                "WHERE DH.TRANGTHAI = 'HOANTHANH' " +
-                "  AND TRUNC(DH.NGAYDAT) BETWEEN ? AND ? " +
-                "GROUP BY SP.MASP, SP.TENSP " +
-                "ORDER BY TONGSL DESC " +
-                "FETCH FIRST 5 ROWS ONLY";
+        java.time.LocalDate tu = tuNgay != null ? tuNgay : java.time.LocalDate.now().withDayOfMonth(1);
+        java.time.LocalDate den = denNgay != null ? denNgay : java.time.LocalDate.now();
+        String sql = "BEGIN ? := FUNC_TOPSANPHAMBANCHAY(?, ?); END;";
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setDate(1, java.sql.Date.valueOf(tuNgay != null ? tuNgay : java.time.LocalDate.now().withDayOfMonth(1)));
-            ps.setDate(2, java.sql.Date.valueOf(denNgay != null ? denNgay : java.time.LocalDate.now()));
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    result.put(rs.getString("TENSP"), rs.getInt("TONGSL"));
+             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.setDate(2, java.sql.Date.valueOf(tu));
+            cs.setDate(3, java.sql.Date.valueOf(den));
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs != null && rs.next()) {
+                    result.put(rs.getString("TENSP"), rs.getInt("TONGSOLUONGBAN"));
                 }
             }
         } catch (SQLException e) {

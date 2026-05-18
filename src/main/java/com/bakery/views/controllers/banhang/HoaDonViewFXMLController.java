@@ -91,7 +91,7 @@ public class HoaDonViewFXMLController extends BaseController {
         double tongTienHD = hoaDon.getTongTienThanhToan() != null
                 ? hoaDon.getTongTienThanhToan().doubleValue() : 0.0;
 
-        // Tính toán lại tổng tiền hàng từ giỏ hàng để đảm bảo khớp hiển thị
+        // Tính tổng tiền hàng từ giỏ hàng để đảm bảo khớp hiển thị
         double tongHangThucTe = 0;
         if (cart != null) {
             for (CTDonHangDTO item : cart) {
@@ -100,9 +100,11 @@ public class HoaDonViewFXMLController extends BaseController {
             }
         }
 
-        double tienThue      = tongHangThucTe * 0.085;
-        double tongSauThue   = tongHangThucTe + tienThue;
-        double giamGiaChuan  = Math.max(0, tongSauThue - tongTienHD);
+        // Task 1.5: Lấy thuế VAT từ DTO thay vì hardcode 0.085 trong View
+        double phanTramThue = hoaDon.getThueVAT() > 0 ? hoaDon.getThueVAT() / 100.0 : 0.085;
+        double tienThue     = tongHangThucTe * phanTramThue;
+        double tongSauThue  = tongHangThucTe + tienThue;
+        double giamGiaChuan = Math.max(0, tongSauThue - tongTienHD);
 
         lblTongTien.setText(FORMAT_TIEN.format(tongHangThucTe) + " đ");
         lblThueVAT.setText(FORMAT_TIEN.format(tienThue) + " đ");

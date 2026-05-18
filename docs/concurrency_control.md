@@ -2,7 +2,8 @@
 ## Bakery Management System — Tài liệu kỹ thuật
 
 > **Phiên bản:** 1.0 | **Cập nhật:** 2026-05-15  
-> **Liên quan:** `BaseDAO.java`, `DonHangDAO.java`, `ConcurrencyDemoService.java`, `database/demo_concurrent_test.sql`
+> **Liên quan:** `BaseDAO.java`, `DonHangDAO.java`, `ConcurrencyDemoService.java`
+
 
 ---
 
@@ -277,7 +278,7 @@ private void onXoaLog() {
 
 ### 5.3 Chạy test SQL trực tiếp trên Oracle
 
-**File:** `database/demo_concurrent_test.sql`
+**File:**
 
 Mở 2 SQL Developer session song song:
 

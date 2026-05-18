@@ -35,7 +35,7 @@ public class DoiSoatDongCaPresenter extends BasePresenter<IDoiSoatDongCaView> {
                         maCaHienThi,
                         info.maMayPOS(),
                         CurrencyFormatter.format(info.tienKhaiBaoDauCa()),
-                        CurrencyFormatter.format(info.doanhThuPhatSinh())
+                        "—" // Bug 1 Fix: đối soát mù — không hiển thị tiền phát sinh cho thu ngân
                 );
                 view.resizeDialog();
             }
@@ -82,6 +82,7 @@ public class DoiSoatDongCaPresenter extends BasePresenter<IDoiSoatDongCaView> {
         runTask(
             () -> {
                 service.dongCaDoiSoat(maCa, tienThucTeDem, lyDo);
+                // Tiết lộ tiền hệ thống CHỈ sau khi đã khóa sổ thành công
                 return info.tienKhaiBaoDauCa().add(info.doanhThuPhatSinh());
             },
             tienHeThong -> {

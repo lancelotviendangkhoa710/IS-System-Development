@@ -14,6 +14,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -21,13 +23,16 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -36,8 +41,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 /**
- * Dashboard mới — hiển thị biểu đồ doanh thu 7 ngày + bảng thống kê theo ngày.
- * Không còn card điều hướng — navigation qua AppShell sidebar.
+ * Dashboard — biểu đồ doanh thu 7 ngày + Top 5 bán chạy + KPI hôm nay.
  */
 public class DashboardController implements Initializable {
 
@@ -46,11 +50,20 @@ public class DashboardController implements Initializable {
 
     static { NF_TIEN.setMaximumFractionDigits(0); }
 
-    // ── FXML ────────────────────────────────────────────────────────────────
+    // ── FXML ─────────────────────────────────────────────────────────────────
     @FXML private Label    lblBannerName;
     @FXML private Label    lblThongBao;
     @FXML private Label    lblCapNhatChart;
     @FXML private Label    lblCapNhatBang;
+    @FXML private Label    lblCapNhatTop5;
+
+    // KPI hôm nay
+    @FXML private Label    lblKpiDon;
+    @FXML private Label    lblKpiDoanhThu;
+
+    // Top 5 container
+    @FXML private VBox     vboxTop5;
+    @FXML private Label    lblTop5Empty;
 
     @FXML private LineChart<String, Number>    chartDoanhThu;
     @FXML private CategoryAxis               axisNgay;
@@ -63,14 +76,12 @@ public class DashboardController implements Initializable {
     @FXML private TableColumn<String[], String> colDonHuy;
     @FXML private TableColumn<String[], String> colTongDon;
 
-    // ── State ────────────────────────────────────────────────────────────────
+    // ── State ─────────────────────────────────────────────────────────────────
     private final ThongKeService thongKeService = new ThongKeService();
     private final ObservableList<String[]> dsThongKe = FXCollections.observableArrayList();
-
-    /** Timeline animation pulse cho BarChart — chạy liên tục để chart sinh động. */
     private Timeline animationTimeline;
 
-    // ── Lifecycle ────────────────────────────────────────────────────────────
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -81,7 +92,7 @@ public class DashboardController implements Initializable {
         batDauAnimationChart();
     }
 
-    // ── Setup ────────────────────────────────────────────────────────────────
+    // ── Setup ─────────────────────────────────────────────────────────────────
 
     private void hienThiTenUser() {
         NhanVienDTO user = UserSession.getCurrentUser();
@@ -126,22 +137,27 @@ public class DashboardController implements Initializable {
         tblThongKe.setPlaceholder(new Label("Đang tải dữ liệu..."));
     }
 
-    // ── Data Loading ─────────────────────────────────────────────────────────
+    // ── Data Loading ──────────────────────────────────────────────────────────
 
-    /**
-     * Load dữ liệu thống kê từ DB trên background thread.
-     * Cập nhật UI trên FX thread qua Platform.runLater().
-     */
     private void taiDuLieuAsync() {
         Thread t = new Thread(() -> {
             try {
-                List<String[]> dsRaw = thongKeService.getThongKeTheoNgay();
+                // Load song song 3 nguồn
+                List<String[]> dsRaw       = thongKeService.getThongKeTheoNgay();
+                Map<String, Integer> top5  = thongKeService.getTop5BanChay();
+                double doanhThuHN          = thongKeService.getDoanhThuHomNay();
+                int    tongDonHN           = thongKeService.getTongSoDonHomNay();
+
                 Platform.runLater(() -> {
                     capNhatChart(dsRaw);
                     capNhatBang(dsRaw);
+                    capNhatTop5(top5);
+                    capNhatKPI(doanhThuHN, tongDonHN);
+
                     String gio = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
                     if (lblCapNhatChart != null) lblCapNhatChart.setText("Cập nhật lúc " + gio);
                     if (lblCapNhatBang  != null) lblCapNhatBang.setText("Cập nhật lúc " + gio);
+                    if (lblCapNhatTop5  != null) lblCapNhatTop5.setText("Cập nhật lúc " + gio);
                     if (lblThongBao    != null) lblThongBao.setText("");
                 });
             } catch (Exception ex) {
@@ -159,14 +175,11 @@ public class DashboardController implements Initializable {
     }
 
     private void capNhatChart(List<String[]> dsRaw) {
-        // Map ngày → doanh thu từ data DB
         Map<String, Double> mapData = new LinkedHashMap<>();
         for (String[] row : dsRaw) {
             try { mapData.put(row[0], Double.parseDouble(row[1])); }
             catch (NumberFormatException ignored) {}
         }
-
-        // Pre-fill đủ 7 nhãn ngày (DD/MM) để trục X luôn hiện đủ
         DateTimeFormatter fmtNhan = DateTimeFormatter.ofPattern("dd/MM");
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Doanh thu");
@@ -182,33 +195,75 @@ public class DashboardController implements Initializable {
         tblThongKe.setPlaceholder(new Label("Không có dữ liệu trong 7 ngày gần nhất."));
     }
 
+    /** Render Top 5 sản phẩm bán chạy thành các row động trong vboxTop5. */
+    private void capNhatTop5(Map<String, Integer> top5) {
+        if (vboxTop5 == null) return;
+        vboxTop5.getChildren().clear();
+
+        if (top5 == null || top5.isEmpty()) {
+            if (lblTop5Empty != null) { lblTop5Empty.setVisible(true); lblTop5Empty.setManaged(true); }
+            return;
+        }
+        if (lblTop5Empty != null) { lblTop5Empty.setVisible(false); lblTop5Empty.setManaged(false); }
+
+        String[] medals = {"🥇", "🥈", "🥉", "4️⃣", "5️⃣"};
+        int rank = 0;
+        for (Map.Entry<String, Integer> entry : top5.entrySet()) {
+            if (rank >= 5) break;
+
+            // Rank emoji
+            Label lblRank = new Label(rank < medals.length ? medals[rank] : (rank + 1) + ".");
+            lblRank.getStyleClass().add("top5-rank");
+
+            // Tên + số lượng
+            VBox vbInfo = new VBox(2);
+            Label lblName = new Label(entry.getKey());
+            lblName.getStyleClass().add("top5-name");
+            lblName.setWrapText(true);
+            lblName.setMaxWidth(160);
+            Label lblQty = new Label("Đã bán: " + entry.getValue() + " cái");
+            lblQty.getStyleClass().add("top5-qty");
+            vbInfo.getChildren().addAll(lblName, lblQty);
+            HBox.setHgrow(vbInfo, javafx.scene.layout.Priority.ALWAYS);
+
+            HBox row = new HBox(10, lblRank, vbInfo);
+            row.getStyleClass().add("top5-row");
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setPadding(new Insets(10, 12, 10, 12));
+
+            vboxTop5.getChildren().add(row);
+            rank++;
+        }
+    }
+
+    /** Cập nhật KPI mini (đơn + doanh thu hôm nay). */
+    private void capNhatKPI(double doanhThuHN, int tongDonHN) {
+        if (lblKpiDon      != null) lblKpiDon.setText(String.valueOf(tongDonHN));
+        if (lblKpiDoanhThu != null) {
+            double trieuDong = doanhThuHN / 1_000_000;
+            lblKpiDoanhThu.setText(NF_TIEN.format(trieuDong) + " M");
+        }
+    }
+
     // ── Animation ─────────────────────────────────────────────────────────────
 
-    /**
-     * Animation pulse liên tục: mỗi 3s, fade-out → fade-in toàn bộ chart
-     * để tạo hiệu ứng "đang live". Gọi 1 lần trong initialize().
-     */
     private void batDauAnimationChart() {
         if (chartDoanhThu == null) return;
 
         FadeTransition fadeOut = new FadeTransition(Duration.millis(600), chartDoanhThu);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.6);
-
         FadeTransition fadeIn = new FadeTransition(Duration.millis(600), chartDoanhThu);
         fadeIn.setFromValue(0.6);
         fadeIn.setToValue(1.0);
-
         SequentialTransition pulse = new SequentialTransition(fadeOut, fadeIn);
 
-        // Lặp lại mỗi 3 giây để chart "thở"
         animationTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(3), evt -> pulse.playFromStart())
         );
         animationTimeline.setCycleCount(Animation.INDEFINITE);
         animationTimeline.play();
 
-        // Tự dừng khi chart bị remove khỏi scene (AppShell thay nội dung)
         chartDoanhThu.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene == null && animationTimeline != null) {
                 animationTimeline.stop();

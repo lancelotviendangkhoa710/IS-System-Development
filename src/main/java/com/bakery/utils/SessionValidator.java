@@ -1,9 +1,5 @@
 package com.bakery.utils;
 
-/**
- * SessionValidator cung cấp các tiện ích để kiểm tra và bảo vệ phiên đăng nhập.
- * Sử dụng SessionContext (in-memory) — nguồn session thực tế của ứng dụng.
- */
 public class SessionValidator {
 
     /**
@@ -46,7 +42,8 @@ public class SessionValidator {
      */
     public static boolean hasRole(int requiredRole) {
         com.bakery.model.dto.nhansu.NhanVienDTO user = getCurrentUser();
-        if (user == null || user.getDanhSachMaVaiTro() == null) return false;
+        if (user == null || user.getDanhSachMaVaiTro() == null)
+            return false;
         return user.getDanhSachMaVaiTro().contains(requiredRole);
     }
 

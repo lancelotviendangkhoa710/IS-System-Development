@@ -1,4 +1,10 @@
 -- Màn hình bếp hiển thị danh sách đơn cần làm, sắp xếp theo ưu tiên
+-- =============================================================================
+-- TÍCH HỢP JAVA (TODO): Tạo KitchenDisplayDAO.layDonCanLam() SELECT từ view này.
+-- Use-case: Màn hình Kitchen Display System (KDS) — bếp nhìn thấy đơn cần làm theo thứ tự ưu tiên.
+-- Không xóa view: đang chờ implement feature Kitchen Display.
+-- Caller dự kiến: KitchenDisplayDAO → KitchenDisplayService → KitchenDisplayPresenter
+-- =============================================================================
 CREATE OR REPLACE VIEW VW_KDS_DON_CAN_LAM AS
 SELECT
     DDH.MADON,

@@ -1,7 +1,9 @@
 package com.bakery.views.controllers.kho;
 
 import com.bakery.model.dto.kho.CongThucDTO;
+import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
+import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.presenters.kho.CongThucPresenter;
 import com.bakery.views.interfaces.kho.ICongThucView;
@@ -45,8 +47,10 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     private CongThucPresenter presenter;
 
     /** Danh sách gốc — giữ để reset filter autocomplete. */
-    private List<SanPhamDTO>    dsSanPhamGoc    = new ArrayList<>();
+    private List<SanPhamDTO>    dsSanPhamGoc       = new ArrayList<>();
     private List<NguyenLieuDTO> cachedDsNguyenLieu = new ArrayList<>();
+    private List<DonViTinhDTO>  cachedDsDVT        = new ArrayList<>();
+    private List<NhaCungCapDTO> cachedDsNCC        = new ArrayList<>();
 
     private static final NumberFormat NF = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
 
@@ -161,6 +165,16 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     }
 
     @Override
+    public void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT) {
+        cachedDsDVT = dsDVT != null ? dsDVT : new ArrayList<>();
+    }
+
+    @Override
+    public void napDanhSachNhaCungCap(List<NhaCungCapDTO> dsNCC) {
+        cachedDsNCC = dsNCC != null ? dsNCC : new ArrayList<>();
+    }
+
+    @Override
     public void hienThiChiTiet(CongThucDTO ct) {
         if (ct == null) return;
         cmbNguyenLieu.getItems().stream()
@@ -234,10 +248,10 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
             Parent root = loader.load();
 
             ThemCongThucDialogController dialogCtrl = loader.getController();
-            dialogCtrl.khoiTaoDanhSachNguyenLieu(cachedDsNguyenLieu);
+            dialogCtrl.khoiTao(cachedDsDVT, cachedDsNCC);
 
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Thêm nguyên liệu vào công thức");
+            dialogStage.setTitle("Thêm nguyên liệu mới vào công thức");
             dialogStage.initModality(Modality.APPLICATION_MODAL);
             dialogStage.initOwner(tblCongThuc.getScene().getWindow());
 
@@ -248,7 +262,16 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
             dialogStage.showAndWait();
 
             if (dialogCtrl.isConfirmed()) {
-                presenter.luuCongThuc(dialogCtrl.getNguyenLieu().getMaNL(), dialogCtrl.getDinhMuc());
+                int maDVT  = dialogCtrl.getDonViTinh()  != null ? dialogCtrl.getDonViTinh().getMaDVT()   : 0;
+                int maNCC  = dialogCtrl.getNhaCungCap() != null ? dialogCtrl.getNhaCungCap().getMaNCC() : 0;
+                presenter.themNguyenLieuMoiVaoCongThuc(
+                        dialogCtrl.getTenNL(),
+                        dialogCtrl.getXuatXu(),
+                        maDVT,
+                        maNCC,
+                        dialogCtrl.getSoLuong(),
+                        dialogCtrl.getDonGia(),
+                        dialogCtrl.getDinhMuc());
             }
         } catch (Exception e) {
             hienThiLoiLabel("Không thể mở dialog thêm công thức: " + e.getMessage());

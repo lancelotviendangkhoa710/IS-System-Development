@@ -1,4 +1,10 @@
 -- Dữ liệu in hóa đơn nhiệt cho JasperReports
+-- =============================================================================
+-- TÍCH HỢP JASPER (TODO): Cấu hình hoa_don_ban_hang.jrxml query trực tiếp view này.
+-- Use-case: In hóa đơn PDF — JasperReports tự fill data, không cần Controller truyền _rows.
+-- Không xóa view: đang chờ refactor JasperReportUtils.xuatHoaDonPDF() dùng MAHD làm param.
+-- Caller dự kiến: JasperReportUtils → hoa_don_ban_hang.jrxml (query: SELECT * FROM VW_CHI_TIET_IN_HOADON WHERE MAHD = $P{MAHD})
+-- =============================================================================
 CREATE OR REPLACE VIEW VW_CHI_TIET_IN_HOADON AS
 -- Các dòng bánh bán sẵn (từ CTDONHANG)
 SELECT

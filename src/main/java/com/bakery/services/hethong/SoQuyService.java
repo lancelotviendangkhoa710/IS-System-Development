@@ -68,19 +68,38 @@ public class SoQuyService extends BaseService {
         ltcDAO.xoa(ma);
     }
 
-    public BigDecimal tinhTongThu(List<PhieuThuChiDTO> ds) {
+    /**
+     * Tính tổng thu từ danh sách đã load — duy trì backward compat với Presenter.
+     * Ưu tiên dùng tinhTongThuChiTheoMaCa() cho hiệu năng tốt hơn.
+     */
+    public java.math.BigDecimal tinhTongThu(java.util.List<com.bakery.model.dto.hethong.PhieuThuChiDTO> ds) {
         return ds.stream()
                 .filter(p -> "Thu".equals(p.getPhanLoai())
-                        && !"cancelled".equals(p.getTrangThai()))
+                        && !"cancelled".equalsIgnoreCase(p.getTrangThai()))
                 .map(PhieuThuChiDTO::getSoTien)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
     }
 
-    public BigDecimal tinhTongChi(List<PhieuThuChiDTO> ds) {
+    /**
+     * Tính tổng chi từ danh sách đã load — duy trì backward compat với Presenter.
+     * Ưu tiên dùng tinhTongThuChiTheoMaCa() cho hiệu năng tốt hơn.
+     */
+    public java.math.BigDecimal tinhTongChi(java.util.List<com.bakery.model.dto.hethong.PhieuThuChiDTO> ds) {
         return ds.stream()
                 .filter(p -> "Chi".equals(p.getPhanLoai())
-                        && !"cancelled".equals(p.getTrangThai()))
+                        && !"cancelled".equalsIgnoreCase(p.getTrangThai()))
                 .map(PhieuThuChiDTO::getSoTien)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+    }
+
+    /**
+     * Task 2.3: Aggregate tại DB — không cần load danh sách phíu lên Java.
+     * Dùng cho các trường hợp chỉ cần số tổng (Dashboard, Đối soát).
+     *
+     * @param maCa mã ca (0 = tất cả ca)
+     * @return BigDecimal[2] = {tongThu, tongChi}
+     */
+    public java.math.BigDecimal[] tinhTongThuChiTheoMaCa(int maCa) throws Exception {
+        return ptcDAO.tinhTongThuChi(maCa);
     }
 }

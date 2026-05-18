@@ -13,6 +13,8 @@ public class YeuCauTaoDonHangDTO {
     private Integer hinhThucNhan;
     private String diaChiGiao;
     private List<YeuCauChiTietDonHangDTO> items;
+    /** Bug 2 Fix: Mã phương thức thanh toán — 0 = chưa rõ, dùng layMaPTTTTienMat() khi cần. */
+    private int maPTTT;
 
     public YeuCauTaoDonHangDTO() {
         this.items = new ArrayList<>();
@@ -85,6 +87,10 @@ public class YeuCauTaoDonHangDTO {
     public void setDiaChiGiao(String diaChiGiao) {
         this.diaChiGiao = diaChiGiao;
     }
+
+    /** Bug 2 Fix: getter/setter MAPTTT — 0 nghĩa là chưa set (dùng fallback layMaPTTTTienMat). */
+    public int getMaPTTT() { return maPTTT; }
+    public void setMaPTTT(int maPTTT) { this.maPTTT = maPTTT; }
 
     public List<YeuCauChiTietDonHangDTO> getItems() {
         return items;

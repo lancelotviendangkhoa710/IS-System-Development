@@ -375,6 +375,10 @@ public class NhapKhoViewFXMLController extends BaseController {
             hienThiLoiLabel("Chưa có nhà cung cấp. Hãy thêm nhà cung cấp trước.");
             return;
         }
+        if (dsNL.isEmpty()) {
+            hienThiLoiLabel("Chưa có nguyên liệu nào trong hệ thống. Hãy thêm nguyên liệu trước khi tạo phiếu nhập.");
+            return;
+        }
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Tạo Phiếu Nhập Kho");
@@ -408,9 +412,10 @@ public class NhapKhoViewFXMLController extends BaseController {
         ObservableList<CTPhieuNhapDTO> chiTiet = FXCollections.observableArrayList();
         TableView<CTPhieuNhapDTO> tblChiTiet = buildBangChiTiet(chiTiet, dsNL);
 
-        // Nút thêm dòng
-        Button btnThemDong = new Button("+ Thêm nguyên liệu");
+        // Nút thêm dòng — chỉ chọn NL đã tồn tại, không tạo mới
+        Button btnThemDong = new Button("+ Thêm dòng nguyên liệu");
         btnThemDong.setOnAction(e -> themDongChiTiet(chiTiet, dsNL));
+        btnThemDong.setDisable(dsNL.isEmpty());
 
         grid.add(new Label("Nhà cung cấp:"), 0, 0);
         grid.add(cbNCC, 1, 0);
@@ -518,12 +523,18 @@ public class NhapKhoViewFXMLController extends BaseController {
         return tbl;
     }
 
+    /**
+     * Thêm dòng mới vào bảng chi tiết phiếu nhập.
+     * Chỉ cho phép chọn nguyên liệu đã tồn tại trong hệ thống — không tạo NL mới.
+     */
     private void themDongChiTiet(ObservableList<CTPhieuNhapDTO> chiTiet, List<NguyenLieuDTO> dsNL) {
-        CTPhieuNhapDTO dong = new CTPhieuNhapDTO();
-        if (!dsNL.isEmpty()) {
-            dong.setMaNL(dsNL.get(0).getMaNL());
-            dong.setTenNL(dsNL.get(0).getTenNL());
+        if (dsNL.isEmpty()) {
+            // Không có NL nào để chọn — không thêm dòng trống
+            return;
         }
+        CTPhieuNhapDTO dong = new CTPhieuNhapDTO();
+        dong.setMaNL(dsNL.get(0).getMaNL());
+        dong.setTenNL(dsNL.get(0).getTenNL());
         dong.setSoLuong(1);
         dong.setDonGia(java.math.BigDecimal.ZERO);
         chiTiet.add(dong);
