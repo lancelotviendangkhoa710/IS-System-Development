@@ -1,11 +1,12 @@
 package com.bakery.model.dao.banhang;
+
 import com.bakery.model.dao.BaseDAO;
+import com.bakery.utils.DemoConfig;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.CTDonTuyChinhDTO;
 import com.bakery.model.dto.banhang.DonDatHangDTO;
 import com.bakery.model.dto.banhang.TrangThaiDonDTO;
-
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -28,30 +29,45 @@ public class DonHangDAO extends BaseDAO {
      * sẽ block đúng các connection khác, ngăn Lost Update khi 2 thu ngân
      * cùng bán sản phẩm có tồn kho ít.
      */
-    public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
+    public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh)
+            throws Exception {
         Connection conn = null;
         try {
             conn = moKetNoi();
             // setAutoCommit(false) đảm bảo SELECT FOR UPDATE trong PROC_TAODONHANG
-            // giữ lock trên dòng SANPHAM cho đến khi conn.commit() — ngăn oversell đồng thời.
+            // giữ lock trên dòng SANPHAM cho đến khi conn.commit() — ngăn oversell đồng
+            // thời.
             conn.setAutoCommit(false);
             int maDon = taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
             conn.commit();
             return maDon;
         } catch (Exception e) {
-            if (conn != null) { try { conn.rollback(); } catch (Exception ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (Exception ignored) {
+                }
+            }
             handleException("taoDonHang", e);
         } finally {
-            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (Exception ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (Exception ignored) {
+                }
+            }
         }
         return -1;
     }
 
     /**
-     * Overload dùng trong Distributed Transaction — nhận Connection từ tầng Service.
+     * Overload dùng trong Distributed Transaction — nhận Connection từ tầng
+     * Service.
      * Không đóng Connection; không COMMIT (Service chịu trách nhiệm).
      */
-    public int taoDonHang(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
+    public int taoDonHang(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang,
+            List<CTDonTuyChinhDTO> dsCtTuyChinh) throws Exception {
         try {
             return taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
         } catch (SQLException e) {
@@ -60,16 +76,28 @@ public class DonHangDAO extends BaseDAO {
         return -1;
     }
 
-    private int taoDonHangWithConn(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh) throws SQLException {
-        String sql = "{CALL PROC_TAODONHANG(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+    private int taoDonHangWithConn(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang,
+            List<CTDonTuyChinhDTO> dsCtTuyChinh) throws SQLException {
+
+        String tenProc = DemoConfig.getTenProcTaoDon();
+        String sql = "{CALL " + tenProc + "(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setTimestamp(1, Timestamp.valueOf(donDatHang.getNgayGioNhanBanh()));
-            if (donDatHang.getMaKH() != null) cstmt.setInt(2, donDatHang.getMaKH()); else cstmt.setNull(2, Types.NUMERIC);
+            if (donDatHang.getMaKH() != null)
+                cstmt.setInt(2, donDatHang.getMaKH());
+            else
+                cstmt.setNull(2, Types.NUMERIC);
             cstmt.setInt(3, donDatHang.getMaNVLap());
             cstmt.setInt(4, donDatHang.getMaTrangThai());
             cstmt.setBigDecimal(5, donDatHang.getTienDaCoc());
-            if (donDatHang.getHinhThucNhan() != null) cstmt.setInt(6, donDatHang.getHinhThucNhan()); else cstmt.setNull(6, Types.NUMERIC);
-            if (donDatHang.getDiaChiGiao() != null && !donDatHang.getDiaChiGiao().trim().isEmpty()) cstmt.setString(7, donDatHang.getDiaChiGiao().trim()); else cstmt.setNull(7, Types.NVARCHAR);
+            if (donDatHang.getHinhThucNhan() != null)
+                cstmt.setInt(6, donDatHang.getHinhThucNhan());
+            else
+                cstmt.setNull(6, Types.NUMERIC);
+            if (donDatHang.getDiaChiGiao() != null && !donDatHang.getDiaChiGiao().trim().isEmpty())
+                cstmt.setString(7, donDatHang.getDiaChiGiao().trim());
+            else
+                cstmt.setNull(7, Types.NVARCHAR);
             cstmt.setString(8, taoJsonChiTiet(dsCtDonHang, dsCtTuyChinh));
             cstmt.registerOutParameter(9, Types.NUMERIC);
             cstmt.execute();
@@ -82,7 +110,8 @@ public class DonHangDAO extends BaseDAO {
      * PROC_CHUYENTRANGTHAIDON có SELECT FOR UPDATE để đảm bảo
      * 2 nhân viên không cùng xác nhận 1 đơn tại cùng thời điểm.
      */
-    public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan) throws Exception {
+    public void chuyenTrangThaiDon(int maDon, int maTrangThaiMoi, int maNvCapNhat, Integer hinhThucNhan)
+            throws Exception {
         Connection conn = null;
         try {
             conn = moKetNoi();
@@ -92,19 +121,34 @@ public class DonHangDAO extends BaseDAO {
                 cstmt.setInt(1, maDon);
                 cstmt.setInt(2, maTrangThaiMoi);
                 cstmt.setInt(3, maNvCapNhat);
-                if (hinhThucNhan != null) cstmt.setInt(4, hinhThucNhan); else cstmt.setNull(4, Types.NUMERIC);
+                if (hinhThucNhan != null)
+                    cstmt.setInt(4, hinhThucNhan);
+                else
+                    cstmt.setNull(4, Types.NUMERIC);
                 cstmt.execute();
             }
             conn.commit();
         } catch (Exception e) {
-            if (conn != null) { try { conn.rollback(); } catch (Exception ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (Exception ignored) {
+                }
+            }
             handleException("chuyenTrangThaiDon", e);
         } finally {
-            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (Exception ignored) {} }
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
-    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount, int maCa) throws Exception {
+    public void huyDonVaHoanKho(int maDon, String lyDoHuy, int maNvCapNhat, double refundAmount, int maCa)
+            throws Exception {
         String sql = "{CALL PROC_HUYDON_HOANCOC(?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi()) {
             try (CallableStatement cstmt = conn.prepareCall(sql)) {
@@ -124,7 +168,7 @@ public class DonHangDAO extends BaseDAO {
     public void huyHoaDonBanLe(int maDon, String lyDoHuy, int maNvCapNhat) throws Exception {
         String sql = "{CALL PROC_HUYHOADONBANLE(?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, maDon);
             cstmt.setString(2, lyDoHuy);
             cstmt.setInt(3, maNvCapNhat);
@@ -141,7 +185,8 @@ public class DonHangDAO extends BaseDAO {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) return rs.getInt("TOTAL") > 0;
+                    if (rs.next())
+                        return rs.getInt("TOTAL") > 0;
                 }
             }
         } catch (SQLException e) {
@@ -158,7 +203,8 @@ public class DonHangDAO extends BaseDAO {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
                 try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) return rs.getString("TENTRANGTHAI");
+                    if (rs.next())
+                        return rs.getString("TENTRANGTHAI");
                 }
             }
         } catch (SQLException e) {
@@ -177,7 +223,8 @@ public class DonHangDAO extends BaseDAO {
                         DonDatHangDTO dto = new DonDatHangDTO();
                         dto.setMaDon(rs.getInt("MADON"));
                         int maKH = rs.getInt("MAKH");
-                        if (!rs.wasNull()) dto.setMaKH(maKH);
+                        if (!rs.wasNull())
+                            dto.setMaKH(maKH);
                         dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
                         dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
                         if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
@@ -186,7 +233,8 @@ public class DonHangDAO extends BaseDAO {
                         dto.setTongTienHDBan(rs.getBigDecimal("TONGTIENHDBAN"));
                         dto.setTienDaCoc(rs.getBigDecimal("TIENDACOC"));
                         int hinhThucNhan = rs.getInt("HINHTHUCNHAN");
-                        if (!rs.wasNull()) dto.setHinhThucNhan(hinhThucNhan);
+                        if (!rs.wasNull())
+                            dto.setHinhThucNhan(hinhThucNhan);
                         return dto;
                     }
                 }
@@ -197,12 +245,13 @@ public class DonHangDAO extends BaseDAO {
         return null;
     }
 
-    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
+    public List<DonDatHangDTO> layDanhSachDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan,
+            LocalTime gioTu, LocalTime gioDen, String trangThaiFilter) throws Exception {
         List<DonDatHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT MADON, MAKH, TENKHACHHANG, MATRANGTHAI, TENTRANGTHAI, NGAYGIONHANBANH, TONGTIENHDBAN " +
-                "FROM VW_DanhSachDonHang " +
-                "WHERE 1 = 1");
+                        "FROM VW_DanhSachDonHang " +
+                        "WHERE 1 = 1");
 
         if ("COMPLETED".equalsIgnoreCase(trangThaiFilter)) {
             sql.append(" AND UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')");
@@ -250,7 +299,8 @@ public class DonHangDAO extends BaseDAO {
                         DonDatHangDTO dto = new DonDatHangDTO();
                         dto.setMaDon(rs.getInt("MADON"));
                         int maKH = rs.getInt("MAKH");
-                        if (!rs.wasNull()) dto.setMaKH(maKH);
+                        if (!rs.wasNull())
+                            dto.setMaKH(maKH);
                         dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
                         dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
                         if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
@@ -294,20 +344,21 @@ public class DonHangDAO extends BaseDAO {
     public List<DonDatHangDTO> layDonCoTuyChinhChuaHoanThanh() throws Exception {
         List<DonDatHangDTO> list = new ArrayList<>();
         String sql = "SELECT DISTINCT DDH.MADON, DDH.MAKH, DDH.MATRANGTHAI, TT.TENTRANGTHAI, " +
-                     "DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN, DDH.TIENDACOC " +
-                     "FROM DONDATHANG DDH " +
-                     "JOIN TRANGTHAIDON TT ON DDH.MATRANGTHAI = TT.MATRANGTHAI " +
-                     "JOIN CTDONTUYCHINH CTTC ON DDH.MADON = CTTC.MADON " +
-                     "WHERE UPPER(TT.TENTRANGTHAI) NOT IN (UPPER(N'Hoàn thành'), UPPER(N'Hủy')) " +
-                     "ORDER BY DDH.NGAYGIONHANBANH ASC, DDH.MADON ASC";
+                "DDH.NGAYGIONHANBANH, DDH.TONGTIENHDBAN, DDH.TIENDACOC " +
+                "FROM DONDATHANG DDH " +
+                "JOIN TRANGTHAIDON TT ON DDH.MATRANGTHAI = TT.MATRANGTHAI " +
+                "JOIN CTDONTUYCHINH CTTC ON DDH.MADON = CTTC.MADON " +
+                "WHERE UPPER(TT.TENTRANGTHAI) NOT IN (UPPER(N'Hoàn thành'), UPPER(N'Hủy')) " +
+                "ORDER BY DDH.NGAYGIONHANBANH ASC, DDH.MADON ASC";
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 DonDatHangDTO dto = new DonDatHangDTO();
                 dto.setMaDon(rs.getInt("MADON"));
                 int maKH = rs.getInt("MAKH");
-                if (!rs.wasNull()) dto.setMaKH(maKH);
+                if (!rs.wasNull())
+                    dto.setMaKH(maKH);
                 dto.setMaTrangThai(rs.getInt("MATRANGTHAI"));
                 dto.setTenTrangThai(rs.getString("TENTRANGTHAI"));
                 if (rs.getTimestamp("NGAYGIONHANBANH") != null) {
@@ -329,9 +380,11 @@ public class DonHangDAO extends BaseDAO {
 
         if (dsCtDonHang != null) {
             for (CTDonHangDTO item : dsCtDonHang) {
-                if (hasItem) json.append(",");
+                if (hasItem)
+                    json.append(",");
                 hasItem = true;
-                // Null-guard: donGia null sẽ khiến Oracle SUM = NULL → TONGTIENHDBAN = 0 → vi phạm CK_DON_THANHTOAN
+                // Null-guard: donGia null sẽ khiến Oracle SUM = NULL → TONGTIENHDBAN = 0 → vi
+                // phạm CK_DON_THANHTOAN
                 java.math.BigDecimal donGia = item.getDonGia() != null ? item.getDonGia() : java.math.BigDecimal.ZERO;
                 json.append("{")
                         .append("\"maSP\":").append(item.getMaSP()).append(",")
@@ -344,7 +397,8 @@ public class DonHangDAO extends BaseDAO {
 
         if (dsCtTuyChinh != null) {
             for (CTDonTuyChinhDTO item : dsCtTuyChinh) {
-                if (hasItem) json.append(",");
+                if (hasItem)
+                    json.append(",");
                 hasItem = true;
                 java.math.BigDecimal donGia = item.getDonGia() != null ? item.getDonGia() : java.math.BigDecimal.ZERO;
                 json.append("{")
@@ -424,7 +478,9 @@ public class DonHangDAO extends BaseDAO {
     }
 
     private String thoatKyTuJson(String value) {
-        if (value == null) return "";
-        return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");
+        if (value == null)
+            return "";
+        return value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n").replace("\t",
+                "\\t");
     }
 }

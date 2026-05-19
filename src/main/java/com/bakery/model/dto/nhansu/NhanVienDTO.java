@@ -16,7 +16,9 @@ public class NhanVienDTO extends BaseDTO {
     private String matKhau;
     private int trangThaiLamViec;
     private int trangThaiTK;          // 1: Tài khoản hoạt động, 0: Bị khóa
+    private int maTaiKhoan;           // MATAIKHOAN từ bảng TAIKHOAN — dùng cho TAIKHOAN_VAITRO
     private String email;             // Email khôi phục mật khẩu (cột TAIKHOAN.EMAIL)
+
     private transient boolean canDoiMatKhau; // true nếu mật khẩu chưa hash (lần đăng nhập đầu)
 
     public NhanVienDTO() {}
@@ -66,8 +68,12 @@ public class NhanVienDTO extends BaseDTO {
     public int getTrangThaiTK() { return trangThaiTK; }
     public void setTrangThaiTK(int trangThaiTK) { this.trangThaiTK = trangThaiTK; }
 
+    public int getMaTaiKhoan() { return maTaiKhoan; }
+    public void setMaTaiKhoan(int maTaiKhoan) { this.maTaiKhoan = maTaiKhoan; }
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
 
     public boolean isCanDoiMatKhau() { return canDoiMatKhau; }
     public void setCanDoiMatKhau(boolean canDoiMatKhau) { this.canDoiMatKhau = canDoiMatKhau; }

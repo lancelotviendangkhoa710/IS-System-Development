@@ -144,6 +144,9 @@ public class ThongKeDAO extends BaseDAO {
             case "DAY":
                 condition = "TRUNC(NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
                 break;
+            case "WEEK":
+                condition = "(TRUNC(NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
+                break;
             case "MONTH":
                 condition = "TO_CHAR(NGAYXUATHD, 'MM/YYYY') = ?";
                 break;
@@ -181,39 +184,68 @@ public class ThongKeDAO extends BaseDAO {
 
     public Map<String, Double> getXuHuongDoanhThu(String loai, String giaTri) throws Exception {
         Map<String, Double> result = new LinkedHashMap<>();
-        String sql = "";
 
+        if ("DAY".equals(loai)) {
+            // Xu hướng theo giờ trong ngày (0h–23h)
+            for (int h = 0; h < 24; h++) result.put(h + "h", 0.0);
+            String sql = "SELECT TO_NUMBER(TO_CHAR(NGAYXUATHD, 'HH24')) AS GIO, " +
+                    "NVL(SUM(TONGTIENTHANHTOAN), 0) AS DOANH_THU " +
+                    "FROM HOADON " +
+                    "WHERE TRUNC(NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY') " +
+                    "GROUP BY TO_NUMBER(TO_CHAR(NGAYXUATHD, 'HH24')) ORDER BY GIO";
+            try (Connection conn = moKetNoi(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, giaTri);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) result.put(rs.getInt(1) + "h", rs.getDouble(2));
+                }
+            } catch (SQLException e) { handleException("getXuHuongDoanhThu[DAY]", e); }
+            return result;
+
+        } else if ("WEEK".equals(loai)) {
+            // Xu hướng theo thứ (Thứ 2 → CN); giaTri = Thứ Hai "dd/MM/yyyy"
+            String[] thuNames = {"Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"};
+            for (String thu : thuNames) result.put(thu, 0.0);
+            String sql = "SELECT TRUNC(NGAYXUATHD) AS NGAY, NVL(SUM(TONGTIENTHANHTOAN), 0) AS DOANH_THU " +
+                    "FROM HOADON " +
+                    "WHERE (TRUNC(NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6 " +
+                    "GROUP BY TRUNC(NGAYXUATHD) ORDER BY TRUNC(NGAYXUATHD)";
+            try (Connection conn = moKetNoi(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, giaTri);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        java.sql.Date sqlDate = rs.getDate("NGAY");
+                        if (sqlDate != null) {
+                            java.time.DayOfWeek dow = sqlDate.toLocalDate().getDayOfWeek();
+                            result.put(thuNames[dow.getValue() - 1], rs.getDouble("DOANH_THU"));
+                        }
+                    }
+                }
+            } catch (SQLException e) { handleException("getXuHuongDoanhThu[WEEK]", e); }
+            return result;
+        }
+
+        String sql = "";
         if ("MONTH".equals(loai)) {
-            // Trend by days in month
             sql = "SELECT TO_CHAR(NGAYXUATHD, 'DD/MM') AS NGAY, SUM(TONGTIENTHANHTOAN) " +
                     "FROM HOADON WHERE TO_CHAR(NGAYXUATHD, 'MM/YYYY') = ? " +
                     "GROUP BY TO_CHAR(NGAYXUATHD, 'DD/MM'), TRUNC(NGAYXUATHD) ORDER BY TRUNC(NGAYXUATHD)";
         } else if ("QUARTER".equals(loai)) {
-            // Trend by months in quarter
             sql = "SELECT TO_CHAR(NGAYXUATHD, 'MM/YYYY') AS THANG, SUM(TONGTIENTHANHTOAN) " +
                     "FROM HOADON WHERE TO_CHAR(NGAYXUATHD, 'Q/YYYY') = ? " +
                     "GROUP BY TO_CHAR(NGAYXUATHD, 'MM/YYYY'), TO_CHAR(NGAYXUATHD, 'MM') ORDER BY TO_CHAR(NGAYXUATHD, 'MM')";
         } else if ("YEAR".equals(loai)) {
-            // Trend by months in year
             sql = "SELECT TO_CHAR(NGAYXUATHD, 'MM/YYYY') AS THANG, SUM(TONGTIENTHANHTOAN) " +
                     "FROM HOADON WHERE TO_CHAR(NGAYXUATHD, 'YYYY') = ? " +
                     "GROUP BY TO_CHAR(NGAYXUATHD, 'MM/YYYY'), TO_CHAR(NGAYXUATHD, 'MM') ORDER BY TO_CHAR(NGAYXUATHD, 'MM')";
         } else {
-            // Default 7 days
             return getDoanhThu7NgayQua();
         }
-
-        try (Connection conn = moKetNoi();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = moKetNoi(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, giaTri);
             try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    result.put(rs.getString(1), rs.getDouble(2));
-                }
+                while (rs.next()) result.put(rs.getString(1), rs.getDouble(2));
             }
-        } catch (SQLException e) {
-            handleException("getXuHuongDoanhThu", e);
-        }
+        } catch (SQLException e) { handleException("getXuHuongDoanhThu", e); }
         return result;
     }
 
@@ -223,6 +255,9 @@ public class ThongKeDAO extends BaseDAO {
         switch (loai.toUpperCase()) {
             case "DAY":
                 condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
+                break;
+            case "WEEK":
+                condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
                 break;
             case "MONTH":
                 condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";
@@ -344,6 +379,9 @@ public class ThongKeDAO extends BaseDAO {
             case "DAY":
                 condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
                 break;
+            case "WEEK":
+                condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
+                break;
             case "MONTH":
                 condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";
                 break;
@@ -448,6 +486,9 @@ public class ThongKeDAO extends BaseDAO {
             case "DAY":
                 condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
                 break;
+            case "WEEK":
+                condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
+                break;
             case "MONTH":
                 condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";
                 break;
@@ -539,6 +580,7 @@ public class ThongKeDAO extends BaseDAO {
         String condition;
         switch (loai.toUpperCase()) {
             case "DAY":     condition = "TRUNC(NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')"; break;
+            case "WEEK":    condition = "(TRUNC(NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6"; break;
             case "MONTH":   condition = "TO_CHAR(NGAYXUATHD, 'MM/YYYY') = ?";           break;
             case "QUARTER": condition = "TO_CHAR(NGAYXUATHD, 'Q/YYYY') = ?";            break;
             case "YEAR":    condition = "TO_CHAR(NGAYXUATHD, 'YYYY') = ?";               break;
@@ -564,6 +606,7 @@ public class ThongKeDAO extends BaseDAO {
         String condition;
         switch (loai.toUpperCase()) {
             case "DAY":     condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')"; break;
+            case "WEEK":    condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6"; break;
             case "MONTH":   condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";           break;
             case "QUARTER": condition = "TO_CHAR(H.NGAYXUATHD, 'Q/YYYY') = ?";            break;
             case "YEAR":    condition = "TO_CHAR(H.NGAYXUATHD, 'YYYY') = ?";               break;
@@ -635,6 +678,43 @@ public class ThongKeDAO extends BaseDAO {
             }
         } catch (SQLException e) {
             handleException("getDoanhThuTheoPTTT", e);
+        }
+        return result;
+    }
+
+    /**
+     * Biểu đồ theo tháng — Doanh thu 12 tháng trong một năm cụ thể.
+     * Trả LinkedHashMap giữ thứ tự Tháng 1 → 12; fill 0 cho tháng chưa có dữ liệu.
+     *
+     * @param nam năm cần thống kê (VD: 2025)
+     * @return Map: "Th.1" … "Th.12" → doanh thu (VND)
+     */
+    public Map<String, Double> getDoanhThu12ThangTrongNam(int nam) throws Exception {
+        Map<String, Double> result = new LinkedHashMap<>();
+        // Khởi tạo đủ 12 tháng, giá trị 0 để giữ thứ tự trục X ngay cả khi không có dữ liệu
+        for (int i = 1; i <= 12; i++) {
+            result.put("Th." + i, 0.0);
+        }
+
+        String sql = "SELECT TO_NUMBER(TO_CHAR(NGAYXUATHD, 'MM')) AS THANG, " +
+                "       NVL(SUM(TONGTIENTHANHTOAN), 0) AS DOANH_THU " +
+                "FROM HOADON " +
+                "WHERE TO_CHAR(NGAYXUATHD, 'YYYY') = ? " +
+                "GROUP BY TO_NUMBER(TO_CHAR(NGAYXUATHD, 'MM')) " +
+                "ORDER BY THANG";
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, String.valueOf(nam));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int thang = rs.getInt("THANG");
+                    double doanhThu = rs.getDouble("DOANH_THU");
+                    result.put("Th." + thang, doanhThu);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("getDoanhThu12ThangTrongNam", e);
         }
         return result;
     }

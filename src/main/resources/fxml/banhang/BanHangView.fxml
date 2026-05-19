@@ -27,6 +27,9 @@
             <Label text="Tạo đơn POS · Theo dõi tiến độ đơn hàng" styleClass="lbl-body"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
+        <Button text="🎬 Demo concurrency" styleClass="btn-secondary"
+                onAction="#onMoDemoPanel"
+                style="-fx-font-size: 12px; -fx-pref-height: 30;"/>
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
     </HBox>
 

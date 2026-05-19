@@ -1,14 +1,5 @@
--- ============================================================
--- PROC_TAODONHANG — PRODUCTION MODE (dùng bình thường)
--- Khác với demo mode:
---   1. FOR UPDATE được bật → lock dòng tồn kho khi đọc
---   2. Không có delay → không block UI
--- Kết hợp với SERIALIZABLE trong Java → defence in depth
--- ============================================================
--- CÁCH DÙNG: Bôi đen toàn bộ → F5 trong SQL Developer
--- ============================================================
 
-CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
+CREATE OR REPLACE PROCEDURE PROC_TAODONHANG_FIX(
     P_NGAYGIONHANBANH IN DONDATHANG.NGAYGIONHANBANH%TYPE,
     P_MAKH          IN DONDATHANG.MAKH%TYPE DEFAULT NULL,
     P_MANV_LAP      IN DONDATHANG.MANV_LAP%TYPE,
@@ -39,7 +30,6 @@ IS
     V_TONGTIEN    NUMBER := 0;
     V_TONKHO      NUMBER := 0;
     V_TENSP       NVARCHAR2(200);
-
 BEGIN
     -- 0. Validate JSON input
     IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
@@ -85,25 +75,45 @@ BEGIN
             'Du lieu JSON khong chua chi tiet san pham hop le.');
     END IF;
 
-    -- 2. [PRODUCTION] Kiểm tra tồn kho với FOR UPDATE — lock row ngăn oversell
+    -- ================================================================
+    -- [FIX] Bước 2: Kiểm tra tồn kho VỚI FOR UPDATE → Pessimistic Lock
+    -- T2 gọi SELECT này trên cùng MASP → bị BLOCK cho đến khi T1 COMMIT
+    -- Sau khi T1 commit (trừ kho), T2 đọc lại → thấy SL = 0 → từ chối bán
+    -- ================================================================
     FOR I IN 1..V_TAB.COUNT LOOP
         IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
             SELECT SOLUONGTON, TENSP
             INTO V_TONKHO, V_TENSP
             FROM SANPHAM
             WHERE MASP = V_TAB(I).MASP
-            FOR UPDATE;  -- Pessimistic lock: T2 phải chờ T1 commit
+            FOR UPDATE;
 
             IF V_TONKHO < V_TAB(I).SOLUONG THEN
-                RAISE_APPLICATION_ERROR(
-                    PKG_ERROR_CODES.ERR_SP_HET_HANG,
-                    'Giao dich that bai: San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du ' || V_TAB(I).SOLUONG || ' cai yeu cau.'
-                );
+                IF V_TONKHO = 0 THEN
+                    RAISE_APPLICATION_ERROR(
+                        PKG_ERROR_CODES.ERR_SP_HET_HANG,
+                        'San pham "' || V_TENSP || '" da het hang. Co nguoi vua mua truoc ban, vui long chon san pham khac.'
+                    );
+                ELSE
+                    RAISE_APPLICATION_ERROR(
+                        PKG_ERROR_CODES.ERR_SP_HET_HANG,
+                        'San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du ' || V_TAB(I).SOLUONG || ' cai yeu cau.'
+                    );
+                END IF;
             END IF;
         END IF;
     END LOOP;
 
-    -- 3. Insert Đơn Hàng Gốc
+    -- ================================================================
+    -- [DEMO DELAY] Tạo thời gian để quan sát T2 bị block (spinner)
+    -- T2 sẽ đứng chờ ở FOR UPDATE trên cho đến khi đây chạy xong và COMMIT
+    -- ================================================================
+    DECLARE V_X NUMBER := 0;
+    BEGIN
+        FOR I IN 1..80000000 LOOP V_X := V_X + I; END LOOP;
+    END;
+
+    -- 3. Insert Đơn Hàng
     INSERT INTO DONDATHANG (NGAYGIONHANBANH, MAKH, MANV_LAP, MATRANGTHAI, TONGTIENHDBAN, TIENDACOC, HINHTHUCNHAN, DIACHIGIAO)
     VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, NVL(V_TONGTIEN, 0), 0, P_HINHTHUCNHAN, P_DIACHIGIAO)
     RETURNING MADON INTO P_MADON_OUT;
@@ -121,14 +131,15 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- 4.5. Gán TIENDACOC
-    UPDATE DONDATHANG SET TIENDACOC = NVL(P_TIENDACOC, 0) WHERE MADON = P_MADON_OUT;
+    -- 4.5. Gán tiền cọc
+    UPDATE DONDATHANG
+    SET TIENDACOC = NVL(P_TIENDACOC, 0)
+    WHERE MADON = P_MADON_OUT;
 
-    -- 5. Lịch sử đơn
+    -- 5. Lịch sử & log
     INSERT INTO LICHSUDONHANG (MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT)
     VALUES (P_MADON_OUT, NULL, P_MATRANGTHAI, CURRENT_TIMESTAMP, P_MANV_LAP);
 
-    -- 6. Log hoạt động
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
     VALUES (P_MANV_LAP, 'DON_HANG', 'Tao don hang moi #' || P_MADON_OUT, P_MADON_OUT);
 

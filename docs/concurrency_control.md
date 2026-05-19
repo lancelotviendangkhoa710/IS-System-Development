@@ -348,10 +348,9 @@ Các thao tác **đọc đơn thuần** (SELECT không có business logic phụ 
 ## 8. Các file liên quan
 
 | File | Vai trò |
-|------|---------|
+|-----|---------|
 | `model/dao/BaseDAO.java` | `moKetNoi()`, `moKetNoiSerializable()` |
 | `model/dao/banhang/DonHangDAO.java` | Explicit TX trong `taoDonHang()`, `chuyenTrangThaiDon()` |
 | `services/hethong/ConcurrencyDemoService.java` | Demo 2 kịch bản bằng Java threads thực |
-| `database/demo_concurrent_test.sql` | 4 kịch bản SQL demo chạy trên Oracle |
 | `database/05_procedures/cud/proc_order_cud.sql` | `PROC_TAODONHANG` có `FOR UPDATE` line 93 |
 | `database/05_procedures/cud/proc_stock_cud.sql` | `PROC_XUATKHO_*` có `FOR UPDATE` lines 178, 187, 331, 339 |

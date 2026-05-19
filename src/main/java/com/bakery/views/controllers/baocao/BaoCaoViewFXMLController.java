@@ -552,9 +552,13 @@ public class BaoCaoViewFXMLController extends BaseController {
             params.setFill(javafx.scene.paint.Color.WHITE);
             javafx.scene.image.WritableImage img = revenueChart.snapshot(params, null);
 
-            // Dùng var để tránh tham chiếu trực tiếp java.awt.image.BufferedImage
-            // (javafx.swing module exports javafx.embed.swing nên SwingFXUtils OK)
-            var bImg = javafx.embed.swing.SwingFXUtils.fromFXImage(img, null);
+            // Dùng reflection để tránh tham chiếu trực tiếp SwingFXUtils (unnamed module)
+            // → vượt module boundary mà không cần requires javafx.swing trong module-info
+            var swingFXUtilsClass = Class.forName("javafx.embed.swing.SwingFXUtils");
+            var fromFXImageMethod = swingFXUtilsClass.getMethod("fromFXImage",
+                    javafx.scene.image.Image.class,
+                    Class.forName("java.awt.image.BufferedImage"));
+            var bImg = fromFXImageMethod.invoke(null, img, null);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 

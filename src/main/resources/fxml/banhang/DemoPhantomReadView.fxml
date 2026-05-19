@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<!--
+    DemoPhantomReadView.fxml — Màn hình demo Phantom Read
+    Controller: DemoPhantomReadViewFXMLController
+    Mở như Stage độc lập từ DemoControlPanelViewFXMLController
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.banhang.DemoPhantomReadViewFXMLController"
+      styleClass="bg-app" spacing="0" minWidth="680" minHeight="560">
+
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <padding><Insets top="16" right="24" bottom="16" left="24"/></padding>
+        <VBox spacing="3">
+            <Label text="👻 Demo: Phantom Read" styleClass="dialog-header-title"/>
+            <Label text="Minh họa đọc lại cùng query trong 1 transaction nhưng kết quả khác nhau"
+                   styleClass="lbl-small" style="-fx-text-fill: #6B7280;"/>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="16" VBox.vgrow="ALWAYS">
+        <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+        <!-- ── CỘT TRÁI: Cấu hình + Log ───────────────────────────────────── -->
+        <VBox spacing="16" HBox.hgrow="ALWAYS">
+
+            <!-- Card: chọn isolation level -->
+            <VBox styleClass="card" spacing="14">
+                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                <Label text="🔒 Chọn mức cô lập (Isolation Level)" styleClass="lbl-small-bold"/>
+                <Separator/>
+                <VBox spacing="10">
+                    <RadioButton fx:id="rdoReadCommitted"
+                                 text="READ COMMITTED (mặc định Oracle)"
+                                 style="-fx-font-size: 13px; -fx-text-fill: #DC2626; -fx-font-weight: bold;"/>
+                    <Label text="  → Mỗi SELECT thấy snapshot mới nhất đã COMMIT → dễ bị Phantom Read"
+                           styleClass="lbl-small" style="-fx-text-fill: #6B7280; -fx-padding: 0 0 0 20;"/>
+
+                    <RadioButton fx:id="rdoSerializable"
+                                 text="SERIALIZABLE"
+                                 style="-fx-font-size: 13px; -fx-text-fill: #059669; -fx-font-weight: bold;"/>
+                    <Label text="  → Cả transaction dùng 1 snapshot cố định → ngăn Phantom Read"
+                           styleClass="lbl-small" style="-fx-text-fill: #6B7280; -fx-padding: 0 0 0 20;"/>
+                </VBox>
+
+                <Separator/>
+
+                <Label text="⚙ Kịch bản:" styleClass="lbl-small-bold"/>
+                <Label text="1. Transaction A đọc: đếm sản phẩm còn hàng (lần 1)" styleClass="lbl-small"/>
+                <Label text="2. Thu ngân B bán 1 sp → tồn kho thay đổi → COMMIT" styleClass="lbl-small"/>
+                <Label text="3. Transaction A đọc lại cùng câu SQL (lần 2) → so sánh!" styleClass="lbl-small"/>
+
+                <Button fx:id="btnBatDauDemo" text="▶  Bắt đầu Demo"
+                        styleClass="btn-primary" maxWidth="Infinity"
+                        onAction="#onBatDauDemo"/>
+            </VBox>
+
+            <!-- Countdown + ProgressBar -->
+            <VBox spacing="6">
+                <Label fx:id="lblDemNguoc" text=""
+                       style="-fx-font-size: 13px; -fx-text-fill: #D97706; -fx-font-weight: bold;"/>
+                <ProgressBar fx:id="progressBar" maxWidth="Infinity" prefHeight="8"
+                             style="-fx-accent: #D85A30;"/>
+            </VBox>
+
+            <!-- Card: Log sự kiện -->
+            <VBox styleClass="card" VBox.vgrow="ALWAYS" spacing="8">
+                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                <Label text="📋 Nhật ký sự kiện" styleClass="lbl-small-bold"/>
+                <Separator/>
+                <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true"
+                            style="-fx-background: #F8F7F3; -fx-background-color: #F8F7F3;">
+                    <TextFlow fx:id="txtFlowLog" style="-fx-padding: 8;"/>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+
+        <!-- ── CỘT PHẢI: Kết quả ───────────────────────────────────────────── -->
+        <VBox spacing="16" prefWidth="260">
+
+            <!-- Card kết quả -->
+            <VBox fx:id="boxKetQua" styleClass="card" spacing="16">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                <Label text="📊 Kết quả So Sánh" styleClass="lbl-small-bold"/>
+                <Separator/>
+
+                <VBox spacing="8"
+                      style="-fx-background-color: #F0FDF4; -fx-background-radius: 8; -fx-padding: 12;">
+                    <Label fx:id="lblLan1"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #065F46;"/>
+                    <Label fx:id="lblLan2"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #065F46;"/>
+                </VBox>
+
+                <Label fx:id="lblKetQua"
+                       wrapText="true"
+                       style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                <Separator/>
+
+                <Label fx:id="lblNhanXet"
+                       wrapText="true"
+                       style="-fx-font-size: 12px;"/>
+            </VBox>
+
+            <!-- Card: Giải thích lý do -->
+            <VBox styleClass="card" spacing="10">
+                <padding><Insets top="16" right="14" bottom="16" left="14"/></padding>
+                <Label text="💡 Tại sao?" styleClass="lbl-small-bold"/>
+                <Separator/>
+                <Label text="READ COMMITTED:" styleClass="lbl-small-bold"
+                       style="-fx-text-fill: #DC2626;"/>
+                <Label text="Mỗi câu SELECT dùng snapshot tại thời điểm đó → thấy dữ liệu mới nhất đã commit → số khác nhau."
+                       styleClass="lbl-small" wrapText="true"/>
+                <Separator/>
+                <Label text="SERIALIZABLE:" styleClass="lbl-small-bold"
+                       style="-fx-text-fill: #059669;"/>
+                <Label text="Oracle dùng MVCC — giữ nguyên snapshot từ lúc bắt đầu transaction → cùng câu SQL luôn cho cùng kết quả."
+                       styleClass="lbl-small" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>

@@ -87,5 +87,16 @@ public class ThongKeService {
     public int getTongSoDonHomNay() throws Exception {
         return thongKeDAO.getTongSoDonHomNay();
     }
+
+    /**
+     * Biểu đồ theo tháng — Doanh thu 12 tháng trong năm chỉ định.
+     *
+     * @param nam năm cần thống kê (VD: 2025)
+     * @return Map: "Th.1" … "Th.12" → doanh thu (VND)
+     */
+    public Map<String, Double> getDoanhThu12ThangTrongNam(int nam) throws Exception {
+        Map<String, Double> res = thongKeDAO.getDoanhThu12ThangTrongNam(nam);
+        return res != null ? res : Map.of();
+    }
 }
 

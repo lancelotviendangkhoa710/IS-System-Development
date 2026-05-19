@@ -1,4 +1,5 @@
-CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
+
+CREATE OR REPLACE PROCEDURE PROC_TAODONHANG_BUG(
     P_NGAYGIONHANBANH IN DONDATHANG.NGAYGIONHANBANH%TYPE,
     P_MAKH          IN DONDATHANG.MAKH%TYPE DEFAULT NULL,
     P_MANV_LAP      IN DONDATHANG.MANV_LAP%TYPE,
@@ -29,7 +30,6 @@ IS
     V_TONGTIEN    NUMBER := 0;
     V_TONKHO      NUMBER := 0;
     V_TENSP       NVARCHAR2(200);
-
 BEGIN
     -- 0. Validate JSON input
     IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
@@ -75,24 +75,45 @@ BEGIN
             'Du lieu JSON khong chua chi tiet san pham hop le.');
     END IF;
 
-    -- 2. Kiểm tra tồn kho
+    -- ================================================================
+    -- [BUG DEMO] Bước 2: Kiểm tra tồn kho KHÔNG có FOR UPDATE
+    -- → 2 Thu ngân đọc cùng lúc đều thấy còn hàng → cả 2 bán được!
+    -- ================================================================
     FOR I IN 1..V_TAB.COUNT LOOP
         IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
             SELECT SOLUONGTON, TENSP
             INTO V_TONKHO, V_TENSP
             FROM SANPHAM
             WHERE MASP = V_TAB(I).MASP;
+            -- ↑ THIẾU "FOR UPDATE" ← ĐÂY LÀ BUG!
+            -- Không có lock → T2 đọc được cùng lúc → cả 2 thấy SL > 0
 
             IF V_TONKHO < V_TAB(I).SOLUONG THEN
-                RAISE_APPLICATION_ERROR(
-                    PKG_ERROR_CODES.ERR_SP_HET_HANG,
-                    'Giao dich that bai: San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du ' || V_TAB(I).SOLUONG || ' cai yeu cau.'
-                );
+                IF V_TONKHO = 0 THEN
+                    RAISE_APPLICATION_ERROR(
+                        PKG_ERROR_CODES.ERR_SP_HET_HANG,
+                        'San pham "' || V_TENSP || '" da het hang.'
+                    );
+                ELSE
+                    RAISE_APPLICATION_ERROR(
+                        PKG_ERROR_CODES.ERR_SP_HET_HANG,
+                        'San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du.'
+                    );
+                END IF;
             END IF;
         END IF;
     END LOOP;
 
-    -- 3. Insert Đơn Hàng Gốc
+    -- ================================================================
+    -- [DEMO DELAY] Giả lập xử lý chậm để T2 kịp chen vào
+    -- 80 triệu vòng ≈ 2–4 giây → đủ thời gian Thu ngân 2 bấm nút
+    -- ================================================================
+    DECLARE V_X NUMBER := 0;
+    BEGIN
+        FOR I IN 1..80000000 LOOP V_X := V_X + I; END LOOP;
+    END;
+
+    -- 3. Insert Đơn Hàng
     INSERT INTO DONDATHANG (NGAYGIONHANBANH, MAKH, MANV_LAP, MATRANGTHAI, TONGTIENHDBAN, TIENDACOC, HINHTHUCNHAN, DIACHIGIAO)
     VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, NVL(V_TONGTIEN, 0), 0, P_HINHTHUCNHAN, P_DIACHIGIAO)
     RETURNING MADON INTO P_MADON_OUT;
@@ -110,19 +131,17 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- 4.5. Gán TIENDACOC
-    UPDATE DONDATHANG SET TIENDACOC = NVL(P_TIENDACOC, 0) WHERE MADON = P_MADON_OUT;
+    -- 4.5. Gán tiền cọc
+    UPDATE DONDATHANG
+    SET TIENDACOC = NVL(P_TIENDACOC, 0)
+    WHERE MADON = P_MADON_OUT;
 
-    -- 5. Lịch sử đơn
+    -- 5. Lịch sử & log
     INSERT INTO LICHSUDONHANG (MADON, MATRANGTHAI_CU, MATRANGTHAI_MOI, THOIGIANTHAYDOI, MANV_CAPNHAT)
     VALUES (P_MADON_OUT, NULL, P_MATRANGTHAI, CURRENT_TIMESTAMP, P_MANV_LAP);
 
-    -- 6. Log hoạt động
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
     VALUES (P_MANV_LAP, 'DON_HANG', 'Tao don hang moi #' || P_MADON_OUT, P_MADON_OUT);
-
-    DECLARE V_X NUMBER := 0;
-    BEGIN FOR I IN 1..80000000 LOOP V_X := V_X + I; END LOOP; END;
 
     COMMIT;
 
@@ -132,5 +151,3 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON, 'Loi he thong khi Tao Don Hang: ' || SQLERRM);
 END;
 /
-
-

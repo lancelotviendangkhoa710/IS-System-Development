@@ -71,7 +71,7 @@
 
                         <!-- PHÂN HỆ: BÁO CÁO -->
                         <VBox spacing="4">
-                            <Button fx:id="btnBaoCao" text="📈 Thống kê &amp; BC" onAction="#onMoBaoCao" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
+                            <Button fx:id="btnBaoCao" text="📈 Báo cáo" onAction="#onMoBaoCao" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnAuditLogs" text="📜 Lịch sử hệ thống" onAction="#onMoLichSuHeThong" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                             <Button fx:id="btnKhoiPhucDuLieu" text="🔄 Khôi phục dữ liệu" onAction="#onMoKhoiPhucDuLieu" styleClass="dash-nav-item" maxWidth="Infinity" alignment="BASELINE_LEFT"/>
                         </VBox>

@@ -8,9 +8,8 @@
     <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
 
     <HBox alignment="CENTER_LEFT" spacing="20">
-        <Label fx:id="lblTitle" text="KIỂM KÊ KHO" styleClass="lbl-header"/>
+        <Label fx:id="lblTitle" text="Kiểm kê kho hàng" styleClass="lbl-header"/>
         <Region HBox.hgrow="ALWAYS" />
-        <Button text="+ Bắt đầu kiểm kê" onAction="#onAction" styleClass="btn-success"/>
     </HBox>
 
     <VBox styleClass="card" VBox.vgrow="ALWAYS">

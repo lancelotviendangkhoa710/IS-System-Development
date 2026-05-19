@@ -24,7 +24,7 @@ public class SuaSanPhamDialogController {
     @FXML private TextField txtTenSP;
     @FXML private ComboBox<Map.Entry<Integer, String>> cmbDanhMuc;
     @FXML private TextField txtGiaBan;
-    @FXML private TextField txtGiaVon;
+
     @FXML private CheckBox chkTuyChinh;
     @FXML private TextField txtTGBaoQuan;
     @FXML private TextField txtTGChuanBi;
@@ -70,7 +70,7 @@ public class SuaSanPhamDialogController {
         // Điền form
         txtTenSP.setText(sp.getTenSP());
         txtGiaBan.setText(String.valueOf(sp.getGiaBan()));
-        txtGiaVon.setText(sp.getGiaVon() > 0 ? String.format("%.0f đ", sp.getGiaVon()) : "Chưa có công thức");
+
         chkTuyChinh.setSelected(sp.getChoPhepTuyChinh() == 1);
         txtTGBaoQuan.setText(String.valueOf(sp.getThoiGianBaoQuan()));
         txtTGChuanBi.setText(String.valueOf(sp.getThoiGianChuanBi()));

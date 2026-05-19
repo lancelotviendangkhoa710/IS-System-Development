@@ -289,6 +289,16 @@ public class MainMenuViewFXMLController {
     /** Mo man hinh KHO — tab mac dinh: Nha cung cap. */
     @FXML
     private void onMoKho() {
+        boolean coQuyenKho = coQuyen(PhanQuyenService.TinhNangHeThong.KHO_TONG_QUAN)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.NHAP_KHO)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.KIEM_KE_KHO)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.NHA_CUNG_CAP)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.NGUYEN_LIEU);
+        if (!coQuyenKho) {
+            if (lblThongBao != null)
+                lblThongBao.setText("Ban khong co quyen truy cap Kho.");
+            return;
+        }
         setActiveNavButton(btnKho);
         moKhoTab("nhacungcap");
     }
@@ -296,6 +306,14 @@ public class MainMenuViewFXMLController {
     /** Mo man hinh BEP — tab mac dinh: Lap phieu xuat kho. */
     @FXML
     private void onMoBep() {
+        boolean coQuyenBepAction = coQuyen(PhanQuyenService.TinhNangHeThong.DON_HANG_BEP)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.KDS_MAN_HINH_BEP)
+                || coQuyen(PhanQuyenService.TinhNangHeThong.XUAT_KHO);
+        if (!coQuyenBepAction) {
+            if (lblThongBao != null)
+                lblThongBao.setText("Ban khong co quyen truy cap Bep.");
+            return;
+        }
         setActiveNavButton(btnBep);
         moBepTab("xuatkho");
     }

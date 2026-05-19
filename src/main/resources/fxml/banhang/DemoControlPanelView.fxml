@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    DemoControlPanelView.fxml — Bảng điều khiển Demo Mode
+    Kích thước: 520 × 560 (đủ rộng để thấy toàn bộ nội dung)
+    Controller: DemoControlPanelViewFXMLController
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.banhang.DemoControlPanelViewFXMLController"
+      styleClass="bg-app" spacing="18" minWidth="520" minHeight="560">
+
+    <padding><Insets top="28" right="30" bottom="28" left="30"/></padding>
+
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
+    <VBox spacing="4">
+        <Label text="🎬 Demo Control Panel" styleClass="lbl-title-screen"/>
+        <Label text="Chọn chế độ để demo concurrency cho buổi báo cáo"
+               styleClass="lbl-body" style="-fx-text-fill: #6B7280;"/>
+    </VBox>
+    <Separator/>
+
+    <!-- ── PHẦN 1: Lost Update ────────────────────────────────────────────── -->
+    <VBox styleClass="card" spacing="18">
+        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+        <Label text="⚡ PHẦN 1 — Lost Update" styleClass="lbl-small-bold"
+               style="-fx-font-size: 15px;"/>
+        <Label text="Chọn procedure được gọi khi Thu ngân bấm Thanh toán:"
+               styleClass="lbl-body"/>
+
+        <!-- Toggle chọn chế độ -->
+        <HBox spacing="12">
+            <ToggleButton fx:id="tglProduction"
+                          text="✅  Production (bản gốc)"
+                          onAction="#onChonProduction"
+                          maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                          style="-fx-font-size: 13px; -fx-pref-height: 44px;"/>
+            <ToggleButton fx:id="tglBugDemo"
+                          text="❌  Bug Mode (không lock)"
+                          onAction="#onChonBugDemo"
+                          maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                          style="-fx-font-size: 13px; -fx-pref-height: 44px; -fx-text-fill: #DC2626;"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Trạng thái hiện tại -->
+        <VBox spacing="8"
+              style="-fx-background-color: #F3F4F6; -fx-background-radius: 8; -fx-padding: 14;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Đang dùng:" styleClass="lbl-small-bold"/>
+                <Label fx:id="lblCheDo" text="PRODUCTION"
+                       style="-fx-text-fill: #059669; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+            </HBox>
+            <Label fx:id="lblMoTa" text="" styleClass="lbl-small"
+                   wrapText="true" style="-fx-text-fill: #374151; -fx-line-spacing: 3;"/>
+        </VBox>
+
+        <!-- Hướng dẫn demo nhanh -->
+        <VBox spacing="6"
+              style="-fx-background-color: #FEF3C7; -fx-background-radius: 8; -fx-padding: 14;">
+            <Label text="📋 Thứ tự demo:" styleClass="lbl-small-bold"
+                   style="-fx-text-fill: #92400E;"/>
+            <Label text="1. Chọn Bug Mode → Thu ngân A bấm Thanh toán"
+                   styleClass="lbl-small" style="-fx-text-fill: #92400E;"/>
+            <Label text="2. Trong lúc A đang xử lý → Thu ngân B cũng bấm"
+                   styleClass="lbl-small" style="-fx-text-fill: #92400E;"/>
+            <Label text="3. Cả 2 thành công → kho âm → BUG!"
+                   styleClass="lbl-small" style="-fx-text-fill: #92400E;"/>
+            <Label text="4. Chuyển Production → lặp lại → B nhận lỗi 'hết hàng' ✅"
+                   styleClass="lbl-small" style="-fx-text-fill: #92400E;"/>
+        </VBox>
+    </VBox>
+
+    <!-- ── PHẦN 2: Phantom Read ───────────────────────────────────────────── -->
+    <VBox styleClass="card" spacing="12">
+        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+        <Label text="👻 PHẦN 2 — Phantom Read" styleClass="lbl-small-bold"
+               style="-fx-font-size: 15px;"/>
+        <Label text="Demo đọc lại cùng query trong 1 transaction, kết quả khác nhau."
+               styleClass="lbl-body"/>
+        <Button text="▶   Mở màn hình Demo Phantom Read"
+                styleClass="btn-secondary" maxWidth="Infinity"
+                style="-fx-pref-height: 44px; -fx-font-size: 13px;"
+                onAction="#onMoDemoPhantomRead"/>
+    </VBox>
+
+</VBox>

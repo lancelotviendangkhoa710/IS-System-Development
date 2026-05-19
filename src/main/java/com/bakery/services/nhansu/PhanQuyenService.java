@@ -285,51 +285,28 @@ public class PhanQuyenService {
         }
 
         Set<SystemModule> modules = EnumSet.noneOf(SystemModule.class);
-        List<ChucNangDTO> danhSach;
 
         try {
-            // Chi lay quyen cua vai tro dang hoat dong (active role)
+            // Chỉ lấy quyền của vai trò đang hoạt động (active role)
             List<Integer> dsHieuLuc = layDanhSachMaVaiTroHieuLuc(nhanVien);
             PhanQuyenDAO.RolePermissionInfo info = dsHieuLuc.isEmpty()
                     ? null : phanQuyenDAO.layPhanQuyenHopNhat(dsHieuLuc);
-            danhSach = info != null ? info.getDanhSachChucNang() : List.of();
+            List<ChucNangDTO> danhSach = info != null ? info.getDanhSachChucNang() : List.of();
+
+            for (ChucNangDTO chucNang : danhSach) {
+                // Nguồn sự thật từ cột MODULE trong bảng CHUCNANG — không dùng keyword matching
+                if (chucNang.getModule() != null) {
+                    modules.add(chucNang.getModule());
+                }
+            }
         } catch (Exception e) {
-            System.err.println("[PhanQuyenService] Loi khi lay quyen: " + e.getMessage());
-            danhSach = List.of();
+            System.err.println("[PhanQuyenService] Loi khi lay modules: " + e.getMessage());
         }
 
-        for (ChucNangDTO chucNang : danhSach) {
-            if (chucNang.getModule() != null) {
-                modules.add(chucNang.getModule());
-                continue;
-            }
-
-            String normalized = chuanHoa(chucNang.getTenChucNang());
-
-            if (chuaMotTrong(normalized, "POS", "BAN HANG", "LAP HOA DON", "DON HANG")) {
-                modules.add(SystemModule.BAN_HANG);
-            }
-            if (chuaMotTrong(normalized, "INVENTORY", "KHO", "NGUYEN LIEU", "NHAP KHO", "XUAT KHO")) {
-                modules.add(SystemModule.KHO);
-            }
-            if (chuaMotTrong(normalized, "STAFF", "NHAN SU", "NHAN VIEN", "PHAN QUYEN")) {
-                modules.add(SystemModule.NHAN_SU);
-            }
-            if (chuaMotTrong(normalized, "REPORT", "BAO CAO", "DOANH THU", "LOI NHUAN")) {
-                modules.add(SystemModule.BAO_CAO);
-            }
-            if (chuaMotTrong(normalized, "KDS", "KITCHEN", "BEP", "SAN XUAT")) {
-                modules.add(SystemModule.NHA_BEP);
-            }
-            if (chuaMotTrong(normalized, "AUDIT", "NHAT KY", "LOG")) {
-                modules.add(SystemModule.NHAT_KY);
-            }
-            if (chuaMotTrong(normalized, "CUSTOMER", "KHACH HANG", "CRM")) {
-                modules.add(SystemModule.KHACH_HANG);
-            }
-        }
         return modules;
     }
+
+
 
     private boolean laVaiTro(NhanVienDTO nhanVien, String roleKey) {
         if (nhanVien == null || nhanVien.getDanhSachTenVaiTro() == null) {

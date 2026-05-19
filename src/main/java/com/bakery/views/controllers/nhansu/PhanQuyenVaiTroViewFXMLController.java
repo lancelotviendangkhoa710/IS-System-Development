@@ -156,8 +156,10 @@ public class PhanQuyenVaiTroViewFXMLController extends BaseController {
         task.setOnSucceeded(e -> {
             PhanQuyenDAO.RolePermissionInfo info = task.getValue();
             if (info != null && !info.getDanhSachChucNang().isEmpty()) {
-                // Clone để có thể chỉnh sửa trực tiếp trong bảng
-                dsChucNang.setAll(info.getDanhSachChucNang().stream()
+                // Chỉ hiển thị dòng có ít nhất 1 quyền được cấp — ẩn dòng tất cả flags = false
+                List<ChucNangDTO> coQuyen = info.getDanhSachChucNang().stream()
+                        .filter(cn -> cn.isCanView() || cn.isCanAdd()
+                                   || cn.isCanEdit() || cn.isCanDelete() || cn.isCanDownload())
                         .map(cn -> {
                             ChucNangDTO copy = new ChucNangDTO(
                                     cn.getMaChucNang(), cn.getTenChucNang(), cn.getMoTa(), cn.getModule());
@@ -167,16 +169,22 @@ public class PhanQuyenVaiTroViewFXMLController extends BaseController {
                             copy.setCanDelete(cn.isCanDelete());
                             copy.setCanDownload(cn.isCanDownload());
                             return copy;
-                        }).toList());
-                lblThongBao.setText("Đã tải " + dsChucNang.size() + " chức năng cho vai trò " + vaiTro.getTenVaiTro());
+                        }).toList();
+
+                if (coQuyen.isEmpty()) {
+                    lblThongBao.setText("Vai trò '" + vaiTro.getTenVaiTro() + "' chưa được cấp quyền nào.");
+                } else {
+                    dsChucNang.setAll(coQuyen);
+                    lblThongBao.setText("Đã tải " + dsChucNang.size() + " chức năng cho vai trò " + vaiTro.getTenVaiTro());
+                }
             } else {
-                // Tải toàn bộ chức năng, mặc định quyền = false
-                taiToanBoChucNangMacDinh(vaiTro);
+                lblThongBao.setText("Vai trò '" + vaiTro.getTenVaiTro() + "' chưa được cấp quyền nào.");
             }
         });
         task.setOnFailed(e -> lblThongBao.setText("Lỗi tải chức năng: " + resolveError(task.getException())));
         runBackground(task);
     }
+
 
     private void taiToanBoChucNangMacDinh(VaiTroDTO vaiTro) {
         Task<List<ChucNangDTO>> task = new Task<>() {

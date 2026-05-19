@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.stage.Stage;
 
 /**
  * BanHangViewFXMLController — Shell cho màn hình Bán hàng.
@@ -40,5 +41,12 @@ public class BanHangViewFXMLController extends BaseController {
         if (target != null) {
             tabPaneBanHang.getSelectionModel().select(target);
         }
+    }
+
+    /** Mở Demo Control Panel — bắt từ nút '🎬 Demo concurrency' trên header. */
+    @FXML
+    private void onMoDemoPanel() {
+        Stage owner = (Stage) tabPaneBanHang.getScene().getWindow();
+        DemoControlPanelViewFXMLController.moPanel(owner);
     }
 }

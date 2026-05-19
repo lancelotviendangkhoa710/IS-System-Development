@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD Report Design//EN"
         "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
 
@@ -107,24 +107,24 @@
 
             <!-- Section header bieu do -->
             <rectangle>
-                <reportElement x="0" y="130" width="535" height="22" backcolor="#2C2C2A" uuid="chart-section-bg-001">
+                <reportElement x="0" y="130" width="535" height="22" backcolor="#2C2C2A" uuid="b3a1c2d4-e5f6-4789-abcd-ef1234560001">
                     <printWhenExpression><![CDATA[$P{P_CHART_IMAGE} != null]]></printWhenExpression>
                 </reportElement>
                 <graphicElement><pen lineWidth="0"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="10" y="133" width="515" height="16" forecolor="#FFFFFF" uuid="chart-section-lbl-001">
+                <reportElement x="10" y="133" width="515" height="16" forecolor="#FFFFFF" uuid="b3a1c2d4-e5f6-4789-abcd-ef1234560002">
                     <printWhenExpression><![CDATA[$P{P_CHART_IMAGE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="9" isBold="true"/>
                 </textElement>
-                <text><![CDATA[BIEU DO XU HUONG DOANH THU]]></text>
+                <text><![CDATA[Biểu đồ xu hướng doanh thu]]></text>
             </staticText>
 
             <!-- Anh bieu do LineChart snapshot tu JavaFX -->
             <image scaleImage="FillFrame" isUsingCache="false">
-                <reportElement x="0" y="155" width="535" height="210" uuid="chart-image-elem-001">
+                <reportElement x="0" y="155" width="535" height="210" uuid="b3a1c2d4-e5f6-4789-abcd-ef1234560003">
                     <printWhenExpression><![CDATA[$P{P_CHART_IMAGE} != null]]></printWhenExpression>
                 </reportElement>
                 <imageExpression><![CDATA[$P{P_CHART_IMAGE}]]></imageExpression>
@@ -132,7 +132,7 @@
 
             <!-- Duong ke day phan cach -->
             <line>
-                <reportElement x="0" y="370" width="535" height="1" forecolor="#D85A30" uuid="chart-bottom-line-001">
+                <reportElement x="0" y="370" width="535" height="1" forecolor="#D85A30" uuid="b3a1c2d4-e5f6-4789-abcd-ef1234560004">
                     <printWhenExpression><![CDATA[$P{P_CHART_IMAGE} != null]]></printWhenExpression>
                 </reportElement>
                 <graphicElement><pen lineWidth="1.0"/></graphicElement>

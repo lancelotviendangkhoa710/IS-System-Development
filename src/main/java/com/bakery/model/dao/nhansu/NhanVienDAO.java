@@ -26,7 +26,7 @@ public class NhanVienDAO extends BaseDAO {
     public NhanVienDTO timNhanVienTheoTenDangNhap(String username) throws Exception {
         String sql = """
                 SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
-                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
+                       TK.MATAIKHOAN, TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
                 FROM NHANVIEN NV
                 JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
                 WHERE UPPER(TRIM(TK.TENDANGNHAP)) = UPPER(?)
@@ -54,7 +54,7 @@ public class NhanVienDAO extends BaseDAO {
     public NhanVienDTO timNhanVienTheoMa(int maNV) throws Exception {
         String sql = """
                 SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
-                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
+                       TK.MATAIKHOAN, TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
                 FROM NHANVIEN NV
                 JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
                 WHERE NV.MANV = ?
@@ -81,13 +81,13 @@ public class NhanVienDAO extends BaseDAO {
 
     private void loadNhanVienRoles(NhanVienDTO nv, Connection conn) throws SQLException {
         String sql = """
-                SELECT NVVT.MAVAITRO, VT.TENVAITRO
-                FROM NHANVIEN_VAITRO NVVT
-                JOIN VAITRO VT ON NVVT.MAVAITRO = VT.MAVAITRO
-                WHERE NVVT.MANV = ? AND VT.THOIDIEMXOA IS NULL
+                SELECT TKVT.MAVAITRO, VT.TENVAITRO
+                FROM TAIKHOAN_VAITRO TKVT
+                JOIN VAITRO VT ON TKVT.MAVAITRO = VT.MAVAITRO
+                WHERE TKVT.MATAIKHOAN = ? AND VT.THOIDIEMXOA IS NULL
                 """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, nv.getMaNV());
+            pstmt.setInt(1, nv.getMaTaiKhoan());
             try (ResultSet rs = pstmt.executeQuery()) {
                 java.util.List<Integer> ids = new java.util.ArrayList<>();
                 java.util.List<String> names = new java.util.ArrayList<>();
@@ -175,9 +175,9 @@ public class NhanVienDAO extends BaseDAO {
                 cstmt.execute();
             }
 
-            // Cập nhật lại danh sách vai trò (Xóa cũ, thêm mới)
+            // Cập nhật lại danh sách vai trò (Xóa cũ, thêm mới) theo MATAIKHOAN
             if (nv.getDanhSachMaVaiTro() != null) {
-                String sqlDel = "DELETE FROM NHANVIEN_VAITRO WHERE MANV = ?";
+                String sqlDel = "DELETE FROM TAIKHOAN_VAITRO WHERE MATAIKHOAN = (SELECT MATAIKHOAN FROM TAIKHOAN WHERE MANV = ? AND ROWNUM = 1)";
                 try (PreparedStatement delStmt = conn.prepareStatement(sqlDel)) {
                     delStmt.setInt(1, nv.getMaNV());
                     delStmt.executeUpdate();
@@ -217,7 +217,7 @@ public class NhanVienDAO extends BaseDAO {
     public java.util.List<NhanVienDTO> layTatCaNhanVien() throws Exception {
         String sql = """
                 SELECT NV.MANV, NV.HOTEN, NV.NGAYSINH, NV.SDT, NV.TRANGTHAILAMVIEC,
-                       TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
+                       TK.MATAIKHOAN, TK.TENDANGNHAP, TK.MATKHAU, TK.TRANGTHAITK, TK.EMAIL
                 FROM NHANVIEN NV
                 JOIN TAIKHOAN TK ON NV.MANV = TK.MANV
                 ORDER BY NV.MANV DESC
@@ -249,6 +249,7 @@ public class NhanVienDAO extends BaseDAO {
         }
         nv.setSdt(rs.getString("SDT"));
         nv.setTrangThaiLamViec(rs.getInt("TRANGTHAILAMVIEC"));
+        nv.setMaTaiKhoan(rs.getInt("MATAIKHOAN"));
         nv.setTenDangNhap(rs.getString("TENDANGNHAP"));
         nv.setMatKhau(rs.getString("MATKHAU"));
         nv.setTrangThaiTK(rs.getInt("TRANGTHAITK"));
@@ -281,8 +282,8 @@ public class NhanVienDAO extends BaseDAO {
 
     public void capNhatVaiTroNhanVien(int maNV, java.util.List<Integer> dsMaVT) throws Exception {
         try (Connection conn = moKetNoi()) {
-            // 1. Xóa vai trò cũ
-            String sqlDel = "DELETE FROM NHANVIEN_VAITRO WHERE MANV = ?";
+            // 1. Xóa vai trò cũ theo MATAIKHOAN
+            String sqlDel = "DELETE FROM TAIKHOAN_VAITRO WHERE MATAIKHOAN = (SELECT MATAIKHOAN FROM TAIKHOAN WHERE MANV = ? AND ROWNUM = 1)";
             try (PreparedStatement delStmt = conn.prepareStatement(sqlDel)) {
                 delStmt.setInt(1, maNV);
                 delStmt.executeUpdate();

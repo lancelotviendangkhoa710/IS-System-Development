@@ -16,12 +16,9 @@ public final class ReportPathUtils {
     private static final String REPORT_SUBDIR = "report";
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    private ReportPathUtils() {}
+    private ReportPathUtils() {
+    }
 
-    /**
-     * Trả về thư mục chứa report (tạo tự động nếu chưa có).
-     * Đường dẫn: {working_dir}/report/
-     */
     public static File getReportDir() {
         File dir = new File(System.getProperty("user.dir"), REPORT_SUBDIR);
         if (!dir.exists()) {
@@ -35,6 +32,7 @@ public final class ReportPathUtils {
 
     /**
      * Tạo đường dẫn file PDF với tên chuẩn.
+     * 
      * @param prefix Tiền tố tên file, VD: "HoaDon", "BaoCao", "LichSuMuaHang"
      * @param suffix Hậu tố nhận dạng, VD: "INV-001", "KH-5", "THANG_05"
      * @return File đại diện đường dẫn đầy đủ
