@@ -160,6 +160,9 @@
                         <!-- JasperReports là unnamed module (JAR legacy) — bằng cách này có thể truy cập từ named module -->
                         <arg>--add-reads</arg>
                         <arg>BakeryManagementSystem=ALL-UNNAMED</arg>
+                        <!-- java.desktop: cần cho SwingFXUtils (BufferedImage, ImageIO) khi chụp biểu đồ -->
+                        <arg>--add-reads</arg>
+                        <arg>BakeryManagementSystem=java.desktop</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -181,6 +184,9 @@
                         <!-- JasperReports là unnamed module — cần add-reads để runtime truy cập được -->
                         <option>--add-reads</option>
                         <option>BakeryManagementSystem=ALL-UNNAMED</option>
+                        <!-- java.desktop: cần cho SwingFXUtils (BufferedImage, ImageIO) khi xuất PDF -->
+                        <option>--add-reads</option>
+                        <option>BakeryManagementSystem=java.desktop</option>
                     </options>
                 </configuration>
             </plugin>
