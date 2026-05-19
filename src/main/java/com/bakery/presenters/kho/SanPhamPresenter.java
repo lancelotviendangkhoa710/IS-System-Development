@@ -86,17 +86,12 @@ public class SanPhamPresenter {
     }
 
     public void suaSanPham() {
-        SanPhamDTO selected = view.getSelectedSanPham();
-        if (selected == null) {
+        SanPhamDTO sp = view.layDuLieuTuForm();
+        if (sp == null || sp.getMaSP() <= 0) {
             view.hienThiLoi("Vui lòng chọn một sản phẩm để sửa.");
             return;
         }
 
-        SanPhamDTO sp = view.layDuLieuTuForm();
-        if (sp == null)
-            return;
-
-        sp.setMaSP(selected.getMaSP());
         try {
             sanPhamService.capNhatSanPham(sp);
             view.hienThiThanhCong("Cập nhật sản phẩm thành công.");

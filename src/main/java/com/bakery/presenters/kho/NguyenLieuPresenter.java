@@ -17,6 +17,8 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
 
     private final NguyenLieuService nguyenLieuService;
     private final int maNvHienTai;
+    /** Cache nguyên liệu đang được chọn — tránh race condition với auto-refresh xóa selection. */
+    private NguyenLieuDTO cachedSelected = null;
 
     public NguyenLieuPresenter(INguyenLieuView view, int maNvHienTai) {
         super(view);
@@ -81,7 +83,8 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
     // ── Sửa ───────────────────────────────────────────────────────────────────
 
     public void suaNguyenLieu() {
-        NguyenLieuDTO selected = view.getSelectedNguyenLieu();
+        // Dùng cachedSelected thay vì view.getSelectedNguyenLieu() vì auto-refresh có thể đã xóa selection
+        NguyenLieuDTO selected = cachedSelected;
         if (selected == null) {
             view.hienThiLoi("Vui lòng chọn nguyên liệu cần sửa.");
             return;
@@ -97,6 +100,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
                     view.getMucTonAnToanInput(),
                     maDVT),
             () -> {
+                cachedSelected = null;
                 view.hienThiThanhCong("Cập nhật nguyên liệu thành công.");
                 view.lamMoiForm();
                 taiDanhSach();
@@ -107,7 +111,8 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
     // ── Xóa ───────────────────────────────────────────────────────────────────
 
     public void xoaNguyenLieu() {
-        NguyenLieuDTO selected = view.getSelectedNguyenLieu();
+        // Dùng cachedSelected thay vì view.getSelectedNguyenLieu() vì auto-refresh có thể đã xóa selection
+        NguyenLieuDTO selected = cachedSelected;
         if (selected == null) {
             view.hienThiLoi("Vui lòng chọn nguyên liệu cần xóa.");
             return;
@@ -116,6 +121,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         runTask(
             () -> nguyenLieuService.xoaNguyenLieu(selected.getMaNL(), maNvHienTai),
             () -> {
+                cachedSelected = null;
                 view.hienThiThanhCong("Xóa nguyên liệu thành công.");
                 view.lamMoiForm();
                 taiDanhSach();
@@ -139,6 +145,7 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
     // ── Chọn hàng ─────────────────────────────────────────────────────────────
 
     public void onChonNguyenLieu(NguyenLieuDTO selected) {
+        cachedSelected = selected;  // cache để dùng khi Lưu/Xóa, tránh race với auto-refresh
         view.hienThiChiTiet(selected);
     }
 }

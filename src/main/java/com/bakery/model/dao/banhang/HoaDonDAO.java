@@ -68,23 +68,20 @@ public class HoaDonDAO extends BaseDAO {
     }
 
     private int themHoaDonMoiWithConn(Connection conn, HoaDonDTO hd) throws SQLException {
-        String sql = "INSERT INTO HOADON (MADON, MACA, THUEVAT, TIENHANGGOC, TONGTIENTHANHTOAN, MAPTTT, LOAIHD) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"MAHD"})) {
-            if (hd.getMaDon() != null) pstmt.setInt(1, hd.getMaDon()); else pstmt.setNull(1, Types.NUMERIC);
-            pstmt.setInt(2, hd.getMaCa());
-            pstmt.setDouble(3, hd.getThueVAT() != null ? hd.getThueVAT() : 0);
-            pstmt.setBigDecimal(4, hd.getTienHangGoc() != null ? hd.getTienHangGoc() : java.math.BigDecimal.ZERO);
-            pstmt.setBigDecimal(5, hd.getTongTienThanhToan());
-            pstmt.setInt(6, hd.getMaPTTT());
-            pstmt.setString(7, hd.getLoaiHD());
-            if (pstmt.executeUpdate() > 0) {
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) return rs.getInt(1);
-                }
-            }
+        String sql = "{CALL PROC_TAOHOADON(?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cstmt = conn.prepareCall(sql)) {
+            if (hd.getMaDon() != null) cstmt.setInt(1, hd.getMaDon()); else cstmt.setNull(1, Types.NUMERIC);
+            cstmt.setInt(2, hd.getMaCa());
+            cstmt.setDouble(3, hd.getThueVAT() != null ? hd.getThueVAT() : 0);
+            cstmt.setBigDecimal(4, hd.getTienHangGoc() != null ? hd.getTienHangGoc() : BigDecimal.ZERO);
+            cstmt.setBigDecimal(5, hd.getTongTienThanhToan());
+            cstmt.setInt(6, hd.getMaPTTT());
+            cstmt.setString(7, hd.getLoaiHD());
+            cstmt.registerOutParameter(8, Types.NUMERIC); // P_MAHD_OUT
+            cstmt.execute();
+            int maHD = cstmt.getInt(8);
+            return cstmt.wasNull() ? -1 : maHD;
         }
-        return -1;
     }
 
     // ---------------------------------------------------------

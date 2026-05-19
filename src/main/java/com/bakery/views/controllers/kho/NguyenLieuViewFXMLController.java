@@ -69,7 +69,7 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         setupTable();
         presenter = new NguyenLieuPresenter(this, 1);
         tblNguyenLieu.getSelectionModel().selectedItemProperty()
-                .addListener((obs, old, newVal) -> hienThiChiTiet(newVal));
+                .addListener((obs, old, newVal) -> presenter.onChonNguyenLieu(newVal));
         presenter.khoiTao();
         // Phân quyền: ẩn CUD nếu không có quyền sửa nguyên liệu (Thợ Bếp read-only)
         apDungPhanQuyenCUD();

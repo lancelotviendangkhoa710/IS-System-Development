@@ -115,7 +115,8 @@ public class DonHangPresenter {
             System.err.println("[DonHangPresenter] Lỗi tải dữ liệu ban đầu: " + e.getMessage());
             view.hienThiLoi("Lỗi tải dữ liệu ban đầu: " + e.getMessage() + ". Đang sử dụng dữ liệu ảo.");
             view.hienThiDanhSachSanPham(new ArrayList<>(), new HashMap<>());
-            view.hienThiDuLieuTuyChinh(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            view.hienThiDuLieuTuyChinh(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                    new ArrayList<>());
         }
     }
 
@@ -215,7 +216,8 @@ public class DonHangPresenter {
                         ? kh.getPhanTramGiamGia().doubleValue() / 100.0
                         : 0.0;
                 phanTramGiamGia = tylePhanTram;
-                String tenHang = (kh.getTenHang() != null && !kh.getTenHang().isBlank()) ? kh.getTenHang() : "Thành viên";
+                String tenHang = (kh.getTenHang() != null && !kh.getTenHang().isBlank()) ? kh.getTenHang()
+                        : "Thành viên";
                 String moTaGiam = tylePhanTram > 0 ? String.format(" (-%d%%)", Math.round(tylePhanTram * 100)) : "";
                 view.hienThiThongTinKhach(kh.getHoTen() + " - " + tenHang + moTaGiam, true);
                 view.capNhatKhachHangHienTai(kh);
@@ -320,8 +322,8 @@ public class DonHangPresenter {
                 boolean coTuyChinh = gioHangItems.stream().anyMatch(YeuCauChiTietDonHangDTO::isCustom);
                 if (coTuyChinh) {
                     view.hienThiLoi(
-                        "Giỏ hàng có bánh tùy chỉnh cần ít nhất 1 ngày chuẩn bị.\n" +
-                        "Vui lòng chọn hình thức ĐẶT HÀNG và điền ngày giờ nhận bánh.");
+                            "Giỏ hàng có bánh tùy chỉnh cần ít nhất 1 ngày chuẩn bị.\n" +
+                                    "Vui lòng chọn hình thức ĐẶT HÀNG và điền ngày giờ nhận bánh.");
                     return;
                 }
                 xuLyThanhToanNgay(req, tongTienPhaiTra);
@@ -329,9 +331,31 @@ public class DonHangPresenter {
                 xuLyDatTruoc(req, tongTienPhaiTra);
             }
             lamMoiTrangThai();
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen,
+                    lastSearchTrangThai);
         } catch (Exception e) {
-            view.hienThiLoi("Lỗi: " + e.getMessage());
+            String msg = e.getMessage() != null ? e.getMessage() : "Lỗi không xác định";
+            String msgLower = msg.toLowerCase();
+            if (msgLower.contains("het hang") || msgLower.contains("mua truoc") || msgLower.contains("het hang")) {
+                // Lỗi hết hàng đồng thời — hiển thị Alert nổi bật
+                javafx.application.Platform.runLater(() -> {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                            javafx.scene.control.Alert.AlertType.WARNING);
+                    alert.setTitle("⚠ Xử lý đồng thời — Hết hàng");
+                    alert.setHeaderText("Không thể hoàn tất giao dịch");
+                    alert.setContentText(msg.replace("San pham", "Sản phẩm")
+                            .replace("da het hang", "đã hết hàng")
+                            .replace("Co nguoi vua mua truoc ban", "Có người vừa mua trước bạn")
+                            .replace("vui long chon san pham khac", "vui lòng chọn sản phẩm khác")
+                            .replace("chi con", "chỉ còn")
+                            .replace("cai, khong du", "cái, không đủ")
+                            .replace("cai yeu cau", "cái yêu cầu"));
+                    com.bakery.utils.DialogHelper.applyBakeryTheme(alert);
+                    alert.showAndWait();
+                });
+            } else {
+                view.hienThiLoi("Lỗi: " + msg);
+            }
         }
     }
 
@@ -467,7 +491,8 @@ public class DonHangPresenter {
             }
 
             view.hienThiThongBaoTraCuu("Cập nhật thành công đơn #" + maDon);
-            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen, lastSearchTrangThai);
+            timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay, lastSearchTu, lastSearchDen,
+                    lastSearchTrangThai);
         } catch (Exception e) {
             view.hienThiLoiTraCuu(e.getMessage());
         }
@@ -500,7 +525,8 @@ public class DonHangPresenter {
         // Bước 3: Hiển thị dialog xác nhận (blocking, trên UI thread)
         double daCoc = don.getTienDaCoc() != null ? don.getTienDaCoc().doubleValue() : 0.0;
         IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, daCoc);
-        if (!req.confirmed()) return;
+        if (!req.confirmed())
+            return;
 
         final String lyDoHuy = req.reason();
         final double soTienHoan = req.refundAmount();
@@ -543,7 +569,8 @@ public class DonHangPresenter {
 
     /**
      * Hủy hóa đơn bán lẻ đã hoàn thành.
-     * Chỉ dành cho Quản lý và Thu ngân có quyền — DB procedure tự kiểm tra điều kiện.
+     * Chỉ dành cho Quản lý và Thu ngân có quyền — DB procedure tự kiểm tra điều
+     * kiện.
      * Hoàn kho tự động; tiền mặt do quản lý xử lý ngoài hệ thống.
      */
     public void huyHoaDonBanLe(String maDonStr) {
@@ -562,7 +589,8 @@ public class DonHangPresenter {
 
         // Dialog chạy trên UI thread (blocking, đúng)
         IDonHangDialogFactory.YeuCauHuyDonHang req = dialogFactory.showCancelOrderDialog(maDon, 0);
-        if (!req.confirmed()) return;
+        if (!req.confirmed())
+            return;
 
         final String lyDo = req.reason();
         final int maNv = getCurrentUserId();
@@ -590,8 +618,8 @@ public class DonHangPresenter {
         new Thread(taskHuy, "thread-huy-hd-" + maDon).start();
     }
 
-
-    public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen,
+    public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu,
+            LocalTime gioDen,
             String trangThaiFilter) {
         this.lastSearchMaDon = maDonSearch;
         this.lastSearchTenKhach = tenKhachSearch;
@@ -600,7 +628,8 @@ public class DonHangPresenter {
         this.lastSearchDen = gioDen;
         this.lastSearchTrangThai = trangThaiFilter == null ? "ALL" : trangThaiFilter;
         try {
-            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen,
+            List<DonDatHangDTO> dsDon = orderService.layDanhSachDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu,
+                    gioDen,
                     this.lastSearchTrangThai);
             view.hienThiDanhSachDonTheoDoi(dsDon);
         } catch (Exception e) {
@@ -608,7 +637,8 @@ public class DonHangPresenter {
         }
     }
 
-    public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu, LocalTime gioDen) {
+    public void timKiemDonTheoDoi(String maDonSearch, String tenKhachSearch, LocalDate ngayNhan, LocalTime gioTu,
+            LocalTime gioDen) {
         timKiemDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
 
@@ -623,7 +653,8 @@ public class DonHangPresenter {
 
     /**
      * Tải danh sách đơn lần đầu khi màn hình được gắn vào scene.
-     * Gọi bởi controller trong sceneProperty listener để đảm bảo lastSearch* đã được khoi tao.
+     * Gọi bởi controller trong sceneProperty listener để đảm bảo lastSearch* đã
+     * được khoi tao.
      */
     public void taiDonLanDau() {
         timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
@@ -631,7 +662,8 @@ public class DonHangPresenter {
     }
 
     /**
-     * Tải danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình bếp.
+     * Tải danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình
+     * bếp.
      * Không phụ thuộc vào bộ lọc ngày/trạng thái của user.
      */
     public void taiDonBepTuyChinhChuaHoanThanh() {
@@ -642,7 +674,6 @@ public class DonHangPresenter {
             view.hienThiLoiTraCuu("Lỗi tải đơn bếp: " + e.getMessage());
         }
     }
-
 
     private void lamMoiTrangThai() {
         gioHangItems.clear();

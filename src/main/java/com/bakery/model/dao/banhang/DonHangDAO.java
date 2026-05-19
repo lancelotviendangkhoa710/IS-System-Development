@@ -32,7 +32,9 @@ public class DonHangDAO extends BaseDAO {
         Connection conn = null;
         try {
             conn = moKetNoi();
-            conn.setAutoCommit(false);   // Bắt đầu explicit transaction
+            // setAutoCommit(false) đảm bảo SELECT FOR UPDATE trong PROC_TAODONHANG
+            // giữ lock trên dòng SANPHAM cho đến khi conn.commit() — ngăn oversell đồng thời.
+            conn.setAutoCommit(false);
             int maDon = taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
             conn.commit();
             return maDon;

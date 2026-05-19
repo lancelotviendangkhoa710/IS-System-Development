@@ -17,6 +17,8 @@ public class DanhMucSPPresenter {
 
     private final IDanhMucSPView    view;
     private final DanhMucSPService  danhMucSPService;
+    /** Cache danh mục đang được chọn — tránh race condition với auto-refresh xóa selection. */
+    private DanhMucSPDTO cachedSelected = null;
 
     /**
      * ID nhân viên đang đăng nhập — dùng làm maNvXoa khi xóa mềm.
@@ -124,7 +126,8 @@ public class DanhMucSPPresenter {
      * Bắt buộc phải có một hàng đang được chọn trên TableView.
      */
     public void suaDanhMuc() {
-        DanhMucSPDTO selected = view.getSelectedCategory();
+        // Dùng cachedSelected để tránh race condition với auto-refresh xóa table selection
+        DanhMucSPDTO selected = cachedSelected;
         if (selected == null) {
             view.hienThiLoi("Vui lòng chọn danh mục cần sửa.");
             return;
@@ -134,6 +137,7 @@ public class DanhMucSPPresenter {
         try {
             danhMucSPService.suaDanhMuc(selected.getMaDM(), tenNhap);
             view.hienThiThanhCong("Cập nhật danh mục thành công.");
+            cachedSelected = null;
             view.lamMoiForm();
             taiDanhSach();
         } catch (Exception e) {
@@ -151,7 +155,8 @@ public class DanhMucSPPresenter {
      * Guard xóa khi danh mục có sản phẩm được thực hiện bởi DanhMucSPService.
      */
     public void xoaDanhMuc() {
-        DanhMucSPDTO selected = view.getSelectedCategory();
+        // Dùng cachedSelected để tránh race condition với auto-refresh xóa table selection
+        DanhMucSPDTO selected = cachedSelected;
         if (selected == null) {
             view.hienThiLoi("Vui lòng chọn danh mục cần xóa.");
             return;
@@ -160,6 +165,7 @@ public class DanhMucSPPresenter {
         try {
             danhMucSPService.xoaDanhMuc(selected.getMaDM(), maNvHienTai);
             view.hienThiThanhCong("Xóa danh mục thành công.");
+            cachedSelected = null;
             view.lamMoiForm();
             taiDanhSach();
         } catch (Exception e) {
@@ -179,6 +185,7 @@ public class DanhMucSPPresenter {
      * @param selected danh mục được người dùng click; null nếu bỏ chọn
      */
     public void onChonDanhMuc(DanhMucSPDTO selected) {
+        cachedSelected = selected;  // cache để dùng khi Lưu/Xóa, tránh race với auto-refresh
         view.hienThiChiTiet(selected);
     }
 }

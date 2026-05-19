@@ -84,22 +84,28 @@ BEGIN
     -- 2. Kiểm tra tồn kho (Pessimistic Lock — FOR UPDATE)
     --    Chỉ áp dụng cho bánh bán sẵn (isCustom = false)
     FOR I IN 1..V_TAB.COUNT LOOP
-        IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
-            -- Lock dòng SANPHAM để ngăn concurrent oversell
-            SELECT SOLUONGTON, TENSP
-            INTO V_TONKHO, V_TENSP
-            FROM SANPHAM
-            WHERE MASP = V_TAB(I).MASP
-            FOR UPDATE;
+            IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
+                SELECT SOLUONGTON, TENSP
+                INTO V_TONKHO, V_TENSP
+                FROM SANPHAM
+                WHERE MASP = V_TAB(I).MASP
+                FOR UPDATE;  -- Pessimistic lock: T2 phải chờ T1 commit
 
-            IF V_TONKHO < V_TAB(I).SOLUONG THEN
-                RAISE_APPLICATION_ERROR(
-                    PKG_ERROR_CODES.ERR_SP_HET_HANG,
-                    'Giao dich that bai: San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du ' || V_TAB(I).SOLUONG || ' cai yeu cau.'
-                );
+                IF V_TONKHO < V_TAB(I).SOLUONG THEN
+                    IF V_TONKHO = 0 THEN
+                        RAISE_APPLICATION_ERROR(
+                            PKG_ERROR_CODES.ERR_SP_HET_HANG,
+                            'San pham "' || V_TENSP || '" da het hang. Co nguoi vua mua truoc ban, vui long chon san pham khac.'
+                        );
+                    ELSE
+                        RAISE_APPLICATION_ERROR(
+                            PKG_ERROR_CODES.ERR_SP_HET_HANG,
+                            'San pham "' || V_TENSP || '" chi con ' || V_TONKHO || ' cai, khong du ' || V_TAB(I).SOLUONG || ' cai yeu cau.'
+                        );
+                    END IF;
+                END IF;
             END IF;
-        END IF;
-    END LOOP;
+        END LOOP;
 
     -- 3. Insert Đơn Hàng Gốc — TIENDACOC = 0 để tránh vi phạm CK_DON_THANHTOAN
     --    Oracle check constraint ngay tại dòng INSERT này. Nếu gán TIENDACOC = P_TIENDACOC
@@ -207,7 +213,6 @@ BEGIN
         END;
 
         -- Tạo phiếu chi hoàn tiền — liên kết với đơn hàng
-        -- Bug 4 fix: NULLIF(P_MACA, 0) → nếu maCa = 0 (ca chưa mở) → lưu NULL thay vì FK fail
         INSERT INTO PHIEUTHUCHI (MALOAITHUCHI, SOTIEN, MANV, MAHD, MAPN, MACA, GHICHU)
         VALUES (
             V_MALOAITHUCHI_CHI,
