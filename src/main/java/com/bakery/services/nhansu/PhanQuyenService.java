@@ -295,7 +295,9 @@ public class PhanQuyenService {
 
             for (ChucNangDTO chucNang : danhSach) {
                 // Nguồn sự thật từ cột MODULE trong bảng CHUCNANG — không dùng keyword matching
-                if (chucNang.getModule() != null) {
+                // Chỉ cấp module khi CAN_VIEW = 1 — tránh module bị gán CAN_VIEW=0
+                // nhưng vẫn được nhận diện là "có quyền".
+                if (chucNang.getModule() != null && chucNang.isCanView()) {
                     modules.add(chucNang.getModule());
                 }
             }
