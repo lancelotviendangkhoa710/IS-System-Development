@@ -20,7 +20,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -47,6 +50,10 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private Tab tabSoQuyThuChi;
     @FXML private Tab tabGiamSatCa;
     @FXML private Tab tabTonKho;
+
+    // Biểu đồ doanh thu theo tháng
+    @FXML private BarChart<String, Number> monthlyBarChart;
+    @FXML private ComboBox<Integer>        cbNamBieuDo;
 
     // UC52 — Tab Tồn kho
     @FXML private DatePicker dpTonKhoTuNgay;
@@ -78,6 +85,7 @@ public class BaoCaoViewFXMLController extends BaseController {
             tabPaneBaoCao.getSelectionModel().select(tabThongKeKinhDoanh);
         }
         setupTonKhoTableColumns();
+        setupNamBieuDo();
 
         // Auto-refresh: bật/tắt Timeline theo tab đang active
         if (tabPaneBaoCao != null && tabTonKho != null) {
@@ -210,10 +218,69 @@ public class BaoCaoViewFXMLController extends BaseController {
         }, "bao-cao-ton-kho").start();
     }
 
+    // ── Biểu đồ theo tháng ───────────────────────────────────────────────────
+
+    /** Khởi tạo ComboBox năm và tải dữ liệu biểu đồ tháng lần đầu. */
+    private void setupNamBieuDo() {
+        if (cbNamBieuDo == null) return;
+        int namHienTai = java.time.LocalDate.now().getYear();
+        // Cho phép chọn 5 năm gần nhất
+        for (int y = namHienTai; y >= namHienTai - 4; y--) {
+            cbNamBieuDo.getItems().add(y);
+        }
+        cbNamBieuDo.setValue(namHienTai);
+        cbNamBieuDo.valueProperty().addListener((obs, oldY, newY) -> {
+            if (newY != null) capNhatBieuDoTheoThang(newY);
+        });
+        capNhatBieuDoTheoThang(namHienTai);
+    }
+
+    /**
+     * Tải dữ liệu doanh thu 12 tháng của năm chỉ định và cập nhật monthlyBarChart.
+     * Chạy DB query trên Thread phụ, update UI qua Platform.runLater.
+     */
+    private void capNhatBieuDoTheoThang(int nam) {
+        if (monthlyBarChart == null) return;
+        new Thread(() -> {
+            try {
+                Map<String, Double> data = thongKeService.getDoanhThu12ThangTrongNam(nam);
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                series.setName("Doanh thu " + nam);
+                for (Map.Entry<String, Double> entry : data.entrySet()) {
+                    series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+                }
+                javafx.application.Platform.runLater(() -> {
+                    monthlyBarChart.getData().clear();
+                    monthlyBarChart.getData().add(series);
+                    // Tô màu gradient amber → đậm dần theo tháng
+                    String[] colors = {
+                        "#FFCDB2","#FFB4A2","#E5989B","#B5838D",
+                        "#D85A30","#C45226","#AE4520","#993C1D",
+                        "#833219","#6D2A15","#572210","#3E1A0C"
+                    };
+                    int idx = 0;
+                    for (XYChart.Data<String, Number> d : series.getData()) {
+                        final String color = colors[idx % colors.length];
+                        if (d.getNode() != null) {
+                            d.getNode().setStyle("-fx-bar-fill: " + color + ";");
+                        }
+                        d.nodeProperty().addListener((obs, oldN, newN) -> {
+                            if (newN != null) newN.setStyle("-fx-bar-fill: " + color + ";");
+                        });
+                        idx++;
+                    }
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                    hienThiCanhBao("Lỗi biểu đồ tháng", e.getMessage()));
+            }
+        }, "monthly-chart-loader").start();
+    }
+
     // ── Bộ lọc báo cáo kinh doanh ────────────────────────────────────────────
 
     private void setupFilters() {
-        cbLoaiBaoCao.setItems(FXCollections.observableArrayList("Ngày", "Tháng", "Quý", "Năm"));
+        cbLoaiBaoCao.setItems(FXCollections.observableArrayList("Ngày", "Tuần", "Tháng", "Quý", "Năm"));
         cbLoaiBaoCao.setValue("Ngày");
         dpNgayBaoCao.setValue(LocalDate.now());
 
@@ -238,7 +305,12 @@ public class BaoCaoViewFXMLController extends BaseController {
             String loai = "DAY";
             String giaTri = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-            if ("Tháng".equals(loaiStr)) {
+            if ("Tuần".equals(loaiStr)) {
+                loai = "WEEK";
+                // Tìm Thứ Hai của tuần chứa ngày được chọn
+                java.time.LocalDate monday = ngay.with(java.time.DayOfWeek.MONDAY);
+                giaTri = monday.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            } else if ("Tháng".equals(loaiStr)) {
                 loai = "MONTH";
                 giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy"));
             } else if ("Quý".equals(loaiStr)) {
@@ -335,7 +407,16 @@ public class BaoCaoViewFXMLController extends BaseController {
     private void updateChart(String loai, String giaTri) throws Exception {
         Map<String, Double> chartData = thongKeService.getXuHuongDoanhThu(loai, giaTri);
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Doanh Thu (" + giaTri + ")");
+        // Nhãn series theo loại kỳ
+        String seriesLabel = switch (loai) {
+            case "DAY"     -> "Theo giờ (" + giaTri + ")";
+            case "WEEK"    -> "Theo tuần (" + giaTri + ")";
+            case "MONTH"   -> "Theo ngày (" + giaTri + ")";
+            case "QUARTER" -> "Theo tháng (Q" + giaTri + ")";
+            case "YEAR"    -> "Theo tháng (" + giaTri + ")";
+            default        -> "Doanh Thu";
+        };
+        series.setName(seriesLabel);
         for (Map.Entry<String, Double> entry : chartData.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
         }
@@ -400,7 +481,11 @@ public class BaoCaoViewFXMLController extends BaseController {
         // Xác định kỳ báo cáo
         String loai = "DAY";
         String giaTri = ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        if ("Tháng".equals(loaiStr)) { loai = "MONTH"; giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy")); }
+        if ("Tuần".equals(loaiStr)) {
+            loai = "WEEK";
+            java.time.LocalDate monday = ngay.with(java.time.DayOfWeek.MONDAY);
+            giaTri = monday.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } else if ("Tháng".equals(loaiStr)) { loai = "MONTH"; giaTri = ngay.format(DateTimeFormatter.ofPattern("MM/yyyy")); }
         else if ("Quý".equals(loaiStr))  { loai = "QUARTER"; giaTri = ((ngay.getMonthValue()-1)/3+1) + "/" + ngay.getYear(); }
         else if ("Năm".equals(loaiStr))  { loai = "YEAR";  giaTri = String.valueOf(ngay.getYear()); }
 
@@ -410,11 +495,13 @@ public class BaoCaoViewFXMLController extends BaseController {
                 ? UserSession.getCurrentUser().getHoTen() : "Hệ thống";
 
         // Build file đích
-        String ext    = excel ? "xlsx" : "pdf";
         String suffix = loaiStr + "_" + ngay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         File outputFile = excel
                 ? ReportPathUtils.buildExcelPath("ThongKe", suffix)
                 : ReportPathUtils.buildPdfPath("ThongKe_Jasper", suffix);
+
+        // [PDF only] Snapshot biểu đồ LineChart TRÊN FX thread trước khi vào background
+        final InputStream chartStream = excel ? null : snapshotBieuDo();
 
         final String finalLoai = loai;
         final String finalGiaTri = giaTri;
@@ -436,8 +523,9 @@ public class BaoCaoViewFXMLController extends BaseController {
                     JasperReportUtils.xuatExcel(outputFile, tieuDe, kyBaoCao,
                             strDoanhThu, strGiaVon, strLoiNhuan, strTongGD, nguoiXuat, rows);
                 } else {
+                    // Truyền chartStream (nullable) vào PDF — biểu đồ sẽ được nhúng nếu != null
                     JasperReportUtils.xuatPDF(outputFile, tieuDe, kyBaoCao,
-                            strDoanhThu, strGiaVon, strLoiNhuan, strTongGD, nguoiXuat, rows);
+                            strDoanhThu, strGiaVon, strLoiNhuan, strTongGD, nguoiXuat, rows, chartStream);
                 }
 
                 javafx.application.Platform.runLater(() ->
@@ -450,6 +538,27 @@ public class BaoCaoViewFXMLController extends BaseController {
                         "Không thể xuất " + (excel ? "Excel" : "PDF") + ": " + e.getMessage()));
             }
         }, "jasper-export").start();
+    }
+
+    /**
+     * Chụp ảnh snapshot của revenueChart (LineChart) thành InputStream PNG.
+     * PHẢI gọi trên FX Application Thread.
+     * Trả null nếu chart chưa sẵn sàng hoặc có lỗi.
+     */
+    private InputStream snapshotBieuDo() {
+        if (revenueChart == null) return null;
+        try {
+            javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+            params.setFill(javafx.scene.paint.Color.WHITE);
+            javafx.scene.image.WritableImage img = revenueChart.snapshot(params, null);
+            java.awt.image.BufferedImage bImg = javafx.embed.swing.SwingFXUtils.fromFXImage(img, null);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(bImg, "png", baos);
+            return new ByteArrayInputStream(baos.toByteArray());
+        } catch (Exception e) {
+            System.err.println("[BaoCao] Không thể snapshot biểu đồ: " + e.getMessage());
+            return null;
+        }
     }
 
     /**

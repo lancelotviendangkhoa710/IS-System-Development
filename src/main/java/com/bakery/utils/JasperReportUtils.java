@@ -60,9 +60,29 @@ public final class JasperReportUtils {
             String tongGiaoDich,
             String nguoiXuat,
             List<String[]> chiTietRows) throws JRException {
+        xuatPDF(outputFile, tieuDe, kyBaoCao, doanhThu, giaVon,
+                loiNhuan, tongGiaoDich, nguoiXuat, chiTietRows, null);
+    }
+
+    /**
+     * Xuất báo cáo kinh doanh sang PDF kèm biểu đồ LineChart.
+     *
+     * @param chartStream InputStream PNG của biểu đồ (null = không đính kèm)
+     */
+    public static void xuatPDF(
+            File outputFile,
+            String tieuDe,
+            String kyBaoCao,
+            String doanhThu,
+            String giaVon,
+            String loiNhuan,
+            String tongGiaoDich,
+            String nguoiXuat,
+            List<String[]> chiTietRows,
+            InputStream chartStream) throws JRException {
 
         JasperPrint print = buildPrintKinhDoanh(tieuDe, kyBaoCao, doanhThu, giaVon,
-                loiNhuan, tongGiaoDich, nguoiXuat, chiTietRows);
+                loiNhuan, tongGiaoDich, nguoiXuat, chiTietRows, chartStream);
         exportToPdf(print, outputFile, "Báo cáo kinh doanh H3K Bakery");
     }
 
@@ -81,7 +101,7 @@ public final class JasperReportUtils {
             List<String[]> chiTietRows) throws JRException {
 
         JasperPrint print = buildPrintKinhDoanh(tieuDe, kyBaoCao, doanhThu, giaVon,
-                loiNhuan, tongGiaoDich, nguoiXuat, chiTietRows);
+                loiNhuan, tongGiaoDich, nguoiXuat, chiTietRows, null); // Excel: không đính biểu đồ
         exportToXlsx(print, outputFile);
     }
 
@@ -318,7 +338,8 @@ public final class JasperReportUtils {
             String tieuDe, String kyBaoCao,
             String doanhThu, String giaVon, String loiNhuan,
             String tongGiaoDich, String nguoiXuat,
-            List<String[]> chiTietRows) throws JRException {
+            List<String[]> chiTietRows,
+            InputStream chartStream) throws JRException {
 
         InputStream jrxmlStream = loadTemplate("/reports/bao_cao/bao_cao_kinh_doanh.jrxml");
         JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlStream);
@@ -332,6 +353,7 @@ public final class JasperReportUtils {
         params.put("P_TONG_GIAO_DICH", nvlParam(tongGiaoDich, "0"));
         params.put("P_NGAY_XUAT",      LocalDate.now().format(DF_DAY));
         params.put("P_NGUOI_XUAT",     nvlParam(nguoiXuat,    "Hệ thống"));
+        params.put("P_CHART_IMAGE",    chartStream); // null = không hiển thị biểu đồ
 
         List<Map<String, ?>> rows = new ArrayList<>();
         if (chiTietRows != null) {
