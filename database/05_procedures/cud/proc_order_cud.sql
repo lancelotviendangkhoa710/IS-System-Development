@@ -145,6 +145,17 @@ BEGIN
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
     VALUES (P_MANV_LAP, 'DON_HANG', 'Tao don hang moi #' || P_MADON_OUT, P_MADON_OUT);
 
+    -- ================================================================
+    -- [DEMO ONLY] Giả lập thời gian xử lý kéo dài để quan sát lock
+    -- Bật  : Bỏ comment khối BEGIN...END bên dưới trước khi demo
+    -- Tắt  : Comment lại trước khi dùng production
+    -- Mục đích: Tạo đủ thời gian để Thu ngân 2 bấm Thanh toán
+    --           trong khi Thu ngân 1 chưa COMMIT → quan sát block
+    -- ================================================================
+    -- DECLARE V_X NUMBER := 0;
+    -- BEGIN FOR I IN 1..80000000 LOOP V_X := V_X + I; END LOOP; END;
+    -- ================================================================
+
     COMMIT;
 
 EXCEPTION
