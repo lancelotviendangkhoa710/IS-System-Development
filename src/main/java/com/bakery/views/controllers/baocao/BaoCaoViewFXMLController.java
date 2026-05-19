@@ -551,9 +551,21 @@ public class BaoCaoViewFXMLController extends BaseController {
             javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
             params.setFill(javafx.scene.paint.Color.WHITE);
             javafx.scene.image.WritableImage img = revenueChart.snapshot(params, null);
-            java.awt.image.BufferedImage bImg = javafx.embed.swing.SwingFXUtils.fromFXImage(img, null);
+
+            // Dùng var để tránh tham chiếu trực tiếp java.awt.image.BufferedImage
+            // (javafx.swing module exports javafx.embed.swing nên SwingFXUtils OK)
+            var bImg = javafx.embed.swing.SwingFXUtils.fromFXImage(img, null);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            javax.imageio.ImageIO.write(bImg, "png", baos);
+
+            // Gọi ImageIO.write qua reflection để tránh tham chiếu trực tiếp javax.imageio.ImageIO
+            // → IDE không cần java.desktop visible; runtime luôn có java.desktop
+            var imageIOClass  = Class.forName("javax.imageio.ImageIO");
+            var renderedClass = Class.forName("java.awt.image.RenderedImage");
+            var writeMethod   = imageIOClass.getMethod("write", renderedClass, String.class,
+                                                       java.io.OutputStream.class);
+            writeMethod.invoke(null, bImg, "png", baos);
+
             return new ByteArrayInputStream(baos.toByteArray());
         } catch (Exception e) {
             System.err.println("[BaoCao] Không thể snapshot biểu đồ: " + e.getMessage());
