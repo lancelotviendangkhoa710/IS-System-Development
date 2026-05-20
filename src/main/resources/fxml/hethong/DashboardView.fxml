@@ -25,28 +25,29 @@
                 <!-- Text bên trái -->
                 <VBox styleClass="dash-banner-text-box" spacing="10" HBox.hgrow="ALWAYS">
                     <HBox alignment="BOTTOM_LEFT" spacing="6">
-                        <Label text="🎉" style="-fx-font-size:28px;"/>
+                        <Label text="🎉" styleClass="kpi-mini-icon"/>
                         <Label text="Xin chào, " styleClass="dash-banner-title"/>
                         <Label fx:id="lblBannerName" text="user name" styleClass="dash-banner-title-name"/>
                     </HBox>
                     <Label text="Chào mừng bạn quay lại với hệ thống quản lý tiệm bánh H3K!"
                            styleClass="dash-banner-sub" wrapText="true" maxWidth="480"/>
                     <!-- KPI mini row -->
-                    <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 8 0 0 0;">
-                        <VBox alignment="CENTER" style="-fx-background-color:rgba(255,255,255,0.15);-fx-background-radius:10;-fx-padding:8 16;">
-                            <Label text="📦" style="-fx-font-size:18px;"/>
-                            <Label fx:id="lblKpiDon" text="—" style="-fx-font-weight:bold;-fx-font-size:20px;-fx-text-fill:white;"/>
-                            <Label text="Đơn hôm nay" style="-fx-font-size:11px;-fx-text-fill:rgba(255,255,255,0.75);"/>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <VBox styleClass="kpi-mini-box" alignment="CENTER">
+                            <Label text="📦" styleClass="kpi-mini-icon"/>
+                            <Label fx:id="lblKpiDon" text="—" styleClass="kpi-mini-value"/>
+                            <Label text="Đơn hôm nay" styleClass="kpi-mini-label"/>
                         </VBox>
-                        <VBox alignment="CENTER" style="-fx-background-color:rgba(255,255,255,0.15);-fx-background-radius:10;-fx-padding:8 16;">
-                            <Label text="💰" style="-fx-font-size:18px;"/>
-                            <Label fx:id="lblKpiDoanhThu" text="—" style="-fx-font-weight:bold;-fx-font-size:20px;-fx-text-fill:white;"/>
-                            <Label text="Doanh thu hôm nay" style="-fx-font-size:11px;-fx-text-fill:rgba(255,255,255,0.75);"/>
+                        <VBox styleClass="kpi-mini-box" alignment="CENTER">
+                            <Label text="💰" styleClass="kpi-mini-icon"/>
+                            <Label fx:id="lblKpiDoanhThu" text="—" styleClass="kpi-mini-value"/>
+                            <Label text="Doanh thu hôm nay" styleClass="kpi-mini-label"/>
                         </VBox>
                     </HBox>
                 </VBox>
                 <!-- Decoration emoji bên phải -->
-                <VBox alignment="CENTER" HBox.hgrow="NEVER" style="-fx-padding:0 20 0 0;">
+                <VBox alignment="CENTER" HBox.hgrow="NEVER">
+                    <padding><Insets right="20"/></padding>
                     <Label text="🎂" styleClass="dash-banner-deco"/>
                 </VBox>
             </HBox>
@@ -61,8 +62,9 @@
             <VBox styleClass="card" spacing="0" HBox.hgrow="ALWAYS" prefWidth="340" maxWidth="380">
                 <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
 
-                <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding:0 0 12 0;">
-                    <Label text="🏆" style="-fx-font-size:18px;"/>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <padding><Insets bottom="12"/></padding>
+                    <Label text="🏆" styleClass="kpi-mini-icon"/>
                     <Label text="Top 5 sản phẩm bán chạy" styleClass="lbl-title-card"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label fx:id="lblCapNhatTop5" text="" styleClass="lbl-small"/>
@@ -73,7 +75,7 @@
 
                 <!-- Placeholder nếu chưa có data -->
                 <Label fx:id="lblTop5Empty" text="Chưa có dữ liệu bán hàng."
-                       style="-fx-text-fill:#A8A29E;-fx-font-size:12px;-fx-padding:16 0;"
+                       styleClass="lbl-small"
                        managed="false" visible="false"/>
             </VBox>
 
@@ -82,7 +84,7 @@
                 <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
 
                 <HBox alignment="CENTER_LEFT" spacing="12">
-                    <Label text="📈" style="-fx-font-size:16px;"/>
+                    <Label text="📈" styleClass="kpi-mini-icon"/>
                     <Label text="Doanh thu 7 ngày gần nhất" styleClass="lbl-title-card"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label fx:id="lblCapNhatChart" text="" styleClass="lbl-small"/>
@@ -105,7 +107,7 @@
             <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
 
             <HBox alignment="CENTER_LEFT" spacing="12">
-                <Label text="📋" style="-fx-font-size:16px;"/>
+                <Label text="📋" styleClass="kpi-mini-icon"/>
                 <Label text="Chi tiết theo ngày (7 ngày gần nhất)" styleClass="lbl-title-card"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="lblCapNhatBang" text="" styleClass="lbl-small"/>

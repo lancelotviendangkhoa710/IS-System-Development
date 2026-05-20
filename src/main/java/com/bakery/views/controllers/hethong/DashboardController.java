@@ -227,13 +227,15 @@ public class DashboardController implements Initializable {
             HBox.setHgrow(vbInfo, javafx.scene.layout.Priority.ALWAYS);
 
             HBox row = new HBox(10, lblRank, vbInfo);
-            row.getStyleClass().add("top5-row");
+            // Rank 1 dùng class vàng, các rank còn lại dùng class thường
+            row.getStyleClass().add(rank == 0 ? "top5-row-gold" : "top5-row");
             row.setAlignment(Pos.CENTER_LEFT);
             row.setPadding(new Insets(10, 12, 10, 12));
 
             vboxTop5.getChildren().add(row);
             rank++;
         }
+
     }
 
     /** Cập nhật KPI mini (đơn + doanh thu hôm nay). */

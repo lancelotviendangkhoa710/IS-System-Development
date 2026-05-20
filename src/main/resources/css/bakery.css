@@ -4097,3 +4097,202 @@
 .dash-table .column-header-background {
     -fx-background-color: #F3F4F6;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ * DASHBOARD VIEW — La Boulangerie
+ * Classes: dash-* · top5-* · kpi-*
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ── ScrollPane root ── */
+.dash-scroll {
+    -fx-background-color: #FDFBF7;
+    -fx-background: #FDFBF7;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+.dash-scroll > .viewport {
+    -fx-background-color: #FDFBF7;
+}
+
+/* ── Main content wrapper ── */
+.dash-main-content {
+    -fx-background-color: #FDFBF7;
+    -fx-padding: 28 36 28 36;
+}
+
+/* ── Banner gradient (cam → nâu đỏ) ── */
+.dash-banner {
+    -fx-background-color: linear-gradient(to right, #C2410C, #92400E, #78350F);
+    -fx-background-radius: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(146, 64, 14, 0.42), 18, 0, 0, 6);
+    -fx-padding: 24 28 24 32;
+    -fx-min-height: 130px;
+}
+
+/* ── Text box bên trái banner ── */
+.dash-banner-text-box {
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ── Tiêu đề "Xin chào," ── */
+.dash-banner-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(255, 255, 255, 0.88);
+}
+
+/* ── Tên người dùng (nổi bật hơn) ── */
+.dash-banner-title-name {
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #FDE68A;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
+}
+
+/* ── Sub-text mô tả ── */
+.dash-banner-sub {
+    -fx-font-size: 13px;
+    -fx-text-fill: rgba(255, 255, 255, 0.72);
+    -fx-wrap-text: true;
+}
+
+/* ── Deco emoji bên phải banner ── */
+.dash-banner-deco {
+    -fx-font-size: 72px;
+    -fx-text-fill: white;
+    -fx-opacity: 0.90;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 8, 0, 0, 2);
+}
+
+/* ── KPI mini box (bên trong banner) ── */
+.kpi-mini-box {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-padding: 10 20;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 6, 0, 0, 2);
+}
+
+.kpi-mini-icon {
+    -fx-font-size: 18px;
+}
+
+.kpi-mini-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 3, 0, 0, 1);
+}
+
+.kpi-mini-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(255, 255, 255, 0.72);
+}
+
+/* ── Status bar ── */
+.dash-status-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #B45309;
+    -fx-padding: 0 0 0 4;
+}
+
+/* ─── TOP 5 SẢN PHẨM ─── */
+
+/* Row: nền trắng, border bottom vàng nhạt */
+.top5-row {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #FDE68A transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-radius: 0;
+    -fx-cursor: default;
+}
+
+/* Hàng lẻ (hover để tạo cảm giác interactive) */
+.top5-row:hover {
+    -fx-background-color: #FFFBEB;
+}
+
+/* Hàng đầu tiên (rank 1) — nổi bật hơn */
+.top5-row-gold {
+    -fx-background-color: #FFFDE7;
+    -fx-border-color: transparent transparent #FDE68A transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.top5-row-gold:hover {
+    -fx-background-color: #FFF9C4;
+}
+
+/* Rank emoji */
+.top5-rank {
+    -fx-font-size: 22px;
+    -fx-min-width: 34px;
+    -fx-alignment: CENTER;
+}
+
+/* Tên sản phẩm */
+.top5-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1C0A00;
+}
+
+/* Số lượng bán */
+.top5-qty {
+    -fx-font-size: 11px;
+    -fx-text-fill: #B45309;
+    -fx-font-weight: bold;
+}
+
+/* Progress bar màu cam (nếu muốn thêm sau) */
+.top5-bar {
+    -fx-background-color: linear-gradient(to right, #F59E0B, #D97706);
+    -fx-background-radius: 4px;
+    -fx-pref-height: 5px;
+}
+
+/* ─── KPI CARD (lớn — nếu thêm row KPI riêng biệt sau) ─── */
+.kpi-card-green {
+    -fx-background-color: linear-gradient(to bottom right, #ECFDF5, #D1FAE5);
+    -fx-border-color: #6EE7B7;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.15), 10, 0, 0, 3);
+}
+
+.kpi-card-amber {
+    -fx-background-color: linear-gradient(to bottom right, #FFFBEB, #FEF3C7);
+    -fx-border-color: #FCD34D;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.15), 10, 0, 0, 3);
+}
+
+.kpi-card-blue {
+    -fx-background-color: linear-gradient(to bottom right, #EFF6FF, #DBEAFE);
+    -fx-border-color: #93C5FD;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.15), 10, 0, 0, 3);
+}
+
+.kpi-card-rose {
+    -fx-background-color: linear-gradient(to bottom right, #FFF1F2, #FFE4E6);
+    -fx-border-color: #FCA5A5;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.15), 10, 0, 0, 3);
+}

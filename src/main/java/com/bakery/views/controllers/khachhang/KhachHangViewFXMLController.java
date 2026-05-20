@@ -56,6 +56,8 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     private java.util.List<HangThanhVienDTO> tierList = java.util.Collections.emptyList();
     // Trạng thái chế độ thùng rác
     private boolean dangCheDoChuaXoa = false;
+    // Quyền xóa khách hàng và chỉnh sửa hạng thành viên — chỉ Quản lý/Admin
+    private boolean coQuyenQuanLy    = false;
 
     private final KhachHangPresenter presenter    = new KhachHangPresenter(this);
     private final PhanQuyenService   phanQuyenSvc = new PhanQuyenService();
@@ -257,13 +259,18 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
                 c.getValue().getTenHang() != null ? c.getValue().getTenHang() : "Thành viên"));
     }
 
-    /** Ẩn tab Hạng thành viên nếu người dùng không phải Quản lý. */
+    /**
+     * Khởi tạo phân quyền cho màn hình:
+     * - Quản lý / Admin: toàn quyền (xóa KH + cấu hình hạng thành viên).
+     * - Thu ngân / vai trò khác: ẩn nút Xóa và vô hiệu hóa tab Hạng thành viên.
+     */
     private void khoiTaoPhanQuyen() {
-        if (tabHangThanhVien == null) return;
         var user = UserSession.getCurrentUser();
-        boolean laQuanLy = phanQuyenSvc.laQuanLy(user) || phanQuyenSvc.laAdmin(user);
-        tabHangThanhVien.setDisable(!laQuanLy);
-        tabHangThanhVien.setStyle(laQuanLy ? "" : "-fx-opacity: 0.4;");
+        coQuyenQuanLy = phanQuyenSvc.laQuanLy(user) || phanQuyenSvc.laAdmin(user);
+        if (tabHangThanhVien != null) {
+            tabHangThanhVien.setDisable(!coQuyenQuanLy);
+            tabHangThanhVien.setStyle(coQuyenQuanLy ? "" : "-fx-opacity: 0.4;");
+        }
     }
 
     /** Lọc client-side theo từ khóa tìm kiếm và hạng thành viên. */
@@ -300,6 +307,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         colActions.setCellFactory(col -> new TableCell<>() {
             private final Button btnHanhDong  = new Button();
             private final Button btnXoa       = new Button("🗑 Xóa");
+            // hboxActions: Lịch sử + Xóa — chỉ Quản lý/Admin
             private final HBox   hboxActions  = new HBox(6, btnHanhDong, btnXoa);
 
             {
@@ -321,11 +329,16 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
                     btnHanhDong.setOnAction(e -> xacNhanKhoiPhuc(kh));
                     setGraphic(btnHanhDong);
                 } else {
-                    // Chế độ bình thường: Lịch sử + Xóa
+                    // Chế độ bình thường: Lịch sử (mọi vai trò) + Xóa (chỉ Quản lý/Admin)
                     btnHanhDong.setText("📋 Lịch sử");
                     btnHanhDong.setOnAction(e -> presenter.xemLichSuMuaHang(kh));
-                    btnXoa.setOnAction(e -> xacNhanXoa(kh));
-                    setGraphic(hboxActions);
+                    if (coQuyenQuanLy) {
+                        btnXoa.setOnAction(e -> xacNhanXoa(kh));
+                        setGraphic(hboxActions);
+                    } else {
+                        // Thu ngân chỉ xem lịch sử — không có nút Xóa
+                        setGraphic(btnHanhDong);
+                    }
                 }
             }
         });
