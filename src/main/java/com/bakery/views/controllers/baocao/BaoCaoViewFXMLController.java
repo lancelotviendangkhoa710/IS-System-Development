@@ -4,8 +4,6 @@ import com.bakery.services.baocao.ThongKeService;
 import com.bakery.utils.JasperReportUtils;
 import com.bakery.utils.ReportPathUtils;
 import com.bakery.utils.UserSession;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -19,7 +17,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,23 +46,12 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private Tab tabThongKeKinhDoanh;
     @FXML private Tab tabSoQuyThuChi;
     @FXML private Tab tabGiamSatCa;
-    @FXML private Tab tabTonKho;
 
     // Biểu đồ doanh thu theo tháng
     @FXML private BarChart<String, Number> monthlyBarChart;
     @FXML private ComboBox<Integer>        cbNamBieuDo;
 
-    // UC52 — Tab Tồn kho
-    @FXML private DatePicker dpTonKhoTuNgay;
-    @FXML private DatePicker dpTonKhoDenNgay;
-    @FXML private Button     btnXemTonKho;
-    @FXML private Label      lblTonKhoHetHang;
-    @FXML private Label      lblTonKhoSapHet;
-    @FXML private Label      lblTonKhoDuHang;
-    @FXML private TableView<String[]> tableTonKho;
 
-    /** Auto-refresh timeline cho tab Tồn kho (60 giây/lần). */
-    private Timeline tonKhoRefreshTimeline;
 
     private ThongKeService thongKeService = new ThongKeService();
 
@@ -84,21 +70,7 @@ public class BaoCaoViewFXMLController extends BaseController {
         if (tabPaneBaoCao != null && tabThongKeKinhDoanh != null) {
             tabPaneBaoCao.getSelectionModel().select(tabThongKeKinhDoanh);
         }
-        setupTonKhoTableColumns();
         setupNamBieuDo();
-
-        // Auto-refresh: bật/tắt Timeline theo tab đang active
-        if (tabPaneBaoCao != null && tabTonKho != null) {
-            tabPaneBaoCao.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldTab, newTab) -> {
-                    if (newTab == tabTonKho) {
-                        startTonKhoTimeline();
-                    } else {
-                        stopTonKhoTimeline();
-                    }
-                }
-            );
-        }
     }
 
     /**
@@ -110,7 +82,6 @@ public class BaoCaoViewFXMLController extends BaseController {
         Tab target = switch (tabKey.toLowerCase()) {
             case "soquy" -> tabSoQuyThuChi;
             case "giamsatca" -> tabGiamSatCa;
-            case "tonkho" -> tabTonKho;
             default -> tabThongKeKinhDoanh;
         };
         if (target != null) {
@@ -118,105 +89,7 @@ public class BaoCaoViewFXMLController extends BaseController {
         }
     }
 
-    // ── UC52: Tab Tồn kho ────────────────────────────────────────────────────
 
-    @SuppressWarnings("unchecked")
-    private void setupTonKhoTableColumns() {
-        if (tableTonKho == null) return;
-        // 6 cột tương ứng String[]{tenNL, dvt, tonDau, nhap, xuat, tonCuoi}
-        for (int i = 0; i < tableTonKho.getColumns().size(); i++) {
-            final int idx = i;
-            ((TableColumn<String[], String>) tableTonKho.getColumns().get(i))
-                .setCellValueFactory(c -> new SimpleStringProperty(
-                    c.getValue() != null && c.getValue().length > idx
-                        ? c.getValue()[idx] : ""));
-        }
-        // Tô đỏ dòng tồn cuối kỳ <= 0
-        tableTonKho.setRowFactory(tv -> new TableRow<>() {
-            @Override
-            protected void updateItem(String[] item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null || item.length < 6) {
-                    getStyleClass().removeAll("row-danger", "row-warning");
-                } else {
-                    try {
-                        double tonCuoi = Double.parseDouble(item[5].replace(",", "."));
-                        getStyleClass().removeAll("row-danger", "row-warning");
-                        if (tonCuoi <= 0) {
-                            getStyleClass().add("row-danger");
-                        }
-                    } catch (NumberFormatException ignored) { }
-                }
-            }
-        });
-        // Mặc định kỳ = tháng hiện tại
-        dpTonKhoTuNgay.setValue(java.time.LocalDate.now().withDayOfMonth(1));
-        dpTonKhoDenNgay.setValue(java.time.LocalDate.now());
-    }
-
-    /**
-     * Khởi động Timeline tự động refresh tồn kho mỗi 60 giây.
-     * Chỉ gọi khi tab "Tồn kho nguyên liệu" đang được chọn.
-     */
-    private void startTonKhoTimeline() {
-        if (tonKhoRefreshTimeline != null && tonKhoRefreshTimeline.getStatus() == Timeline.Status.RUNNING) {
-            return; // Đã chạy rồi
-        }
-        tonKhoRefreshTimeline = new Timeline(
-            new KeyFrame(Duration.seconds(5), evt -> {
-                // Chỉ refresh nếu tab vẫn đang active
-                if (tabPaneBaoCao != null && tabPaneBaoCao.getSelectionModel().getSelectedItem() == tabTonKho) {
-                    onXemBaoCaoTonKho();
-                }
-            })
-        );
-        tonKhoRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
-        tonKhoRefreshTimeline.play();
-    }
-
-    /**
-     * Dừng Timeline auto-refresh khi rời khỏi tab Tồn kho.
-     */
-    private void stopTonKhoTimeline() {
-        if (tonKhoRefreshTimeline != null) {
-            tonKhoRefreshTimeline.stop();
-        }
-    }
-
-    @FXML
-    private void onXemBaoCaoTonKho() {
-        if (btnXemTonKho != null) btnXemTonKho.setDisable(true);
-        java.time.LocalDate tu  = dpTonKhoTuNgay  != null ? dpTonKhoTuNgay.getValue()  : null;
-        java.time.LocalDate den = dpTonKhoDenNgay != null ? dpTonKhoDenNgay.getValue() : null;
-
-        new Thread(() -> {
-            try {
-                // Load KPI tổng hợp
-                java.util.Map<String, Long> tongHop = thongKeService.getTonKhoTongHop();
-                // Load bảng chi tiết kỳ
-                java.util.List<String[]> rows = thongKeService.getBaoCaoTonKho(tu, den);
-
-                javafx.application.Platform.runLater(() -> {
-                    // KPI
-                    if (lblTonKhoHetHang != null)
-                        lblTonKhoHetHang.setText(String.valueOf(tongHop.getOrDefault("HET_HANG", 0L)));
-                    if (lblTonKhoSapHet != null)
-                        lblTonKhoSapHet.setText(String.valueOf(tongHop.getOrDefault("SAP_HET", 0L)));
-                    if (lblTonKhoDuHang != null)
-                        lblTonKhoDuHang.setText(String.valueOf(tongHop.getOrDefault("DU_HANG", 0L)));
-                    // Bảng
-                    if (tableTonKho != null)
-                        tableTonKho.setItems(FXCollections.observableArrayList(rows));
-                    if (btnXemTonKho != null) btnXemTonKho.setDisable(false);
-                });
-            } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    hienThiCanhBao("Lỗi tải tồn kho", e.getMessage());
-                    if (btnXemTonKho != null) btnXemTonKho.setDisable(false);
-                });
-            }
-        }, "bao-cao-ton-kho").start();
-    }
 
     // ── Biểu đồ theo tháng ───────────────────────────────────────────────────
 

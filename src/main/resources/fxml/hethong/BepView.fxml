@@ -44,9 +44,9 @@
             <fx:include fx:id="theoDoiDonHangBep" source="../banhang/TheoDoiDonHangView.fxml"/>
         </Tab>
 
-        <!-- Tab 3: Kiểm kê kho (chỉ đọc, dành cho bếp xem tồn nguyên liệu) -->
-        <Tab text="📦  Kiểm kê kho" fx:id="tabKiemKe">
-            <fx:include source="../kho/KiemKeKhoView.fxml"/>
+        <!-- Tab 3: Tồn kho nguyên liệu (thay cho Kiểm kê kho) -->
+        <Tab text="📦  Tồn kho nguyên liệu" fx:id="tabTonKho">
+            <fx:include source="../kho/TonKhoNguyenLieuView.fxml"/>
         </Tab>
 
         <!-- Tab 4: Cấu hình giới hạn nhận đơn -->

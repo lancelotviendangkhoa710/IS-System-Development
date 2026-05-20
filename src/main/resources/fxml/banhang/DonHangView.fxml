@@ -25,22 +25,18 @@
         <!-- Panel trái: Danh sách sản phẩm (65%) -->
         <VBox HBox.hgrow="ALWAYS" spacing="12">
 
-            <!-- Filter Bar — các nút danh mục được tạo động từ DB trong controller -->
-            <HBox fx:id="hboxBoLocDanhMuc" spacing="8" alignment="CENTER_LEFT">
-                <ToggleButton fx:id="btnLocTatCa" text="Tất cả"
-                             styleClass="toggle-filter"
-                             onAction="#onLocDanhMuc"
-                             userData="ALL" selected="true"/>
-                <ToggleButton fx:id="btnLocTuyChinh" text="✨ Tùy chỉnh"
-                             styleClass="toggle-filter"
-                             onAction="#onLocDanhMuc"
-                             userData="CUSTOM"/>
+            <!-- Filter Bar — ComboBox danh mục + ô tìm kiếm -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="📂 Danh mục:" styleClass="lbl-body-bold"/>
+                <ComboBox fx:id="cbLocDanhMuc"
+                          prefWidth="200"
+                          styleClass="combo-box"
+                          onAction="#onLocDanhMuc"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <TextField fx:id="txtTimKiemSanPham"
                            promptText="🔍  Tìm sản phẩm..."
                            prefWidth="220"
                            styleClass="text-field"/>
-
             </HBox>
 
             <!-- Product Area (StackPane chứa 2 màn hình: Products / Custom) -->

@@ -47,10 +47,7 @@ import java.util.function.Function;
 public class DonHangViewFXMLController extends BaseController implements IDonHangView, Initializable {
 
     @FXML private HBox tabTaoDon;
-    @FXML private HBox hboxBoLocDanhMuc;
-    @FXML private ToggleButton btnLocTatCa;
-    @FXML private ToggleButton btnLocTuyChinh;
-    private ToggleGroup grupBoLocDanhMuc;
+    @FXML private ComboBox<String> cbLocDanhMuc;
     @FXML private TextField txtTimKiemSanPham;
     @FXML private ScrollPane scrollSanPham;
     @FXML private FlowPane tileSanPham;
@@ -94,7 +91,7 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        khoiTaoBoLocDanhMuc();
+        khoiTaoComboLocDanhMuc();
         khoiTaoBangGioHang();
         khoiTaoComboTuyChinh();
         khoiTaoSpinnerSoLuong();
@@ -107,12 +104,15 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
 
     @FXML
     private void onLocDanhMuc() {
-        ToggleGroup group = btnLocTatCa.getToggleGroup();
-        if (group == null || group.getSelectedToggle() == null) {
-            btnLocTatCa.setSelected(true);
+        String selected = cbLocDanhMuc.getValue();
+        if (selected == null || "Tất cả".equals(selected)) {
+            danhMucDangLoc = "ALL";
+        } else if ("✨ Tùy chỉnh".equals(selected)) {
+            danhMucDangLoc = "CUSTOM";
+        } else {
+            // Lấy maDM từ map đảo ngược (tên → id)
+            danhMucDangLoc = mapDanhMucNguocLai.getOrDefault(selected, "ALL");
         }
-        ToggleButton selected = (ToggleButton) group.getSelectedToggle();
-        danhMucDangLoc = selected == null ? "ALL" : String.valueOf(selected.getUserData());
         apDungBoLocSanPham();
     }
 
@@ -180,8 +180,8 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         if (dict != null) mapDanhMuc.putAll(dict);
         mapSanPhamById.clear();
         for (SanPhamDTO sanPham : danhSachSanPham) mapSanPhamById.put(sanPham.getMaSP(), sanPham);
-        // Tái tạo nút lọc theo danh mục thực tế từ dữ liệu
-        javafx.application.Platform.runLater(this::taoNutLocDongTuMapDanhMuc);
+        // Tái tạo ComboBox danh mục theo dữ liệu thực từ DB
+        javafx.application.Platform.runLater(this::capNhatComboLocDanhMuc);
         apDungBoLocSanPham();
     }
 
@@ -275,36 +275,42 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     @Override public LocalDateTime getNgayGioNhanBanh() { return LocalDateTime.now(); }
     @Override public double getTongThanhToanHienTai() { return tongThanhToanHienTai; }
 
-    private void khoiTaoBoLocDanhMuc() {
-        grupBoLocDanhMuc = new ToggleGroup();
-        btnLocTatCa.setToggleGroup(grupBoLocDanhMuc);
-        btnLocTuyChinh.setToggleGroup(grupBoLocDanhMuc);
-        btnLocTatCa.setSelected(true);
+    /** Map đảo ngược: tên danh mục → maDM (String) để tra cứu khi ComboBox chọn. */
+    private final Map<String, String> mapDanhMucNguocLai = new HashMap<>();
+
+    /** Khởi tạo ComboBox lọc danh mục với item "Tất cả" mặc định. */
+    private void khoiTaoComboLocDanhMuc() {
+        cbLocDanhMuc.getItems().addAll("Tất cả", "✨ Tùy chỉnh");
+        cbLocDanhMuc.getSelectionModel().selectFirst();
     }
 
     /**
-     * Tạo động ToggleButton cho từng danh mục trong mapDanhMuc.
-     * Chèn vào hboxBoLocDanhMuc trước btnLocTuyChinh, sau btnLocTatCa.
-     * Gọi lại mỗi khi dữ liệu danh mục được nạp từ Presenter.
+     * Cập nhật ComboBox lọc danh mục theo dữ liệu thực từ mapDanhMuc.
+     * Gọi lại mỗi khi dữ liệu danh mục được nạp từ Presenter (trên FX thread).
      */
-    private void taoNutLocDongTuMapDanhMuc() {
-        // Xóa các nút danh mục động cũ (giữ nguyên btnLocTatCa và btnLocTuyChinh)
-        hboxBoLocDanhMuc.getChildren().removeIf(node ->
-            node instanceof ToggleButton tb
-            && !tb.equals(btnLocTatCa)
-            && !tb.equals(btnLocTuyChinh));
+    private void capNhatComboLocDanhMuc() {
+        String luaChonHienTai = cbLocDanhMuc.getValue();
+        cbLocDanhMuc.getItems().clear();
+        mapDanhMucNguocLai.clear();
 
-        // Vị trí chèn: ngay sau btnLocTatCa (index 0)
-        int insertIdx = hboxBoLocDanhMuc.getChildren().indexOf(btnLocTatCa) + 1;
+        // Mục cố định đầu tiên
+        cbLocDanhMuc.getItems().add("Tất cả");
 
+        // Thêm từng danh mục từ DB
         for (Map.Entry<Integer, String> entry : mapDanhMuc.entrySet()) {
-            ToggleButton btn = new ToggleButton(entry.getValue());
-            btn.setUserData(String.valueOf(entry.getKey())); // userData = String(maDM)
-            btn.getStyleClass().add("toggle-filter");
-            btn.setToggleGroup(grupBoLocDanhMuc);
-            btn.setOnAction(e -> onLocDanhMuc());
-            hboxBoLocDanhMuc.getChildren().add(insertIdx, btn);
-            insertIdx++;
+            String tenDM = entry.getValue();
+            cbLocDanhMuc.getItems().add(tenDM);
+            mapDanhMucNguocLai.put(tenDM, String.valueOf(entry.getKey()));
+        }
+
+        // Mục cố định cuối cùng
+        cbLocDanhMuc.getItems().add("✨ Tùy chỉnh");
+
+        // Giữ lại lựa chọn hiện tại nếu vẫn còn hợp lệ
+        if (luaChonHienTai != null && cbLocDanhMuc.getItems().contains(luaChonHienTai)) {
+            cbLocDanhMuc.setValue(luaChonHienTai);
+        } else {
+            cbLocDanhMuc.getSelectionModel().selectFirst();
         }
     }
 
