@@ -1,0 +1,79 @@
+﻿@startuml SuaKhachHang
+mainframe sd Seq_SuaKhachHang
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Nhân viên" as NV #White
+boundary "Form_SuaKhachHang" as FRM #White
+boundary "GUI_KhachHang" as UI #White
+control "Controller_KhachHang" as SYS #White
+entity ": KHACHHANG" as DB_KH #White
+
+NV -> UI: Nhấn "Sửa" trên dòng khách hàng
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải thông tin khách hàng
+activate SYS
+deactivate SYS
+
+SYS -> DB_KH: Lấy thông tin khách hàng
+activate DB_KH
+deactivate DB_KH
+
+SYS -->> UI: Hiển thị thông tin chi tiết khách hàng
+
+UI -->> FRM: Hiển thị biểu mẫu sửa thông tin khách hàng
+
+
+NV -> FRM: Nhập thông tin và xác nhận
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Gửi dữ liệu khách hàng cập nhật
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra định dạng
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra định dạng
+    note over of NV: [Dữ liệu không hợp lệ]
+    autonumber stop
+    NV -[hidden]-> DB_KH
+    autonumber resume "<b>##."
+    SYS -->> UI: Báo lỗi định dạng
+else 
+    note over of NV: [Dữ liệu hợp lệ]
+    autonumber stop
+    NV -[hidden]-> DB_KH
+    autonumber resume "<b>##."
+    SYS -> DB_KH: Cập nhật thông tin khách hàng 
+    activate DB_KH
+    deactivate DB_KH
+    
+    group alt Cập nhật thông tin khách hàng
+        note over of NV: [Lỗi cơ sở dữ liệu]
+        autonumber stop
+        NV -[hidden]-> DB_KH
+        autonumber resume "<b>##."
+        SYS -->> UI: Báo lỗi lưu dữ liệu
+    else 
+        note over of NV: [Lưu thành công]
+        autonumber stop
+        NV -[hidden]-> DB_KH
+        autonumber resume "<b>##."
+        SYS -> DB_KH: Tải lại danh sách
+        activate DB_KH
+        deactivate DB_KH
+        
+        SYS -->> UI: Thông báo thành công và làm mới danh sách
+    end
+end
+
+@enduml

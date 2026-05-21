@@ -1,0 +1,74 @@
+@startuml TraCuuTheKho
+mainframe sd Seq_TraCuuTheKho
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "GUI_TraCuuTheKho" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
+entity ": THEKHO" as DB_TKHO #White
+
+TK -> UI: Chọn chức năng tra cứu thẻ kho
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách nguyên liệu
+activate SYS
+deactivate SYS
+
+SYS -> DB_NL: Truy vấn danh sách nguyên liệu
+activate DB_NL
+deactivate DB_NL
+
+SYS -->> UI: Hiển thị danh sách nguyên liệu
+
+group opt Tìm kiếm nhanh
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    TK -> UI: Nhập từ khóa tìm kiếm
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Yêu cầu lọc nguyên liệu theo tên
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Cập nhật danh sách sau khi lọc
+end
+
+TK -> UI: Chọn một nguyên liệu cụ thể
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải lịch sử thẻ kho của nguyên liệu đó
+activate SYS
+deactivate SYS
+
+SYS -> DB_TKHO: Lấy lịch sử biến động (nhập/xuất/tồn)
+activate DB_TKHO
+deactivate DB_TKHO
+
+SYS -->> UI: Hiển thị lịch sử thẻ kho với các cột thông tin chi tiết
+
+group opt Xem chi tiết phiếu
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    TK -> UI: Chọn một dòng trong lịch sử
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Yêu cầu lấy thông tin chi tiết phiếu
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Hiển thị chi tiết phiếu tương ứng
+end
+
+@enduml

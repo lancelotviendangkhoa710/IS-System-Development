@@ -1,0 +1,87 @@
+@startuml QuanLyKhoVaNguyenLieu
+mainframe sd Seq_QuanLyKhoVaNguyenLieu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "GUI_KhoVaNguyenLieu" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
+entity ": THEKHO" as DB_TKHO #White
+
+UI -> UI: Mở màn hình quản lý kho và nguyên liệu
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách nguyên liệu và thẻ kho
+activate SYS
+deactivate SYS
+
+SYS -> DB_NL: Truy vấn danh sách nguyên liệu
+activate DB_NL
+deactivate DB_NL
+
+SYS -> DB_TKHO: Lấy thông tin tồn kho
+activate DB_TKHO
+deactivate DB_TKHO
+
+SYS -->> UI: Hiển thị danh sách ban đầu
+
+TK -> UI: Chọn chức năng
+activate UI
+deactivate UI
+
+group opt Thêm nguyên liệu
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Thêm nguyên liệu (Seq_ThemNguyenLieu)
+end
+
+group opt Sửa nguyên liệu
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Sửa nguyên liệu (Seq_SuaNguyenLieu)
+end
+
+group opt Lập phiếu nhập kho
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Lập phiếu nhập kho (Seq_LapPhieuNhapKho)
+end
+
+group opt Lập phiếu xuất kho
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Lập phiếu xuất kho (Seq_LapPhieuXuatKho)
+end
+
+group opt Lập phiếu xuất hủy
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Lập phiếu xuất hủy (Seq_LapPhieuXuatHuy)
+end
+
+group opt Cảnh báo tồn kho
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Cảnh báo tồn kho (Seq_CanhBaoTonKho)
+end
+
+group opt Tra cứu thẻ kho
+    autonumber stop
+    TK -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    ref over TK, DB_TKHO: Tra cứu thẻ kho (Seq_TraCuuTheKho)
+end
+
+@enduml

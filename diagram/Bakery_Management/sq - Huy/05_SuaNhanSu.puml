@@ -1,0 +1,94 @@
+@startuml SuaNhanSu
+mainframe sd Seq_SuaNhanSu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "Form_SuaNhanSu" as FRM #White
+boundary "GUI_NhanSu" as UI #White
+control "Controller_NhanSu" as SYS #White
+entity ": VAITRO" as DB_VT #White
+entity ": NHANVIEN" as DB_NV #White
+entity ": TAIKHOAN" as DB_TK #White
+entity ": NHANVIEN_VAITRO" as DB_NVVT #White
+
+QL -> UI: Chọn nhân viên cần chỉnh sửa thông tin
+activate UI
+deactivate UI
+
+UI -->> FRM: Hiển thị biểu mẫu sửa nhân sự
+
+
+QL -> FRM: Nhập thông tin nhân viên cần chỉnh sửa
+activate FRM
+deactivate FRM
+
+QL -> FRM: Nhấn nút "Lưu"
+activate FRM
+deactivate FRM
+FRM -> SYS: Gửi dữ liệu cập nhật
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra trường bắt buộc và định dạng
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra trường bắt buộc và định dạng
+    note over of QL: [Dữ liệu không hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_NV
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi dữ liệu
+else 
+    note over of QL: [Dữ liệu hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_NV
+    autonumber resume "<b>##."
+    group opt Thay đổi mật khẩu
+        autonumber stop
+        QL -[hidden]-> DB_NV
+        autonumber resume "<b>##."
+        ref over QL, DB_NVVT: Đỗi mật khẩu cá nhân(Seq_DoiMatKhauCaNhan)
+    end
+    
+    SYS -> DB_TK: Kiểm tra trùng tên đăng nhập (trừ nhân viên hiện tại)
+    activate DB_TK
+    deactivate DB_TK
+    
+    group alt Kiểm tra trùng tên đăng nhập (trừ nhân viên hiện tại)
+        note over of QL: [Bị trùng dữ liệu]
+        autonumber stop
+        QL -[hidden]-> DB_NV
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi trùng lặp
+    else 
+        note over of QL: [Không trùng]
+        autonumber stop
+        QL -[hidden]-> DB_NV
+        autonumber resume "<b>##."
+        SYS -> DB_NV: Cập nhật thông tin cá nhân
+        activate DB_NV
+        deactivate DB_NV
+        
+        SYS -> DB_TK: Cập nhật tài khoản đăng nhập
+        activate DB_TK
+        deactivate DB_TK
+        
+        SYS -> DB_NVVT: Xóa và cập nhật vai trò nhân viên
+        activate DB_NVVT
+        deactivate DB_NVVT
+        
+        SYS -> DB_NV: Lấy danh sách nhân viên
+        activate DB_NV
+        deactivate DB_NV
+        
+        SYS -->> UI: Làm mới danh sách, xóa trắng biểu mẫu và thông báo thành công
+    end
+end
+
+@enduml

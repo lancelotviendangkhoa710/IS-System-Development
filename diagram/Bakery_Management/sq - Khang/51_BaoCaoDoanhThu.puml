@@ -1,0 +1,68 @@
+@startuml BaoCaoDoanhThu
+mainframe sd Seq_BaoCaoDoanhThu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_BaoCaoDoanhThu" as UI #White
+control "Controller_BaoCaoThongKe" as SYS #White
+entity ": HOADON" as DB_HD #White
+
+QL -> UI: Chọn chức năng xem báo cáo doanh thu
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu mở form chọn tiêu chí
+activate SYS
+deactivate SYS
+
+SYS -->> UI: Hiển thị biểu mẫu chọn tiêu chí và khoảng thời gian
+
+QL -> UI: Chọn tiêu chí, khoảng thời gian và nhấn "Tạo báo cáo"
+activate UI
+deactivate UI
+
+group opt Không chọn thời gian
+    autonumber stop
+    QL -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    note over QL: Hệ thống mặc định thống kê cho ngày hiện tại
+end
+
+UI -> SYS: Gửi yêu cầu thống kê doanh thu
+activate SYS
+deactivate SYS
+
+SYS -> DB_HD: Tổng hợp dữ liệu hóa đơn trong khoảng thời gian yêu cầu
+activate DB_HD
+deactivate DB_HD
+
+SYS -> SYS: Tính toán tổng doanh thu tương ứng
+activate SYS
+deactivate SYS
+
+group alt Kết quả tính toán
+    note over of QL: [Lỗi truy xuất dữ liệu]
+    autonumber stop
+    QL -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi, không hiển thị báo cáo
+else 
+    note over of QL: [Không có dữ liệu giao dịch trong kỳ]
+    autonumber stop
+    QL -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị số liệu bằng 0 và thông báo trống
+else 
+    note over of QL: [Tính toán thành công]
+    autonumber stop
+    QL -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị bảng số liệu chi tiết và biểu đồ xu hướng
+end
+
+@enduml

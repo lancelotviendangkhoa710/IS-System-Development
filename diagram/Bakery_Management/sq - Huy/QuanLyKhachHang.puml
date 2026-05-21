@@ -1,0 +1,87 @@
+@startuml QuanLyKhachHang
+mainframe sd Seq_QuanLyKhachHang
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Nhân viên" as NV #White
+boundary "GUI_KhachHang" as UI #White
+control "Controller_KhachHang" as SYS #White
+entity ": KHACHHANG" as DB_KH #White
+entity ": HANGTHANHVIEN" as DB_HTV #White
+
+UI -> UI: Mở màn hình quản lý khách hàng
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách
+activate SYS
+deactivate SYS
+
+SYS -> DB_KH: Truy vấn danh sách khách hàng hoạt động
+activate DB_KH
+deactivate DB_KH
+
+SYS -> DB_HTV: Lấy thông tin hạng thành viên
+activate DB_HTV
+deactivate DB_HTV
+
+SYS -->> UI: Cập nhật danh sách lên bảng
+
+NV -> UI: Chọn chức năng
+activate UI
+deactivate UI
+
+group opt Thêm khách hàng
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Thêm khách hàng (Seq_ThemKhachHang)
+end
+
+group opt Sửa khách hàng
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Sửa khách hàng (Seq_SuaKhachHang)
+end
+
+group opt Khôi phục khách hàng
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Khôi phục khách hàng (Seq_KhoiPhucKhachHang)
+end
+
+group opt Xóa khách hàng
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Xóa khách hàng (Seq_XoaKhachHang)
+end
+
+group opt Tra cứu khách hàng
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Tra cứu khách hàng (Seq_TraCuuKhachHang)
+end
+
+group opt Tra cứu lịch sử mua hàng
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Tra cứu lịch sử mua hàng (Seq_TraCuuLichSuMuaHang)
+end
+
+group opt Cấu hình hạng thành viên
+    autonumber stop
+    NV -[hidden]-> DB_HTV
+    autonumber resume "<b>##."
+    ref over NV, DB_HTV: Cấu hình hạng thành viên (Seq_CauHinhHangThanhVien)
+end
+
+@enduml

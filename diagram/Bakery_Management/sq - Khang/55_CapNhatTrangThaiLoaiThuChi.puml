@@ -1,0 +1,98 @@
+@startuml CapNhatTrangThaiLoaiThuChi
+mainframe sd Seq_CapNhatTrangThaiLoaiThuChi
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_QuanLyThuChi" as UI #White
+control "Controller_QuanLyThuChi" as SYS #White
+entity ": LOAITHUCHI" as DB_LTC #White
+
+QL -> UI: Chọn một loại thu chi cần thay đổi trạng thái
+activate UI
+deactivate UI
+
+QL -> UI: Nhấn khóa hoặc mở khóa
+activate UI
+deactivate UI
+
+UI -> SYS: Gửi yêu cầu thay đổi trạng thái
+activate SYS
+deactivate SYS
+
+SYS -->> UI: Hiển thị yêu cầu xác nhận
+
+group alt Xác nhận thao tác
+    note over of QL: [Từ chối xác nhận]
+    autonumber stop
+    QL -[hidden]-> DB_LTC
+    autonumber resume "<b>##."
+    QL -> UI: Hủy bỏ
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Hủy yêu cầu
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Hủy thao tác, trạng thái giữ nguyên
+else 
+    note over of QL: [Đồng ý xác nhận]
+    autonumber stop
+    QL -[hidden]-> DB_LTC
+    autonumber resume "<b>##."
+    QL -> UI: Xác nhận
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Gửi yêu cầu cập nhật trạng thái
+    activate SYS
+    deactivate SYS
+    
+    SYS -> DB_LTC: Ghi nhận trạng thái mới
+    activate DB_LTC
+    deactivate DB_LTC
+
+    SYS -> SYS: Kiểm tra kết quả cập nhật
+    activate SYS
+    deactivate SYS
+    
+    group alt Kết quả cập nhật
+        note over of QL: [Lưu thất bại]
+        autonumber stop
+        QL -[hidden]-> DB_LTC
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi, trạng thái không thay đổi
+    else 
+        note over of QL: [Lưu thành công]
+        autonumber stop
+        QL -[hidden]-> DB_LTC
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo thành công và làm mới danh sách
+    end
+end
+
+group opt Xem danh sách đã khóa
+    autonumber stop
+    QL -[hidden]-> DB_LTC
+    autonumber resume "<b>##."
+    QL -> UI: Chuyển sang xem danh sách đã bị khóa
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Yêu cầu tải danh sách loại thu chi bị khóa
+    activate SYS
+    deactivate SYS
+    
+    SYS -> DB_LTC: Truy vấn loại thu chi (trạng thái = khóa)
+    activate DB_LTC
+    deactivate DB_LTC
+    
+    SYS -->> UI: Hiển thị danh sách tương ứng
+end
+
+@enduml

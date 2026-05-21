@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+
+
+  usecase "Quản lý thu chi" as UC_Main
+  usecase "Thêm loại thu chi" as UC_AddCat
+  usecase "Sửa loại thu chi" as UC_EditCat
+  usecase "Cập nhật trạng thái loại thu chi" as UC_StatusCat
+  usecase "Lập phiếu thu chi" as UC_Create
+  usecase "Hủy phiếu thu chi" as UC_Cancel
+  usecase "Tra cứu phiếu thu chi" as UC_Search
+
+
+UC_AddCat .up.> UC_Main : <<extend>>
+UC_EditCat .up.> UC_Main : <<extend>>
+UC_StatusCat .up.> UC_Main : <<extend>>
+UC_Create .up.> UC_Main : <<extend>>
+UC_Cancel .up.> UC_Main : <<extend>>
+UC_Search .up.> UC_Main : <<extend>>
+
+UC_EditCat ..> UC_Search : <<include>>
+UC_StatusCat ..> UC_Search : <<include>>
+UC_Cancel ..> UC_Search : <<include>>
+
+@enduml

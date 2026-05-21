@@ -1,0 +1,91 @@
+@startuml ThemNguyenLieu
+mainframe sd Seq_ThemNguyenLieu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "Form_ThemNguyenLieu" as FRM #White
+boundary "GUI_KhoVaNguyenLieu" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
+
+TK -> UI: Chọn thêm nguyên liệu mới
+activate UI
+deactivate UI
+
+UI -->> FRM: Hiển thị biểu mẫu nhập thông tin
+
+TK -> FRM: Nhập tên nguyên liệu, quy cách bảo quản, đơn vị tính
+activate FRM
+deactivate FRM
+
+group opt Hủy thao tác
+    autonumber stop
+    TK -[hidden]-> DB_NL
+    autonumber resume "<b>##."
+    TK -> FRM: Nhấn nút "Hủy"
+    activate FRM
+    deactivate FRM
+    
+    FRM -> UI: Gửi yêu cầu đóng form
+    activate UI
+    deactivate UI
+
+    UI -> SYS: Yêu cầu đóng form
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Đóng biểu mẫu, không lưu dữ liệu
+end
+
+    FRM -> UI: Gửi dữ liệu
+    activate UI
+    deactivate UI
+
+UI -> SYS: Gửi yêu cầu thêm nguyên liệu
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra tính hợp lệ của dữ liệu
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra dữ liệu
+    note over of TK: [Thông tin không hợp lệ]
+    autonumber stop
+    TK -[hidden]-> DB_NL
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi và giữ nguyên biểu mẫu
+else 
+    note over of TK: [Thông tin hợp lệ]
+    autonumber stop
+    TK -[hidden]-> DB_NL
+    autonumber resume "<b>##."
+    SYS -> DB_NL: Lưu thông tin nguyên liệu mới
+    activate DB_NL
+    deactivate DB_NL
+
+    SYS -> SYS: Kiểm tra kết quả lưu
+    activate SYS
+    deactivate SYS
+    
+    group alt Kết quả lưu
+        note over of TK: [Lưu thất bại]
+        autonumber stop
+        TK -[hidden]-> DB_NL
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi lưu dữ liệu
+    else 
+        note over of TK: [Lưu thành công]
+        autonumber stop
+        TK -[hidden]-> DB_NL
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo thành công và làm mới danh sách
+    end
+end
+
+@enduml

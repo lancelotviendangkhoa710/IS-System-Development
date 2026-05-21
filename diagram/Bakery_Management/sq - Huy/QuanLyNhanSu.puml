@@ -1,0 +1,90 @@
+@startuml QuanLyNhanSu
+mainframe sd Seq_QuanLyNhanSu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_NhanSu" as UI #White
+control "Controller_NhanSu" as SYS #White
+entity ": VAITRO" as DB_VT #White
+entity ": NHANVIEN_VAITRO" as DB_NVVT #White
+entity ": NHANVIEN" as DB_NV #White
+entity ": TAIKHOAN" as DB_TK #White
+
+UI -> UI: Mở màn hình quản lý nhân sự
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách nhân viên
+activate SYS
+deactivate SYS
+
+SYS -> DB_NV: Truy vấn danh sách nhân viên
+activate DB_NV
+deactivate DB_NV
+
+SYS -> DB_TK: Lấy thông tin tài khoản của nhân viên
+activate DB_TK
+deactivate DB_TK
+
+SYS -> DB_NVVT: Lấy thông tin vai trò của nhân viên
+activate DB_NVVT
+deactivate DB_NVVT
+
+SYS -> DB_VT: Lấy thông tin chi tiết của vai trò 
+activate DB_VT
+deactivate DB_VT
+
+SYS -->> UI: Hiển thị danh sách ban đầu
+
+QL -> UI: Chọn chức năng
+activate UI
+deactivate UI
+
+group opt Thêm nhân sự
+    autonumber stop
+    QL -[hidden]-> DB_TK
+    autonumber resume "<b>##."
+    ref over QL, DB_TK: Thêm nhân sự (Seq_ThemNhanSu)
+end
+
+group opt Sửa nhân sự
+    autonumber stop
+    QL -[hidden]-> DB_TK
+    autonumber resume "<b>##."
+    ref over QL, DB_TK: Sửa nhân sự (Seq_SuaNhanSu)
+end
+
+group opt Cập nhật trạng thái nhân sự
+    autonumber stop
+    QL -[hidden]-> DB_TK
+    autonumber resume "<b>##."
+    ref over QL, DB_TK: Cập nhật trạng thái (Seq_CapNhatTrangThaiNhanSu)
+end
+
+group opt Tra cứu nhân sự
+    autonumber stop
+    QL -[hidden]-> DB_TK
+    autonumber resume "<b>##."
+    ref over QL, DB_TK: Tra cứu nhân sự (Seq_TraCuuNhanSu)
+end
+
+group opt Phân quyền tài khoản
+    autonumber stop
+    QL -[hidden]-> DB_TK
+    autonumber resume "<b>##."
+    ref over QL, DB_TK: Phân quyền tài khoản (Seq_PhanQuyenTaiKhoan)
+end
+
+group opt Xem nhật ký hoạt động
+    autonumber stop
+    QL -[hidden]-> DB_TK
+    autonumber resume "<b>##."
+    ref over QL, DB_TK: Xem nhật ký hoạt động (Seq_XemNhatKyHoatDong)
+end
+
+@enduml

@@ -1,0 +1,71 @@
+@startuml XemNhatKyHoatDong
+mainframe sd Seq_XemNhatKyHoatDong
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_NhatKy" as UI #White
+control "Controller_NhatKy" as SYS #White
+entity ": VW_HoatDongNhanVien" as DB_NK #White
+
+QL -> UI: Chọn chức năng xem nhật ký hoạt động
+activate UI
+deactivate UI
+
+UI -> UI: Hiển thị màn hình nhật ký 
+activate UI
+deactivate UI
+
+QL -> UI: Chọn loại thao tác và khoảng thời gian
+activate UI
+deactivate UI
+
+QL -> UI: Nhấn nút "Tìm kiếm"
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tìm kiếm nhật ký
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra khoảng thời gian (mặc định hôm nay nếu để trống)
+activate SYS
+deactivate SYS
+
+SYS -> DB_NK: Lấy dữ liệu từ view VW_HoatDongNhanVien
+activate DB_NK
+deactivate DB_NK
+
+SYS -> SYS: Xử lý dữ liệu hiển thị
+activate SYS
+deactivate SYS
+
+group alt Xử lý dữ liệu hiển thị
+    note over of QL: [Lỗi truy xuất]
+    autonumber stop
+    QL -[hidden]-> DB_NK
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi truy xuất
+else 
+    note over of QL: [Không có dữ liệu]
+    autonumber stop
+    QL -[hidden]-> DB_NK
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị danh sách rỗng
+else 
+    note over of QL: [Có dữ liệu]
+    autonumber stop
+    QL -[hidden]-> DB_NK
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị danh sách thao tác
+    
+    QL -> UI: Chọn xem chi tiết một bản ghi
+    activate UI
+    deactivate UI
+end
+
+@enduml

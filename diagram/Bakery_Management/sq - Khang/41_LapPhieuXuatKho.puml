@@ -1,0 +1,125 @@
+@startuml LapPhieuXuatKho
+mainframe sd Seq_LapPhieuXuatKho
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thợ bếp" as TB #White
+boundary "Form_LapPhieuXuatKho" as FRM #White
+boundary "GUI_KhoVaNguyenLieu" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
+entity ": PHIEUXUATKHO" as DB_PXK #White
+entity ": CHITIETPHIEUXUATKHO" as DB_CTPXK #White
+entity ": THEKHO" as DB_TKHO #White
+
+TB -> UI: Chọn chức năng lập phiếu xuất kho
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu mở form lập phiếu
+activate SYS
+deactivate SYS
+
+SYS -> DB_NL: Lấy danh sách nguyên liệu (tồn kho > 0)
+activate DB_NL
+deactivate DB_NL
+
+SYS -->> UI: Trả về danh sách dữ liệu
+
+UI -->> FRM: Hiển thị biểu mẫu lập phiếu mới
+
+group opt Hủy thao tác
+    autonumber stop
+    TB -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    TB -> FRM: Nhấn nút "Hủy"
+    activate FRM
+    deactivate FRM
+    
+FRM -> SYS: Yêu cầu đóng form
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Đóng biểu mẫu, không lưu dữ liệu
+end
+
+
+TB -> FRM: Nhập thông tin người nhận và ghi chú
+activate FRM
+deactivate FRM
+
+loop Thêm nguyên liệu vào phiếu
+    TB -> FRM: Chọn nguyên liệu, nhập số lượng và thêm vào phiếu
+    activate FRM
+    deactivate FRM
+    
+FRM -> SYS: Thêm nguyên liệu vào danh sách tạm
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> FRM: Cập nhật chi tiết phiếu
+end
+
+TB -> FRM: Nhấn xác nhận lưu phiếu xuất
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Gửi dữ liệu phiếu xuất kho
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra tính hợp lệ (phiếu rỗng, số lượng xuất <= tồn kho)
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra dữ liệu
+    note over of TB: [Phiếu rỗng hoặc xuất quá tồn kho]
+    autonumber stop
+    TB -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi và giữ nguyên biểu mẫu
+else 
+    note over of TB: [Dữ liệu hợp lệ]
+    autonumber stop
+    TB -[hidden]-> DB_TKHO
+    autonumber resume "<b>##."
+    SYS -> DB_PXK: Lưu thông tin phiếu xuất kho
+    activate DB_PXK
+    deactivate DB_PXK
+    
+    SYS -> DB_CTPXK: Lưu chi tiết các nguyên liệu xuất
+    activate DB_CTPXK
+    deactivate DB_CTPXK
+
+    SYS -> DB_NL: Trừ số lượng tồn kho
+    activate DB_NL
+    deactivate DB_NL
+
+    SYS -> DB_TKHO: Ghi nhận biến động thẻ kho
+    activate DB_TKHO
+    deactivate DB_TKHO
+
+    SYS -> SYS: Kiểm tra kết quả lưu
+    activate SYS
+    deactivate SYS
+    
+    group alt Kết quả lưu
+        note over of TB: [Lưu thất bại]
+        autonumber stop
+        TB -[hidden]-> DB_TKHO
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi lưu dữ liệu
+    else 
+        note over of TB: [Lưu thành công]
+        autonumber stop
+        TB -[hidden]-> DB_TKHO
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo thành công và làm mới màn hình
+    end
+end
+
+@enduml

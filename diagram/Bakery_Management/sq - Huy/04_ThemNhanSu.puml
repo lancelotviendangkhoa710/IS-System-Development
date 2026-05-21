@@ -1,0 +1,91 @@
+@startuml ThemNhanSu
+mainframe sd Seq_ThemNhanSu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "Form_ThemNhanSu" as FRM #White
+boundary "GUI_NhanSu" as UI #White
+control "Controller_NhanSu" as SYS #White
+entity ": VAITRO" as DB_VT #White
+entity ": NHANVIEN" as DB_NV #White
+entity ": TAIKHOAN" as DB_TK #White
+entity ": NHANVIEN_VAITRO" as DB_NVVT #White
+
+QL -> UI: Nhấn nút "Thêm mới"
+activate UI
+deactivate UI
+
+UI -->> FRM: Hiển thị biểu mẫu thêm nhân sự
+
+
+QL -> FRM: Nhập thông tin nhân viên 
+activate FRM
+deactivate FRM
+
+QL -> FRM: Nhấn nút "Lưu"
+activate FRM
+deactivate FRM
+FRM -> UI: Gửi dữ liệu
+activate UI
+deactivate UI
+
+UI -> SYS: Gửi dữ liệu nhân viên mới
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra trường bắt buộc và định dạng dữ liệu
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra trường bắt buộc và định dạng dữ liệu
+    note over of QL: [Dữ liệu không hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_NV
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi dữ liệu
+else 
+    note over of QL: [Dữ liệu hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_NV
+    autonumber resume "<b>##."
+    SYS -> SYS: Mã hóa mật khẩu
+    activate SYS
+    deactivate SYS
+
+    SYS -> DB_TK: Kiểm tra trùng tên đăng nhập
+    activate DB_TK
+    deactivate DB_TK
+
+    group alt Kiểm tra trùng tên đăng nhập
+        note over of QL: [Bị trùng dữ liệu]
+        autonumber stop
+        QL -[hidden]-> DB_NV
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi trùng lặp
+    else 
+        note over of QL: [Không trùng]
+        autonumber stop
+        QL -[hidden]-> DB_NV
+        autonumber resume "<b>##."
+        SYS -> DB_NV: Lưu hồ sơ nhân viên mới
+        activate DB_NV
+        deactivate DB_NV
+
+        SYS -> DB_TK: Tạo tài khoản đăng nhập
+        activate DB_TK
+        deactivate DB_TK
+
+        SYS -> DB_NVVT: Lưu vai trò nhân viên
+        activate DB_NVVT
+        deactivate DB_NVVT
+
+        SYS -->> UI: Thông báo thành công
+    end
+end
+
+@enduml
