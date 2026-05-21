@@ -6,6 +6,7 @@ public class CTDonTuyChinhDTO {
     private int maCTTC;
     private int maDon;
     private int maSP;
+    private String tenSP;
     private int soLuong;
     private Integer maKC;
     private Integer maCot;
@@ -45,6 +46,9 @@ public class CTDonTuyChinhDTO {
 
     public int getMaSP() { return maSP; }
     public void setMaSP(int maSP) { this.maSP = maSP; }
+
+    public String getTenSP() { return tenSP; }
+    public void setTenSP(String tenSP) { this.tenSP = tenSP; }
 
     public int getSoLuong() { return soLuong; }
     public void setSoLuong(int soLuong) { this.soLuong = soLuong; }

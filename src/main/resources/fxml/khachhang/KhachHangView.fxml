@@ -44,7 +44,7 @@
                                        promptText="🔍 Tìm theo tên, SĐT, mã KH..."
                                        styleClass="text-field" onKeyReleased="#onSearch"/>
                             <ComboBox fx:id="cbTierFilter" prefHeight="35" prefWidth="180"
-                                      promptText="🎖 Tất cả hạng"
+                                      promptText="🏆 Tất cả hạng"
                                       onAction="#onTierFilterChanged"
                                       styleClass="combo-box"/>
                             <Region HBox.hgrow="ALWAYS"/>
@@ -54,6 +54,12 @@
                                     styleClass="btn-secondary" text="🗑 Thùng rác"/>
                             <Button onAction="#onExportExcelClicked"
                                     styleClass="btn-secondary" text="📥 Xuất Excel"/>
+                            <Button fx:id="btnLichSu" onAction="#onLichSuClicked"
+                                    styleClass="btn-secondary" text="📋 Lịch sử" disable="true"/>
+                            <Button fx:id="btnSua" onAction="#onSuaClicked"
+                                    styleClass="btn-secondary" text="✏️ Sửa" disable="true"/>
+                            <Button fx:id="btnXoa" onAction="#onXoaClicked"
+                                    styleClass="btn-danger" text="🗑 Xóa" disable="true"/>
                             <Button onAction="#onAddCustomerClicked"
                                     styleClass="btn-success" text="➕ Thêm khách hàng"/>
                         </HBox>
@@ -71,7 +77,6 @@
                                     <TableColumn fx:id="colRegDate" prefWidth="120" text="Ngày đăng ký" />
                                     <TableColumn fx:id="colPoints" prefWidth="100" text="Điểm" />
                                     <TableColumn fx:id="colTier" prefWidth="120" text="Hạng" />
-                                    <TableColumn fx:id="colActions" prefWidth="210" text="Thao tác" />
                                 </columns>
                                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                             </TableView>

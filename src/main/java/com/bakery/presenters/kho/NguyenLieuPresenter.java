@@ -108,6 +108,22 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
         );
     }
 
+    /**
+     * Sửa nguyên liệu với dữ liệu lấy trực tiếp từ dialog result (không đọc từ view fields).
+     * Dùng cho flow dialog-based: controller mở dialog → lấy DTO kết quả → gọi method này.
+     */
+    public void suaNguyenLieuTuDialog(int maNL, String tenNL, String xuatXu,
+                                       double mucTon, int maDVT) {
+        runTask(
+            () -> nguyenLieuService.suaNguyenLieu(maNL, tenNL, xuatXu, mucTon, maDVT),
+            () -> {
+                view.hienThiThanhCong("✅ Cập nhật nguyên liệu '" + tenNL + "' thành công.");
+                view.lamMoiForm();
+                taiDanhSach();
+            }
+        );
+    }
+
     // ── Xóa ───────────────────────────────────────────────────────────────────
 
     public void xoaNguyenLieu() {
@@ -123,6 +139,22 @@ public class NguyenLieuPresenter extends BasePresenter<INguyenLieuView> {
             () -> {
                 cachedSelected = null;
                 view.hienThiThanhCong("Xóa nguyên liệu thành công.");
+                view.lamMoiForm();
+                taiDanhSach();
+            }
+        );
+    }
+
+    /**
+     * Xóa nguyên liệu theo mã cụ thể — dùng cho action column (không cần selection).
+     * Tránh race condition với auto-refresh làm mất cachedSelected.
+     */
+    public void xoaNguyenLieuTheoMa(int maNL, String tenNL) {
+        runTask(
+            () -> nguyenLieuService.xoaNguyenLieu(maNL, maNvHienTai),
+            () -> {
+                cachedSelected = null;
+                view.hienThiThanhCong("✅ Đã xóa nguyên liệu '" + tenNL + "'.");
                 view.lamMoiForm();
                 taiDanhSach();
             }

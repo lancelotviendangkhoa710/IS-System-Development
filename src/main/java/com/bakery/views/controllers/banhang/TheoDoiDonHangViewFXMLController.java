@@ -417,7 +417,10 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         // ─── Bảng bánh bán sẵn ─────────────────────────────────────
         TableView<CTDonHangDTO> tblBanSan = new TableView<>();
         TableColumn<CTDonHangDTO, String> colTenSP = new TableColumn<>("Sản phẩm");
-        colTenSP.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty("SP #" + c.getValue().getMaSP()));
+        colTenSP.setCellValueFactory(c -> {
+            String ten = c.getValue().getTenSP();
+            return new javafx.beans.property.SimpleStringProperty(ten != null ? ten : "SP #" + c.getValue().getMaSP());
+        });
         colTenSP.setPrefWidth(180);
         TableColumn<CTDonHangDTO, Integer> colSL = new TableColumn<>("Số lượng");
         colSL.setCellValueFactory(c -> new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getSoLuong()));
@@ -439,8 +442,11 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
 
         // ─── Bảng bánh tùy chỉnh ──────────────────────────────────────
         TableView<CTDonTuyChinhDTO> tblTuyChinh = new TableView<>();
-        TableColumn<CTDonTuyChinhDTO, String> colTcTen = new TableColumn<>("Bánh tùy chỉnh (SP#)");
-        colTcTen.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty("SP #" + c.getValue().getMaSP()));
+        TableColumn<CTDonTuyChinhDTO, String> colTcTen = new TableColumn<>("Bánh tùy chỉnh");
+        colTcTen.setCellValueFactory(c -> {
+            String ten = c.getValue().getTenSP();
+            return new javafx.beans.property.SimpleStringProperty(ten != null ? ten : "SP #" + c.getValue().getMaSP());
+        });
         colTcTen.setPrefWidth(160);
         TableColumn<CTDonTuyChinhDTO, Integer> colTcSL = new TableColumn<>("SL");
         colTcSL.setCellValueFactory(c -> new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getSoLuong()));

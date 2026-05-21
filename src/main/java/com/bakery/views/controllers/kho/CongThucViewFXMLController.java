@@ -6,6 +6,7 @@ import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.model.dto.kho.SanPhamDTO;
 import com.bakery.presenters.kho.CongThucPresenter;
+import com.bakery.utils.DialogHelper;
 import com.bakery.views.interfaces.kho.ICongThucView;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -37,11 +38,11 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @FXML private TableColumn<CongThucDTO, Double>  colThanhTien;
 
     @FXML private ComboBox<SanPhamDTO>    cmbChonSanPham;  // autocomplete chọn SP
-    @FXML private ComboBox<NguyenLieuDTO> cmbNguyenLieu;   // chọn NL khi sửa định mức
-    @FXML private TextField               txtDinhMuc;
     @FXML private Label                   lblTongGiaVon;
     @FXML private Label                   lblSanPhamDangCauHinh; // hiện tên SP đang cấu hình
-    @FXML private Label                   lblDonViTinh;           // hiện DVT ngay cạnh ô định mức
+
+    @FXML private Button                  btnSua;
+    @FXML private Button                  btnXoa;
 
     private final ObservableList<CongThucDTO> dsCongThuc = FXCollections.observableArrayList();
     private CongThucPresenter presenter;
@@ -57,7 +58,6 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @FXML
     public void initialize() {
         setupTable();
-        setupComboNguyenLieu();
         presenter = new CongThucPresenter(this);
         presenter.khoiTao();
         // Autocomplete setup sau khi presenter tạo xong (dữ liệu load async)
@@ -90,27 +90,12 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
 
         tblCongThuc.setItems(dsCongThuc);
         tblCongThuc.getSelectionModel().selectedItemProperty()
-                .addListener((obs, o, n) -> presenter.chonCongThuc(n));
-    }
-
-    /** ComboBox nguyên liệu — hiện "Tên NL (DVT)" để user biết đơn vị khi nhập định mức. */
-    private void setupComboNguyenLieu() {
-        cmbNguyenLieu.setConverter(new StringConverter<>() {
-            @Override public String toString(NguyenLieuDTO nl) {
-                if (nl == null) return "";
-                String dvt = nl.getTenDVT();
-                return dvt.isEmpty() ? nl.getTenNL() : nl.getTenNL() + " (" + dvt + ")";
-            }
-            @Override public NguyenLieuDTO fromString(String s) { return null; }
-        });
-
-        // Cập nhật label DVT ngay cạnh ô định mức khi chọn nguyên liệu
-        cmbNguyenLieu.valueProperty().addListener((obs, oldNL, newNL) -> {
-            if (lblDonViTinh != null) {
-                lblDonViTinh.setText(newNL != null && !newNL.getTenDVT().isEmpty()
-                        ? newNL.getTenDVT() : "");
-            }
-        });
+                .addListener((obs, o, n) -> {
+                    presenter.chonCongThuc(n);
+                    boolean coChon = n != null;
+                    if (btnSua != null) btnSua.setDisable(!coChon);
+                    if (btnXoa != null) btnXoa.setDisable(!coChon);
+                });
     }
 
     /**
@@ -155,7 +140,6 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     @Override
     public void hienThiDanhSachNguyenLieu(List<NguyenLieuDTO> dsNL) {
         cachedDsNguyenLieu = dsNL != null ? dsNL : new ArrayList<>();
-        cmbNguyenLieu.setItems(FXCollections.observableArrayList(cachedDsNguyenLieu));
     }
 
     @Override
@@ -176,12 +160,7 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
 
     @Override
     public void hienThiChiTiet(CongThucDTO ct) {
-        if (ct == null) return;
-        cmbNguyenLieu.getItems().stream()
-                .filter(nl -> nl.getMaNL() == ct.getMaNL())
-                .findFirst()
-                .ifPresent(cmbNguyenLieu::setValue);
-        txtDinhMuc.setText(String.valueOf(ct.getSoLuongTieuHao()));
+        // No-op vì không còn form inline bên phải, SelectionListener tự xử lý bật/tắt nút
     }
 
     @Override public void hienThiLoi(String thongBao)     { hienThiLoiLabel(thongBao); }
@@ -197,9 +176,9 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
 
     @Override
     public void lamMoiForm() {
-        cmbNguyenLieu.setValue(null);
-        txtDinhMuc.clear();
         tblCongThuc.getSelectionModel().clearSelection();
+        if (btnSua != null) btnSua.setDisable(true);
+        if (btnXoa != null) btnXoa.setDisable(true);
         if (lblThongBao != null) lblThongBao.setText("");
     }
 
@@ -279,21 +258,62 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
     }
 
     @FXML
-    private void onLuuCongThuc() {
-        NguyenLieuDTO nlChon = cmbNguyenLieu.getValue();
-        if (nlChon == null) { hienThiLoiLabel("Vui lòng chọn dòng nguyên liệu cần sửa từ bảng."); return; }
-        double dinhMuc;
+    private void onSuaAction() {
+        CongThucDTO selected = getSelectedCongThuc();
+        if (selected == null) return;
+
+        TextInputDialog dialog = new TextInputDialog(String.valueOf(selected.getSoLuongTieuHao()));
+        dialog.setTitle("Sửa định mức nguyên liệu");
+        dialog.setHeaderText("Chỉnh sửa định mức cho " + selected.getTenNguyenLieu());
+        dialog.setContentText("Định mức tiêu hao (" + selected.getTenDVT() + "):");
+        dialog.getDialogPane().getStyleClass().add("bg-app");
+
         try {
-            dinhMuc = Double.parseDouble(txtDinhMuc.getText().trim());
-            if (dinhMuc <= 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            hienThiLoiLabel("Định mức phải là số dương hợp lệ.");
-            return;
-        }
-        presenter.luuCongThuc(nlChon.getMaNL(), dinhMuc);
+            dialog.getDialogPane().getStylesheets()
+                    .add(getClass().getResource("/css/bakery.css").toExternalForm());
+        } catch (Exception ignored) {}
+
+        Button btnOk = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        if (btnOk != null) btnOk.getStyleClass().add("btn-primary");
+        Button btnCancel = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (btnCancel != null) btnCancel.getStyleClass().add("btn-secondary");
+
+        dialog.showAndWait().ifPresent(val -> {
+            try {
+                double dinhMucMoi = Double.parseDouble(val.trim());
+                if (dinhMucMoi <= 0) {
+                    hienThiLoiLabel("⚠ Định mức tiêu hao phải là số dương.");
+                    return;
+                }
+                presenter.luuCongThuc(selected.getMaNL(), dinhMucMoi);
+            } catch (NumberFormatException e) {
+                hienThiLoiLabel("⚠ Định mức không hợp lệ.");
+            }
+        });
     }
 
-    @FXML private void onXoaCongThuc() { presenter.xoaCongThuc(); }
+    @FXML
+    private void onXoaAction() {
+        CongThucDTO selected = getSelectedCongThuc();
+        if (selected == null) return;
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có chắc chắn muốn xóa nguyên liệu \"" + selected.getTenNguyenLieu() + "\" khỏi công thức?",
+                ButtonType.OK, ButtonType.CANCEL);
+        alert.getDialogPane().getStyleClass().add("bg-app");
+        DialogHelper.applyBakeryTheme(alert);
+
+        Button btnOk = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        if (btnOk != null) btnOk.getStyleClass().add("btn-danger");
+        Button btnCancel = (Button) alert.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (btnCancel != null) btnCancel.getStyleClass().add("btn-secondary");
+
+        alert.showAndWait().ifPresent(bt -> {
+            if (bt == ButtonType.OK) {
+                presenter.xoaCongThuc();
+            }
+        });
+    }
 
     @FXML private void onLamMoi() { presenter.taiCongThuc(); }
 }

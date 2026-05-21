@@ -1,7 +1,5 @@
 package com.bakery.views.controllers.hethong;
 
-// import com.bakery.App;
-// import com.bakery.model.dto.khachhang.KhachHangDTO;
 import com.bakery.presenters.hethong.DoiSoatDongCaPresenter;
 import com.bakery.services.nhansu.XacThucService;
 import com.bakery.services.hethong.DoiSoatService;
@@ -10,7 +8,6 @@ import com.bakery.utils.SessionContext;
 import com.bakery.utils.UserSession;
 import com.bakery.views.interfaces.hethong.IDoiSoatDongCaView;
 import javafx.application.Platform;
-// import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,7 +18,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -292,7 +288,8 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
     @Override
     public void xoaLoi() {
         Platform.runLater(() -> {
-            if (lblThongBao != null) lblThongBao.setText("");
+            if (lblThongBao != null)
+                lblThongBao.setText("");
         });
     }
 
@@ -324,12 +321,14 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
             if (owner != null) {
                 try {
                     java.net.URL fxmlUrl = getClass().getResource("/fxml/hethong/DangNhapView.fxml");
-                    if (fxmlUrl == null) return;
+                    if (fxmlUrl == null)
+                        return;
                     javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
                     javafx.scene.Parent root = loader.load();
                     javafx.scene.Scene scene = new javafx.scene.Scene(root);
                     URL css = getClass().getResource("/css/bakery.css");
-                    if (css != null) scene.getStylesheets().add(css.toExternalForm());
+                    if (css != null)
+                        scene.getStylesheets().add(css.toExternalForm());
                     owner.setTitle("H3K Bakery - Đăng nhập");
                     owner.setScene(scene);
                     owner.setResizable(false);

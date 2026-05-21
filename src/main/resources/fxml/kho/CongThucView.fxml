@@ -17,6 +17,8 @@
         <Label fx:id="lblSanPhamDangCauHinh" text="" styleClass="lbl-body" wrapText="false"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+        <Button fx:id="btnSua" text="✏️ Sửa định mức" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
+        <Button fx:id="btnXoa" text="🗑 Xóa khỏi công thức" styleClass="btn-danger" onAction="#onXoaAction" disable="true"/>
         <Button text="➕ Thêm nguyên liệu" styleClass="btn-success" onAction="#onThemCongThuc"/>
     </HBox>
 
@@ -44,38 +46,6 @@
                 <Label text="Tổng giá vốn BOM:" styleClass="lbl-body-bold"/>
                 <Label fx:id="lblTongGiaVon" text="0 đ" styleClass="lbl-price"/>
             </HBox>
-        </VBox>
-
-        <!-- RIGHT: Form sửa định mức (chọn dòng trong bảng để điền) -->
-        <VBox spacing="20" styleClass="card" prefWidth="380" alignment="TOP_CENTER">
-            <Label text="Sửa định mức nguyên liệu" styleClass="lbl-title-card"/>
-            <Label text="← Chọn dòng trong bảng để sửa" styleClass="lbl-body"/>
-
-            <VBox spacing="8">
-                <Label text="Nguyên liệu: *" styleClass="lbl-body-bold"/>
-                <ComboBox fx:id="cmbNguyenLieu" maxWidth="Infinity"
-                          promptText="Chọn nguyên liệu..."
-                          styleClass="combo-box"/>
-            </VBox>
-
-            <VBox spacing="8">
-                <Label text="Định mức tiêu hao: *" styleClass="lbl-body-bold"/>
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <TextField fx:id="txtDinhMuc" promptText="VD: 0.25" styleClass="text-field" HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="lblDonViTinh" text="" styleClass="lbl-body-bold" minWidth="40"/>
-                </HBox>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <VBox spacing="12" maxWidth="Infinity">
-                <Button fx:id="btnLuuCongThuc" text="💾 Cập nhật định mức"
-                        styleClass="btn-success" maxWidth="Infinity"
-                        onAction="#onLuuCongThuc"/>
-                <Button fx:id="btnXoaCongThuc" text="🗑 Xóa khỏi công thức"
-                        styleClass="btn-danger" maxWidth="Infinity"
-                        onAction="#onXoaCongThuc"/>
-            </VBox>
         </VBox>
 
     </HBox>

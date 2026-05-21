@@ -21,57 +21,31 @@
     </padding>
 
     <!-- Header Section -->
-    <HBox alignment="CENTER_LEFT" spacing="15">
-        <VBox spacing="5">
+    <VBox spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="15">
             <Label text="Quản lý danh mục sản phẩm" styleClass="lbl-title-screen"/>
-        </VBox>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
-        <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-success" onAction="#onThemMoi"/>
-    </HBox>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Danh sách danh mục" styleClass="lbl-title-card"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="txtTimKiem" promptText="🔍 Tìm danh mục..." prefWidth="200" onKeyReleased="#onTimKiem" styleClass="text-field"/>
+            <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+            <Button fx:id="btnSua" text="✏️ Sửa" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
+            <Button fx:id="btnXoa" text="🗑 Xóa" styleClass="btn-danger" onAction="#onXoaAction" disable="true"/>
+            <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-success" onAction="#onThemMoi"/>
+        </HBox>
+    </VBox>
 
-    <!-- Main Content Area -->
-    <HBox spacing="30" VBox.vgrow="ALWAYS">
-        
-        <!-- Left: TableView -->
-        <VBox spacing="10" HBox.hgrow="ALWAYS">
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Danh sách danh mục" styleClass="lbl-title-card"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <TextField fx:id="txtTimKiem" promptText="🔍 Tìm danh mục..." prefWidth="200" onKeyReleased="#onTimKiem" styleClass="text-field"/>
-            </HBox>
-            <TableView fx:id="tblDanhMuc" styleClass="table-view" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="colMaDM" text="Mã" prefWidth="100"/>
-                    <TableColumn fx:id="colTenDM" text="Tên danh mục" prefWidth="400"/>
-                </columns>
-                <columnResizePolicy>
-                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                </columnResizePolicy>
-            </TableView>
-        </VBox>
-
-        <!-- Right: Input Form -->
-        <VBox spacing="25" styleClass="card" prefWidth="420" alignment="TOP_CENTER">
-            <VBox spacing="10" alignment="TOP_LEFT" maxWidth="Infinity">
-                <Label text="Chi tiết danh mục" styleClass="lbl-title-card"/>
-                <Region prefHeight="5"/>
-                
-                <VBox spacing="8">
-                    <Label text="Tên danh mục:" styleClass="lbl-body-bold"/>
-                    <TextField fx:id="txtTenDanhMuc" promptText="Nhập tên danh mục (vd: Bánh Kem)" styleClass="text-field"/>
-                </VBox>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <VBox spacing="12" maxWidth="Infinity">
-                <Button fx:id="btnLuuThayDoi" text="💾 Lưu thay đổi" styleClass="btn-success" maxWidth="Infinity" onAction="#onLuuThayDoi"/>
-                <Button fx:id="btnXoa" text="🗑 Xóa danh mục" styleClass="btn-danger" maxWidth="Infinity" onAction="#onXoa"/>
-            </VBox>
-        </VBox>
-
-    </HBox>
+    <!-- TableView full width -->
+    <TableView fx:id="tblDanhMuc" styleClass="table-view" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colMaDM" text="Mã" prefWidth="100"/>
+            <TableColumn fx:id="colTenDM" text="Tên danh mục" prefWidth="400"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+    </TableView>
 
     <!-- Footer Status -->
     <HBox>
@@ -79,4 +53,3 @@
     </HBox>
 
 </VBox>
-

@@ -16,6 +16,7 @@
                 <Label text="Thiết lập mức thưởng và điều kiện cho khách hàng thân thiết" styleClass="lbl-small" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnSua" text="✏️ Sửa hạng" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
         </HBox>
 
         <TableView fx:id="tierTable" styleClass="table-view" VBox.vgrow="ALWAYS">
@@ -23,7 +24,6 @@
                 <TableColumn fx:id="colTenHang" prefWidth="200" text="Tên hạng" />
                 <TableColumn fx:id="colDiemToiThieu" prefWidth="150" text="Điểm tối thiểu" />
                 <TableColumn fx:id="colPhanTramGiamGia" prefWidth="150" text="Giảm giá (%)" />
-                <TableColumn fx:id="colThaoTac" prefWidth="150" text="Thao tác" />
             </columns>
             <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
         </TableView>

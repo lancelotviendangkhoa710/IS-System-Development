@@ -384,6 +384,7 @@ public class NhapKhoViewFXMLController extends BaseController {
         dialog.setTitle("Tạo Phiếu Nhập Kho");
         dialog.setHeaderText("Chọn nhà cung cấp và nhập thông tin lô hàng");
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.getDialogPane().getStyleClass().add("bg-app");
 
         GridPane grid = new GridPane();
         grid.setHgap(12);
@@ -392,6 +393,7 @@ public class NhapKhoViewFXMLController extends BaseController {
 
         // NCC combo
         ComboBox<NhaCungCapDTO> cbNCC = new ComboBox<>(FXCollections.observableArrayList(dsNCC));
+        cbNCC.getStyleClass().add("combo-box");
         cbNCC.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(NhaCungCapDTO item, boolean empty) {
@@ -411,21 +413,38 @@ public class NhapKhoViewFXMLController extends BaseController {
         // Bảng chi tiết lô
         ObservableList<CTPhieuNhapDTO> chiTiet = FXCollections.observableArrayList();
         TableView<CTPhieuNhapDTO> tblChiTiet = buildBangChiTiet(chiTiet, dsNL);
+        tblChiTiet.getStyleClass().add("table-view");
 
         // Nút thêm dòng — chỉ chọn NL đã tồn tại, không tạo mới
         Button btnThemDong = new Button("+ Thêm dòng nguyên liệu");
+        btnThemDong.getStyleClass().add("btn-secondary");
         btnThemDong.setOnAction(e -> themDongChiTiet(chiTiet, dsNL));
         btnThemDong.setDisable(dsNL.isEmpty());
 
-        grid.add(new Label("Nhà cung cấp:"), 0, 0);
+        Label lblNhaCungCap = new Label("Nhà cung cấp:");
+        lblNhaCungCap.getStyleClass().add("lbl-body-bold");
+        Label lblChiTietLo = new Label("Chi tiết lô hàng:");
+        lblChiTietLo.getStyleClass().add("lbl-body-bold");
+
+        grid.add(lblNhaCungCap, 0, 0);
         grid.add(cbNCC, 1, 0);
-        grid.add(new Label("Chi tiết lô hàng:"), 0, 1);
+        grid.add(lblChiTietLo, 0, 1);
         grid.add(tblChiTiet, 0, 2, 2, 1);
         grid.add(btnThemDong, 1, 3);
 
         tblChiTiet.setPrefHeight(200);
         dialog.getDialogPane().setContent(new VBox(10, grid));
         dialog.getDialogPane().setPrefWidth(700);
+        
+        // Áp dụng Amber theme cho dialog tạo phiếu nhập
+        java.net.URL cssUrlDialog = getClass().getResource("/css/bakery.css");
+        if (cssUrlDialog != null) dialog.getDialogPane().getStylesheets().add(cssUrlDialog.toExternalForm());
+        DialogHelper.applyBakeryTheme(dialog);
+
+        Button btnOk = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        if (btnOk != null) btnOk.getStyleClass().add("btn-primary");
+        Button btnCancel = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (btnCancel != null) btnCancel.getStyleClass().add("btn-secondary");
 
         // Thêm dòng đầu tiên mặc định
         themDongChiTiet(chiTiet, dsNL);
@@ -640,11 +659,13 @@ public class NhapKhoViewFXMLController extends BaseController {
                 "NCC: " + nvl(phieu.getTenNhaCungCap()) +
                 " | Người nhập: " + nvl(phieu.getTenNhanVien()) +
                 " | Ngày: " + (phieu.getNgayNhap() != null ? phieu.getNgayNhap().format(FMT) : "—"));
+        dialog.getDialogPane().getStyleClass().add("bg-app");
 
         TableView<CTPhieuNhapDTO> tbl = new TableView<>(FXCollections.observableArrayList(chiTiet));
         tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tbl.setPrefHeight(300);
         tbl.setPlaceholder(new Label("Phiếu này chưa có chi tiết lô hàng."));
+        tbl.getStyleClass().add("table-view");
 
         TableColumn<CTPhieuNhapDTO, String> cTen = new TableColumn<>("Nguyên liệu");
         cTen.setCellValueFactory(c -> new SimpleStringProperty(nvl(c.getValue().getTenNL())));
@@ -689,6 +710,10 @@ public class NhapKhoViewFXMLController extends BaseController {
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
         if (cssUrl != null) dialog.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
+        
+        Button btnClose = (Button) dialog.getDialogPane().lookupButton(ButtonType.CLOSE);
+        if (btnClose != null) btnClose.getStyleClass().add("btn-secondary");
+
         dialog.showAndWait();
     }
 

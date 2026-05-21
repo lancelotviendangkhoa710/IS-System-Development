@@ -15,6 +15,8 @@
 6. **Biến cố** — dùng mẫu câu: `Chọn button [tên]`, `Khởi tạo màn hình`, `Chọn dòng trên [tên bảng]`.
 7. **Xử lý** — ngôn ngữ tự nhiên. Nếu có if/else, gạch đầu dòng với `Nếu [điều kiện] →`.
 8. **Lưu file** — Tên file: `baocao_[tên màn hình].md`, lưu vào `D:\Clone\baocao\`.
+9. **Không ghi các dòng metadata không cần thiết ở đầu tệp** — loại bỏ hoàn toàn các dòng như Màn hình, File FXML chính, File FXML tab, Controller, Truy cập từ... Tệp báo cáo bắt đầu trực tiếp bằng Tiêu đề chính dạng `# Màn hình [Tên màn hình]` và đi thẳng vào các bảng dữ liệu.
+10. **Không sử dụng icon hoặc emoji** — loại bỏ hoàn toàn các biểu tượng cảm xúc, ký hiệu đồ họa hoặc icon trang trí trong toàn bộ nội dung tệp báo cáo.
 
 ---
 

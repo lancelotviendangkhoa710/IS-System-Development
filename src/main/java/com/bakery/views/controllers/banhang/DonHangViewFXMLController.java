@@ -391,7 +391,16 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
     private void ganSuKienNhapLieu() {
         txtTimKiemSanPham.textProperty().addListener((obs, oldVal, newVal) -> apDungBoLocSanPham());
         tabTaoDon.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) dialogFactory.setOwnerWindow(newScene.getWindow());
+            if (newScene != null) {
+                dialogFactory.setOwnerWindow(newScene.getWindow());
+                batDauAutoRefresh(tabTaoDon, () -> {
+                    if (presenter != null) {
+                        presenter.lamMoiDanhSachSanPham();
+                    }
+                }, 10);
+            } else {
+                huyAutoRefresh();
+            }
         });
     }
 

@@ -17,15 +17,15 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
     @FXML private TableColumn<DanhMucSPDTO, Integer> colMaDM;
     @FXML private TableColumn<DanhMucSPDTO, String> colTenDM;
 
-    @FXML private TextField txtTenDanhMuc;
     @FXML private TextField txtTimKiem;
 
     @FXML private Button btnThemMoi;
-    @FXML private Button btnLuuThayDoi;
+    @FXML private Button btnSua;
     @FXML private Button btnXoa;
 
     private final ObservableList<DanhMucSPDTO> masterData = FXCollections.observableArrayList();
     private DanhMucSPPresenter presenter;
+    private String tempTenDanhMucInput = "";
 
     @FXML
     public void initialize() {
@@ -46,7 +46,12 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
 
     private void setupSelectionListener() {
         tblDanhMuc.getSelectionModel().selectedItemProperty()
-                .addListener((obs, old, newVal) -> presenter.onChonDanhMuc(newVal));
+                .addListener((obs, old, newVal) -> {
+                    presenter.onChonDanhMuc(newVal);
+                    boolean coChon = newVal != null;
+                    if (btnSua != null) btnSua.setDisable(!coChon);
+                    if (btnXoa != null) btnXoa.setDisable(!coChon);
+                });
     }
 
     // ─── Thực thi IDanhMucSPView ────────────────────────────────────────
@@ -55,11 +60,7 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
 
     @Override
     public void hienThiChiTiet(DanhMucSPDTO dm) {
-        if (dm != null) {
-            txtTenDanhMuc.setText(dm.getTenDM());
-            btnLuuThayDoi.setDisable(false);
-            btnXoa.setDisable(false);
-        }
+        // No-op vì không còn form inline bên phải, SelectionListener tự xử lý bật/tắt nút
     }
 
     @Override public void hienThiLoi(String msg) { hienThiLoiLabel(msg); }
@@ -67,15 +68,14 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
 
     @Override
     public void lamMoiForm() {
-        txtTenDanhMuc.clear();
         tblDanhMuc.getSelectionModel().clearSelection();
-        btnLuuThayDoi.setDisable(true);
-        btnXoa.setDisable(true);
+        if (btnSua != null) btnSua.setDisable(true);
+        if (btnXoa != null) btnXoa.setDisable(true);
         lblThongBao.setText("");
     }
 
     @Override public DanhMucSPDTO getSelectedCategory() { return tblDanhMuc.getSelectionModel().getSelectedItem(); }
-    @Override public String getTenDanhMucInput() { return txtTenDanhMuc.getText().trim(); }
+    @Override public String getTenDanhMucInput() { return tempTenDanhMucInput; }
     @Override public String getTuKhoaTimKiemInput() { return txtTimKiem.getText().trim(); }
 
     // ─── FXML Actions ────────────────────────────────────────────────────
@@ -100,8 +100,31 @@ public class DanhMucSPViewFXMLController extends BaseController implements IDanh
         });
     }
 
-    @FXML private void onLuuThayDoi() { presenter.suaDanhMuc(); }
-    @FXML private void onXoa() { presenter.xoaDanhMuc(); }
+    @FXML
+    private void onSuaAction() {
+        DanhMucSPDTO selected = getSelectedCategory();
+        if (selected == null) return;
+
+        TextInputDialog dialog = new TextInputDialog(selected.getTenDM());
+        dialog.setTitle("Sửa danh mục");
+        dialog.setHeaderText("Chỉnh sửa tên danh mục sản phẩm");
+        dialog.setContentText("Tên danh mục:");
+        try {
+            dialog.getDialogPane().getStylesheets()
+                    .add(getClass().getResource("/css/bakery.css").toExternalForm());
+        } catch (Exception ignored) {}
+
+        dialog.showAndWait().ifPresent(ten -> {
+            if (!ten.trim().isEmpty()) {
+                tempTenDanhMucInput = ten.trim();
+                presenter.suaDanhMuc();
+            } else {
+                hienThiLoiLabel("⚠ Tên danh mục không được để trống.");
+            }
+        });
+    }
+
+    @FXML private void onXoaAction() { presenter.xoaDanhMuc(); }
     @FXML private void onTimKiem() { presenter.timKiem(); }
     @FXML private void onLamMoi() { lamMoiForm(); presenter.taiDanhSach(); }
 }

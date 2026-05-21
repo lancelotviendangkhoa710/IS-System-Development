@@ -30,8 +30,9 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
     @FXML private TableColumn<NhaCungCapDTO, String> colTenNCC;
     @FXML private TableColumn<NhaCungCapDTO, String> colSdt;
     @FXML private TableColumn<NhaCungCapDTO, String> colDiaChi;
-    @FXML private TableColumn<NhaCungCapDTO, Void>   colHanhDong;
     @FXML private TextField txtTimKiem;
+    @FXML private Button    btnSua;
+    @FXML private Button    btnXoa;
 
     private final NhaCungCapService nhaCungCapService = new NhaCungCapService();
     private final ObservableList<NhaCungCapDTO> nccList = FXCollections.observableArrayList();
@@ -39,8 +40,14 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
     @FXML
     public void initialize() {
         setupTable();
-        setupActionsColumn();
         taiDuLieu();
+        // Enable Sửa/Xóa chỉ khi có dòng được chọn
+        tvNhaCungCap.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, newVal) -> {
+                    boolean coChon = newVal != null;
+                    if (btnSua != null) btnSua.setDisable(!coChon);
+                    if (btnXoa != null) btnXoa.setDisable(!coChon);
+                });
     }
 
     // ── Setup bảng ─────────────────────────────────────────────────────
@@ -63,29 +70,6 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
         });
     }
 
-    /** Cột Hành động: nút Sửa + Xóa cho mỗi hàng. */
-    private void setupActionsColumn() {
-        colHanhDong.setCellFactory(col -> new TableCell<>() {
-            private final Button btnSua  = new Button("✏ Sửa");
-            private final Button btnXoa  = new Button("🗑 Xóa");
-
-            {
-                btnSua.getStyleClass().add("btn-secondary");
-                btnXoa.getStyleClass().add("btn-danger");
-                btnSua.setOnAction(e -> onSua(getTableView().getItems().get(getIndex())));
-                btnXoa.setOnAction(e -> onXoa(getTableView().getItems().get(getIndex())));
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) { setGraphic(null); return; }
-                javafx.scene.layout.HBox box = new javafx.scene.layout.HBox(8, btnSua, btnXoa);
-                box.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                setGraphic(box);
-            }
-        });
-    }
 
     // ── Load dữ liệu ───────────────────────────────────────────────────
 
@@ -226,6 +210,20 @@ public class QuanLyNhaCungCapViewFXMLController extends BaseController {
         } catch (Exception e) {
             hienThiLoiLabel("Không thể mở dialog: " + e.getMessage());
         }
+    }
+
+    /** Mở dialog Sửa với NCC đang chọn trên bảng (nút toolbar). */
+    @FXML
+    private void onSuaAction() {
+        NhaCungCapDTO selected = tvNhaCungCap.getSelectionModel().getSelectedItem();
+        if (selected != null) onSua(selected);
+    }
+
+    /** Xác nhận rồi xóa NCC đang chọn trên bảng (nút toolbar). */
+    @FXML
+    private void onXoaAction() {
+        NhaCungCapDTO selected = tvNhaCungCap.getSelectionModel().getSelectedItem();
+        if (selected != null) onXoa(selected);
     }
 
     private static String nvl(String s) { return s != null ? s : ""; }

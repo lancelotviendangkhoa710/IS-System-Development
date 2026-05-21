@@ -3,12 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<!--
-  KhoView.fxml — Trung tâm Quản lý Kho hàng.
-  Tab 1: Thẻ kho | Tab 2: Nhà cung cấp | Tab 3: Kiểm kê (Nguyên liệu + Tồn kho) | Tab 4: Nhập kho | Tab 5: Truy xuất
-  Controller: KhoViewFXMLController.
--->
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.bakery.views.controllers.kho.KhoViewFXMLController"
@@ -44,18 +38,9 @@
             <fx:include source="QuanLyNhaCungCapView.fxml"/>
         </Tab>
 
-        <!-- Tab 3: Kiểm kê kho — Nguyên liệu + Tồn kho -->
+        <!-- Tab 3: Kiểm kê kho — Nguyên liệu -->
         <Tab text="📊  Kiểm kê kho" fx:id="tabKiemKe">
-            <VBox spacing="0">
-                <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="modern-tab-pane">
-                    <Tab text="🌾  Nguyên liệu">
-                        <fx:include source="NguyenLieuView.fxml"/>
-                    </Tab>
-                    <Tab text="📋  Tồn kho">
-                        <fx:include source="KiemKeKhoView.fxml"/>
-                    </Tab>
-                </TabPane>
-            </VBox>
+            <fx:include source="NguyenLieuView.fxml"/>
         </Tab>
 
         <!-- Tab 4: Nhập kho -->

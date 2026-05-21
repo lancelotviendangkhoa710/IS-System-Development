@@ -4,8 +4,10 @@ import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.NhaCungCapDTO;
 import com.bakery.presenters.kho.NguyenLieuPresenter;
+import com.bakery.utils.DialogHelper;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.interfaces.kho.INguyenLieuView;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,146 +15,147 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.control.Tooltip;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller màn hình Quản lý Nguyên liệu (Tab Kiểm kê kho).
+ * Thêm / Sửa qua dialog — không còn inline form panel.
+ * Cùng pattern với QuanLyNhaCungCapViewFXMLController.
+ */
 public class NguyenLieuViewFXMLController extends BaseController implements INguyenLieuView {
 
-    @FXML
-    private TableView<NguyenLieuDTO> tblNguyenLieu;
-    @FXML
-    private TableColumn<NguyenLieuDTO, Integer> colMaNL;
-    @FXML
-    private TableColumn<NguyenLieuDTO, String> colTenNL;
-    @FXML
-    private TableColumn<NguyenLieuDTO, String> colXuatXu;
-    @FXML
-    private TableColumn<NguyenLieuDTO, String> colDVT;
-    @FXML
-    private TableColumn<NguyenLieuDTO, Double> colMucTon;
+    // ── Table ────────────────────────────────────────────────────────────────
+    @FXML private TableView<NguyenLieuDTO>          tblNguyenLieu;
+    @FXML private TableColumn<NguyenLieuDTO, Double>  colSoLuongTon;
+    @FXML private TableColumn<NguyenLieuDTO, String>  colTenNL;
+    @FXML private TableColumn<NguyenLieuDTO, String>  colXuatXu;
+    @FXML private TableColumn<NguyenLieuDTO, String>  colDVT;
+    @FXML private TableColumn<NguyenLieuDTO, Double>  colMucTon;
 
-    @FXML
-    private TextField txtTimKiem;
-    @FXML
-    private TextField txtTenNL;
-    @FXML
-    private TextField txtXuatXu;
-    @FXML
-    private TextField txtMucTonAnToan;
-    @FXML
-    private ComboBox<DonViTinhDTO> cmbDonViTinh;
-    @FXML
-    private VBox vboxChiTiet;
-    @FXML
-    private Button btnThemMoi;
-    @FXML
-    private Button btnLuuThayDoi;
-    @FXML
-    private Button btnXoa;
+    @FXML private TextField txtTimKiem;
+    @FXML private Button    btnThemMoi;
+    @FXML private Button    btnSua;
+    @FXML private Button    btnXoa;
 
-    private final ObservableList<NguyenLieuDTO> masterData = FXCollections.observableArrayList();
-    private NguyenLieuPresenter presenter;
-    private List<DonViTinhDTO> cachedDsDVT = new ArrayList<>();
+    // ── Cache ─────────────────────────────────────────────────────────────────
+    private final ObservableList<NguyenLieuDTO> masterData    = FXCollections.observableArrayList();
+    private List<DonViTinhDTO>  cachedDsDVT = new ArrayList<>();
     private List<NhaCungCapDTO> cachedDsNCC = new ArrayList<>();
+    private NguyenLieuPresenter presenter;
+
+    // ── Init ──────────────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
         setupTable();
-        presenter = new NguyenLieuPresenter(this, 1);
-        tblNguyenLieu.getSelectionModel().selectedItemProperty()
-                .addListener((obs, old, newVal) -> presenter.onChonNguyenLieu(newVal));
+        presenter = new NguyenLieuPresenter(this, layMaNvHienTai());
         presenter.khoiTao();
-        // Phân quyền: ẩn CUD nếu không có quyền sửa nguyên liệu (Thợ Bếp read-only)
         apDungPhanQuyenCUD();
-        // Task 8: Thủ kho không được sửa mức tồn kho an toàn
-        apDungPhanQuyenTonKhoAnToan();
-        // Auto-refresh: mỗi 10s tự query DB, nếu có NL mới sẽ hiện lên
+        // Disable Sửa/Xóa khi chưa chọn dòng
+        tblNguyenLieu.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, newVal) -> {
+                    boolean coChon = newVal != null;
+                    if (btnSua != null) btnSua.setDisable(!coChon);
+                    if (btnXoa != null) btnXoa.setDisable(!coChon);
+                });
+        // Auto-refresh mỗi 10s
         batDauAutoRefresh(tblNguyenLieu, () -> presenter.taiDanhSach(), 10);
     }
 
-    private void apDungPhanQuyenCUD() {
-        com.bakery.model.dto.nhansu.NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
-        if (user == null)
-            return;
-
-        com.bakery.services.nhansu.PhanQuyenService svc = new com.bakery.services.nhansu.PhanQuyenService();
-        boolean coQuyenCUD = svc.laAdmin(user) || svc.laQuanLy(user) || svc.laThuKho(user);
-
-        if (!coQuyenCUD) {
-            // Ẩn nút "Thêm mới" trên header
-            if (btnThemMoi != null) {
-                btnThemMoi.setVisible(false);
-                btnThemMoi.setManaged(false);
-            }
-            // Ẩn nút Lưu + Xóa trong panel chi tiết
-            if (btnLuuThayDoi != null) {
-                btnLuuThayDoi.setVisible(false);
-                btnLuuThayDoi.setManaged(false);
-            }
-            if (btnXoa != null) {
-                btnXoa.setVisible(false);
-                btnXoa.setManaged(false);
-            }
+    /** Lấy mã nhân viên hiện tại từ Session; fallback = 1 nếu chưa đăng nhập. */
+    private int layMaNvHienTai() {
+        try {
+            com.bakery.model.dto.nhansu.NhanVienDTO user =
+                    com.bakery.utils.UserSession.getCurrentUser();
+            return (user != null) ? user.getMaNV() : 1;
+        } catch (Exception e) {
+            return 1;
         }
     }
 
-    /**
-     * Task 8: Kiểm tra vai trò hiện tại.
-     * Chỉ Quản lý / Admin mới được phép chỉnh sửa mức tồn kho an toàn.
-     * Thủ kho và các vai trò khác: field chỉ đọc + tooltip giải thích.
-     */
-    private void apDungPhanQuyenTonKhoAnToan() {
-        com.bakery.model.dto.nhansu.NhanVienDTO user = com.bakery.utils.UserSession.getCurrentUser();
-        if (user == null)
-            return;
-
-        boolean coQuyenSua = user.getDanhSachTenVaiTro().stream().anyMatch(r -> {
-            String rNorm = r.toLowerCase();
-            return rNorm.contains("quản lý")
-                    || rNorm.contains("quan ly")
-                    || rNorm.contains("admin");
-        });
-
-        if (!coQuyenSua) {
-            txtMucTonAnToan.setEditable(false);
-            txtMucTonAnToan.setFocusTraversable(false);
-            txtMucTonAnToan.getStyleClass().add("field-readonly");
-            Tooltip.install(txtMucTonAnToan,
-                    new Tooltip("Chỉ Quản lý mới có quyền thay đổi mức tồn kho an toàn."));
-        }
-    }
+    // ── Table setup ───────────────────────────────────────────────────────────
 
     private void setupTable() {
-        colMaNL.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getMaNL()).asObject());
-        colTenNL.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenNL()));
-        colXuatXu.setCellValueFactory(c -> new SimpleStringProperty(
-                c.getValue().getXuatXu() != null ? c.getValue().getXuatXu() : "Việt Nam"));
-        // Cột ĐV Tính — hiển thị rõ đơn vị (Kg, gram, cái...)
-        if (colDVT != null) {
-            colDVT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenDVT()));
-        }
-        // Mức tồn an toàn kèm đơn vị — VD: "5.0 Kg", "200 gram"
-        colMucTon.setCellValueFactory(c -> new SimpleDoubleProperty(c.getValue().getMucTonAnToan()).asObject());
-        colMucTon.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(Double val, boolean empty) {
+        colSoLuongTon.setCellValueFactory(c ->
+                new SimpleDoubleProperty(c.getValue().getSoLuongTonTong() != null ? c.getValue().getSoLuongTonTong() : 0.0).asObject());
+        colSoLuongTon.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double val, boolean empty) {
                 super.updateItem(val, empty);
                 if (empty || val == null) { setText(null); return; }
-                NguyenLieuDTO nl = getTableRow() != null ? (NguyenLieuDTO) getTableRow().getItem() : null;
-                String dvt = (nl != null && !nl.getTenDVT().isEmpty()) ? " " + nl.getTenDVT() : "";
-                setText(val % 1 == 0 ? String.valueOf((long)(double)val) + dvt
-                                     : String.valueOf(val) + dvt);
+                NguyenLieuDTO nl = getTableRow() != null
+                        ? (NguyenLieuDTO) getTableRow().getItem() : null;
+                String dvt = (nl != null && !nl.getTenDVT().isEmpty())
+                        ? " " + nl.getTenDVT() : "";
+                setText(val % 1 == 0
+                        ? String.valueOf((long)(double)val) + dvt
+                        : val + dvt);
+            }
+        });
+        colTenNL.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getTenNL()));
+        colXuatXu.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getXuatXu() != null
+                        ? c.getValue().getXuatXu() : "Việt Nam"));
+        colDVT.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getTenDVT()));
+        colMucTon.setCellValueFactory(c ->
+                new SimpleDoubleProperty(c.getValue().getMucTonAnToan()).asObject());
+        colMucTon.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double val, boolean empty) {
+                super.updateItem(val, empty);
+                if (empty || val == null) { setText(null); return; }
+                NguyenLieuDTO nl = getTableRow() != null
+                        ? (NguyenLieuDTO) getTableRow().getItem() : null;
+                String dvt = (nl != null && !nl.getTenDVT().isEmpty())
+                        ? " " + nl.getTenDVT() : "";
+                setText(val % 1 == 0
+                        ? String.valueOf((long)(double)val) + dvt
+                        : val + dvt);
             }
         });
         tblNguyenLieu.setItems(masterData);
+        tblNguyenLieu.setPlaceholder(new Label("Chưa có nguyên liệu nào."));
+
+        // Double-click → mở dialog Sửa
+        tblNguyenLieu.setRowFactory(tv -> {
+            TableRow<NguyenLieuDTO> row = new TableRow<>();
+            row.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !row.isEmpty()) onSua(row.getItem());
+            });
+            return row;
+        });
+    }
+
+    /** Cột Hành động đã được thay thế bằng nút toolbar — phương thức này không còn dùng. */
+    // setupActionsColumn() removed — replaced by btnSua/btnXoa in header toolbar
+
+    // ── Phân quyền ───────────────────────────────────────────────────────────
+
+    private void apDungPhanQuyenCUD() {
+        com.bakery.model.dto.nhansu.NhanVienDTO user =
+                com.bakery.utils.UserSession.getCurrentUser();
+        if (user == null) return;
+
+        com.bakery.services.nhansu.PhanQuyenService svc =
+                new com.bakery.services.nhansu.PhanQuyenService();
+        boolean coQuyenCUD = svc.laAdmin(user) || svc.laQuanLy(user) || svc.laThuKho(user);
+
+        if (!coQuyenCUD) {
+            if (btnThemMoi != null) { btnThemMoi.setVisible(false); btnThemMoi.setManaged(false); }
+            if (btnSua    != null) { btnSua.setVisible(false);     btnSua.setManaged(false); }
+            if (btnXoa    != null) { btnXoa.setVisible(false);     btnXoa.setManaged(false); }
+        }
     }
 
     // ── INguyenLieuView ───────────────────────────────────────────────────────
@@ -161,7 +164,7 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     public void hienThiDanhSach(List<NguyenLieuDTO> ds) {
         if (ds == null || ds.isEmpty()) {
             masterData.clear();
-            hienThiLoi("Không có dữ liệu nguyên liệu.");
+            hienThiLoiLabel("Không có dữ liệu nguyên liệu.");
             return;
         }
         masterData.setAll(ds);
@@ -169,79 +172,39 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
 
     @Override
     public void napDanhSachDonViTinh(List<DonViTinhDTO> dsDVT) {
-        if (dsDVT == null || dsDVT.isEmpty())
-            return;
-        cachedDsDVT = dsDVT;
-        cmbDonViTinh.setConverter(new javafx.util.StringConverter<>() {
-            @Override
-            public String toString(DonViTinhDTO d) {
-                return d != null ? d.getTenDVT() : "";
-            }
-
-            @Override
-            public DonViTinhDTO fromString(String s) {
-                return null;
-            }
-        });
-        cmbDonViTinh.setItems(FXCollections.observableArrayList(dsDVT));
+        if (dsDVT != null) cachedDsDVT = dsDVT;
     }
 
     @Override
     public void napDanhSachNhaCungCap(List<NhaCungCapDTO> dsNCC) {
-        if (dsNCC != null)
-            cachedDsNCC = dsNCC;
+        if (dsNCC != null) cachedDsNCC = dsNCC;
     }
 
+    /**
+     * Không còn dùng để điền inline form — giữ lại để tương thích interface.
+     * Double-click hàng sẽ mở dialog Sửa trực tiếp qua setRowFactory.
+     */
     @Override
-    public void hienThiChiTiet(NguyenLieuDTO nl) {
-        if (nl == null)
-            return;
-        // Hiện panel chi tiết khi có record được chọn
-        vboxChiTiet.setVisible(true);
-        vboxChiTiet.setManaged(true);
-        txtTenNL.setText(nl.getTenNL());
-        txtXuatXu.setText(nl.getXuatXu() != null ? nl.getXuatXu() : "");
-        txtMucTonAnToan.setText(String.valueOf(nl.getMucTonAnToan()));
-        // Đồng bộ DVT trong ComboBox form sửa
-        if (nl.getMaDVT() > 0) {
-            cmbDonViTinh.getItems().stream()
-                    .filter(d -> d.getMaDVT() == nl.getMaDVT())
-                    .findFirst()
-                    .ifPresent(cmbDonViTinh::setValue);
-        }
-    }
+    public void hienThiChiTiet(NguyenLieuDTO nl) { /* no-op: dialog-based */ }
 
     @Override
-    public void hienThiLoi(String msg) {
-        hienThiLoiLabel(msg);
-    }
+    public void hienThiLoi(String msg) { hienThiLoiLabel(msg); }
 
     @Override
-    public void hienThiThanhCong(String msg) {
-        hienThiThanhCongLabel(msg);
-    }
+    public void hienThiThanhCong(String msg) { hienThiThanhCongLabel(msg); }
 
     @Override
     public void xoaLoi() {
-        if (lblThongBao != null)
-            lblThongBao.setText("");
+        if (lblThongBao != null) lblThongBao.setText("");
     }
 
     @Override
-    public void setLoading(boolean l) {
-        tblNguyenLieu.setDisable(l);
-    }
+    public void setLoading(boolean l) { tblNguyenLieu.setDisable(l); }
 
+    /** Không còn sidebar form → chỉ bỏ selection. */
     @Override
     public void lamMoiForm() {
-        txtTenNL.clear();
-        txtXuatXu.clear();
-        txtMucTonAnToan.clear();
-        cmbDonViTinh.setValue(null);
         tblNguyenLieu.getSelectionModel().clearSelection();
-        // Ẩn panel chi tiết sau khi reset
-        vboxChiTiet.setVisible(false);
-        vboxChiTiet.setManaged(false);
     }
 
     @Override
@@ -249,41 +212,21 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         return tblNguyenLieu.getSelectionModel().getSelectedItem();
     }
 
-    @Override
-    public String getTenNLInput() {
-        return txtTenNL.getText().trim();
+    // Các getter phục vụ flow inline cũ — giữ lại cho tương thích presenter
+    @Override public String getTenNLInput()          { return ""; }
+    @Override public String getXuatXuInput()         { return ""; }
+    @Override public double getMucTonAnToanInput()   { return 0; }
+    @Override public DonViTinhDTO getDonViTinhSelected() { return null; }
+    @Override public String getTuKhoaTimKiemInput()  {
+        return txtTimKiem != null ? txtTimKiem.getText().trim() : "";
     }
 
-    @Override
-    public String getXuatXuInput() {
-        return txtXuatXu.getText().trim();
-    }
+    // ── FXML Actions ──────────────────────────────────────────────────────────
 
-    @Override
-    public DonViTinhDTO getDonViTinhSelected() {
-        return cmbDonViTinh.getValue();
-    }
-
-    @Override
-    public String getTuKhoaTimKiemInput() {
-        return txtTimKiem.getText().trim();
-    }
-
-    @Override
-    public double getMucTonAnToanInput() {
-        try {
-            return Double.parseDouble(txtMucTonAnToan.getText().trim());
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    // ── FXML Actions ─────────────────────────────────────────────────────────
-
+    /** Mở dialog Thêm nguyên liệu mới (kèm nhập kho lần đầu). */
     @FXML
     private void onThemMoi() {
-        if (presenter == null)
-            return;
+        if (presenter == null) return;
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/kho/ThemNguyenLieuDialog.fxml"));
@@ -292,17 +235,17 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
             ThemNguyenLieuDialogController dialogCtrl = loader.getController();
             dialogCtrl.khoiTao(cachedDsDVT, cachedDsNCC);
 
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Thêm nguyên liệu mới");
-            dialogStage.initModality(Modality.APPLICATION_MODAL);
-            dialogStage.initOwner(tblNguyenLieu.getScene().getWindow());
+            Stage stage = new Stage();
+            stage.setTitle("H3K Bakery — Thêm nguyên liệu mới");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(tblNguyenLieu.getScene().getWindow());
+            stage.setResizable(false);
 
             Scene scene = new Scene(root);
             URL cssUrl = getClass().getResource("/css/bakery.css");
-            if (cssUrl != null)
-                scene.getStylesheets().add(cssUrl.toExternalForm());
-            dialogStage.setScene(scene);
-            dialogStage.showAndWait();
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            stage.setScene(scene);
+            stage.showAndWait();
 
             if (dialogCtrl.isConfirmed()) {
                 presenter.themNguyenLieuVaNhapKho(
@@ -321,27 +264,78 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
         }
     }
 
-    @FXML
-    private void onLuuThayDoi() {
-        if (presenter != null)
-            presenter.suaNguyenLieu();
+    /** Mở dialog Sửa với nguyên liệu đã chọn. */
+    private void onSua(NguyenLieuDTO nl) {
+        if (nl == null) return;
+        try {
+            URL url = getClass().getResource("/fxml/kho/SuaNguyenLieuDialog.fxml");
+            if (url == null) throw new RuntimeException("Không tìm thấy SuaNguyenLieuDialog.fxml");
+            FXMLLoader loader = new FXMLLoader(url);
+            Scene scene = new Scene(loader.load());
+            URL css = getClass().getResource("/css/bakery.css");
+            if (css != null) scene.getStylesheets().add(css.toExternalForm());
+
+            SuaNguyenLieuDialogController ctrl = loader.getController();
+            ctrl.khoiTaoSua(nl, cachedDsDVT);
+
+            Stage stage = new Stage();
+            stage.setTitle("H3K Bakery — Sửa nguyên liệu");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(tblNguyenLieu.getScene().getWindow());
+            stage.setResizable(false);
+            stage.showAndWait();
+
+            NguyenLieuDTO ketQua = ctrl.getKetQua();
+            if (ketQua == null) return; // user bấm Hủy
+
+            presenter.suaNguyenLieuTuDialog(
+                    ketQua.getMaNL(),
+                    ketQua.getTenNL(),
+                    ketQua.getXuatXu(),
+                    ketQua.getMucTonAnToan(),
+                    ketQua.getMaDVT());
+
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể mở dialog sửa nguyên liệu: " + e.getMessage());
+        }
     }
 
-    @FXML
-    private void onXoa() {
-        if (presenter != null)
-            presenter.xoaNguyenLieu();
+    /** Hỏi xác nhận rồi xóa nguyên liệu. */
+    private void onXoaHoiConfirm(NguyenLieuDTO nl) {
+        if (nl == null) return;
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Xác nhận xóa");
+        confirm.setHeaderText("Xóa nguyên liệu: " + nl.getTenNL() + "?");
+        confirm.setContentText("Dữ liệu lịch sử nhập kho liên quan vẫn được giữ nguyên.");
+        DialogHelper.applyBakeryTheme(confirm);
+        confirm.showAndWait().ifPresent(bt -> {
+            if (bt == ButtonType.OK) {
+                presenter.xoaNguyenLieuTheoMa(nl.getMaNL(), nl.getTenNL());
+            }
+        });
     }
 
     @FXML
     private void onTimKiem() {
-        if (presenter != null)
-            presenter.timKiem();
+        if (presenter != null) presenter.timKiem();
     }
 
     @FXML
     private void onLamMoi() {
-        if (presenter != null)
-            presenter.taiDanhSach();
+        if (txtTimKiem != null) txtTimKiem.clear();
+        if (presenter != null) presenter.taiDanhSach();
+    }
+
+    /** Handler cho nút ✏️ Sửa trên toolbar — mở dialog sửa NL đang chọn. */
+    @FXML
+    private void onSuaAction() {
+        onSua(tblNguyenLieu.getSelectionModel().getSelectedItem());
+    }
+
+    /** Handler cho nút 🗑 Xóa trên toolbar — xác nhận rồi xóa NL đang chọn. */
+    @FXML
+    private void onXoaAction() {
+        onXoaHoiConfirm(tblNguyenLieu.getSelectionModel().getSelectedItem());
     }
 }

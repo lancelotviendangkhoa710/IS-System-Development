@@ -8,7 +8,7 @@
 | 2 | `onLamMoi` | Button | | Tải lại toàn bộ danh sách nguyên liệu từ CSDL |
 | 3 | `txtTimKiem` | TextField | | Nhập tên nguyên liệu để tìm kiếm nhanh |
 | 4 | `tblNguyenLieu` | TableView | | Bảng hiển thị danh sách toàn bộ các loại nguyên liệu |
-| 5 | `colMaNL` | TableColumn | | Hiển thị mã nguyên liệu |
+| 5 | `colSoLuongTon` | TableColumn | | Hiển thị số lượng tồn thực tế của nguyên liệu kèm đơn vị tính |
 | 6 | `colTenNL` | TableColumn | | Hiển thị tên nguyên liệu |
 | 7 | `colXuatXu` | TableColumn | | Hiển thị quốc gia/nơi xuất xứ của nguyên liệu |
 | 8 | `colDVT` | TableColumn | | Hiển thị đơn vị tính của nguyên liệu (Kg, gram, cái, lít...) |

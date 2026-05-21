@@ -6,6 +6,7 @@ public class CTDonHangDTO {
     private int maCTHD;
     private int maDon;
     private int maSP;
+    private String tenSP;
     private int soLuong;
     private BigDecimal donGia;
     private double phanTramGiam;
@@ -31,6 +32,9 @@ public class CTDonHangDTO {
 
     public int getMaSP() { return maSP; }
     public void setMaSP(int maSP) { this.maSP = maSP; }
+
+    public String getTenSP() { return tenSP; }
+    public void setTenSP(String tenSP) { this.tenSP = tenSP; }
 
     public int getSoLuong() { return soLuong; }
     public void setSoLuong(int soLuong) { this.soLuong = soLuong; }

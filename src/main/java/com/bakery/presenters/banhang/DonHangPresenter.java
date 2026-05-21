@@ -120,12 +120,29 @@ public class DonHangPresenter {
         }
     }
 
+    public void lamMoiDanhSachSanPham() {
+        try {
+            tatCaSanPham = orderService.layDanhSachSanPhamPOS();
+            view.hienThiDanhSachSanPham(tatCaSanPham, mapDanhMuc);
+        } catch (Exception e) {
+            System.err.println("[DonHangPresenter] Lỗi tự động làm mới sản phẩm: " + e.getMessage());
+        }
+    }
+
     public void themSanPhamVaoGio(SanPhamDTO sp) {
         YeuCauChiTietDonHangDTO existed = gioHangItems.stream()
                 .filter(i -> i.getMaSP() == sp.getMaSP() && !i.isCustom()).findFirst().orElse(null);
         if (existed != null) {
+            if (existed.getSoLuong() + 1 > sp.getSoLuongTon()) {
+                view.hienThiLoi("Không thể thêm! Vượt quá số lượng tồn kho của sản phẩm: " + sp.getTenSP());
+                return;
+            }
             existed.setSoLuong(existed.getSoLuong() + 1);
         } else {
+            if (1 > sp.getSoLuongTon()) {
+                view.hienThiLoi("Sản phẩm đã hết hàng trong kho: " + sp.getTenSP());
+                return;
+            }
             YeuCauChiTietDonHangDTO newItem = new YeuCauChiTietDonHangDTO();
             newItem.setMaSP(sp.getMaSP());
             newItem.setSoLuong(1);
@@ -174,6 +191,15 @@ public class DonHangPresenter {
             if (change == 0) {
                 gioHangItems.remove(index);
             } else {
+                if (change > 0 && !item.isCustom()) {
+                    SanPhamDTO sp = tatCaSanPham.stream()
+                            .filter(s -> s.getMaSP() == item.getMaSP())
+                            .findFirst().orElse(null);
+                    if (sp != null && item.getSoLuong() + change > sp.getSoLuongTon()) {
+                        view.hienThiLoi("Không thể thêm! Vượt quá số lượng tồn kho của sản phẩm: " + sp.getTenSP());
+                        return;
+                    }
+                }
                 item.setSoLuong(item.getSoLuong() + change);
                 if (item.getSoLuong() <= 0) {
                     gioHangItems.remove(index);

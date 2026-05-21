@@ -422,7 +422,10 @@ public class DonHangDAO extends BaseDAO {
 
     public List<CTDonHangDTO> layChiTietDonHang(int maDon) throws Exception {
         List<CTDonHangDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM CTDONHANG WHERE MADON = ?";
+        String sql = "SELECT CT.MACTHD, CT.MADON, CT.MASP, SP.TENSP, CT.SOLUONG, CT.DONGIA, CT.DONGIAVON, CT.PHANTRAMGIAM "
+                + "FROM CTDONHANG CT "
+                + "JOIN SANPHAM SP ON CT.MASP = SP.MASP "
+                + "WHERE CT.MADON = ?";
         try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
@@ -432,6 +435,7 @@ public class DonHangDAO extends BaseDAO {
                         item.setMaCTHD(rs.getInt("MACTHD"));
                         item.setMaDon(rs.getInt("MADON"));
                         item.setMaSP(rs.getInt("MASP"));
+                        item.setTenSP(rs.getString("TENSP"));
                         item.setSoLuong(rs.getInt("SOLUONG"));
                         item.setDonGia(rs.getBigDecimal("DONGIA"));
                         item.setDonGiaVon(rs.getBigDecimal("DONGIAVON"));
@@ -448,7 +452,11 @@ public class DonHangDAO extends BaseDAO {
 
     public List<CTDonTuyChinhDTO> layChiTietTuyChinh(int maDon) throws Exception {
         List<CTDonTuyChinhDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM CTDON_TUYCHINH WHERE MADON = ?";
+        String sql = "SELECT CT.MACTTC, CT.MADON, CT.MASP, SP.TENSP, CT.SOLUONG, CT.DONGIA, CT.DONGIAVON, "
+                + "CT.MAKC, CT.MACOT, CT.MANHAN, CT.MATRANGTRI, CT.LOICHUCTRENBANH, CT.GHICHUTHOBANH "
+                + "FROM CTDON_TUYCHINH CT "
+                + "JOIN SANPHAM SP ON CT.MASP = SP.MASP "
+                + "WHERE CT.MADON = ?";
         try (Connection conn = moKetNoi()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, maDon);
@@ -458,6 +466,7 @@ public class DonHangDAO extends BaseDAO {
                         item.setMaCTTC(rs.getInt("MACTTC"));
                         item.setMaDon(rs.getInt("MADON"));
                         item.setMaSP(rs.getInt("MASP"));
+                        item.setTenSP(rs.getString("TENSP"));
                         item.setSoLuong(rs.getInt("SOLUONG"));
                         item.setDonGia(rs.getBigDecimal("DONGIA"));
                         item.setDonGiaVon(rs.getBigDecimal("DONGIAVON"));

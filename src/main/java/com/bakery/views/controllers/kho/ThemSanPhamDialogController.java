@@ -27,7 +27,8 @@ public class ThemSanPhamDialogController {
     @FXML private TextField txtTGBaoQuan;
     @FXML private TextField txtTGChuanBi;
     @FXML private ImageView imgPreview;
-    @FXML private Label lblLoi;
+    @FXML private Label     lblPlaceholderAnh;
+    @FXML private Label     lblLoi;
 
     private String selectedImagePath = null;
     private SanPhamDTO ketQua = null;
@@ -141,9 +142,12 @@ public class ThemSanPhamDialogController {
             File f = new File(path);
             if (f.exists()) {
                 imgPreview.setImage(new Image(f.toURI().toString(), true));
+                imgPreview.setVisible(true);
+                if (lblPlaceholderAnh != null) lblPlaceholderAnh.setVisible(false);
             }
         } catch (Exception e) {
-            imgPreview.setImage(null);
+            imgPreview.setVisible(false);
+            if (lblPlaceholderAnh != null) lblPlaceholderAnh.setVisible(true);
         }
     }
 

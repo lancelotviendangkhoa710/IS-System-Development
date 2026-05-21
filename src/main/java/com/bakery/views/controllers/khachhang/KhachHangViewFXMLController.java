@@ -38,7 +38,6 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     @FXML private TableColumn<KhachHangDTO, LocalDate> colRegDate;
     @FXML private TableColumn<KhachHangDTO, String>    colPoints;
     @FXML private TableColumn<KhachHangDTO, String>    colTier;
-    @FXML private TableColumn<KhachHangDTO, Void>      colActions;
 
     @FXML private Label       lblTotalCustomers;
     @FXML private Label       lblNewCustomers;
@@ -47,6 +46,9 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     @FXML private HBox        paginationBox;
     @FXML private Button      btnRefresh;
     @FXML private Button      btnCheDoThungRac;
+    @FXML private Button      btnSua;
+    @FXML private Button      btnXoa;
+    @FXML private Button      btnLichSu;
     @FXML private ComboBox<String> cbTierFilter;
     @FXML private Tab         tabHangThanhVien;
 
@@ -65,14 +67,25 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
     @FXML
     public void initialize() {
         setupTableColumns();
-        setupActionsColumn();
         setupDoubleClickEdit();
         setupSearchListener();
         khoiTaoPhanQuyen();
         presenter.taiDuLieu();
         presenter.taiDanhSachHangThanhVien();
-        // Auto-refresh: mỗi 10s tự query DB — khi thu ngân cộng điểm KH, quản lý sẽ thấy ngay
+        // Auto-refresh: mỗi 10s tự query DB
         batDauAutoRefresh(customerTable, () -> presenter.taiDuLieu(), 10);
+        // Enable nút toolbar chỉ khi chọn dòng
+        customerTable.getSelectionModel().selectedItemProperty()
+                .addListener((obs, old, newVal) -> capNhatTrangThaiNutTheoChon(newVal));
+    }
+
+    /** Cập nhật trạng thái enable/disable 3 nút toolbar theo dòng đang chọn. */
+    private void capNhatTrangThaiNutTheoChon(KhachHangDTO selected) {
+        boolean coChon = selected != null;
+        if (btnLichSu != null) btnLichSu.setDisable(!coChon);
+        if (btnSua    != null) btnSua.setDisable(!coChon);
+        // btnXoa: chỉ enable khi có chọn + có quyền + không phải chế độ thùng rác
+        if (btnXoa != null) btnXoa.setDisable(!coChon || !coQuyenQuanLy || dangCheDoChuaXoa);
     }
 
     // ── KhachHangView interface ──────────────────────────────────────────
@@ -159,8 +172,8 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
                 btnCheDoThungRac.getStyleClass().add("btn-secondary");
             }
         }
-        // Làm mới cột actions để hiện/ẩn nút Khôi phục
-        setupActionsColumn();
+        // Cập nhật trạng thái nút theo chế độ
+        capNhatTrangThaiNutTheoChon(customerTable.getSelectionModel().getSelectedItem());
         customerTable.refresh();
     }
 
@@ -198,6 +211,27 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
 
     @FXML private void onRefreshClicked()     { presenter.taiDuLieu(); }
     @FXML private void onAddCustomerClicked() { moDialogKhachHang(null); }
+
+    /** Nút ✏️ Sửa trên toolbar — mở dialog sửa KH đang chọn. */
+    @FXML
+    private void onSuaClicked() {
+        KhachHangDTO selected = customerTable.getSelectionModel().getSelectedItem();
+        if (selected != null && !dangCheDoChuaXoa) moDialogKhachHang(selected);
+    }
+
+    /** Nút 🗑 Xóa trên toolbar — xác nhận xóa KH đang chọn (chỉ Quản lý/Admin). */
+    @FXML
+    private void onXoaClicked() {
+        KhachHangDTO selected = customerTable.getSelectionModel().getSelectedItem();
+        if (selected != null) xacNhanXoa(selected);
+    }
+
+    /** Nút 📋 Lịch sử trên toolbar — hiện lịch sử mua hàng của KH đang chọn. */
+    @FXML
+    private void onLichSuClicked() {
+        KhachHangDTO selected = customerTable.getSelectionModel().getSelectedItem();
+        if (selected != null) presenter.xemLichSuMuaHang(selected);
+    }
 
     @FXML
     private void onSearch() {
@@ -297,52 +331,7 @@ public class KhachHangViewFXMLController extends BaseController implements Khach
         if (filtered.isEmpty()) hienThiLoiLabel("Không tìm thấy khách hàng phù hợp.");
     }
 
-    /**
-     * Cột Actions:
-     * - Chế độ bình thường: nút "📋 Lịch sử"
-     * - Chế độ thùng rác:   nút "♻ Khôi phục" + xác nhận qua Dialog có Amber theme
-     */
-    private void setupActionsColumn() {
-        if (colActions == null) return;
-        colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button btnHanhDong  = new Button();
-            private final Button btnXoa       = new Button("🗑 Xóa");
-            // hboxActions: Lịch sử + Xóa — chỉ Quản lý/Admin
-            private final HBox   hboxActions  = new HBox(6, btnHanhDong, btnXoa);
-
-            {
-                btnHanhDong.getStyleClass().add("btn-secondary");
-                btnXoa.getStyleClass().add("btn-danger");
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                    return;
-                }
-                KhachHangDTO kh = getTableView().getItems().get(getIndex());
-                if (dangCheDoChuaXoa) {
-                    // Chế độ thùng rác: chỉ nút Khôi phục
-                    btnHanhDong.setText("♻ Khôi phục");
-                    btnHanhDong.setOnAction(e -> xacNhanKhoiPhuc(kh));
-                    setGraphic(btnHanhDong);
-                } else {
-                    // Chế độ bình thường: Lịch sử (mọi vai trò) + Xóa (chỉ Quản lý/Admin)
-                    btnHanhDong.setText("📋 Lịch sử");
-                    btnHanhDong.setOnAction(e -> presenter.xemLichSuMuaHang(kh));
-                    if (coQuyenQuanLy) {
-                        btnXoa.setOnAction(e -> xacNhanXoa(kh));
-                        setGraphic(hboxActions);
-                    } else {
-                        // Thu ngân chỉ xem lịch sử — không có nút Xóa
-                        setGraphic(btnHanhDong);
-                    }
-                }
-            }
-        });
-    }
+    // setupActionsColumn() removed — replaced by btnSua, btnXoa, btnLichSu toolbar buttons
 
     /** Hiển thị dialog xác nhận trước khi khôi phục khách hàng. */
     private void xacNhanKhoiPhuc(KhachHangDTO kh) {

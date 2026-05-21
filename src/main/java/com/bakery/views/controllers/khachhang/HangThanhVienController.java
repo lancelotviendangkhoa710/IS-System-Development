@@ -20,14 +20,23 @@ public class HangThanhVienController implements HangThanhVienView {
     @FXML private TableColumn<HangThanhVienDTO, String> colTenHang;
     @FXML private TableColumn<HangThanhVienDTO, Integer> colDiemToiThieu;
     @FXML private TableColumn<HangThanhVienDTO, Double> colPhanTramGiamGia;
-    @FXML private TableColumn<HangThanhVienDTO, Void> colThaoTac;
+
+    @FXML private Button btnSua;
 
     private HangThanhVienPresenter presenter;
 
     @FXML public void initialize() {
         presenter = new HangThanhVienPresenter(this);
         setupColumns();
-        tierTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        tierTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        // Selection Listener để bật/tắt nút Sửa hạng
+        tierTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (btnSua != null) {
+                btnSua.setDisable(newVal == null);
+            }
+        });
+        
         presenter.loadTiers();
     }
 
@@ -69,27 +78,29 @@ public class HangThanhVienController implements HangThanhVienView {
         colTenHang.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(cd.getValue().getTenHang()));
         colDiemToiThieu.setCellValueFactory(cd -> new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getDiemToiThieu()).asObject());
         colPhanTramGiamGia.setCellValueFactory(cd -> new javafx.beans.property.SimpleDoubleProperty(cd.getValue().getPhanTramGiamGia().doubleValue()).asObject());
-        colThaoTac.setCellFactory(col -> new TableCell<HangThanhVienDTO, Void>() {
-            @Override protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) { setGraphic(null); } else {
-                    HangThanhVienDTO tier = getTableRow().getItem();
-                    if (tier != null) {
-                        Button edit = new Button("Sửa");
-                        edit.setOnAction(e -> openEditTierDialog(tier));
-                        setGraphic(edit);
-                    }
-                }
-            }
-        });
+    }
+
+    @FXML
+    private void onSuaAction() {
+        HangThanhVienDTO selected = tierTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            openEditTierDialog(selected);
+        }
     }
 
     private void openEditTierDialog(HangThanhVienDTO tier) {
         Dialog<HangThanhVienDTO> dialog = new Dialog<>();
         dialog.setTitle("Sửa hạng: " + tier.getTenHang());
         dialog.setResizable(false);
+        dialog.getDialogPane().getStyleClass().add("bg-app");
+
         ButtonType save = new ButtonType("Lưu", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(save, ButtonType.CANCEL);
+
+        Button btnSave = (Button) dialog.getDialogPane().lookupButton(save);
+        if (btnSave != null) btnSave.getStyleClass().add("btn-primary");
+        Button btnCancel = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        if (btnCancel != null) btnCancel.getStyleClass().add("btn-secondary");
 
         javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
         grid.setHgap(10);
@@ -98,18 +109,33 @@ public class HangThanhVienController implements HangThanhVienView {
 
         TextField txtName = new TextField(tier.getTenHang());
         txtName.setEditable(false);
-        TextField txtPoints = new TextField(String.valueOf(tier.getDiemToiThieu()));
-        TextField txtDiscount = new TextField(String.valueOf(tier.getPhanTramGiamGia()));
+        txtName.getStyleClass().add("text-field");
 
-        grid.add(new Label("Tên hạng:"), 0, 0);
+        TextField txtPoints = new TextField(String.valueOf(tier.getDiemToiThieu()));
+        txtPoints.getStyleClass().add("text-field");
+
+        TextField txtDiscount = new TextField(String.valueOf(tier.getPhanTramGiamGia()));
+        txtDiscount.getStyleClass().add("text-field");
+
+        Label lblTenHang = new Label("Tên hạng:");
+        lblTenHang.getStyleClass().add("lbl-body-bold");
+        Label lblDiem = new Label("Điểm tối thiểu:");
+        lblDiem.getStyleClass().add("lbl-body-bold");
+        Label lblGiamGia = new Label("% Giảm giá:");
+        lblGiamGia.getStyleClass().add("lbl-body-bold");
+
+        grid.add(lblTenHang, 0, 0);
         grid.add(txtName, 1, 0);
-        grid.add(new Label("Điểm tối thiểu:"), 0, 1);
+        grid.add(lblDiem, 0, 1);
         grid.add(txtPoints, 1, 1);
-        grid.add(new Label("% Giảm giá:"), 0, 2);
+        grid.add(lblGiamGia, 0, 2);
         grid.add(txtDiscount, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
         dialog.setResultConverter(btn -> btn == save ? tier : null);
+        
+        java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+        if (cssUrl != null) dialog.getDialogPane().getStylesheets().add(cssUrl.toExternalForm());
         DialogHelper.applyBakeryTheme(dialog);
 
         dialog.showAndWait().ifPresent(t -> {

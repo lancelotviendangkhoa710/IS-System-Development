@@ -30,6 +30,8 @@
         <TextField fx:id="txtTimKiem" promptText="🔍 Tìm theo tên hoặc SĐT..."
                    prefWidth="280" onKeyReleased="#onTimKiem" styleClass="text-field"/>
         <Button text="↺ Tải lại" onAction="#onTaiLai" styleClass="btn-reset"/>
+        <Button fx:id="btnSua" text="✏️ Sửa" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
+        <Button fx:id="btnXoa" text="🗑 Xóa" styleClass="btn-danger" onAction="#onXoaAction" disable="true"/>
         <Button text="➕ Thêm mới" onAction="#onThem" styleClass="btn-success"/>
     </HBox>
 
@@ -43,7 +45,6 @@
                 <TableColumn fx:id="colTenNCC" text="Tên Nhà Cung Cấp" prefWidth="300"/>
                 <TableColumn fx:id="colSdt"    text="Số Điện Thoại"    prefWidth="160"/>
                 <TableColumn fx:id="colDiaChi" text="Địa Chỉ"          prefWidth="340"/>
-                <TableColumn fx:id="colHanhDong" text="Hành động"      prefWidth="180"/>
             </columns>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
