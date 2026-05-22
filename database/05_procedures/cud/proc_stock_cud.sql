@@ -134,12 +134,12 @@ BEGIN
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
     VALUES (P_MANV, 'KHO', 'Nhap kho phieu #' || V_MAPN, V_MAPN);
 
-    -- Đọc lần 2
-    SELECT COUNT(*) INTO V_COUNT2 FROM PHIEUNHAPKHO;
+    -- Đọc lần 2 (loại trừ dòng do chính giao dịch này vừa chèn để đối chiếu chính xác)
+    SELECT COUNT(*) INTO V_COUNT2 FROM PHIEUNHAPKHO WHERE MAPN <> V_MAPN;
 
-    -- Nếu số lượng khác nhau (không phải do chính ta chèn thêm 1 dòng) → Phát hiện Phantom Read
-    IF V_COUNT2 > V_COUNT1 + 1 THEN
-        RAISE_APPLICATION_ERROR(-20913, N'Lỗi Đọc Bóng Ma (Phantom Read): Số phiếu ban đầu là ' || V_COUNT1 || N', sau đó đọc thấy ' || V_COUNT2 || N' (phát hiện dòng bóng ma!).');
+    -- Nếu số lượng khác nhau → Phát hiện thay đổi đồng thời (Phantom Read ở mức READ COMMITTED)
+    IF V_COUNT2 <> V_COUNT1 THEN
+        RAISE_APPLICATION_ERROR(-20913, N'Lỗi Đọc Bóng Ma (Phantom Read): Số phiếu ban đầu là ' || V_COUNT1 || N', sau delay phát hiện thay đổi dòng (đọc thấy ' || (V_COUNT2 + 1) || N' dòng bao gồm cả thay đổi ngoài!).');
     END IF;
 
     COMMIT;
