@@ -362,12 +362,14 @@ public class DonHangPresenter {
         } catch (Exception e) {
             String msg = e.getMessage() != null ? e.getMessage() : "Lỗi không xác định";
             String msgLower = msg.toLowerCase();
-            if (msgLower.contains("het hang") || msgLower.contains("mua truoc") || msgLower.contains("ck_sp_soluongton") || msgLower.contains("soluongton")) {
-                // Lỗi hết hàng đồng thời hoặc vi phạm ràng buộc tồn kho — hiển thị Alert nổi bật
+            if (msgLower.contains("het hang") || msgLower.contains("mua truoc") || msgLower.contains("ck_sp_soluongton") 
+                    || msgLower.contains("soluongton") || msgLower.contains("ora-08177") || msgLower.contains("serialize") || msgLower.contains("xung đột")) {
+                // Lỗi hết hàng đồng thời hoặc vi phạm ràng buộc tồn kho hoặc xung đột dữ liệu đồng thời — hiển thị Alert nổi bật
                 javafx.application.Platform.runLater(() -> {
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                             javafx.scene.control.Alert.AlertType.WARNING);
-                    alert.setTitle("⚠ Cảnh báo tồn kho");
+                    alert.setTitle(msgLower.contains("xung đột") || msgLower.contains("ora-08177") || msgLower.contains("serialize") 
+                            ? "⚠ Xung đột dữ liệu đồng thời" : "⚠ Cảnh báo tồn kho");
                     alert.setHeaderText("Không thể hoàn tất giao dịch");
                     alert.setContentText(msg.replace("San pham", "Sản phẩm")
                             .replace("da het hang", "đã hết hàng")

@@ -34,7 +34,7 @@ CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
 BEGIN
 
 
-    -- EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
+    EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
 
 
     -- 0. Validate JSON input
@@ -86,8 +86,8 @@ BEGIN
                 SELECT SOLUONGTON, TENSP
                 INTO V_TONKHO, V_TENSP
                 FROM SANPHAM
-                WHERE MASP = V_TAB(I).MASP;
-                -- FOR UPDATE;
+                WHERE MASP = V_TAB(I).MASP
+                FOR UPDATE;
 
                 IF V_TONKHO < V_TAB(I).SOLUONG THEN
                     IF V_TONKHO = 0 THEN
@@ -231,4 +231,4 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON), N'Lỗi hệ thống khi hủy đơn hàng: ' || SQLERRM);
 END;
 /
-select * from SANPHAM
+select * from SANPHAM commit;

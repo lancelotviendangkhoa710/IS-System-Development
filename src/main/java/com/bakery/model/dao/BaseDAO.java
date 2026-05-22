@@ -33,10 +33,10 @@ public abstract class BaseDAO {
                 throw new Exception("⚠ Deadlock phát hiện! Giao dịch bị Oracle rollback " +
                         "vì xung đột khóa với phiên khác. Vui lòng thử lại.");
             }
-            if (code == 8177) {
+            if (code == 8177 || (e.getMessage() != null && (e.getMessage().contains("ORA-08177") || e.getMessage().contains("serialize access")))) {
                 // ORA-08177: can't serialize access
-                throw new Exception("⚠ Xung đột dữ liệu! Sản phẩm vừa được cập nhật bởi phiên khác. " +
-                        "Giao dịch đã bị hủy để bảo vệ tính toàn vẹn dữ liệu.");
+                throw new Exception("⚠ Xung đột dữ liệu đồng thời! Sản phẩm vừa được cập nhật ở một phiên làm việc khác. " +
+                        "Giao dịch tạo đơn hàng bị hủy để bảo vệ tính toàn vẹn. Vui lòng làm mới trang và thử lại.");
             }
             if (code == 2290 || (e.getMessage() != null && e.getMessage().contains("CK_SP_SOLUONGTON"))) {
                 throw new Exception("⚠ Số lượng sản phẩm trong kho không đủ để thực hiện giao dịch này! " +
