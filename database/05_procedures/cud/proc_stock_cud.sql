@@ -139,7 +139,7 @@ BEGIN
 
     -- Nếu số lượng khác nhau → Phát hiện thay đổi đồng thời (Phantom Read ở mức READ COMMITTED)
     IF V_COUNT2 <> V_COUNT1 THEN
-        RAISE_APPLICATION_ERROR(-20913, N'Lỗi Đọc Bóng Ma (Phantom Read): Số phiếu ban đầu là ' || V_COUNT1 || N', sau delay phát hiện thay đổi dòng (đọc thấy ' || (V_COUNT2 + 1) || N' dòng bao gồm cả thay đổi ngoài!).');
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_PHANTOM_READ_NHAPKHO, N'Lỗi Đọc Bóng Ma (Phantom Read): Số phiếu ban đầu là ' || V_COUNT1 || N', sau delay phát hiện thay đổi dòng (đọc thấy ' || (V_COUNT2 + 1) || N' dòng bao gồm cả thay đổi ngoài!).');
     END IF;
 
     COMMIT;
