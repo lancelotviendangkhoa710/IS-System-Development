@@ -1,6 +1,4 @@
 -- Procedure Tạo phiếu nhập kho
--- Tự động tạo PHIEUTHUCHI loại 'Nhap hang' sau khi nhập lô xong (cùng transaction)
-
 CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     P_MANV          IN PHIEUNHAPKHO.MANV%TYPE,
     P_MANCC         IN PHIEUNHAPKHO.MANCC%TYPE,
@@ -15,7 +13,27 @@ CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     V_TONGTIENNHAP  PHIEUTHUCHI.SOTIEN%TYPE;
     V_HESOQUYDOI    NGUYENLIEU.HESOQUYDOI%TYPE;
     V_SOLUONG_COSO  NUMBER(10,2);
+    -- [DEMO §4.3 PHANTOM READ]
+    V_COUNT1        NUMBER;
+    V_COUNT2        NUMBER;
 BEGIN
+    -- [DEMO TOGGLE §4.3 PHANTOM READ]
+    -- BUG (mặc định): Comment dòng dưới → READ COMMITTED
+    -- FIX            : Bỏ comment dòng dưới → SERIALIZABLE
+    -- EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
+
+    -- Đọc lần 1
+    SELECT COUNT(*) INTO V_COUNT1 FROM PHIEUNHAPKHO;
+
+    -- Giả lập delay 5s để phiên khác kịp chèn và commit
+    DECLARE
+        V_X NUMBER := 0;
+    BEGIN
+        FOR I IN 1..100000000 LOOP 
+            V_X := V_X + I; 
+        END LOOP;
+    END;
+
     -- 1. Khởi tạo chứng từ gốc
     INSERT INTO PHIEUNHAPKHO (MANV, MANCC, NGAYNHAP)
     VALUES (P_MANV, P_MANCC, SYSDATE)
@@ -116,6 +134,14 @@ BEGIN
     INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
     VALUES (P_MANV, 'KHO', 'Nhap kho phieu #' || V_MAPN, V_MAPN);
 
+    -- Đọc lần 2
+    SELECT COUNT(*) INTO V_COUNT2 FROM PHIEUNHAPKHO;
+
+    -- Nếu số lượng khác nhau (không phải do chính ta chèn thêm 1 dòng) → Phát hiện Phantom Read
+    IF V_COUNT2 > V_COUNT1 + 1 THEN
+        RAISE_APPLICATION_ERROR(-20913, N'Lỗi Đọc Bóng Ma (Phantom Read): Số phiếu ban đầu là ' || V_COUNT1 || N', sau đó đọc thấy ' || V_COUNT2 || N' (phát hiện dòng bóng ma!).');
+    END IF;
+
     COMMIT;
 
 EXCEPTION
@@ -202,8 +228,8 @@ CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
         SELECT C.MANL, N.TENNL, (C.SOLUONGTIEUHAO * P_SOLUONGSANXUAT) AS TONG_CAN_DUNG
         FROM CONGTHUC C
                  JOIN NGUYENLIEU N ON C.MANL = N.MANL
-        WHERE C.MASP = P_MASP
-        ORDER BY C.MANL ASC;  -- [FIX] Lock Ordering: luôn lock MANL tăng dần → ngăn Deadlock
+        WHERE C.MASP = P_MASP;
+        -- ORDER BY C.MANL ASC;  -- [FIX] Lock Ordering: luôn lock MANL tăng dần → ngăn Deadlock
         -- (BUG: comment dòng ORDER BY ở trên → thứ tự lock phụ thuộc CONGTHUC → có thể Deadlock)
 
     CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
@@ -239,7 +265,7 @@ BEGIN
             -- [DEMO §4.4 DEADLOCK] Giả lập thời gian tính toán giữa các lần lock.
             -- Khi bỏ comment → Thread kia kịp lock nguyên liệu kế tiếp → chu trình → Deadlock.
             -- Mặc định: COMMENT (= FIX mode, không ảnh hưởng nghiệp vụ)
-            -- FOR I IN 1..50000000 LOOP V_DEMO_X := V_DEMO_X + I; END LOOP;
+            FOR I IN 1..50000000 LOOP V_DEMO_X := V_DEMO_X + I; END LOOP;
             -- ============================================================
         END LOOP;
 
