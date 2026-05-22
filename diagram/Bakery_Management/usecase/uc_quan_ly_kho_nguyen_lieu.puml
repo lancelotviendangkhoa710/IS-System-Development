@@ -20,7 +20,7 @@ UC_Import .up.> UC_Main : <<extend>>
 UC_Export .up.> UC_Main : <<extend>>
 UC_Destroy .up.> UC_Main : <<extend>>
 UC_Alert .up.> UC_Main : <<extend>>
-UC_SearchCard .up.> UC_Main : <<extend>>
+UC_SearchCard .up.> UC_Main : <<extend>>  
 
 UC_EditMat ..> UC_SearchMat : <<include>>
 UC_Import ..> UC_SearchMat : <<include>>

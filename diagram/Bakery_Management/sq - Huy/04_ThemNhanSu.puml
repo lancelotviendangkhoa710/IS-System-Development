@@ -22,6 +22,20 @@ deactivate UI
 
 UI -->> FRM: Hiển thị biểu mẫu thêm nhân sự
 
+group opt Hủy thao tác
+    autonumber stop
+    QL -[hidden]-> DB_NVVT
+    autonumber resume "<b>##."
+    QL -> FRM: Nhấn nút "Hủy"
+    activate FRM
+    deactivate FRM
+    
+FRM -> SYS: Yêu cầu đóng form
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Đóng biểu mẫu, không lưu dữ liệu
+end
 
 QL -> FRM: Nhập thông tin nhân viên 
 activate FRM

@@ -1,0 +1,79 @@
+@startuml QuanLyBanHang
+mainframe sd Seq_QuanLyBanHang
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Thu ngân" as TN #White
+boundary "GUI_BanHang" as UI #White
+control "Controller_BanHang" as SYS #White
+entity ": DONDATHANG" as DB_DDH #White
+entity ": HOADON" as DB_HD #White
+
+UI -> UI: Mở màn hình quản lý bán hàng
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách
+activate SYS
+deactivate SYS
+
+SYS -> DB_DDH: Truy vấn danh sách đơn hàng
+activate DB_DDH
+deactivate DB_DDH
+
+SYS -> DB_HD: Truy vấn danh sách hóa đơn
+activate DB_HD
+deactivate DB_HD
+
+SYS -->> UI: Hiển thị danh sách ban đầu
+
+TN -> UI: Chọn chức năng
+activate UI
+deactivate UI
+
+group opt Lập hóa đơn bán lẻ
+    autonumber stop
+    TN -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    ref over TN, DB_HD: Lập hóa đơn bán lẻ (Seq_LapHoaDonBanLe)
+end
+
+group opt Hủy hóa đơn bán lẻ
+    autonumber stop
+    TN -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    ref over TN, DB_HD: Hủy hóa đơn bán lẻ (Seq_HuyHoaDonBanLe)
+end
+
+group opt Lập đơn đặt bánh tùy chỉnh
+    autonumber stop
+    TN -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    ref over TN, DB_HD: Lập đơn đặt bánh (Seq_LapDonDatBanhTuyChinh)
+end
+
+group opt Cập nhật trạng thái đơn
+    autonumber stop
+    TN -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    ref over TN, DB_HD: Cập nhật trạng thái đơn (Seq_CapNhatTrangThaiDon)
+end
+
+group opt Tra cứu danh sách đơn
+    autonumber stop
+    TN -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    ref over TN, DB_HD: Tra cứu danh sách đơn (Seq_TraCuuDanhSachDon)
+end
+
+group opt Hủy đơn và hoàn cọc
+    autonumber stop
+    TN -[hidden]-> DB_HD
+    autonumber resume "<b>##."
+    ref over TN, DB_HD: Hủy đơn và hoàn cọc (Seq_HuyDonVaHoanCoc)
+end
+@enduml

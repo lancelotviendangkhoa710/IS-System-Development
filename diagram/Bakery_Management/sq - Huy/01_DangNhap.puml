@@ -32,9 +32,7 @@
     deactivate SYS
 
     group alt Kiểm tra định dạng
-
         note over of NV: [Thiếu thông tin]
-    
         autonumber stop
         NV -[hidden]-> DB_CLV
         autonumber resume "<b>##."

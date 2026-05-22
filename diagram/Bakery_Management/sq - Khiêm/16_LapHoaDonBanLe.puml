@@ -1,0 +1,105 @@
+@startuml LapHoaDonBanLe
+mainframe sd Seq_LapHoaDonBanLe
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Thu ngân" as TN #White
+boundary "Form_ThanhToan" as FRM #White
+boundary "GUI_BanHang" as UI #White
+control "Controller_BanHang" as SYS #White
+entity ": SANPHAM" as DB_SP #White
+entity ": KHACHHANG" as DB_KH #White
+entity ": HOADON" as DB_HD #White
+entity ": THANHVIEN" as DB_TV #White
+
+TN -> UI: Chọn sản phẩm, số lượng và nhấn "Thanh toán"
+activate UI
+deactivate UI
+
+UI -->> FRM: Mở hộp thoại thông tin khách
+activate FRM
+deactivate FRM
+
+TN -> FRM: Nhập SĐT tìm khách và nhấn "Tiếp theo"
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Gửi yêu cầu tìm khách hàng
+activate SYS
+deactivate SYS
+
+SYS -> DB_KH: Truy vấn thông tin khách hàng
+activate DB_KH
+deactivate DB_KH
+
+SYS -> SYS: Kiểm tra kết quả
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra kết quả
+    note over of TN: [Tìm thấy]
+    autonumber stop
+    TN -[hidden]-> DB_TV
+    autonumber resume "<b>##."
+    SYS -> DB_TV: Truy vấn hạng thành viên
+    activate DB_TV
+    deactivate DB_TV
+    SYS -->> FRM: Trả về thông tin khách và giảm giá
+else
+    note over of TN: [Không tìm thấy/Bỏ qua]
+    autonumber stop
+    TN -[hidden]-> DB_TV
+    autonumber resume "<b>##."
+    SYS -->> FRM: Xác nhận là "Khách vãng lai"
+end
+
+TN -> FRM: Chọn hình thức thanh toán và nhập số tiền
+activate FRM
+deactivate FRM
+
+FRM -> FRM: Tính và hiển thị tiền thừa
+activate FRM
+deactivate FRM
+
+TN -> FRM: Nhấn "Xác nhận"
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Yêu cầu lưu hóa đơn
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra tính hợp lệ
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra tính hợp lệ
+    note over of TN: [Tiền không đủ/Lỗi]
+    autonumber stop
+    TN -[hidden]-> DB_TV
+    autonumber resume "<b>##."
+    SYS -->> FRM: Thông báo lỗi, giữ nguyên biểu mẫu
+else
+    note over of TN: [Hợp lệ]
+    autonumber stop
+    TN -[hidden]-> DB_TV
+    autonumber resume "<b>##."
+    SYS -> DB_HD: Lưu hóa đơn mới (Hoàn thành)
+    activate DB_HD
+    deactivate DB_HD
+    
+    SYS -> DB_HD: Lưu phiếu thu vào sổ quỹ
+    activate DB_HD
+    deactivate DB_HD
+    
+    SYS -> DB_TV: Cộng điểm thành viên (nếu có)
+    activate DB_TV
+    deactivate DB_TV
+    
+    SYS -->> UI: Thông báo thành công và in hóa đơn
+end
+@enduml

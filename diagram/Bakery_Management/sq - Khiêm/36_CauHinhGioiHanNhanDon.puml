@@ -1,0 +1,63 @@
+@startuml CauHinhGioiHanNhanDon
+mainframe sd Seq_CauHinhGioiHanNhanDon
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "Form_CauHinh" as FRM #White
+boundary "GUI_CongThuc" as UI #White
+control "Controller_CongThuc" as SYS #White
+entity ": CAUHINH" as DB_CH #White
+
+QL -> UI: Chọn cấu hình giới hạn
+activate UI
+deactivate UI
+
+UI -->> FRM: Mở biểu mẫu cấu hình
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Lấy cấu hình hiện tại
+activate SYS
+deactivate SYS
+
+SYS -> DB_CH: Lấy dữ liệu
+activate DB_CH
+deactivate DB_CH
+
+SYS -->> FRM: Hiển thị số lượng cũ
+
+QL -> FRM: Nhập số lượng mới và lưu
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Cập nhật
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra số lượng hợp lệ (nguyên dương)
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra
+    note over of QL: [Lỗi]
+    autonumber stop
+    QL -[hidden]-> DB_CH
+    autonumber resume "<b>##."
+    SYS -->> FRM: Báo lỗi
+else
+    note over of QL: [Hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_CH
+    autonumber resume "<b>##."
+    SYS -> DB_CH: Lưu giới hạn mới
+    activate DB_CH
+    deactivate DB_CH
+    
+    SYS -->> UI: Thông báo thành công
+end
+@enduml
