@@ -13,7 +13,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -22,9 +21,9 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Controller cho QuanLyNhanVienView.
- * Thêm/Sửa qua dialog (ThemNhanVienDialog.fxml dual-mode).
- * Không còn inline form panel bên phải.
+ * Controller cho QuanLyNhanVienView (tab content trong NhanSuView).
+ * Layout theo khuôn SanPhamView: toolbar nút hành động trên bảng, không có cột inline.
+ * Thêm/Sửa qua ThemNhanVienDialog.fxml (dual-mode).
  */
 public class QuanLyNhanVienViewFXMLController extends BaseController {
 
@@ -35,10 +34,11 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     @FXML private TableColumn<NhanVienDTO, String>  colVaiTro;
     @FXML private TableColumn<NhanVienDTO, String>  colTenDangNhap;
     @FXML private TableColumn<NhanVienDTO, String>  colTrangThai;
-    @FXML private TableColumn<NhanVienDTO, Void>    colHanhDong;
 
-    @FXML private TextField      txtTimKiem;
+    @FXML private TextField       txtTimKiem;
     @FXML private ComboBox<String> cmbLocTrangThai;
+    @FXML private Button           btnSua;
+    @FXML private Button           btnThoiViec;
 
     private final NhanVienService             nhanVienService = new NhanVienService();
     private final ObservableList<NhanVienDTO> masterData      = FXCollections.observableArrayList();
@@ -47,10 +47,10 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     @FXML
     public void initialize() {
         setupTable();
-        setupActionsColumn();
         setupFilters();
+        setupToolbarButtons();
         loadData();
-        // Auto-refresh 30s
+        // Auto-refresh mỗi 30 giây
         batDauAutoRefresh(tblNhanVien, this::loadData, 30);
     }
 
@@ -75,28 +75,19 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         });
     }
 
-    /** Cột Hành động: nút Sửa + Cho thôi việc cho từng hàng. */
-    private void setupActionsColumn() {
-        colHanhDong.setCellFactory(col -> new TableCell<>() {
-            private final Button btnSua  = new Button("✏ Sửa");
-            private final Button btnThoiViec = new Button("🔒 Thôi việc");
+    /** Bind nút toolbar theo item được chọn trong bảng. */
+    private void setupToolbarButtons() {
+        // Mặc định disable, chỉ enable khi có hàng được chọn
+        btnSua.disableProperty().bind(
+                tblNhanVien.getSelectionModel().selectedItemProperty().isNull()
+        );
 
-            {
-                btnSua.getStyleClass().add("btn-secondary");
-                btnThoiViec.getStyleClass().add("btn-danger");
-                btnSua.setOnAction(e -> moDialogSua(getTableView().getItems().get(getIndex())));
-                btnThoiViec.setOnAction(e -> onChoThoiViec(getTableView().getItems().get(getIndex())));
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) { setGraphic(null); return; }
-                NhanVienDTO nv = getTableView().getItems().get(getIndex());
-                btnThoiViec.setDisable(nv.getTrangThaiLamViec() == 0);
-                HBox box = new HBox(8, btnSua, btnThoiViec);
-                box.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                setGraphic(box);
+        // Thôi việc: disable khi chưa chọn HOẶC NV đã thôi việc rồi
+        tblNhanVien.getSelectionModel().selectedItemProperty().addListener((obs, oldNv, newNv) -> {
+            if (newNv == null) {
+                btnThoiViec.setDisable(true);
+            } else {
+                btnThoiViec.setDisable(newNv.getTrangThaiLamViec() == 0);
             }
         });
     }
@@ -153,12 +144,26 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     // ── FXML handlers ──────────────────────────────────────────────────────
 
-    @FXML private void onThemMoi() { moDialog(null); }
-    @FXML private void onLamMoi()  { loadData(); }
+    @FXML private void onThemMoi()  { moDialog(null); }
+    @FXML private void onLamMoi()   { tblNhanVien.getSelectionModel().clearSelection(); loadData(); }
+
+    /** Sửa NV đang được chọn trong bảng. */
+    @FXML
+    private void onSua() {
+        NhanVienDTO selected = tblNhanVien.getSelectionModel().getSelectedItem();
+        if (selected != null) moDialogSua(selected);
+    }
+
+    /** Cho thôi việc NV đang được chọn trong bảng. */
+    @FXML
+    private void onThoiViec() {
+        NhanVienDTO selected = tblNhanVien.getSelectionModel().getSelectedItem();
+        if (selected != null) xuLyChoThoiViec(selected);
+    }
 
     // ── Dialog helpers ─────────────────────────────────────────────────────
 
-    /** Mở dialog Thêm mới. */
+    /** Mở dialog Thêm mới (nv=null) hoặc Sửa (nv != null). */
     private void moDialog(NhanVienDTO nv) {
         try {
             URL url = getClass().getResource("/fxml/nhansu/ThemNhanVienDialog.fxml");
@@ -169,7 +174,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
             if (css != null) scene.getStylesheets().add(css.toExternalForm());
 
             ThemNhanVienDialogController ctrl = loader.getController();
-            if (nv != null) ctrl.khoiTaoSua(nv);   // mode Sửa
+            if (nv != null) ctrl.khoiTaoSua(nv);
             ctrl.setOnThemThanhCong(() -> {
                 loadData();
                 hienThiThanhCongLabel(nv == null ? "✅ Đã thêm nhân viên mới." : "✅ Đã cập nhật nhân viên.");
@@ -187,13 +192,10 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         }
     }
 
-    /** Mở dialog Sửa. */
-    private void moDialogSua(NhanVienDTO nv) {
-        moDialog(nv);
-    }
+    private void moDialogSua(NhanVienDTO nv) { moDialog(nv); }
 
-    /** Xác nhận cho thôi việc. */
-    private void onChoThoiViec(NhanVienDTO nv) {
+    /** Xác nhận và thực hiện cho thôi việc. */
+    private void xuLyChoThoiViec(NhanVienDTO nv) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                 "Cho nhân viên \"" + nv.getHoTen() + "\" thôi việc?\n" +
                 "Tài khoản đăng nhập sẽ bị khóa nhưng lịch sử được giữ lại.",

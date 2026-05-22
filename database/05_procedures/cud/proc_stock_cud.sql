@@ -17,9 +17,7 @@ CREATE OR REPLACE PROCEDURE PROC_TAOPHIEUNHAPKHO (
     V_COUNT1        NUMBER;
     V_COUNT2        NUMBER;
 BEGIN
-    -- [DEMO TOGGLE §4.3 PHANTOM READ]
-    -- BUG (mặc định): Comment dòng dưới → READ COMMITTED
-    -- FIX            : Bỏ comment dòng dưới → SERIALIZABLE
+
     -- EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
 
     -- Đọc lần 1
@@ -100,8 +98,7 @@ BEGIN
                    );
         END LOOP;
 
-    -- 4. Tính tổng tiền nhập (dựa trên soLuong gốc × donGia để phản ánh đúng hóa đơn)
-    -- Dùng lại JSON để tính theo soLuong nhập thực tế (chưa quy đổi) × donGia
+    -- 4. Tính tổng tiền nhập (dựa trên soLuong gốc × donGia để phản ánh đúng hóa đơn
     SELECT NVL(SUM(J.SOLUONG * J.DONGIA), 0)
     INTO V_TONGTIENNHAP
     FROM JSON_TABLE(P_JSON_DATALIST, '$[*]'
@@ -125,7 +122,6 @@ BEGIN
     END;
 
     -- 6. Tạo phiếu chi nhập hàng
-    --    FIX: NULLIF(P_MACA, 0) — thủ kho không có ca (maCa=0) → lưu NULL thay vì FK fail
     INSERT INTO PHIEUTHUCHI (MALOAITHUCHI, SOTIEN, MANV, MACA, MAPN, GHICHU)
     VALUES (V_MALOAITHUCHI, V_TONGTIENNHAP, P_MANV, NULLIF(P_MACA, 0), V_MAPN,
             N'Tự động — Nhập kho phiếu #' || V_MAPN);
@@ -185,9 +181,6 @@ END;
 /
 
 -- Procedure Xuất Kho Sản Xuất
--- IMP-03: Thêm audit log HOATDONGNHANVIEN
--- IMP-05: Fix exception re-raise cho ERR_NL_KHONG_DU
--- IMP-09: Dùng PL/SQL collection cache cursor → tránh double scan C_CONGTHUC
 CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
     P_MASP IN SANPHAM.MASP%type,
     P_SOLUONGSANXUAT IN CONGTHUC.SOLUONGTIEUHAO%type,
@@ -207,30 +200,17 @@ CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
     V_MAPX         CTPHIEUXUAT_NL.MAPX%type;
     V_TONGTON      NGUYENLIEU.SOLUONGTONTONG%type;
     V_LUONGCANDUNG CONGTHUC.SOLUONGTIEUHAO%type;
-    -- [DEMO §4.4] Biến dùng cho vòng lặp delay (vô nghĩa về nghiệp vụ, chỉ tốn CPU)
+
     V_DEMO_X       NUMBER := 0;
 
-    -- ============================================================
     -- [DEMO §4.4 DEADLOCK] TOGGLE BUG / FIX:
-    --
-    -- [FIX — mặc định] ORDER BY C.MANL ASC đang bật:
-    --   → Cả hai thợ đều lock nguyên liệu MANL nhỏ hơn trước
-    --   → Không hình thành chu trình Wait-for Graph → Không Deadlock
-    --
-    -- [BUG] Để tái hiện Deadlock:
-    --   Bước 1: Comment dòng ORDER BY bên dưới
-    --   Bước 2: Bỏ comment dòng FOR LOOP delay trong phần BEGIN
-    --   → Hai thợ lock nguyên liệu theo thứ tự CONGTHUC (có thể ngược nhau)
-    --   → Oracle phát hiện chu trình → ném ORA-00060 cho nạn nhân
-    -- ============================================================
-    -- Cursor chỉ mở 1 lần duy nhất (IMP-09)
+
     CURSOR C_CONGTHUC IS
         SELECT C.MANL, N.TENNL, (C.SOLUONGTIEUHAO * P_SOLUONGSANXUAT) AS TONG_CAN_DUNG
         FROM CONGTHUC C
                  JOIN NGUYENLIEU N ON C.MANL = N.MANL
         WHERE C.MASP = P_MASP;
         -- ORDER BY C.MANL ASC;  -- [FIX] Lock Ordering: luôn lock MANL tăng dần → ngăn Deadlock
-        -- (BUG: comment dòng ORDER BY ở trên → thứ tự lock phụ thuộc CONGTHUC → có thể Deadlock)
 
     CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
         SELECT MALO, SOLUONGCONLAI
@@ -261,12 +241,10 @@ BEGIN
             V_TAB(V_IDX).TENNL := REC.TENNL;
             V_TAB(V_IDX).TONG_CAN_DUNG := REC.TONG_CAN_DUNG;
 
-            -- ============================================================
+
             -- [DEMO §4.4 DEADLOCK] Giả lập thời gian tính toán giữa các lần lock.
-            -- Khi bỏ comment → Thread kia kịp lock nguyên liệu kế tiếp → chu trình → Deadlock.
-            -- Mặc định: COMMENT (= FIX mode, không ảnh hưởng nghiệp vụ)
+
             FOR I IN 1..50000000 LOOP V_DEMO_X := V_DEMO_X + I; END LOOP;
-            -- ============================================================
         END LOOP;
 
     -- 2. TẠO CHỨNG TỪ XUẤT TỔNG
@@ -274,11 +252,11 @@ BEGIN
     VALUES (P_MANV, 'Lam banh')
     RETURNING MAPX INTO V_MAPX;
 
-    -- 2b. GHI MẺ SẢN XUẤT (bridge SANPHAM ↔ PHIEUXUATKHO — phục vụ truy xuất nguồn gốc)
+    -- 2b. GHI MẺ SẢN XUẤT (bridge SANPHAM PHIEUXUATKHO — phục vụ truy xuất nguồn gốc)
     INSERT INTO MESANXUAT (MASP, SOLUONGSANXUAT, MANV, MAPX)
     VALUES (P_MASP, P_SOLUONGSANXUAT, P_MANV, V_MAPX);
 
-    -- 3. XUẤT THEO RÚT GỌN LÔ (FIFO) — iterate collection thay vì mở lại cursor (IMP-09)
+    -- 3. XUẤT THEO RÚT GỌN LÔ (FIFO)
     FOR I IN 1..V_TAB.COUNT
         LOOP
             V_LUONGCANDUNG := V_TAB(I).TONG_CAN_DUNG;
@@ -305,7 +283,7 @@ BEGIN
         END LOOP;
 
     -- 4. CẬP NHẬT TỒN KHO THÀNH PHẨM (tồn cũ + số bánh vừa làm ra)
-    -- NVL bảo vệ trường hợp SOLUONGTON đang NULL trong DB (NULL + n = NULL trong Oracle)
+
     UPDATE SANPHAM
     SET SOLUONGTON = NVL(SOLUONGTON, 0) + P_SOLUONGSANXUAT
     WHERE MASP = P_MASP;
@@ -320,7 +298,6 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        -- IMP-05: Re-raise cả ERR_NL_KHONG_DU và ERR_NL_TON_AO để Java nhận error code chính xác
         IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO
         OR SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_DU THEN
             RAISE;
