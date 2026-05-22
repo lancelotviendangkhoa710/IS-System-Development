@@ -74,4 +74,5 @@ open module BakeryManagementSystem {
     exports com.bakery.services.nhansu;
     exports com.bakery.services.taichinh;
     exports com.bakery.utils;
+    exports com.bakery.demo;
 }

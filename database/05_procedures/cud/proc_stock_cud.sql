@@ -181,14 +181,30 @@ CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
     V_MAPX         CTPHIEUXUAT_NL.MAPX%type;
     V_TONGTON      NGUYENLIEU.SOLUONGTONTONG%type;
     V_LUONGCANDUNG CONGTHUC.SOLUONGTIEUHAO%type;
+    -- [DEMO §4.4] Biến dùng cho vòng lặp delay (vô nghĩa về nghiệp vụ, chỉ tốn CPU)
+    V_DEMO_X       NUMBER := 0;
 
+    -- ============================================================
+    -- [DEMO §4.4 DEADLOCK] TOGGLE BUG / FIX:
+    --
+    -- [FIX — mặc định] ORDER BY C.MANL ASC đang bật:
+    --   → Cả hai thợ đều lock nguyên liệu MANL nhỏ hơn trước
+    --   → Không hình thành chu trình Wait-for Graph → Không Deadlock
+    --
+    -- [BUG] Để tái hiện Deadlock:
+    --   Bước 1: Comment dòng ORDER BY bên dưới
+    --   Bước 2: Bỏ comment dòng FOR LOOP delay trong phần BEGIN
+    --   → Hai thợ lock nguyên liệu theo thứ tự CONGTHUC (có thể ngược nhau)
+    --   → Oracle phát hiện chu trình → ném ORA-00060 cho nạn nhân
+    -- ============================================================
     -- Cursor chỉ mở 1 lần duy nhất (IMP-09)
     CURSOR C_CONGTHUC IS
         SELECT C.MANL, N.TENNL, (C.SOLUONGTIEUHAO * P_SOLUONGSANXUAT) AS TONG_CAN_DUNG
         FROM CONGTHUC C
                  JOIN NGUYENLIEU N ON C.MANL = N.MANL
         WHERE C.MASP = P_MASP
-        ORDER BY C.MANL ASC;  -- Lock Ordering: luôn lock theo MANL tăng dần → ngăn Deadlock
+        ORDER BY C.MANL ASC;  -- [FIX] Lock Ordering: luôn lock MANL tăng dần → ngăn Deadlock
+        -- (BUG: comment dòng ORDER BY ở trên → thứ tự lock phụ thuộc CONGTHUC → có thể Deadlock)
 
     CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
         SELECT MALO, SOLUONGCONLAI
@@ -218,6 +234,13 @@ BEGIN
             V_TAB(V_IDX).MANL := REC.MANL;
             V_TAB(V_IDX).TENNL := REC.TENNL;
             V_TAB(V_IDX).TONG_CAN_DUNG := REC.TONG_CAN_DUNG;
+
+            -- ============================================================
+            -- [DEMO §4.4 DEADLOCK] Giả lập thời gian tính toán giữa các lần lock.
+            -- Khi bỏ comment → Thread kia kịp lock nguyên liệu kế tiếp → chu trình → Deadlock.
+            -- Mặc định: COMMENT (= FIX mode, không ảnh hưởng nghiệp vụ)
+            -- FOR I IN 1..50000000 LOOP V_DEMO_X := V_DEMO_X + I; END LOOP;
+            -- ============================================================
         END LOOP;
 
     -- 2. TẠO CHỨNG TỪ XUẤT TỔNG

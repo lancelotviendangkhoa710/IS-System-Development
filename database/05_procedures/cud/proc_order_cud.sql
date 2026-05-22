@@ -32,10 +32,7 @@ CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
     V_TONKHO      NUMBER := 0;
     V_TENSP       NVARCHAR2(200);
 BEGIN
-
-
     EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
-
 
     -- 0. Validate JSON input
     IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
@@ -89,6 +86,7 @@ BEGIN
                 WHERE MASP = V_TAB(I).MASP;
 
 
+
                 IF V_TONKHO < V_TAB(I).SOLUONG THEN
                     IF V_TONKHO = 0 THEN
                         RAISE_APPLICATION_ERROR(
@@ -118,7 +116,7 @@ BEGIN
     RETURNING MADON INTO P_MADON_OUT;
 
     -- 4. Insert chi tiết
-    -- 4. Insert chi tiết (Đã sửa đổi để mô phỏng lỗi Non-repeatable Read)
+
     FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
                 DECLARE
