@@ -133,18 +133,18 @@ public class ThanhToanService {
         if (!SessionContext.getInstance().isCaoDangMo())
             throw new IllegalStateException("Chưa mở ca làm việc. Vui lòng mở ca trước khi chốt hóa đơn.");
 
-        double tongTien = donHang.getTongTienHDBan() != null ? donHang.getTongTienHDBan().doubleValue() : 0.0;
+        double tongTienGoc = donHang.getTongTienHDBan() != null ? donHang.getTongTienHDBan().doubleValue() : 0.0;
         double tienCoc = donHang.getTienDaCoc() != null ? donHang.getTienDaCoc().doubleValue() : 0.0;
-        double tongTienConLai = Math.max(0, tongTien - tienCoc);
+        double tongTienCoThue = tongTienGoc * (1 + THUE_VAT);
+        double tongTienConLai = Math.max(0, tongTienCoThue - tienCoc);
 
-        // tienGoc = tongTien (đơn đặt hàng không áp thuế thêm tại đây)
-        HoaDonDTO hd = taoHoaDonDTO(donHang.getMaDon(), tongTien, tongTienConLai, "DAT_HANG");
+        HoaDonDTO hd = taoHoaDonDTO(donHang.getMaDon(), tongTienGoc, tongTienConLai, "DAT_HANG");
         hd.setMaDon(donHang.getMaDon());
 
         try {
             int maHD = hoaDonDAO.themHoaDonMoi(hd);
             if (maHD > 0) {
-                hoaDonDAO.thanhToanVaThangHang(maHD, donHang.getMaKH(), tongTien);
+                hoaDonDAO.thanhToanVaThangHang(maHD, donHang.getMaKH(), tongTienCoThue);
 
                 // Tạo phiếu thu đi kèm (Sổ quỹ)
                 // Bug 2 Fix: chỉ tạo phiếu thu khi tiền mặt

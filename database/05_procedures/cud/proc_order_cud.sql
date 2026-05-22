@@ -86,8 +86,8 @@ BEGIN
                 SELECT SOLUONGTON, TENSP
                 INTO V_TONKHO, V_TENSP
                 FROM SANPHAM
-                WHERE MASP = V_TAB(I).MASP
-                FOR UPDATE;
+                WHERE MASP = V_TAB(I).MASP;
+
 
                 IF V_TONKHO < V_TAB(I).SOLUONG THEN
                     IF V_TONKHO = 0 THEN
@@ -114,23 +114,30 @@ BEGIN
 
     -- 3. Insert Đơn Hàng
     INSERT INTO DONDATHANG (NGAYGIONHANBANH, MAKH, MANV_LAP, MATRANGTHAI, TONGTIENHDBAN, TIENDACOC, HINHTHUCNHAN, DIACHIGIAO)
-    VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, NVL(V_TONGTIEN, 0), 0, P_HINHTHUCNHAN, P_DIACHIGIAO)
+    VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, 0, 0, P_HINHTHUCNHAN, P_DIACHIGIAO)
     RETURNING MADON INTO P_MADON_OUT;
 
     -- 4. Insert chi tiết
+    -- 4. Insert chi tiết (Đã sửa đổi để mô phỏng lỗi Non-repeatable Read)
     FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
-                INSERT INTO CTDONHANG (MADON, MASP, SOLUONG, DONGIA)
-                VALUES (P_MADON_OUT, V_TAB(I).MASP, V_TAB(I).SOLUONG, V_TAB(I).DONGIA);
-            ELSE
-                INSERT INTO CTDONTUYCHINH (MADON, MASP, SOLUONG, DONGIA, LOICHUCTRENBANH, GHICHUTHOBANH, MAKC, MACOT, MANHAN, MATRANGTRI)
-                VALUES (P_MADON_OUT, V_TAB(I).MASP, V_TAB(I).SOLUONG, V_TAB(I).DONGIA,
-                        V_TAB(I).GHICHU, V_TAB(I).PHUKIEN, V_TAB(I).MAKC, V_TAB(I).MACOT,
-                        V_TAB(I).MANHAN, V_TAB(I).MATRANGTRI);
-            END IF;
-        END LOOP;
+                DECLARE
+                    V_GIA_MOI_NHAT NUMBER;
+                BEGIN
+                    -- Truy vấn trực tiếp giá bán hiện thời trong bảng SANPHAM
+                    SELECT GIABAN INTO V_GIA_MOI_NHAT
+                    FROM SANPHAM
+                    WHERE MASP = V_TAB(I).MASP;
 
-    -- 4.5. Gán tiền cọc
+                    -- Sử dụng V_GIA_MOI_NHAT thay vì đơn giá truyền từ Java
+                    INSERT INTO CTDONHANG (MADON, MASP, SOLUONG, DONGIA)
+                    VALUES (P_MADON_OUT, V_TAB(I).MASP, V_TAB(I).SOLUONG, V_GIA_MOI_NHAT);
+                END;
+                END IF;
+            END LOOP;
+
+
+                -- 4.5. Gán tiền cọc
     UPDATE DONDATHANG
     SET TIENDACOC = NVL(P_TIENDACOC, 0)
     WHERE MADON = P_MADON_OUT;
@@ -181,7 +188,7 @@ BEGIN
     WHERE MADON = P_MADON;
 
     IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20910, N'Không tìm thấy đơn hàng để hủy: ' || P_MADON);
+        RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_DON, N'Không tìm thấy đơn hàng để hủy: ' || P_MADON);
     END IF;
 
     -- 3. Ghi lịch sử hủy
@@ -231,4 +238,3 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON), N'Lỗi hệ thống khi hủy đơn hàng: ' || SQLERRM);
 END;
 /
-select * from SANPHAM commit;

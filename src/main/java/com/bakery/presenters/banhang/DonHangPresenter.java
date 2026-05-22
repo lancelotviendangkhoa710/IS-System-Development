@@ -23,6 +23,8 @@ import java.util.Map;
 import com.bakery.utils.UserSession;
 
 public class DonHangPresenter {
+    private static final double THUE_VAT = 0.085;
+
     private final IDonHangView view;
     private final DonHangService orderService;
     // Phương án A: Presenter gọi dialog qua interface factory
@@ -466,17 +468,18 @@ public class DonHangPresenter {
             HoaDonDTO hoaDonMoi = null;
             // Nếu chuyển sang trạng thái Hoàn thành, yêu cầu xác nhận thu tiền còn lại
             if ("HOAN_THANH".equals(com.bakery.utils.StringUtil.chuanHoa(ttMoi))) {
-                double tongTien = donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue()
+                double tongTienGoc = donHienTai.getTongTienHDBan() != null ? donHienTai.getTongTienHDBan().doubleValue()
                         : 0.0;
                 double daCoc = donHienTai.getTienDaCoc() != null ? donHienTai.getTienDaCoc().doubleValue() : 0.0;
-                double conLai = Math.max(0, tongTien - daCoc);
+                double tongTienCoThue = tongTienGoc * (1 + THUE_VAT);
+                double conLai = Math.max(0, tongTienCoThue - daCoc);
 
                 if (conLai > 0) {
                     if (dialogFactory == null) {
                         view.hienThiLoi("Lỗi hệ thống: dialogFactory chưa được khởi tạo.");
                         return;
                     }
-                    boolean xacNhan = dialogFactory.showPaymentConfirmation(maDon, tongTien, daCoc, conLai);
+                    boolean xacNhan = dialogFactory.showPaymentConfirmation(maDon, tongTienCoThue, daCoc, conLai);
                     if (!xacNhan) {
                         return; // Hủy cập nhật nếu không xác nhận thanh toán
                     }
