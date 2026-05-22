@@ -1,8 +1,4 @@
--- ==========================================
--- UC40: HỦY HÓA ĐƠN BÁN LẺ (Đơn đã hoàn thành)
--- Hoàn kho + chuyển trạng thái Hủy + ghi nhật ký
--- Không tạo phiếu chi (tiền mặt đã trả, quản lý xử lý ngoài)
--- ==========================================
+
 
 CREATE OR REPLACE PROCEDURE PROC_HUYHOADONBANLE(
     P_MADON         IN DONDATHANG.MADON%TYPE,
@@ -53,7 +49,7 @@ BEGIN
     WHERE MADON = P_MADON;
 
     -- 6. Hoàn kho theo từng sản phẩm trong chi tiết đơn
-    -- NVL bảo vệ trường hợp SOLUONGTON đang NULL trong DB (NULL + n = NULL trong Oracle)
+
     FOR ROW_CT IN (SELECT MASP, SOLUONG FROM CTDONHANG WHERE MADON = P_MADON) LOOP
         UPDATE SANPHAM
         SET SOLUONGTON = NVL(SOLUONGTON, 0) + ROW_CT.SOLUONG
@@ -73,3 +69,4 @@ EXCEPTION
         RAISE;
 END;
 /
+select * from SANPHAM ; commit

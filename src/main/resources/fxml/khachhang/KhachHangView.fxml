@@ -41,27 +41,22 @@
                         <!-- TOOLBAR -->
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <TextField fx:id="searchField" prefHeight="35" prefWidth="300"
-                                       promptText="🔍 Tìm theo tên, SĐT, mã KH..."
                                        styleClass="text-field" onKeyReleased="#onSearch"/>
                             <ComboBox fx:id="cbTierFilter" prefHeight="35" prefWidth="180"
                                       promptText="🏆 Tất cả hạng"
                                       onAction="#onTierFilterChanged"
                                       styleClass="combo-box"/>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <Button fx:id="btnRefresh" onAction="#onRefreshClicked"
-                                    styleClass="btn-secondary" text="↻"/>
-                            <Button fx:id="btnCheDoThungRac" onAction="#onDeletedViewClicked"
-                                    styleClass="btn-secondary" text="🗑 Thùng rác"/>
                             <Button onAction="#onExportExcelClicked"
-                                    styleClass="btn-secondary" text="📥 Xuất Excel"/>
+                                    styleClass="btn-secondary" text="Xuất danh sách KH"/>
                             <Button fx:id="btnLichSu" onAction="#onLichSuClicked"
-                                    styleClass="btn-secondary" text="📋 Lịch sử" disable="true"/>
+                                    styleClass="btn-secondary" text="Lịch sử" disable="true"/>
                             <Button fx:id="btnSua" onAction="#onSuaClicked"
                                     styleClass="btn-secondary" text="✏️ Sửa" disable="true"/>
                             <Button fx:id="btnXoa" onAction="#onXoaClicked"
                                     styleClass="btn-danger" text="🗑 Xóa" disable="true"/>
                             <Button onAction="#onAddCustomerClicked"
-                                    styleClass="btn-success" text="➕ Thêm khách hàng"/>
+                                    styleClass="btn-success" text="Thêm khách hàng"/>
                         </HBox>
 
 

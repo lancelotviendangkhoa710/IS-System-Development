@@ -24,19 +24,24 @@ public abstract class BaseDAO {
         return connection;
     }
 
-    /**
-     * Xử lý ngoại lệ tập trung cho tầng DAO.
-     * Log lỗi ra console và ném lại ngoại lệ với thông báo thân thiện.
-     * 
-     * @param methodName Tên phương thức xảy ra lỗi
-     * @param e          Ngoại lệ bắt được
-     * @throws Exception Ngoại lệ đã qua xử lý
-     */
     protected void handleException(String methodName, Exception e) throws Exception {
-        System.err.println("Lỗi DAO [" + this.getClass().getSimpleName() + "." + methodName + "]: " + e.getMessage());
-        if (e instanceof SQLException) {
-            // Có thể bổ sung phân tích SQLState hoặc ErrorCode tại đây để đưa ra thông báo
-            // chi tiết hơn
+        System.err.println("Loi DAO [" + this.getClass().getSimpleName() + "." + methodName + "]: " + e.getMessage());
+        if (e instanceof SQLException sqle) {
+            int code = sqle.getErrorCode();
+            if (code == 60) {
+                // ORA-00060: deadlock detected
+                throw new Exception("⚠ Deadlock phát hiện! Giao dịch bị Oracle rollback " +
+                        "vì xung đột khóa với phiên khác. Vui lòng thử lại.");
+            }
+            if (code == 8177) {
+                // ORA-08177: can't serialize access
+                throw new Exception("⚠ Xung đột dữ liệu! Sản phẩm vừa được cập nhật bởi phiên khác. " +
+                        "Giao dịch đã bị hủy để bảo vệ tính toàn vẹn dữ liệu.");
+            }
+            if (code == 2290 || (e.getMessage() != null && e.getMessage().contains("CK_SP_SOLUONGTON"))) {
+                throw new Exception("⚠ Số lượng sản phẩm trong kho không đủ để thực hiện giao dịch này! " +
+                        "Vui lòng cập nhật lại giỏ hàng. (Chi tiết: CK_SP_SOLUONGTON)");
+            }
             throw new Exception("Lỗi truy xuất dữ liệu hệ thống: " + e.getMessage());
         }
         throw e;

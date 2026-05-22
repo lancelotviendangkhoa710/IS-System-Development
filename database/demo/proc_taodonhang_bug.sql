@@ -1,3 +1,17 @@
+-- ================================================================
+-- DEMO 4.1: Lost Update (Mất cập nhật)
+-- ================================================================
+-- Kịch bản: Hai thu ngân cùng bán Bánh Bông Lan Trứng (MASP=1001)
+-- Tồn kho ban đầu = 5, mỗi bên bán 3 → đúng ra T2 phải bị từ chối
+--
+-- [TRẠNG THÁI HIỆN TẠI] BUG — READ COMMITTED, không có bảo vệ WW
+-- → Cả hai phiên đều thấy SOLUONGTON = 5 (đủ hàng) → cùng bán được
+-- → SOLUONGTON cuối: 5 - 3 - 3 = -1 (âm!)
+--
+-- [CÁCH FIX] Bỏ comment dòng EXECUTE IMMEDIATE ở đầu BEGIN bên dưới
+-- → Oracle bật Snapshot Isolation; T2 nhận ORA-08177 nếu T1 đã commit
+-- → Java hiển thị thông báo lỗi "Hàng đã hết"; T2 tự động bị từ chối
+-- ================================================================
 
 CREATE OR REPLACE PROCEDURE PROC_TAODONHANG_BUG(
     P_NGAYGIONHANBANH IN DONDATHANG.NGAYGIONHANBANH%TYPE,
@@ -31,6 +45,12 @@ IS
     V_TONKHO      NUMBER := 0;
     V_TENSP       NVARCHAR2(200);
 BEGIN
+    -- ============================================================
+    -- [FIX] Bỏ comment dòng dưới để kích hoạt SERIALIZABLE:
+    -- EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
+    -- ↑ Khi bật: T2 sẽ nhận ORA-08177 nếu T1 đã commit sau khi T2 bắt đầu
+    -- ============================================================
+
     -- 0. Validate JSON input
     IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON,
@@ -76,8 +96,12 @@ BEGIN
     END IF;
 
     -- ================================================================
-    -- [BUG DEMO] Bước 2: Kiểm tra tồn kho KHÔNG có FOR UPDATE
-    -- → 2 Thu ngân đọc cùng lúc đều thấy còn hàng → cả 2 bán được!
+    -- [BUG] Bước 2: Kiểm tra tồn kho KHÔNG có FOR UPDATE
+    -- → T2 gọi SELECT này ngay sau T1 → cả hai thấy SOLUONGTON = 5 → cả hai được bán
+    -- → Kết quả: 5 - 3 - 3 = -1 (âm!)
+    --
+    -- [FIX nếu không dùng SERIALIZABLE] Thêm FOR UPDATE vào cuối câu SELECT:
+    -- FROM SANPHAM WHERE MASP = V_TAB(I).MASP FOR UPDATE;
     -- ================================================================
     FOR I IN 1..V_TAB.COUNT LOOP
         IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
@@ -85,8 +109,7 @@ BEGIN
             INTO V_TONKHO, V_TENSP
             FROM SANPHAM
             WHERE MASP = V_TAB(I).MASP;
-            -- ↑ THIẾU "FOR UPDATE" ← ĐÂY LÀ BUG!
-            -- Không có lock → T2 đọc được cùng lúc → cả 2 thấy SL > 0
+            -- ↑ THIẾU "FOR UPDATE" ← BUG gốc vẫn giữ để demo
 
             IF V_TONKHO < V_TAB(I).SOLUONG THEN
                 IF V_TONKHO = 0 THEN
@@ -105,8 +128,8 @@ BEGIN
     END LOOP;
 
     -- ================================================================
-    -- [DEMO DELAY] Giả lập xử lý chậm để T2 kịp chen vào
-    -- 80 triệu vòng ≈ 2–4 giây → đủ thời gian Thu ngân 2 bấm nút
+    -- [DEMO DELAY] Giả lập thời gian xử lý để T2 kịp chen vào
+    -- 80 triệu vòng ≈ 2–4 giây — trong thời gian này T2 gọi procedure và đọc tồn kho
     -- ================================================================
     DECLARE V_X NUMBER := 0;
     BEGIN

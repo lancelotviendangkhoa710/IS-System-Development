@@ -1,7 +1,6 @@
 package com.bakery.model.dao.banhang;
 
 import com.bakery.model.dao.BaseDAO;
-import com.bakery.utils.DemoConfig;
 
 import com.bakery.model.dto.banhang.CTDonHangDTO;
 import com.bakery.model.dto.banhang.CTDonTuyChinhDTO;
@@ -23,40 +22,16 @@ import java.util.List;
 public class DonHangDAO extends BaseDAO {
 
     /**
-     * Tạo đơn hàng mới — standalone transaction.
-     * Dùng explicit setAutoCommit(false) để đảm bảo PROC_TAODONHANG
-     * có transaction context thực sự: SELECT FOR UPDATE bên trong proc
-     * sẽ block đúng các connection khác, ngăn Lost Update khi 2 thu ngân
-     * cùng bán sản phẩm có tồn kho ít.
+     * Tạo đơn hàng mới — uỷ thác hoàn toàn cho PROC_TAODONHANG.
+     * Procedure tự quản lý COMMIT/ROLLBACK; Java không can thiệp transaction.
+     * Toggle BUG/FIX (Lost Update) thực hiện bằng comment/bỏ comment trong SQL procedure.
      */
     public int taoDonHang(DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang, List<CTDonTuyChinhDTO> dsCtTuyChinh)
             throws Exception {
-        Connection conn = null;
-        try {
-            conn = moKetNoi();
-            // setAutoCommit(false) đảm bảo SELECT FOR UPDATE trong PROC_TAODONHANG
-            // giữ lock trên dòng SANPHAM cho đến khi conn.commit() — ngăn oversell đồng
-            // thời.
-            conn.setAutoCommit(false);
-            int maDon = taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
-            conn.commit();
-            return maDon;
+        try (Connection conn = moKetNoi()) {
+            return taoDonHangWithConn(conn, donDatHang, dsCtDonHang, dsCtTuyChinh);
         } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (Exception ignored) {
-                }
-            }
             handleException("taoDonHang", e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (Exception ignored) {
-                }
-            }
         }
         return -1;
     }
@@ -79,8 +54,7 @@ public class DonHangDAO extends BaseDAO {
     private int taoDonHangWithConn(Connection conn, DonDatHangDTO donDatHang, List<CTDonHangDTO> dsCtDonHang,
             List<CTDonTuyChinhDTO> dsCtTuyChinh) throws SQLException {
 
-        String tenProc = DemoConfig.getTenProcTaoDon();
-        String sql = "{CALL " + tenProc + "(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL PROC_TAODONHANG(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setTimestamp(1, Timestamp.valueOf(donDatHang.getNgayGioNhanBanh()));
             if (donDatHang.getMaKH() != null)

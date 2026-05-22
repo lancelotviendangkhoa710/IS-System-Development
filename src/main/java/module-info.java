@@ -1,12 +1,9 @@
 /**
  * BakeryManagementSystem — JPMS module descriptor.
  *
- * Khai báo dạng "open module" để cho phép reflection từ JavaFX (FXML) và JasperReports
+ * Khai báo dạng "open module" để cho phép reflection từ JavaFX (FXML) và
+ * JasperReports
  * (unnamed legacy JAR) mà không cần liệt kê từng `opens` riêng lẻ.
- *
- * JasperReports 6.21.3 không có Automatic-Module-Name nên là unnamed module.
- * Các IDE sẽ không báo lỗi với "open module" vì reflection được phép từ mọi module.
- * Compile: --add-reads BakeryManagementSystem=ALL-UNNAMED (đã khai báo trong pom.xml).
  */
 open module BakeryManagementSystem {
     // ── Java SE ───────────────────────────────────────────────────────────────
@@ -24,10 +21,6 @@ open module BakeryManagementSystem {
     requires org.apache.poi.ooxml;
     requires jbcrypt;
     requires jakarta.mail;
-
-    // ── JasperReports (automatic module từ jasperreports-6.21.3.jar) ──────────
-    // Tên automatic module = tên JAR bỏ version và extension: "jasperreports"
-    // Compile dùng --add-reads BakeryManagementSystem=ALL-UNNAMED (pom.xml) để handle transitive deps.
     requires jasperreports;
 
     // ── Exports ───────────────────────────────────────────────────────────────

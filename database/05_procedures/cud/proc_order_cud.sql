@@ -1,6 +1,4 @@
 -- Procedure tạo đơn hàng (Master-Detail + JSON + Concurrent Stock)
--- IMP-06: Validate JSON trước khi parse → error message rõ ràng
--- IMP-10: Parse JSON 1 lần bằng PL/SQL collection, iterate cho tính toán + insert
 
 CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
     P_NGAYGIONHANBANH IN DONDATHANG.NGAYGIONHANBANH%TYPE,
@@ -34,6 +32,11 @@ CREATE OR REPLACE PROCEDURE PROC_TAODONHANG(
     V_TONKHO      NUMBER := 0;
     V_TENSP       NVARCHAR2(200);
 BEGIN
+
+
+    -- EXECUTE IMMEDIATE 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE';
+
+
     -- 0. Validate JSON input
     IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
         RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON,
@@ -78,18 +81,13 @@ BEGIN
                                 'Du lieu JSON khong chua chi tiet san pham hop le.');
     END IF;
 
-    -- ================================================================
-    -- [FIX] Bước 2: Kiểm tra tồn kho VỚI FOR UPDATE → Pessimistic Lock
-    -- T2 gọi SELECT này trên cùng MASP → bị BLOCK cho đến khi T1 COMMIT
-    -- Sau khi T1 commit (trừ kho), T2 đọc lại → thấy SL = 0 → từ chối bán
-    -- ================================================================
     FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
                 SELECT SOLUONGTON, TENSP
                 INTO V_TONKHO, V_TENSP
                 FROM SANPHAM
-                WHERE MASP = V_TAB(I).MASP
-                    FOR UPDATE;
+                WHERE MASP = V_TAB(I).MASP;
+                -- FOR UPDATE;
 
                 IF V_TONKHO < V_TAB(I).SOLUONG THEN
                     IF V_TONKHO = 0 THEN
@@ -107,10 +105,8 @@ BEGIN
             END IF;
         END LOOP;
 
-    -- ================================================================
-    -- [DEMO DELAY] Tạo thời gian để quan sát T2 bị block (spinner)
-    -- T2 sẽ đứng chờ ở FOR UPDATE trên cho đến khi đây chạy xong và COMMIT
-    -- ================================================================
+    -- [DELAY] Tạo thời gian để quan sát T2 bị block (spinner)
+
     DECLARE V_X NUMBER := 0;
     BEGIN
         FOR I IN 1..80000000 LOOP V_X := V_X + I; END LOOP;
@@ -235,3 +231,4 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_TAO_DON), N'Lỗi hệ thống khi hủy đơn hàng: ' || SQLERRM);
 END;
 /
+select * from SANPHAM
