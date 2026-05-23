@@ -1,0 +1,66 @@
+@startuml BaoCaoLoiNhuan
+mainframe sd Seq_BaoCaoLoiNhuan
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_BaoCaoLoiNhuan" as UI #White
+control "Controller_BaoCaoThongKe" as SYS #White
+entity ": HOADON" as DB_HD #White
+entity ": PHIEUNHAPKHO" as DB_PNK #White
+
+QL -> UI: Chọn chức năng báo cáo lợi nhuận
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu mở form chọn khoảng thời gian
+activate SYS
+deactivate SYS
+
+SYS -->> UI: Hiển thị biểu mẫu chọn khoảng thời gian (Từ ngày - Đến ngày)
+
+QL -> UI: Chọn thời gian và nhấn "Tạo báo cáo"
+activate UI
+deactivate UI
+
+UI -> SYS: Gửi yêu cầu thống kê lợi nhuận
+activate SYS
+deactivate SYS
+
+SYS -> DB_HD: Truy vấn tổng doanh thu từ hóa đơn bán hàng hoàn tất
+activate DB_HD
+deactivate DB_HD
+
+SYS -> DB_PNK: Truy vấn tổng chi phí từ phiếu nhập kho
+activate DB_PNK
+deactivate DB_PNK
+
+SYS -> SYS: Tính toán lợi nhuận gộp và tỷ suất lợi nhuận
+activate SYS
+deactivate SYS
+
+group alt Kết quả tính toán
+    note over of QL: [Lỗi tính toán hoặc truy xuất dữ liệu]
+    autonumber stop
+    QL -[hidden]-> DB_PNK
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi, không hiển thị báo cáo
+else 
+    note over of QL: [Không có doanh thu trong kỳ]
+    autonumber stop
+    QL -[hidden]-> DB_PNK
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị báo cáo trống hoặc thông báo không có dữ liệu
+else 
+    note over of QL: [Tính toán thành công]
+    autonumber stop
+    QL -[hidden]-> DB_PNK
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị báo cáo: doanh thu, chi phí, lợi nhuận gộp, tỷ suất
+end
+
+@enduml

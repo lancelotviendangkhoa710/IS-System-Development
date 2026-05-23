@@ -1,0 +1,59 @@
+@startuml CanhBaoTonKho
+mainframe sd Seq_CanhBaoTonKho
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Hệ thống" as HT #White
+actor "Thủ kho" as TK #White
+boundary "GUI_CanhBaoTonKho" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
+
+HT -> SYS: Định kỳ gọi hàm kiểm tra tồn kho
+activate SYS
+deactivate SYS
+
+SYS -> DB_NL: Lấy danh sách nguyên liệu và mức an toàn
+activate DB_NL
+deactivate DB_NL
+
+SYS -> SYS: So sánh tồn kho với mức an toàn
+activate SYS
+deactivate SYS
+
+group alt So sánh mức tồn kho
+    note over of TK: [Có nguyên liệu dưới hoặc bằng mức an toàn]
+    autonumber stop
+    HT -[hidden]-> DB_NL
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị cảnh báo hoặc hộp thoại thông báo
+    
+    group opt Xem chi tiết
+        autonumber stop
+        HT -[hidden]-> DB_NL
+        autonumber resume "<b>##."
+        TK -> UI: Nhấn "Xem chi tiết"
+        activate UI
+        deactivate UI
+        
+        UI -> SYS: Yêu cầu lấy thông tin chi tiết
+        activate SYS
+        deactivate SYS
+        
+        SYS -->> UI: Hiển thị bảng chi tiết số lượng tồn kho
+    end
+else 
+    note over of TK: [Không có nguyên liệu nào dưới mức an toàn]
+    autonumber stop
+    HT -[hidden]-> DB_NL
+    autonumber resume "<b>##."
+    SYS -> SYS: Kết thúc kiểm tra, không gửi cảnh báo
+    activate SYS
+    deactivate SYS
+end
+
+@enduml

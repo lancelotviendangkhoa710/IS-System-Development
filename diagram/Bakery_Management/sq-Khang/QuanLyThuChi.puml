@@ -1,0 +1,73 @@
+@startuml QuanLyThuChi
+mainframe sd Seq_QuanLyThuChi
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý / Người dùng" as QL #White
+boundary "GUI_QuanLyThuChi" as UI #White
+control "Controller_QuanLyThuChi" as SYS #White
+entity ": LOAITHUCHI" as DB_LTC #White
+entity ": PHIEUTHUCHI" as DB_PTC #White
+
+UI -> UI: Mở màn hình quản lý thu chi
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách loại thu chi và giao dịch
+activate SYS
+deactivate SYS
+
+SYS -> DB_LTC: Truy vấn danh sách loại thu chi
+activate DB_LTC
+deactivate DB_LTC
+
+SYS -> DB_PTC: Truy vấn danh sách phiếu thu chi
+activate DB_PTC
+deactivate DB_PTC
+
+SYS -->> UI: Hiển thị danh sách ban đầu
+
+QL -> UI: Chọn chức năng
+activate UI
+deactivate UI
+
+group opt Thêm loại thu chi
+    autonumber stop
+    QL -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    ref over QL, DB_PTC: Thêm loại thu chi (Seq_ThemLoaiThuChi)
+end
+
+group opt Sửa loại thu chi
+    autonumber stop
+    QL -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    ref over QL, DB_PTC: Sửa loại thu chi (Seq_SuaLoaiThuChi)
+end
+
+group opt Cập nhật trạng thái loại thu chi
+    autonumber stop
+    QL -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    ref over QL, DB_PTC: Cập nhật trạng thái (Seq_CapNhatTrangThaiLoaiThuChi)
+end
+
+group opt Lập phiếu thu chi
+    autonumber stop
+    QL -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    ref over QL, DB_PTC: Lập phiếu thu chi (Seq_LapPhieuThuChi)
+end
+
+group opt Hủy phiếu thu chi
+    autonumber stop
+    QL -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    ref over QL, DB_PTC: Hủy phiếu thu chi (Seq_HuyPhieuThuChi)
+end
+
+@enduml

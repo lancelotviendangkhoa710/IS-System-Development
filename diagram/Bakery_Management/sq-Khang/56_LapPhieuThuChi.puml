@@ -1,0 +1,116 @@
+@startuml LapPhieuThuChi
+mainframe sd Seq_LapPhieuThuChi
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Người dùng" as ND #White
+boundary "Form_LapPhieuThuChi" as FRM #White
+boundary "GUI_QuanLyThuChi" as UI #White
+control "Controller_QuanLyThuChi" as SYS #White
+entity ": CALAMVIEC" as DB_CLV #White
+entity ": LOAITHUCHI" as DB_LTC #White
+entity ": PHIEUTHUCHI" as DB_PTC #White
+
+ND -> UI: Chọn tạo giao dịch mới
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu mở form lập phiếu
+activate SYS
+deactivate SYS
+
+SYS -> DB_LTC: Lấy danh sách loại thu chi
+activate DB_LTC
+deactivate DB_LTC
+
+SYS -->> UI: Trả về danh sách dữ liệu
+
+UI -->> FRM: Hiển thị biểu mẫu lập phiếu (mặc định khoản thu)
+
+group opt Hủy thao tác
+    autonumber stop
+    ND -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    ND -> FRM: Nhấn nút "Hủy"
+    activate FRM
+    deactivate FRM
+    
+FRM -> SYS: Yêu cầu đóng form
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Đóng biểu mẫu, không lưu dữ liệu
+end
+
+
+ND -> FRM: Chọn loại giao dịch, danh mục, nhập số tiền, mô tả và xác nhận
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Gửi dữ liệu phiếu thu chi
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra tính hợp lệ (có danh mục, số tiền > 0)
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra dữ liệu
+    note over of ND: [Chưa chọn danh mục hoặc số tiền không hợp lệ]
+    autonumber stop
+    ND -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    SYS -->> UI: Thông báo lỗi và giữ nguyên biểu mẫu
+else 
+    note over of ND: [Thông tin hợp lệ]
+    autonumber stop
+    ND -[hidden]-> DB_PTC
+    autonumber resume "<b>##."
+    SYS -> DB_CLV: Kiểm tra ca làm việc hiện tại đang mở
+    activate DB_CLV
+    deactivate DB_CLV
+
+    SYS -> SYS: Kiểm tra trạng thái ca làm việc
+    activate SYS
+    deactivate SYS
+
+    group alt Kiểm tra ca làm việc
+        note over of ND: [Ca làm việc đã bị đóng]
+        autonumber stop
+        ND -[hidden]-> DB_PTC
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi ca đã đóng, hủy quá trình lưu
+    else 
+        note over of ND: [Ca làm việc đang mở]
+        autonumber stop
+        ND -[hidden]-> DB_PTC
+        autonumber resume "<b>##."
+        SYS -> DB_PTC: Lưu thông tin phiếu thu chi mới
+        activate DB_PTC
+        deactivate DB_PTC
+
+        SYS -> SYS: Kiểm tra kết quả lưu
+        activate SYS
+        deactivate SYS
+        
+        group alt Kết quả lưu
+            note over of ND: [Lưu thất bại]
+            autonumber stop
+            ND -[hidden]-> DB_PTC
+            autonumber resume "<b>##."
+            SYS -->> UI: Thông báo lỗi lưu dữ liệu
+        else 
+            note over of ND: [Lưu thành công]
+            autonumber stop
+            ND -[hidden]-> DB_PTC
+            autonumber resume "<b>##."
+            SYS -->> UI: Thông báo thành công và làm mới danh sách
+        end
+    end
+end
+
+@enduml

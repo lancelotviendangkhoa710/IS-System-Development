@@ -1,0 +1,98 @@
+@startuml TraCuuTheKho
+mainframe sd Seq_TraCuuTheKho
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "Form_ChiTietPhieu" as FRM #White
+boundary "GUI_TraCuuTheKho" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
+entity ": PHIEUNHAPKHO" as DB_PNK #White
+entity ": CTPHIEUNHAP" as DB_CTPN #White
+entity ": PHIEUXUATKHO" as DB_PXK #White
+entity ": CTPHIEUXUAT_NL" as DB_CTPX #White
+
+TK -> UI: Chọn chức năng tra cứu thẻ kho
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách nguyên liệu
+activate SYS
+deactivate SYS
+
+SYS -> DB_NL: Truy vấn danh sách nguyên liệu
+activate DB_NL
+deactivate DB_NL
+
+SYS -->> UI: Hiển thị danh sách nguyên liệu
+
+TK -> UI: Điền thông tin nguyên liệu
+activate UI
+deactivate UI
+
+group opt Nhập thời gian
+    autonumber stop
+    TK -[hidden]-> DB_CTPX
+    autonumber resume "<b>##."
+    TK -> UI: Nhập thời gian cụ thể (từ ngày, đến ngày)
+    activate UI
+    deactivate UI
+end
+
+UI -> SYS: Yêu cầu tải lịch sử thẻ kho theo bộ lọc
+activate SYS
+deactivate SYS
+
+SYS -> DB_PNK: Lấy thông tin phiếu nhập kho
+activate DB_PNK
+deactivate DB_PNK
+
+SYS -> DB_CTPN: Lấy chi tiết nhập kho
+activate DB_CTPN
+deactivate DB_CTPN
+
+SYS -> DB_PXK: Lấy thông tin phiếu xuất kho
+activate DB_PXK
+deactivate DB_PXK
+
+SYS -> DB_CTPX: Lấy chi tiết xuất kho
+activate DB_CTPX
+deactivate DB_CTPX
+
+SYS -> SYS: Tổng hợp biến động thẻ kho
+activate SYS
+deactivate SYS
+
+group alt Tải dữ liệu thành công
+    note over of TK: [Kết nối ổn định]
+    autonumber stop
+    TK -[hidden]-> DB_CTPX
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị lịch sử thẻ kho (ngày, loại phiếu, mã lô, số lượng, còn lại)
+else 
+    note over of TK: [Lỗi kết nối]
+    autonumber stop
+    TK -[hidden]-> DB_CTPX
+    autonumber resume "<b>##."
+    SYS -->> UI: Hệ thống báo lỗi, danh sách hiển thị rỗng
+end
+
+group opt Đóng màn hình
+        autonumber stop
+        TK -[hidden]-> DB_CTPX
+        autonumber resume "<b>##."
+        TK -> FRM: Đóng màn hình chi tiết
+        activate FRM
+        deactivate FRM
+        FRM -> SYS: Yêu cầu đóng form
+        activate SYS
+        deactivate SYS
+        SYS -->> UI: Quay lại giao diện tra cứu
+    end
+
+@enduml

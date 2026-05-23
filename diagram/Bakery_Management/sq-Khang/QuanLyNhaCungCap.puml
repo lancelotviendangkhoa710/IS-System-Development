@@ -1,0 +1,69 @@
+@startuml QuanLyNhaCungCap
+mainframe sd Seq_QuanLyNhaCungCap
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "GUI_NhaCungCap" as UI #White
+control "Controller_NhaCungCap" as SYS #White
+entity ": NHACUNGCAP" as DB_NCC #White
+
+
+UI -> UI: Mở màn hình quản lý nhà cung cấp
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách nhà cung cấp
+activate SYS
+deactivate SYS
+
+SYS -> DB_NCC: Truy vấn danh sách nhà cung cấp
+activate DB_NCC
+deactivate DB_NCC
+
+SYS -->> UI: Hiển thị danh sách ban đầu
+
+TK -> UI: Chọn chức năng
+activate UI
+deactivate UI
+
+group opt Truy vết nguồn gốc
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    ref over TK, DB_NCC: Truy vết nguồn gốc (Seq_TruyVetNguonGoc)
+end
+
+group opt Thêm nhà cung cấp
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    ref over TK, DB_NCC: Thêm nhà cung cấp (Seq_ThemNhaCungCap)
+end
+
+group opt Sửa nhà cung cấp
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    ref over TK, DB_NCC: Sửa nhà cung cấp (Seq_SuaNhaCungCap)
+end
+
+group opt Cập nhật trạng thái nhà cung cấp
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    ref over TK, DB_NCC: Cập nhật trạng thái (Seq_CapNhatTrangThaiNhaCungCap)
+end
+
+group opt Tra cứu nhà cung cấp
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    ref over TK, DB_NCC: Tra cứu nhà cung cấp (Seq_TraCuuNhaCungCap)
+end
+
+@enduml
