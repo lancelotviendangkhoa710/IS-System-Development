@@ -1,0 +1,77 @@
+@startuml DongCaVaDoiSoat
+mainframe sd Seq_DongCaVaDoiSoat
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Thu ngân" as TN #White
+boundary "Form_DoiSoat" as FRM #White
+boundary "GUI_CaLamViec" as UI #White
+control "Controller_CaLamViec" as SYS #White
+entity ": CALAMVIEC" as DB_CLV #White
+
+TN -> UI: Chọn "Đối Soát & Đóng Ca"
+activate UI
+deactivate UI
+
+UI -->> FRM: Mở hộp thoại
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Yêu cầu tải thông tin ca
+activate SYS
+deactivate SYS
+
+SYS -> DB_CLV: Tính tổng doanh thu ca
+activate DB_CLV
+deactivate DB_CLV
+
+SYS -->> FRM: Hiển thị số liệu hệ thống
+
+TN -> FRM: Nhập số tiền đếm thực tế
+activate FRM
+deactivate FRM
+
+TN -> FRM: Nhấn "Kiểm Tra"
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Đối chiếu số tiền
+activate SYS
+deactivate SYS
+
+SYS -->> FRM: Trả về kết quả đối chiếu (Lệch/Khớp)
+
+group alt Kiểm tra kết quả
+    note over of TN: [Lệch tiền]
+    autonumber stop
+    TN -[hidden]-> DB_CLV
+    autonumber resume "<b>##."
+    FRM -->> TN: Yêu cầu nhập lý do
+    TN -> FRM: Nhập lý do
+    activate FRM
+    deactivate FRM
+else
+    note over of TN: [Khớp tiền]
+    autonumber stop
+    TN -[hidden]-> DB_CLV
+    autonumber resume "<b>##."
+end
+
+TN -> FRM: Nhấn "Khóa Sổ"
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Yêu cầu đóng ca
+activate SYS
+deactivate SYS
+
+SYS -> DB_CLV: Lưu kết quả đối soát và đóng ca
+activate DB_CLV
+deactivate DB_CLV
+
+SYS -->> UI: Hiển thị thông báo thành công và quay về đăng nhập
+@enduml

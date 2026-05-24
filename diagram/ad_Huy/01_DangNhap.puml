@@ -1,0 +1,80 @@
+@startuml DangNhap
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+:Lấy biểu mẫu đăng nhập;
+:Hiển thị màn hình đăng nhập;
+
+|Nhân viên|
+:Nhập tên đăng nhập và mật khẩu;
+:Tùy chọn nhấn "Hiện/Ẩn" để xem/che mật khẩu;
+:Nhấn "Đăng Nhập";
+
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Tên đăng nhập hoặc mật khẩu để trống])
+  :Báo lỗi ngay tại ô tương ứng;
+else ([Đã nhập])
+  :Gửi yêu cầu xác thực tài khoản;
+
+  |CSDL|
+  :TAIKHOAN]
+  :Truy xuất thông tin tài khoản;
+  :Trả kết quả xác thực;
+
+  |Hệ thống|
+  :Nhận kết quả xác thực;
+  :Kiểm tra thông tin hợp lệ;
+  if () then ([Sai thông tin / tài khoản nghỉ việc / lỗi kết nối])
+    :Báo lỗi tương ứng và dừng;
+  else ([Hợp lệ])
+    :Lưu thông tin nhân viên vào phiên làm việc hiện tại;
+    :Tạo Token xác thực mới;
+    
+    |CSDL|
+    :ACCOUNT_TOKEN]
+    :Lưu Token xác thực;
+    :Trả kết quả lưu Token;
+    
+    |Hệ thống|
+    :Lưu mã xác thực (Token) vào bộ nhớ;
+
+    :Gửi yêu cầu kiểm tra vai trò và trạng thái ca làm việc;
+    |CSDL|
+    :Truy xuất vai trò nhân viên;
+    fork
+      :NHANVIEN]
+    fork again
+      :NHANVIEN_VAITRO]
+    fork again
+      :VAITRO]
+    end fork
+
+    :Truy xuất trạng thái ca làm việc hiện tại;
+    fork
+      :CALAMVIEC]
+    end fork
+
+    :Trả kết quả kiểm tra;
+
+    |Hệ thống|
+    if () then ([Thu ngân và chưa có ca mở])
+      :Chuyển sang màn hình mở ca làm việc;
+    elseif () then ([Quản lý])
+      :Chuyển thẳng đến màn hình làm việc chính;
+    else ([Vai trò khác])
+      :Chuyển đến màn hình phù hợp với vai trò;
+    endif
+  endif
+endif
+
+|Hệ thống|
+stop
+@enduml

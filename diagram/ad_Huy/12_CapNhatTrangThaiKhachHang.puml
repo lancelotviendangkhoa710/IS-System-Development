@@ -1,0 +1,32 @@
+@startuml CapNhatTrangThaiKhachHang
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Nhấn "Xóa" hoặc "Khôi phục";
+|Hệ thống|
+:Hiển thị hộp xác nhận;
+|Nhân viên|
+:Chọn "OK" hoặc "Hủy";
+|Hệ thống|
+:Kiểm tra xác nhận;
+if () then ([Hủy])
+	:Hủy thao tác, không thay đổi dữ liệu;
+else ([OK])
+	:Gửi yêu cầu cập nhật trạng thái khách hàng;
+	|CSDL|
+	:KHACHHANG]
+	:Cập nhật thời điểm xóa/khôi phục;
+	:Trả kết quả cập nhật;
+	|Hệ thống|
+	:Thông báo và cập nhật danh sách;
+endif
+stop
+@enduml

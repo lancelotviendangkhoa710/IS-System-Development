@@ -1,0 +1,41 @@
+@startuml SuaKhachHang
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Nhấn "Sửa" trên khách hàng cần chỉnh sửa;
+|Hệ thống|
+:Gửi yêu cầu tải thông tin hiện tại;
+|CSDL|
+:KHACHHANG]
+:Truy xuất thông tin khách hàng;
+:Trả kết quả truy xuất;
+|Hệ thống|
+:Lấy biểu mẫu cập nhật khách hàng;
+:Mở hộp thoại cập nhật khách hàng;
+:Hiển thị thông tin hiện tại lên biểu mẫu;
+|Nhân viên|
+:Chỉnh sửa và nhấn "OK";
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+  :Báo lỗi tại ô tương ứng;
+else ([Hợp lệ])
+  :Gửi yêu cầu cập nhật thông tin khách hàng;
+  |CSDL|
+  :KHACHHANG]
+  :Cập nhật thông tin khách hàng;
+  :Trả kết quả cập nhật;
+  |Hệ thống|
+  :Thông báo và làm mới danh sách;
+endif
+|Hệ thống|
+stop
+@enduml

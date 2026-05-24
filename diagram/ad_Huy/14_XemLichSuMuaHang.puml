@@ -1,0 +1,46 @@
+@startuml XemLichSuMuaHang
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Chọn xem lịch sử mua hàng của khách;
+|Hệ thống|
+:Lấy biểu mẫu lịch sử mua hàng;
+:Gửi yêu cầu truy xuất lịch sử mua hàng;
+|CSDL|
+:Truy xuất lịch sử mua hàng;
+fork
+	:HOADON]
+fork again
+	:DONDATHANG]
+end fork
+:Trả kết quả lịch sử;
+|Hệ thống|
+:Hiển thị danh sách lịch sử;
+|Nhân viên|
+:Chọn xem chi tiết đơn hàng;
+|Hệ thống|
+:Gửi yêu cầu truy xuất chi tiết giao dịch;
+|CSDL|
+:Truy xuất chi tiết giao dịch;
+fork
+	:HOADON]
+fork again
+	:DONDATHANG]
+fork again
+	:CTDONHANG]
+fork again
+	:CTDONTUYCHINH]
+end fork
+:Trả kết quả chi tiết;
+|Hệ thống|
+:Hiển thị chi tiết đơn;
+stop
+@enduml

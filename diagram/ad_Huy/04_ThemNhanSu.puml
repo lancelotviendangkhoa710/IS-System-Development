@@ -1,0 +1,61 @@
+@startuml ThemNhanSu
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Nhấn "Thêm mới";
+|Hệ thống|
+:Lấy biểu mẫu thêm nhân sự;
+:Xóa trắng biểu mẫu;
+|Quản lý|
+:Điền thông tin nhân viên và chọn vai trò;
+:Nhấn "Lưu";
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+  :Báo lỗi tại ô tương ứng;
+else ([Hợp lệ])
+  :Mã hóa mật khẩu;
+  :Gửi yêu cầu kiểm tra trùng số điện thoại và tên đăng nhập;
+
+  |CSDL|
+  :Truy vấn kiểm tra trùng lặp;
+  fork
+    :NHANVIEN]
+  fork again
+    :TAIKHOAN]
+  end fork
+  :Trả kết quả kiểm tra;
+
+  |Hệ thống|
+  :Kiểm tra kết quả kiểm tra trùng;
+  if () then ([Trùng lặp])
+    :Báo lỗi và yêu cầu nhập lại;
+  else ([Không trùng])
+    :Gửi yêu cầu lưu hồ sơ nhân viên;
+
+    |CSDL|
+    :Lưu hồ sơ nhân viên mới;
+    fork
+      :NHANVIEN]
+    fork again
+      :TAIKHOAN]
+    fork again
+      :NHANVIEN_VAITRO]
+    end fork
+    :Trả kết quả lưu;
+
+    |Hệ thống|
+    :Làm mới danh sách, xóa trắng biểu mẫu và thông báo thêm thành công;
+  endif
+endif
+|Hệ thống|
+stop
+@enduml

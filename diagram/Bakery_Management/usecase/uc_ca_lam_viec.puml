@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+
+
+  usecase "Quản lý ca làm việc" as UC_Main
+  usecase "Mở ca làm việc" as UC_Open
+  usecase "Đóng ca và đối soát" as UC_Close
+
+
+
+UC_Open .up.> UC_Main : <<extend>>
+UC_Close .up.> UC_Main : <<extend>>
+
+@enduml

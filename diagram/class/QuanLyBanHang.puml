@@ -1,0 +1,209 @@
+@startuml QuanLyBanHang
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class Form_ThanhToan <<boundary>> {
+    +ChonHinhThucThanhToanVaNhapSoTien()
+    +MoHopThoaiThongTinKhach()
+    +NhanXacNhan()
+    +NhapSdtTimKhachVaNhanTiepTheo()
+    +ThongBaoLoiGiuNguyenBieuMau()
+    +TinhVaHienThiTienThua()
+    +XacNhanLaKhachVangLai()
+  }
+
+  class GUI_BanHang <<boundary>> {
+    +ChonChucNangHuyDonTraHangVaChonHoaDon()
+    +ChonHuyDonTuChiTietDon()
+    +ChonSanPhamSoLuongVaNhanThanhToan()
+    +ChonSanPhamTuyChinhVaNhanThanhToan()
+    +CapNhatThanhCong()
+    +HienThiChiTiet()
+    +HienThiDanhSachBanDau()
+    +LamMoiDanhSachHienThi()
+    +NhanCapNhat()
+    +NhapBoLocNgayGioMaDonTrangThaiVaNhanTim()
+    +ThongBaoLoi()
+    +ThongBaoThanhCongVaInHoaDon()
+    +ThongBaoThanhCongVaLamMoiManHinh()
+    +ThongBaoThanhCong()
+    +VaoManHinhTheoDoiDonHang()
+    +XemDanhSachVaChonTrangThaiMoiChoDon()
+    +XacNhanThuTien()
+    +YeuCauXacNhanVaThanhToanPhanConLai()
+    +DongBieuMau()
+  }
+
+  class Form_HuyHoaDon <<boundary>> {
+    +BaoLoiTuChoiHuy()
+    +HienThiBieuMauHuy()
+    +NhanHuy()
+    +NhapLyDoVaXacNhanHuy()
+  }
+
+  class Form_DatBanh <<boundary>> {
+    +ChonHinhThucThanhToanCocVaNhanXacNhan()
+    +ChonNgayGioNhanDiaChiSoTienCoc()
+    +MoHopThoaiThongTinKhach()
+    +NhapSdtTimKhachVaNhanTiepTheo()
+    +ThongBaoLoi()
+    +TraKetQuaCoKhachVangLai()
+  }
+
+  class Form_HuyDon <<boundary>> {
+    +HienThiBieuMauXacNhanHuy()
+    +HienThiThongTinCoc()
+    +NhanHuy()
+    +NhapLyDoHuyVaTiepTuc()
+    +ThongBaoLoi()
+    +XacNhanPhuongThucHoanTienVaNhanXacNhan()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_BanHang <<control>> {
+  +GuiYeuCauHuyHoaDon()
+  +GuiYeuCauHuyVaHoanCoc()
+  +GuiYeuCauLuuDonDatHang()
+  +GuiYeuCauTimKhachHang()
+  +KiemTraKetQua()
+  +KiemTraThongTinDonHang()
+  +KiemTraTrangThaiHienTai()
+  +KiemTraTinhHopLeBoLoc()
+  +KiemTraTinhHopLe()
+  +KiemTraDieuKienHuy()
+  +TimKiemKhachHang()
+  +XacNhanHoanThanh()
+  +YeuCauCapNhatTrangThai()
+  +YeuCauLuuHoaDon()
+  +YeuCauThongTinHoaDon()
+  +YeuCauTimKiem()
+  +YeuCauTaiDanhSachMacDinh()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class SANPHAM <<entity>> {
+    -maSP: int
+    -maDM: int
+    -tenSP: String
+    -giaVon: double
+    -giaBan: double
+    -hinhAnh: String
+    -choPhepTuyChinh: int
+    -thoiGianBaoQuan: int
+    -soLuongTon: double
+    -phienBan: int
+    -thoiDiemXoa: LocalDateTime
+    -thoiGianChuanBi: int
+    -maNX: Integer
+    -thanhPhan: String
+    +HoanTraSoLuongTonKho()
+  }
+
+  class KHACHHANG <<entity>> {
+    -maKH: int
+    -hoTen: String
+    -sdt: String
+    -diaChi: String
+    -ngayDangKy: LocalDate
+    -diemTichLuy: Integer
+    -maHang: Integer
+    -tenHang: String
+    -phanTramGiamGia: BigDecimal
+    -thoiDiemXoa: LocalDateTime
+    -maNX: Integer
+    -tenNguoiXoa: String
+    +TruyVanKhachHang()
+    +TruyVanThongTinKhachHang()
+  }
+
+  class HOADON <<entity>> {
+    -maHD: int
+    -maDon: Integer
+    -maCa: int
+    -ngayXuatHd: LocalDateTime
+    -thueVAT: Double
+    -tienHangGoc: BigDecimal
+    -tongTienThanhToan: BigDecimal
+    -maPTTT: int
+    -loaiHD: String
+    -trangThai: String
+    +CapNhatTrangThaiDaHuy()
+    +LuuGiaoDichHoanTien()
+    +LuuHoaDonMoiHoanThanh()
+    +LuuPhieuThuVaoSoQuy()
+    +LayChiTietHoaDon()
+    +TaoHoaDonVaLuuPhieuThu()
+    +LayMaCa()
+  }
+
+  class THANHVIEN <<entity>> {
+    -maHang: int
+    -tenHang: String
+    -diemToiThieu: Integer
+    -phanTramGiamGia: BigDecimal
+    -thoiDiemXoa: LocalDateTime
+    -maNX: Integer
+    +CongDiemThanhVienNeuCo()
+    +TruyVanHangThanhVien()
+  }
+
+  class DONDATHANG <<entity>> {
+    -maDon: int
+    -ngayLap: LocalDateTime
+    -ngayGioNhanBanh: LocalDateTime
+    -maKH: Integer
+    -maNVLap: int
+    -maTrangThai: int
+    -tongTienHDBan: BigDecimal
+    -tienDaCoc: BigDecimal
+    -phienBan: Integer
+    -hinhThucNhan: Integer
+    -diaChiGiao: String
+    -tenTrangThai: String
+    +CapNhatTrangThaiDaHuy()
+    +CapNhatTrangThaiHoanThanh()
+    +CapNhatTrangThai()
+    +GhiNhanHoanCoc()
+    +LuuPhieuThuCoc()
+    +LuuDonHangDaCoc()
+    +LocDonHangTheoDieuKien()
+    +TruyVanDanhSachTrongNgay()
+    +TruyVanThongTinCoc()
+  }
+}
+
+' ==================================================
+' QUAN HỆ CỦA CONTROLLER (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_BanHang "1" -up- "1" GUI_BanHang
+Controller_BanHang "1" -up- "1" Form_DatBanh
+Controller_BanHang "1" -up- "1" Form_ThanhToan
+Controller_BanHang "1" -up- "1" Form_HuyDon
+Controller_BanHang "1" -up- "1" Form_HuyHoaDon
+
+' Controller hướng XUỐNG các Entity
+Controller_BanHang .down.> HOADON
+Controller_BanHang .down.> SANPHAM
+Controller_BanHang .down.> THANHVIEN
+Controller_BanHang .down.> KHACHHANG
+Controller_BanHang .down.> DONDATHANG
+
+' ==================================================
+' QUAN HỆ GIỮA CÁC ENTITY (Dàn ngang)
+' ==================================================
+KHACHHANG "1" -left- "*" HOADON
+KHACHHANG "1" -right- "1" THANHVIEN
+HOADON "1" -left- "1" DONDATHANG
+
+@enduml

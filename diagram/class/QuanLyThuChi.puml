@@ -1,0 +1,149 @@
+@startuml QuanLyThuChi
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class Form_ThemLoaiThuChi <<boundary>> {
+    +HienThiBieuMauMacDinhLaKhoanThu()
+    +NhanNutHuy()
+    +NhapTenChonPhanLoaiThuHoacChiVaNhanLuu()
+  }
+
+  class GUI_QuanLyThuChi <<boundary>> {
+    +ChuyenSangXemDanhSachDaBiKhoa()
+    +ChonHuyMotPhieuGiaoDichDangHieuLuc()
+    +ChonMotLoaiThuChiCanThayDoiTrangThai()
+    +ChonSuaMotLoaiThuChi()
+    +ChonThemLoaiThuChiMoi()
+    +ChonTaoGiaoDichMoi()
+    +CanhBaoHanhDongKhongTheHoanTacVaYeuCauNhapLyDo()
+    +HienThiDanhSachTuongUng()
+    +HienThiYeuCauXacNhan()
+    +HuyBo()
+    +HuyThaoTac()
+    +HuyThaoTacPhieuGiuNguyenTrangThai()
+    +HuyThaoTacTrangThaiGiuNguyen()
+    +NhanKhoaHoacMoKhoa()
+    +NhapLyDoVaNhanXacNhan()
+    +ThongBaoLoiCaDaDongHuyQuaTrinhLuu()
+    +ThongBaoLoiLuuDuLieu()
+    +ThongBaoLoiVaGiuNguyenBieuMau()
+    +ThongBaoLoiYeuCauNhapLyDo()
+    +ThongBaoLoiTrangThaiKhongThayDoi()
+    +ThongBaoLoiTrangThaiPhieuKhongThayDoi()
+    +ThongBaoThanhCongVaLamMoiDanhSach()
+    +ThongBaoThanhCongLamMoiDanhSachVaTongQuanQuy()
+    +XacNhan()
+    +DongBieuMauKhongLuuDuLieu()
+  }
+
+  class Form_SuaLoaiThuChi <<boundary>> {
+    +ChinhSuaThongTinVaNhanLuu()
+    +HienThiBieuMauSua()
+    +HienThiBieuMauVoiThongTinHienTai()
+    +NhanNutHuy()
+  }
+
+  class Form_LapPhieuThuChi <<boundary>> {
+    +ChonLoaiGiaoDichDanhMucNhapSoTienMoTaVaXacNhan()
+    +HienThiBieuMauLapPhieuMacDinhKhoanThu()
+    +NhanNutHuy()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_QuanLyThuChi <<control>> {
+  +GuiDuLieuCapNhat()
+  +GuiDuLieuLoaiThuChiMoi()
+  +GuiDuLieuPhieuThuChi()
+  +GuiYeuCauCapNhatTrangThai()
+  +GuiYeuCauHuyPhieuKemLyDo()
+  +GuiYeuCauHuyPhieu()
+  +GuiYeuCauThayDoiTrangThai()
+  +HuyYeuCau()
+  +KiemTraKetQuaCapNhat()
+  +KiemTraKetQuaLuu()
+  +KiemTraLyDoHuy()
+  +KiemTraTrangThaiCaLamViec()
+  +KiemTraTinhHopLeCoDanhMucSoTien0()
+  +KiemTraTinhHopLeTenKhongRong()
+  +KiemTraTinhHopLeTenKhongRongPhanLoaiHopLe()
+  +TinhToanLaiTongQuanQuyHoanTacDongTien()
+  +YeuCauLayThongTin()
+  +YeuCauMoFormLapPhieu()
+  +YeuCauTaiDanhSachLoaiThuChiBiKhoa()
+  +YeuCauDongForm()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class LOAITHUCHI <<entity>> {
+    -maLoaiThuChi: int
+    -tenLoaiThuChi: String
+    -phanLoai: String
+    -maNguoiXoa: Integer
+    +CapNhatThongTinLoaiThuChi()
+    +GhiNhanTrangThaiMoi()
+    +LuuLoaiThuChiMoi()
+    +LayDanhSachLoaiThuChi()
+    +LayDuLieuLoaiThuChiTheoId()
+    +Khoa()
+  }
+
+  class CALAMVIEC <<entity>> {
+    -maCa: int
+    -maNV: int
+    -maMayPOS: String
+    -thoiGianMoCa: LocalDateTime
+    -thoiGianDongCa: LocalDateTime
+    -trangThai: String
+    +KiemTraCaLamViecHienTaiDangMo()
+  }
+
+  class PHIEUTHUCHI <<entity>> {
+    -maPhieuTC: int
+    -ngayTao: LocalDateTime
+    -maLoaiThuChi: int
+    -tenLoaiThuChi: String
+    -phanLoai: String
+    -soTien: double
+    -maNV: int
+    -tenNhanVien: String
+    -maHD: Integer
+    -maPieuNhap: Integer
+    -maCa: int
+    -ghiChu: String
+    -trangThai: String
+    +CapNhatTrangThaiPhieuThanhDaHuyVaGhiNhanLyDo()
+    +LuuThongTinPhieuThuChiMoi()
+  }
+}
+
+' ==================================================
+' QUAN HỆ CỦA CONTROLLER (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_QuanLyThuChi "1" -up- "1" Form_SuaLoaiThuChi
+Controller_QuanLyThuChi "1" -up- "1" Form_LapPhieuThuChi
+Controller_QuanLyThuChi "1" -up- "1" Form_ThemLoaiThuChi
+Controller_QuanLyThuChi "1" -up- "1" GUI_QuanLyThuChi
+
+' Controller hướng XUỐNG các Entity
+Controller_QuanLyThuChi .down.> PHIEUTHUCHI
+Controller_QuanLyThuChi .down.> LOAITHUCHI
+Controller_QuanLyThuChi .down.> CALAMVIEC
+
+' ==================================================
+' QUAN HỆ GIỮA CÁC ENTITY (Dàn ngang)
+' ==================================================
+CALAMVIEC "1" -right- "*" PHIEUTHUCHI
+LOAITHUCHI "1" -left- "*" PHIEUTHUCHI
+
+@enduml

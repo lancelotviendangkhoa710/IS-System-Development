@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+
+
+  usecase "Quản lý kho và nguyên liệu" as UC_Main
+  usecase "Thêm nguyên liệu" as UC_AddMat
+  usecase "Sửa nguyên liệu" as UC_EditMat
+  usecase "Lập phiếu nhập kho" as UC_Import
+  usecase "Lập phiếu xuất kho" as UC_Export
+  usecase "Lập phiếu xuất hủy" as UC_Destroy
+  usecase "Cảnh báo tồn kho" as UC_Alert
+  usecase "Tra cứu thẻ kho" as UC_SearchCard
+  usecase "Tra cứu nguyên liệu" as UC_SearchMat
+
+
+
+UC_AddMat .up.> UC_Main : <<extend>>
+UC_EditMat .up.> UC_Main : <<extend>>
+UC_Import .up.> UC_Main : <<extend>>
+UC_Export .up.> UC_Main : <<extend>>
+UC_Destroy .up.> UC_Main : <<extend>>
+UC_Alert .up.> UC_Main : <<extend>>
+UC_SearchCard .up.> UC_Main : <<extend>>  
+
+UC_EditMat ..> UC_SearchMat : <<include>>
+UC_Import ..> UC_SearchMat : <<include>>
+UC_Export ..> UC_SearchMat : <<include>>
+UC_Destroy ..> UC_SearchMat : <<include>>
+
+@enduml

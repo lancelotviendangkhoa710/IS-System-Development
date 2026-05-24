@@ -1,0 +1,37 @@
+@startuml CapNhatTrangThaiNhanSu
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Chọn nhân viên từ danh sách;
+|Hệ thống|
+:Lấy biểu mẫu nhân sự;
+:Điền thông tin hiện tại lên biểu mẫu;
+|Quản lý|
+:Nhấn "Vô hiệu hóa" hoặc "Hoạt động";
+|Hệ thống|
+:Hiển thị hộp xác nhận;
+|Quản lý|
+:Chọn "Có" hoặc "Không";
+|Hệ thống|
+:Kiểm tra xác nhận;
+if () then ([Không])
+	:Hủy thao tác, giữ nguyên trạng thái;
+else ([Có])
+	:Gửi yêu cầu cập nhật trạng thái nhân viên;
+	|CSDL|
+	:TAIKHOAN]
+	:Cập nhật trạng thái tài khoản nhân viên;
+	:Trả kết quả cập nhật;
+	|Hệ thống|
+	:Làm mới danh sách và thông báo;
+endif
+stop
+@enduml

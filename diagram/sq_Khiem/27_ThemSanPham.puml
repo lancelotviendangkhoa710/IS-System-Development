@@ -1,0 +1,64 @@
+@startuml ThemSanPham
+mainframe sd Seq_ThemSanPham
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "Form_ThemSanPham" as FRM #White
+boundary "GUI_SanPham" as UI #White
+control "Controller_SanPham" as SYS #White
+entity ": SANPHAM" as DB_SP #White
+entity ": DANHMUCSANPHAM" as DB_DM #White
+
+QL -> UI: Chọn Thêm sản phẩm
+activate UI
+deactivate UI
+
+UI -->> FRM: Mở biểu mẫu Thêm sản phẩm
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Lấy danh sách danh mục
+activate SYS
+deactivate SYS
+
+SYS -> DB_DM: Truy vấn danh mục
+activate DB_DM
+deactivate DB_DM
+
+SYS -->> FRM: Trả dữ liệu danh mục
+
+QL -> FRM: Nhập thông tin, chọn danh mục, ảnh và nhấn "Thêm mới"
+activate FRM
+deactivate FRM
+
+FRM -> SYS: Gửi dữ liệu tạo sản phẩm
+activate SYS
+deactivate SYS
+
+SYS -> SYS: Kiểm tra tính hợp lệ
+activate SYS
+deactivate SYS
+
+group alt Kiểm tra tính hợp lệ
+    note over of QL: [Thiếu/Sai dữ liệu]
+    autonumber stop
+    QL -[hidden]-> DB_SP
+    autonumber resume "<b>##."
+    SYS -->> FRM: Báo lỗi
+else
+    note over of QL: [Hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_DM
+    autonumber resume "<b>##."
+    SYS -> DB_SP: Lưu sản phẩm mới và hình ảnh
+    activate DB_SP
+    deactivate DB_SP
+    
+    SYS -->> UI: Thông báo thành công và làm mới danh sách
+end
+@enduml

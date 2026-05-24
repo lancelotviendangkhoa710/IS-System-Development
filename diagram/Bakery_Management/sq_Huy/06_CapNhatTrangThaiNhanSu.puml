@@ -1,0 +1,80 @@
+@startuml CapNhatTrangThaiNhanSu
+mainframe sd Seq_CapNhatTrangThaiNhanSu
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_NhanSu" as UI #White
+control "Controller_NhanSu" as SYS #White
+entity ": NHANVIEN" as DB_NV #White
+entity ": TAIKHOAN" as DB_TK #White
+entity ": HOATDONGNHANVIEN" as DB_HD #White
+
+QL -> UI: Chọn nhân viên từ danh sách
+activate UI
+deactivate UI
+
+QL -> UI: Nhấn nút "Vô hiệu hóa" / "Kích hoạt"
+activate UI
+deactivate UI
+
+UI -> UI: Hiển thị hộp thoại xác nhận
+activate UI
+deactivate UI
+
+group alt Hiển thị hộp thoại xác nhận
+    note over of QL: [Nhấn "Không"]
+    autonumber stop
+    QL -[hidden]-> DB_NV
+    autonumber resume "<b>##."
+    QL -> UI: Chọn "Không"
+    activate UI
+    deactivate UI
+else 
+    note over of QL: [Nhấn "Có"]
+    autonumber stop
+    QL -[hidden]-> DB_NV
+    autonumber resume "<b>##."
+    QL -> UI: Chọn "Có"
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Yêu cầu cập nhật trạng thái
+    activate SYS
+    deactivate SYS
+    
+    SYS -> DB_NV: Cập nhật trạng thái làm việc
+    activate DB_NV
+    deactivate DB_NV
+    
+    SYS -> DB_TK: Cập nhật trạng thái tài khoản
+    deactivate DB_TK
+    
+    SYS -> DB_HD: Ghi nhận lịch sử hoạt động 
+    activate DB_HD
+    deactivate DB_HD
+    
+    group alt Ghi nhận lịch sử hoạt động
+        note over of QL: [Cập nhật lỗi]
+        autonumber stop
+        QL -[hidden]-> DB_HD
+        autonumber resume "<b>##."
+        SYS -->> UI: Thông báo lỗi
+    else 
+        note over of QL: [Cập nhật thành công]
+        autonumber stop
+        QL -[hidden]-> DB_NV
+        autonumber resume "<b>##."
+        SYS -> DB_NV: Lấy danh sách cập nhật
+        activate DB_NV
+        deactivate DB_NV
+        
+        SYS -->> UI: Làm mới danh sách và thông báo
+    end
+end
+
+@enduml

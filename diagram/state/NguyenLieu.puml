@@ -1,0 +1,59 @@
+@startuml
+hide empty description
+
+' Giữ khoảng cách rộng để text không bị đè
+skinparam nodesep 120
+skinparam ranksep 120
+
+skinparam state {
+  BackgroundColor White
+  BorderColor Black
+}
+
+state "  An toàn kho  " as An_toan
+state " Cảnh báo thiếu " as Canh_bao
+state "    Chạm ngưỡng tổn kho an toàn    " as Het_hang
+state " Ngừng sử dụng " as Ngung_su_dung
+
+' ==========================================
+' BẮT ĐẦU (Đi xuống Hết hàng)
+' ==========================================
+[*] --> Het_hang : [Thêm nguyên liệu mới\nthành công]
+
+' ==========================================
+' CÁC TRẠNG THÁI HOẠT ĐỘNG (Đi ngang)
+' Cấu trúc: An_toan (Trái) <-> Canh_bao (Giữa) <-> Het_hang (Phải)
+' ==========================================
+
+' Từ Hết hàng (Sang trái)
+Het_hang -> Canh_bao : [Nhập kho nhưng số lượng\n <= mức an toàn]/Cập nhật
+Het_hang -> An_toan : [Nhập kho với số lượng\n > mức an toàn]/Cập nhật
+
+' Từ An toàn (Sang phải)
+An_toan -> Canh_bao : [Xuất kho khiến tồn kho\n <= mức an toàn]/Cảnh báo
+An_toan -> Het_hang : [Xuất kho khiến\ntồn kho <= 0]/Cập nhật
+
+' Từ Cảnh báo (Sang trái & phải)
+Canh_bao -> An_toan : [Nhập kho khiến tồn kho\n > mức an toàn]/Cập nhật
+Canh_bao -> Het_hang : [Xuất kho khiến\ntồn kho <= 0]/Cập nhật
+
+' ==========================================
+' XÓA MỀM (Đi xuống Ngừng sử dụng)
+' ==========================================
+An_toan --> Ngung_su_dung : [Quản lý yêu cầu\nxóa nguyên liệu]/Xóa mềm
+Canh_bao --> Ngung_su_dung : [Quản lý yêu cầu\nxóa nguyên liệu]/Xóa mềm
+Het_hang --> Ngung_su_dung : [Quản lý yêu cầu\nxóa nguyên liệu]/Xóa mềm
+
+' ==========================================
+' KHÔI PHỤC (Đi lên lại các trạng thái)
+' ==========================================
+Ngung_su_dung -> An_toan : [Quản lý yêu cầu\nkhôi phục\n(tồn kho > mức an toàn)]/Khôi phục
+Ngung_su_dung -> Canh_bao : [Quản lý yêu cầu\nkhôi phục\n(0 < tồn kho <= mức an toàn)]/Khôi phục
+Ngung_su_dung -> Het_hang : [Quản lý yêu cầu\nkhôi phục\n(tồn kho <= 0)]/Khôi phục
+
+' ==========================================
+' KẾT THÚC (Đi xuống)
+' ==========================================
+Ngung_su_dung --> [*]
+
+@enduml

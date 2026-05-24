@@ -1,0 +1,145 @@
+@startuml QuanLyGiaoDichKho
+hide circle
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+top to bottom direction
+
+
+    class Form_LapPhieuNhapKho <<boundary>> {
+      +ChonNguyenLieuNhapSoLuongNdonGiaVaThemVaoPhieu()
+      +ChonNhaCungCapVaChiTietLoHang()
+      +CapNhatChiTietPhieuVaTongTien()
+      +HienThiBieuMauLapPhieuMoi()
+      +NhanNutHuy()
+      +NhanXacNhanLuuPhieuNhap()
+    }
+
+    class Form_LapPhieuXuatKho <<boundary>> {
+      +ChonNguyenLieuNhapSoLuongVaThemVaoPhieu()
+      +CapNhatChiTietPhieu()
+      +HienThiBieuMauLapPhieuMoi()
+      +NhanNutHuy()
+      +NhanXacNhanLuuPhieuXuat()
+      +NhapThongTinNguoiNhanVaGhiChu()
+    }
+
+    class Form_LapPhieuXuatHuy <<boundary>> {
+      +ChonNguyenLieuNhapSoLuongVaThemVaoPhieu()
+      +CapNhatChiTietPhieu()
+      +HienThiBieuMauLapPhieuMoi()
+      +NhanNutHuy()
+      +NhanXacNhanLuuPhieuXuatHuy()
+      +NhapLyDoXuatHuy()
+    }
+
+
+    class Controller_GiaoDichKho <<control>> {
+      +GuiDuLieuPhieuNhapKho()
+      +GuiDuLieuPhieuXuatHuy()
+      +GuiDuLieuPhieuXuatKho()
+      +KiemTraTinhHopLePhieuRongSoLieu0()
+      +KiemTraTinhHopLeCuaDuLieu()
+      +KetThucKiemTraKhongGuiCanhBao()
+      +TinhToanLaiTongTien()
+      +YeuCauChiTietPhieuNhapVaNhaCungCap()
+      +YeuCauLayChiTietHoSoNhaCungCap()
+      +YeuCauLayThongTinChiTietPhieu()
+      +YeuCauMoFormLapPhieuXuatHuy()
+      +YeuCauMoFormLapPhieu()
+      +YeuCauDongForm()
+    }
+
+
+    class NGUYENLIEU <<entity>> {
+      -maNL: int
+      -tenNL: String
+      +CapNhatSoLuongTonKho()
+      +TruSoLuongTonKho()
+    }
+
+    class NHACUNGCAP <<entity>> {
+      -maNCC: int
+      -tenNCC: String
+      -sdt: String
+      -diaChi: String
+      -thoiDiemXoa: LocalDateTime
+      -maNX: Integer
+      +LayDanhSachNhaCungCap()
+      +LayThongTinNhaCungCap()
+    }
+
+    class PHIEUNHAPKHO <<entity>> {
+      -maPN: int
+      -ngayNhap: LocalDateTime
+      -maNV: int
+      -maNCC: int
+      -tongTienNhap: BigDecimal
+      -tenNhanVien: String
+      -tenNhaCungCap: String
+      +LuuThongTinPhieuNhapKho()
+      +LayChiTietPhieuNhapSoLoThoiHan()
+      +TruyVanCacPhieuNhapKho()
+    }
+
+    class CHITIETPHIEUNHAPKHO <<entity>> {
+      -maPN: int
+      -ngayNhap: LocalDateTime
+      -maNV: int
+      -maNCC: int
+      -tongTienNhap: BigDecimal
+      -tenNhanVien: String
+      -tenNhaCungCap: String
+      +LuuChiTietCacNguyenLieuNhap()
+    }
+
+    class PHIEUXUATKHO <<entity>> {
+      -maPX: int
+      -ngayXuat: LocalDateTime
+      -lyDoXuat: String
+      -maNV: int
+      -tenNhanVien: String
+      +LuuThongTinPhieuXuatKho()
+    }
+
+    class CHITIETPHIEUXUATKHO <<entity>> {
+      -maPX: int
+      -ngayXuat: LocalDateTime
+      -lyDoXuat: String
+      -maNV: int
+      -tenNhanVien: String
+      +LuuChiTietCacNguyenLieuXuat()
+    }
+
+    class PHIEUXUATHUY <<entity>> {
+      +LuuThongTinPhieuXuatHuy()
+    }
+
+    class CHITIETPHIEUXUATHUY <<entity>> {
+      +LuuChiTietCacNguyenLieuHuy()
+    }
+
+
+' Mối quan hệ từ Boundary xuống Controller
+Form_LapPhieuNhapKho "1" ..> "1" Controller_GiaoDichKho
+Form_LapPhieuXuatKho "1" ..> "1" Controller_GiaoDichKho
+Form_LapPhieuXuatHuy "1" ..> "1" Controller_GiaoDichKho
+
+' Mối quan hệ từ Controller xuống Entity
+Controller_GiaoDichKho ..> PHIEUNHAPKHO
+Controller_GiaoDichKho ..> CHITIETPHIEUNHAPKHO
+Controller_GiaoDichKho ..> NHACUNGCAP
+Controller_GiaoDichKho ..> PHIEUXUATKHO
+Controller_GiaoDichKho ..> CHITIETPHIEUXUATKHO
+Controller_GiaoDichKho ..> PHIEUXUATHUY
+Controller_GiaoDichKho ..> CHITIETPHIEUXUATHUY
+Controller_GiaoDichKho ..> NGUYENLIEU
+
+' Mối quan hệ giữa các Entity
+NHACUNGCAP "1" -- "*" PHIEUNHAPKHO
+PHIEUNHAPKHO "1" -- "*" CHITIETPHIEUNHAPKHO
+NGUYENLIEU "1" -- "*" CHITIETPHIEUNHAPKHO
+PHIEUXUATKHO "1" -- "*" CHITIETPHIEUXUATKHO
+NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATKHO
+PHIEUXUATHUY "1" -- "*" CHITIETPHIEUXUATHUY
+NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATHUY
+@enduml

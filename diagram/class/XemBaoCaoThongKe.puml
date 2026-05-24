@@ -1,0 +1,82 @@
+@startuml XemBaoCaoThongKe
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class GUI_BaoCaoLoiNhuan <<boundary>> {
+    +ChonChucNangBaoCaoLoiNhuan()
+    +ChonThoiGianVaNhanTaoBaoCao()
+    +HienThiBieuMauChonKhoangThoiGianTuNgayDenNgay()
+    +HienThiBaoCaoTrongHoacThongBaoKhongCoDuLieu()
+    +HienThiBaoCaoDoanhThuChiPhiLoiNhuanGopTySuat()
+    +ThongBaoLoiKhongHienThiBaoCao()
+  }
+
+  class GUI_BaoCaoDoanhThu <<boundary>> {
+    +ChonChucNangXemBaoCaoDoanhThu()
+    +ChonTieuChiKhoangThoiGianVaNhanTaoBaoCao()
+    +HienThiBieuMauChonTieuChiVaKhoangThoiGian()
+    +HienThiBangSoLieuChiTietVaBieuDoXuHuong()
+    +HienThiSoLieuBang0VaThongBaoTrong()
+    +ThongBaoLoiKhongHienThiBaoCao()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_BaoCaoThongKe <<control>> {
+  +GuiYeuCauThongKeDoanhThu()
+  +GuiYeuCauThongKeLoiNhuan()
+  +TinhToanLoiNhuanGopVaTySuatLoiNhuan()
+  +TinhToanTongDoanhThuTuongUng()
+  +YeuCauMoFormChonKhoangThoiGian()
+  +YeuCauMoFormChonTieuChi()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class HOADON <<entity>> {
+    -maHD: int
+    -maDon: Integer
+    -maCa: int
+    -ngayXuatHd: LocalDateTime
+    -thueVAT: Double
+    -tienHangGoc: BigDecimal
+    -tongTienThanhToan: BigDecimal
+    -maPTTT: int
+    -loaiHD: String
+    -trangThai: String
+    +TruyVanTongDoanhThuTuHoaDonBanHangHoanTat()
+    +TongHopDuLieuHoaDonTrongKhoangThoiGianYeuCau()
+  }
+
+  class PHIEUNHAPKHO <<entity>> {
+    -maPN: int
+    -ngayNhap: LocalDateTime
+    -maNV: int
+    -maNCC: int
+    -tongTienNhap: BigDecimal
+    -tenNhanVien: String
+    -tenNhaCungCap: String
+    +TruyVanTongChiPhiTuPhieuNhapKho()
+  }
+}
+
+' ==================================================
+' QUAN HỆ CỦA CONTROLLER (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_BaoCaoThongKe "1" -up- "1" GUI_BaoCaoLoiNhuan
+Controller_BaoCaoThongKe "1" -up- "1" GUI_BaoCaoDoanhThu
+
+' Controller hướng XUỐNG các Entity
+Controller_BaoCaoThongKe .down.> PHIEUNHAPKHO
+Controller_BaoCaoThongKe .down.> HOADON
+
+@enduml

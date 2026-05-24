@@ -1,0 +1,43 @@
+@startuml CauHinhHangThanhVien
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+:Lấy biểu mẫu cấu hình hạng thành viên;
+:Gửi yêu cầu tải danh sách hạng thành viên;
+|CSDL|
+:HANGTHANHVIEN]
+:Truy xuất danh sách hạng thành viên;
+:Trả kết quả danh sách;
+|Hệ thống|
+:Hiển thị danh sách;
+|Quản lý|
+:Nhấn "Sửa" trên hạng cần điều chỉnh;
+|Hệ thống|
+:Lấy biểu mẫu chỉnh sửa hạng thành viên;
+:Mở hộp thoại chỉnh sửa;
+|Quản lý|
+:Chỉnh sửa điểm và tỷ lệ giảm giá;
+:Nhấn "Lưu";
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+  :Báo lỗi tại ô tương ứng;
+else ([Hợp lệ])
+  :Gửi yêu cầu cập nhật thông tin hạng;
+  |CSDL|
+  :HANGTHANHVIEN]
+  :Cập nhật thông tin hạng thành viên;
+  :Trả kết quả cập nhật;
+  |Hệ thống|
+  :Thông báo và làm mới danh sách;
+endif
+|Hệ thống|
+stop
+@enduml

@@ -1,0 +1,32 @@
+@startuml TraCuuSanPham
+mainframe sd Seq_TraCuuSanPham
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Thu ngân" as TN #White
+boundary "GUI_SanPham" as UI #White
+control "Controller_SanPham" as SYS #White
+entity ": SANPHAM" as DB_SP #White
+
+TN -> UI: Gõ từ khóa / chọn danh mục
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu lọc sản phẩm
+activate SYS
+deactivate SYS
+
+SYS -> DB_SP: Truy vấn theo điều kiện
+activate DB_SP
+deactivate DB_SP
+
+SYS -->> UI: Trả về danh sách kết quả hiển thị
+
+TN -> UI: Xem chi tiết sản phẩm
+activate UI
+deactivate UI
+@enduml

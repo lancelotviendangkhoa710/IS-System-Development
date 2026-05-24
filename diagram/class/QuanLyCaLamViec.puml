@@ -1,0 +1,70 @@
+@startuml QuanLyCaLamViec
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class GUI_CaLamViec <<boundary>> {
+    +ChuyenSangManHinhLamViecChinh()
+    +ChonDoiSoatDongCa()
+    +ChonMayThanhToanVaNhapSoTienDauCa()
+    +HienThiManHinhVoiMayThanhToanMacDinh()
+    +HienThiThongBaoThanhCongVaQuayVeDangNhap()
+    +MoManHinhMoCa()
+    +NhanNutBatDauLamViec()
+    +ThongBaoLoi()
+  }
+
+  class Form_DoiSoat <<boundary>> {
+    +HienThiSoLieuHeThong()
+    +MoHopThoai()
+    +NhanKhoaSo()
+    +NhanKiemTra()
+    +NhapLyDo()
+    +NhapSoTienDemThucTe()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_CaLamViec <<control>> {
+  +GuiYeuCauMoCa()
+  +KiemTraDuLieuMayDaChonSoTien()
+  +TaiDanhSachMayThanhToan()
+  +YeuCauTaiThongTinCa()
+  +YeuCauDongCa()
+  +DoiChieuSoTien()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class CALAMVIEC <<entity>> {
+    -maCa: int
+    -maNV: int
+    -maMayPOS: String
+    -thoiGianMoCa: LocalDateTime
+    -thoiGianDongCa: LocalDateTime
+    -trangThai: String
+    +GhiNhanDoiSoatDauCa()
+    +LuuKetQuaDoiSoatVaDongCa()
+    +TinhTongDoanhThuCa()
+    +TaoCaLamViecMoi()
+  }
+}
+
+' ==================================================
+' QUAN HỆ (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_CaLamViec "1" -up- "1" GUI_CaLamViec
+Controller_CaLamViec "1" -up- "1" Form_DoiSoat
+
+' Controller hướng XUỐNG các Entity
+Controller_CaLamViec .down.> CALAMVIEC
+
+@enduml

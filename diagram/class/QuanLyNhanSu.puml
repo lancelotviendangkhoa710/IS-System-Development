@@ -1,0 +1,241 @@
+@startuml QuanLyNhanSu
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class Form_ThemNhanSu <<boundary>> {
+    +HienThiBieuMauThemNhanSu()
+    +NhanNutHuy()
+    +NhanNutLuu()
+    +NhapThongTinNhanVien()
+  }
+
+  class GUI_NhanSu <<boundary>> {
+    +ChonCo()
+    +ChonKhong()
+    +ChonNhanVienCanChinhSuaThongTin()
+    +ChonNhanVienTuDanhSach()
+    +CapNhatDanhSachKetQua()
+    +GoTuKhoaTimKiemThongTinNNhanVienCanTimKiemChonBoLoc()
+    +GuiDuLieu()
+    +HienThiDanhSachRong()
+    +HienThiHopThoaiXacNhan()
+    +LamMoiDanhSachVaThongBao()
+    +LamMoiDanhSachXoaTrangBieuMauVaThongBaoThanhCong()
+    +MoManHinhQuanLyNhanSu()
+    +NhanNutThemMoi()
+    +NhanNutVoHieuHoaKichHoat()
+    +ThongBaoLoiDuLieu()
+    +ThongBaoLoiTrungLap()
+    +ThongBaoLoi()
+    +ThongBaoThanhCong()
+    +DongBieuMauKhongLuuDuLieu()
+  }
+
+  class Form_SuaNhanSu <<boundary>> {
+    +HienThiBieuMauSuaNhanSu()
+    +NhanNutHuy()
+    +NhanNutLuu()
+    +NhapThongTinNhanVienCanChinhSua()
+  }
+
+  class GUI_PhanQuyen <<boundary>> {
+    +ChonChucNangPhanQuyenTaiKhoan()
+    +ChonCapPhatThuHoiQuyenVaNhanLuu()
+    +ChonTaiKhoanCanPhanQuyen()
+    +CanhBaoKhongTheDoiQuyen()
+    +HienThiDanhSachQuyenHan()
+    +HienThiDanhSachTaiKhoan()
+    +ThongBaoLoi()
+    +ThongBaoThanhCongVaLamMoiManHinh()
+  }
+
+  class GUI_NhatKy <<boundary>> {
+    +ChonChucNangXemNhatKyHoatDong()
+    +ChonLoaiThaoTacVaKhoangThoiGian()
+    +ChonXemChiTietMotBanGhi()
+    +HienThiDanhSachRong()
+    +HienThiDanhSachThaoTac()
+    +HienThiManHinhNhatKy()
+    +NhanNutTimKiem()
+    +ThongBaoLoiTruyXuat()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_NhatKy <<control>> {
+  +KiemTraKhoangThoiGianMacDinhHomNayNeuDeTrong()
+  +XuLyDuLieuHienThi()
+  +YeuCauTimKiemNhatKy()
+}
+
+class Controller_NhanSu <<control>> {
+  +GuiDuLieuCapNhat()
+  +GuiDuLieuNhanVienMoi()
+  +KiemTraTruongBatBuocVaDinhDangDuLieu()
+  +KiemTraTruongBatBuocVaDinhDang()
+  +MaHoaMatKhau()
+  +YeuCauCapNhatTrangThai()
+  +YeuCauTruyVanThongTinNhanVienTheoDieuKien()
+  +YeuCauDongForm()
+}
+
+class Controller_PhanQuyen <<control>> {
+  +GuiThongTinPhanQuyenMoi()
+  +YeuCauQuyenHanHienTai()
+}
+
+' ==================================================
+' HÀNG 3 & 4: CÁC LỚP ENTITY
+' ==================================================
+class VW_HoatDongNhanVien <<entity>> {
+  -maHoatDong: int
+  -maNV: int
+  -tenNhanVien: String
+  -vaitro: String
+  -nhom: String
+  -hanhDong: String
+  -entityId: Integer
+  -thoiGian: LocalDateTime
+  +LayDuLieuTuViewVw_hoatdongnhanvien()
+}
+
+class HOATDONGNHANVIEN <<entity>> {
+  -maHoatDong: int
+  -maNV: int
+  -tenNhanVien: String
+  -vaitro: String
+  -nhom: String
+  -hanhDong: String
+  -entityId: Integer
+  -thoiGian: LocalDateTime
+  +GhiNhanLichSuHoatDong()
+}
+
+class NHANVIEN <<entity>> {
+  -maNV: int
+  -hoTen: String
+  -ngaySinh: LocalDate
+  -sdt: String
+  -diaChi: String
+  -tenDangNhap: String
+  -matKhau: String
+  -trangThaiLamViec: int
+  -trangThaiTK: int
+  -maTaiKhoan: int
+  -email: String
+  +CapNhatThongTinCaNhan()
+  +CapNhatTrangThaiLamViec()
+  +LuuHoSoNhanVienMoi()
+  +LayDanhSachCapNhat()
+  +LayDanhSachNhanVien()
+  +ThucHienTruyVanThongTinNNhanVienTheoDieuKien()
+  +TimKiemNhanVienTheoDieuKien()
+}
+
+class NHANVIEN_VAITRO <<entity>> {
+  -maNV: int
+  -hoTen: String
+  -ngaySinh: LocalDate
+  -sdt: String
+  -diaChi: String
+  -tenDangNhap: String
+  -matKhau: String
+  -trangThaiLamViec: int
+  -trangThaiTK: int
+  -maTaiKhoan: int
+  -email: String
+  +LuuVaiTroNhanVien()
+  +XoaVaCapNhatVaiTroNhanVien()
+}
+
+class VAITRO <<entity>> {
+  -maVaiTro: int
+  -tenVaiTro: String
+  -moTa: String
+  -thoiDiemXoa: LocalDateTime
+  -maNX: Integer
+}
+
+class VAITRO_CHUCNANG <<entity>> {
+  -maChucNang: int
+  -tenChucNang: String
+  -moTa: String
+  -module: SystemModule
+  -canView: boolean
+  -canAdd: boolean
+  -canEdit: boolean
+  -canDelete: boolean
+  -canDownload: boolean
+  +CapNhatQuyenHanChiTiet()
+  +LayDanhSachQuyenHanTheoVaiTroCuaTaiKhoan()
+}
+
+class CHUCNANG <<entity>> {
+  -maChucNang: int
+  -tenChucNang: String
+  -moTa: String
+  -module: SystemModule
+  -canView: boolean
+  -canAdd: boolean
+  -canEdit: boolean
+  -canDelete: boolean
+  -canDownload: boolean
+  +LayDanhSachChucNang()
+}
+
+class TAIKHOAN <<entity>> {
+  +CapNhatTrangThaiTaiKhoan()
+  +CapNhatTaiKhoanDangNhap()
+  +KiemTraTrungTenDangNhapTruNhanVienHienTai()
+  +KiemTraTrungTenDangNhap()
+  +KiemTraTaiKhoanCoBiVoHieuHoaKhong()
+  +TaoTaiKhoanDangNhap()
+}
+
+' ==================================================
+' QUAN HỆ CỦA CONTROLLER (Định hướng layout)
+' ==================================================
+' Ép Controller nằm ngang theo thứ tự để tránh chéo dây
+Controller_NhatKy -[hidden]right- Controller_NhanSu
+Controller_NhanSu -[hidden]right- Controller_PhanQuyen
+
+' Controller hướng LÊN các Boundary
+Controller_NhatKy "1" -up- "1" GUI_NhatKy
+Controller_NhanSu "1" -up- "1" Form_ThemNhanSu
+Controller_NhanSu "1" -up- "1" GUI_NhanSu
+Controller_NhanSu "1" -up- "1" Form_SuaNhanSu
+Controller_PhanQuyen "1" -up- "1" GUI_PhanQuyen
+
+' Controller hướng XUỐNG các Entity
+Controller_NhatKy .down.> VW_HoatDongNhanVien
+Controller_NhanSu .down.> HOATDONGNHANVIEN
+Controller_NhanSu .down.> NHANVIEN
+Controller_NhanSu .down.> NHANVIEN_VAITRO
+Controller_NhanSu .down.> TAIKHOAN
+Controller_PhanQuyen .down.> VAITRO_CHUCNANG
+Controller_PhanQuyen .down.> CHUCNANG
+Controller_PhanQuyen .down.> TAIKHOAN
+
+' ==================================================
+' QUAN HỆ GIỮA CÁC ENTITY (Dàn ngang Row 3 & Row 4)
+' ==================================================
+' Ép view VW_HoatDongNhanVien đứng ngoài cùng bên trái
+VW_HoatDongNhanVien -[hidden]right- HOATDONGNHANVIEN
+
+' Dàn ngang các Entity chính ở Hàng 3 để không bị đè
+NHANVIEN "1" -left- "*" HOATDONGNHANVIEN
+NHANVIEN "1" -right- "*" NHANVIEN_VAITRO
+NHANVIEN_VAITRO "*" -right- "1" VAITRO
+VAITRO "1" *-right- "*" VAITRO_CHUCNANG
+VAITRO_CHUCNANG "*" -right- "1" CHUCNANG
+
+' Đẩy TAIKHOAN xuống Hàng 4 (Dưới NHANVIEN)
+NHANVIEN "1" *-down- "*" TAIKHOAN
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+
+  usecase "Cài đặt tài khoản" as UC_Main
+  usecase "Đăng nhập" as UC_Login
+  usecase "Đăng xuất" as UC_Logout
+  usecase "Đổi mật khẩu" as UC_ChangePwd
+
+
+UC_Login .up.> UC_Main : <<extend>>
+UC_Logout .up.> UC_Main : <<extend>>
+UC_ChangePwd .up.> UC_Main : <<extend>>
+
+@enduml

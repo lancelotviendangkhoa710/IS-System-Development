@@ -1,0 +1,47 @@
+@startuml DoiMatKhauCaNhan
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Chọn chức năng đổi mật khẩu cá nhân;
+|Hệ thống|
+:Lấy biểu mẫu đổi mật khẩu cá nhân;
+:Hiển thị biểu mẫu đổi mật khẩu;
+|Nhân viên|
+:Nhập mật khẩu hiện tại, mật khẩu mới và xác nhận lại;
+:Chọn "Xác nhận" hoặc "Hủy";
+|Hệ thống|
+:Kiểm tra lựa chọn thao tác;
+if () then ([Hủy])
+  :Đóng biểu mẫu, không lưu thay đổi;
+else ([Xác nhận])
+  :Kiểm tra thông tin hợp lệ;
+  if () then ([Sai mật khẩu cũ / mật khẩu mới không khớp])
+    :Báo lỗi, giữ nguyên biểu mẫu;
+  else ([Hợp lệ])
+    :Gửi yêu cầu lưu mật khẩu mới;
+
+    |CSDL|
+    :TAIKHOAN]
+    :Cập nhật mật khẩu mới;
+    :Trả kết quả lưu;
+
+    |Hệ thống|
+    :Kiểm tra kết quả lưu;
+    if () then ([Lỗi lưu])
+      :Báo lỗi, mật khẩu không đổi, hủy lưu;
+    else ([Thành công])
+      :Thông báo thành công và đóng biểu mẫu;
+    endif
+  endif
+endif
+|Hệ thống|
+stop
+@enduml

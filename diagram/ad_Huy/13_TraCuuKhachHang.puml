@@ -1,0 +1,48 @@
+@startuml TraCuuKhachHang
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+:Lấy biểu mẫu tra cứu khách hàng;
+:Gửi yêu cầu tải danh sách khách hàng;
+|CSDL|
+:KHACHHANG]
+:Truy xuất danh sách khách hàng;
+:Trả kết quả danh sách;
+|Hệ thống|
+:Hiển thị danh sách khách hàng;
+
+|Nhân viên|
+:Gõ từ khóa vào ô tìm kiếm;
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Từ khóa trống])
+	:Giữ nguyên danh sách hiện tại;
+else ([Có từ khóa])
+	:Gửi yêu cầu tra cứu khách hàng;
+	|CSDL|
+	:KHACHHANG]
+	:Truy xuất khách hàng theo từ khóa;
+	:Trả kết quả tra cứu;
+	|Hệ thống|
+	:Cập nhật danh sách kết quả;
+endif
+
+|Nhân viên|
+:Điều hướng trang;
+|Hệ thống|
+:Gửi yêu cầu tải trang dữ liệu;
+|CSDL|
+:KHACHHANG]
+:Truy xuất danh sách theo trang;
+:Trả kết quả theo trang;
+|Hệ thống|
+:Cập nhật danh sách hiển thị;
+stop
+@enduml
