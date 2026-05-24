@@ -1,4 +1,4 @@
-@startuml
+@startuml uc_cai_dat_tai_khoan
 left to right direction
 
   usecase "Cài đặt tài khoản" as UC_Main
