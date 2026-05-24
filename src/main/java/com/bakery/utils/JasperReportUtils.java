@@ -329,6 +329,61 @@ public final class JasperReportUtils {
         exportToPdf(print, outputFile, "Phiếu xuất kho #" + maPhieu);
     }
 
+    // ─── BÁO CÁO KIỂM KÊ PHIẾU NHẬP KHO (PDF) — Demo §4.3 Phantom Read ─────
+
+    /**
+     * Xuất báo cáo kiểm kê phiếu nhập kho sang PDF.
+     * Template: {@code /reports/kho/bao_cao_kiem_ke_nhap_kho.jrxml}
+     *
+     * <p>Header ghi "Số phiếu Phase 1 = {@code soPhieuDaDem}".
+     * Summary ghi "Số dòng Phase 3 = rows.size()".
+     * Nếu hai con số khác nhau → phantom row lộ ra trực quan trong PDF.</p>
+     *
+     * @param outputFile    File PDF đích
+     * @param soPhieuDaDem  Số phiếu COUNT ở phase 1 (trước delay)
+     * @param tongTien      Tổng tiền nhập kho đã format
+     * @param nguoiLap      Tên người lập báo cáo
+     * @param ngayLap       Ngày lập đã format (dd/MM/yyyy HH:mm)
+     * @param rows          Mỗi row = String[]{maPhieu, ngayNhap, nhaCungCap, nguoiNhap, tongTienNhap}
+     * @throws JRException  nếu compile/fill thất bại
+     */
+    public static void xuatBaoCaoKiemKePhieuNhapPDF(
+            File outputFile,
+            String soPhieuDaDem,
+            String tongTien,
+            String nguoiLap,
+            String ngayLap,
+            List<String[]> rows) throws JRException {
+
+        InputStream stream = loadTemplate("/reports/kho/bao_cao_kiem_ke_nhap_kho.jrxml");
+        JasperReport report = JasperCompileManager.compileReport(stream);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("P_SO_PHIEU_DA_DEM", nvlParam(soPhieuDaDem, "0"));
+        params.put("P_TONG_TIEN",       nvlParam(tongTien,      "0 ₫"));
+        params.put("P_NGUOI_LAP",       nvlParam(nguoiLap,      "Hệ thống"));
+        params.put("P_NGAY_LAP",        nvlParam(ngayLap,        "—"));
+        params.put("P_NGAY_IN",         LocalDate.now().format(DF_DAY));
+
+        // row = {maPhieu, ngayNhap, nhaCungCap, nguoiNhap, tongTienNhap}
+        List<Map<String, ?>> dataRows = new ArrayList<>();
+        int stt = 1;
+        for (String[] r : rows) {
+            Map<String, String> m = new LinkedHashMap<>();
+            m.put("STT",          String.valueOf(stt++));
+            m.put("MA_PHIEU",     safe(r, 0));
+            m.put("NGAY_NHAP",    safe(r, 1));
+            m.put("NHA_CUNG_CAP", safe(r, 2));
+            m.put("NGUOI_NHAP",   safe(r, 3));
+            m.put("TONG_TIEN",    safe(r, 4));
+            dataRows.add(m);
+        }
+
+        JasperPrint print = JasperFillManager.fillReport(report, params,
+                new JRMapCollectionDataSource(dataRows));
+        exportToPdf(print, outputFile, "Báo cáo kiểm kê phiếu nhập H3K Bakery");
+    }
+
     // ─── PRIVATE HELPERS ─────────────────────────────────────────────────────
 
     /**

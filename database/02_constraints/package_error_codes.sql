@@ -262,5 +262,9 @@ CREATE OR REPLACE PACKAGE PKG_ERROR_CODES AS
 
     -- Loi doc bong ma (Phantom Read) khi tao phieu nhap kho
     ERR_PHANTOM_READ_NHAPKHO        CONSTANT NUMBER := -20522;
+
+
+    G_SKIP_STOCK_TRIGGER BOOLEAN := FALSE;
+
 END PKG_ERROR_CODES;
 /

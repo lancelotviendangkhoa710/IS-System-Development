@@ -28,8 +28,9 @@ public abstract class BaseDAO {
         System.err.println("Loi DAO [" + this.getClass().getSimpleName() + "." + methodName + "]: " + e.getMessage());
         if (e instanceof SQLException sqle) {
             int code = sqle.getErrorCode();
-            if (code == 60) {
-                // ORA-00060: deadlock detected
+            if (code == 60
+                    || (e.getMessage() != null && e.getMessage().contains("ORA-00060"))) {
+                // ORA-00060: deadlock detected (trực tiếp hoặc được gói trong SQLERRM)
                 throw new Exception("⚠ Deadlock phát hiện! Giao dịch bị Oracle rollback " +
                         "vì xung đột khóa với phiên khác. Vui lòng thử lại.");
             }

@@ -8,6 +8,7 @@ public class CTPhieuNhapDTO {
     private int maPN;
     private int maNL;
     private String tenNL;
+    private String tenDVT; // transient UI field — đơn vị tính hiển thị trong form nhập kho
     private double soLuong;
     private BigDecimal donGia;
     private double soLuongConLai;
@@ -40,6 +41,9 @@ public class CTPhieuNhapDTO {
 
     public String getTenNL() { return tenNL; }
     public void setTenNL(String tenNL) { this.tenNL = tenNL; }
+
+    public String getTenDVT() { return tenDVT; }
+    public void setTenDVT(String tenDVT) { this.tenDVT = tenDVT; }
 
     public double getSoLuong() { return soLuong; }
     public void setSoLuong(double soLuong) { this.soLuong = soLuong; }

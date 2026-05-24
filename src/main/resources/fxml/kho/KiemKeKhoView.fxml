@@ -7,9 +7,10 @@
       fx:controller="com.bakery.views.controllers.kho.KiemKeKhoViewFXMLController">
     <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
 
-    <HBox alignment="CENTER_LEFT" spacing="20">
+    <HBox alignment="CENTER_LEFT" spacing="12">
         <Label fx:id="lblTitle" text="Kiểm kê kho hàng" styleClass="lbl-header"/>
         <Region HBox.hgrow="ALWAYS" />
+        <Button text="Lập Báo Cáo Kiểm Kê" fx:id="btnLapBaoCao" onAction="#onLapBaoCao" styleClass="btn-primary"/>
     </HBox>
 
     <VBox styleClass="card" VBox.vgrow="ALWAYS">

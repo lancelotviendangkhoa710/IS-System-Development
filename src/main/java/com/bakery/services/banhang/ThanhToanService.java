@@ -86,8 +86,10 @@ public class ThanhToanService {
         request.setMaTrangThai(maTrangThaiHoanThanh);
 
 
+        // Thanh toán thẳng: TIENDACOC = 0 (không cọc, hóa đơn xử lý thanh toán)
+        // tongTienGoc vẫn cần để tạo HoaDonDTO ở bước 5
         double tongTienGoc = tinhTienGoc(request);
-        request.setTienDaCoc(tongTienGoc);
+        request.setTienDaCoc(0);
 
         // 4. Tạo đơn hàng
         int maDon = quanLyDonHangService.taoDonHang(request);

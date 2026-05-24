@@ -1,5 +1,6 @@
 package com.bakery.views.controllers.kho;
 
+import com.bakery.model.dao.kho.NguyenLieuDAO;
 import com.bakery.model.dto.kho.DonViTinhDTO;
 import com.bakery.model.dto.kho.NguyenLieuDTO;
 import com.bakery.model.dto.kho.NhaCungCapDTO;
@@ -45,12 +46,14 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @FXML private Button    btnThemMoi;
     @FXML private Button    btnSua;
     @FXML private Button    btnXoa;
+    @FXML private Button    btnLapBaoCao;
 
     // ── Cache ─────────────────────────────────────────────────────────────────
     private final ObservableList<NguyenLieuDTO> masterData    = FXCollections.observableArrayList();
     private List<DonViTinhDTO>  cachedDsDVT = new ArrayList<>();
     private List<NhaCungCapDTO> cachedDsNCC = new ArrayList<>();
     private NguyenLieuPresenter presenter;
+    private final NguyenLieuDAO nguyenLieuDAO = new NguyenLieuDAO();
 
     // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -337,5 +340,131 @@ public class NguyenLieuViewFXMLController extends BaseController implements INgu
     @FXML
     private void onXoaAction() {
         onXoaHoiConfirm(tblNguyenLieu.getSelectionModel().getSelectedItem());
+    }
+
+    /**
+     * Demo Phantom Read §4.3: gọi PROC_LAPBAOCAOPHIEUNHAP.
+     * Bước 1: Đếm nhanh N phiếu → hỏi xác nhận.
+     * Bước 2: Procedure delay 20s → phiên khác có thể nhập kho.
+     * Bước 3: So sánh soPhieuDaDem vs danhSachPhieu.size() → xuất PDF Jasper.
+     *
+     * Kịch bản BUG/FIX được toggle bằng comment/uncomment TRONG procedure.
+     */
+    @FXML
+    private void onLapBaoCao() {
+        // Bước 1: Đếm nhanh
+        final com.bakery.model.dao.kho.PhieuNhapKhoDAO phieuDAO =
+                new com.bakery.model.dao.kho.PhieuNhapKhoDAO();
+        int soPhieuHienTai;
+        try {
+            soPhieuHienTai = phieuDAO.layDanhSachPhieuNhap().size();
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể truy vấn danh sách phiếu nhập: " + e.getMessage());
+            return;
+        }
+
+        // Hỏi xác nhận
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Lập Báo Cáo Kiểm Kê Phiếu Nhập");
+        confirm.setHeaderText("\uD83D\uDCCB  Hệ thống tìm thấy " + soPhieuHienTai + " phiếu nhập kho.");
+        confirm.setContentText(
+                "Bạn có muốn lập báo cáo kiểm kê không?\n\n" +
+                "\u26A0  Quá trình lập báo cáo mất khoảng 20 giây.\n" +
+                "    Trong thời gian đó, hãy dùng cửa sổ khác\n" +
+                "    để tạo thêm một phiếu nhập mới nhằm demo\n" +
+                "    hiện tượng Phantom Read (\u00a74.3).");
+        DialogHelper.applyBakeryTheme(confirm);
+
+        java.util.Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) return;
+
+        // Bước 2: Disable nút, chạy procedure trên background
+        if (btnLapBaoCao != null) btnLapBaoCao.setDisable(true);
+        hienThiThanhCongLabel("\u23F3  Đang lập báo cáo kiểm kê... (delay 20s)");
+
+        final int soPhieuXacNhan = soPhieuHienTai;
+        final String nguoiLap = com.bakery.utils.UserSession.getCurrentUser() != null
+                ? com.bakery.utils.UserSession.getCurrentUser().getHoTen() : "Hệ thống";
+        final String ngayLap = java.time.LocalDateTime.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+        Thread t = new Thread(() -> {
+            try {
+                // Gọi PROC_LAPBAOCAOPHIEUNHAP — chặn ~20s
+                com.bakery.model.dto.kho.KetQuaKiemKeDTO ketQua = phieuDAO.lapBaoCaoPhieuNhap();
+
+                // Map DTO → Jasper rows
+                java.text.NumberFormat fmtTien =
+                        java.text.NumberFormat.getNumberInstance(java.util.Locale.of("vi", "VN"));
+                fmtTien.setMaximumFractionDigits(0);
+
+                java.math.BigDecimal tongTien = ketQua.getDanhSachPhieu().stream()
+                        .filter(p -> p.getTongTienNhap() != null)
+                        .map(com.bakery.model.dto.kho.PhieuNhapKhoDTO::getTongTienNhap)
+                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+                java.time.format.DateTimeFormatter fmtDt =
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                java.util.List<String[]> jasperRows = new java.util.ArrayList<>();
+                for (com.bakery.model.dto.kho.PhieuNhapKhoDTO dto : ketQua.getDanhSachPhieu()) {
+                    String ngayNhap = dto.getNgayNhap() != null ? dto.getNgayNhap().format(fmtDt) : "\u2014";
+                    String tienStr = dto.getTongTienNhap() != null
+                            ? fmtTien.format(dto.getTongTienNhap()) + " \u20ab" : "0 \u20ab";
+                    jasperRows.add(new String[]{
+                        String.valueOf(dto.getMaPN()), ngayNhap,
+                        dto.getTenNhaCungCap() != null ? dto.getTenNhaCungCap() : "\u2014",
+                        dto.getTenNhanVien()   != null ? dto.getTenNhanVien()   : "\u2014",
+                        tienStr
+                    });
+                }
+
+                // Xuất PDF
+                java.io.File outputFile = com.bakery.utils.ReportPathUtils
+                        .buildPdfPath("BaoCaoKiemKe", "PHIEUNHAP");
+                com.bakery.utils.JasperReportUtils.xuatBaoCaoKiemKePhieuNhapPDF(
+                        outputFile,
+                        String.valueOf(soPhieuXacNhan),
+                        fmtTien.format(tongTien) + " \u20ab",
+                        nguoiLap, ngayLap, jasperRows);
+
+                final boolean coPhantom = ketQua.coPhantomRead();
+                final int soThucTe = ketQua.getDanhSachPhieu().size();
+                final String pdfPath = outputFile.getAbsolutePath();
+
+                Platform.runLater(() -> {
+                    if (btnLapBaoCao != null) btnLapBaoCao.setDisable(false);
+                    if (coPhantom) {
+                        hienThiLoiLabel("\u274C Phantom Read! Đếm = " + soPhieuXacNhan
+                                + " nhưng báo cáo có " + soThucTe + " dòng.");
+                        hienThiThongBaoLoi("\u26A1 Phát Hiện PHANTOM READ — \u00a74.3",
+                            "Phase 1 đếm: " + soPhieuXacNhan + " phiếu\n" +
+                            "Phase 3 đọc: " + soThucTe + " dòng\n\n" +
+                            "\u2192 Phantom Read (READ COMMITTED).\n\n" +
+                            "\uD83D\uDCC4 PDF: " + pdfPath);
+                    } else {
+                        hienThiThanhCongLabel("\u2705 Báo cáo đồng nhất! " + soThucTe + " phiếu.");
+                        hienThiThongTin("\u2705 Báo Cáo Nhất Quán — \u00a74.3",
+                            "Phase 1 đếm: " + soPhieuXacNhan + " phiếu\n" +
+                            "Phase 3 đọc: " + soThucTe + " dòng\n\n" +
+                            "\u2192 Không Phantom Read (SERIALIZABLE).\n\n" +
+                            "\uD83D\uDCC4 PDF: " + pdfPath);
+                    }
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            java.awt.Desktop.getDesktop().open(outputFile);
+                        }
+                    } catch (Exception ignored) {}
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    if (btnLapBaoCao != null) btnLapBaoCao.setDisable(false);
+                    hienThiLoiLabel("Lỗi lập báo cáo: " + e.getMessage());
+                    hienThiThongBaoLoi("Lỗi Lập Báo Cáo Kiểm Kê", e.getMessage());
+                });
+            }
+        }, "thread-lap-bao-cao-nguyen-lieu-phieunhap");
+        t.setDaemon(true);
+        t.start();
     }
 }

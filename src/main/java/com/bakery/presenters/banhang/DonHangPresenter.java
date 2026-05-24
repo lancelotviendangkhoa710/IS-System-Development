@@ -394,7 +394,7 @@ public class DonHangPresenter {
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
         request.setMaKH(req.maKH());
         request.setMaNVLap(getCurrentUserId());
-        request.setTienDaCoc(tongTien);
+        request.setTienDaCoc(0); // Thanh toán thẳng: không cọc
         request.setHinhThucNhan(1); // Trực tiếp
         // Đặt thời gian nhận = ngay bây giờ + đệm 30s để tránh lỗi validation "quá khứ"
         // phía DB

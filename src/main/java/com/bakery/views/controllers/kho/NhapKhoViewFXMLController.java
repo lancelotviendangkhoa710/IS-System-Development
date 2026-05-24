@@ -484,10 +484,14 @@ public class NhapKhoViewFXMLController extends BaseController {
                 });
                 combo.setMaxWidth(Double.MAX_VALUE);
                 combo.valueProperty().addListener((obs, old, nv) -> {
+                    if (getIndex() < 0 || getIndex() >= getTableView().getItems().size()) return;
                     CTPhieuNhapDTO dto = getTableView().getItems().get(getIndex());
                     if (nv != null) {
                         dto.setMaNL(nv.getMaNL());
                         dto.setTenNL(nv.getTenNL());
+                        // Lưu DVT để cột Đơn vị tính hiển thị đúng
+                        dto.setTenDVT(nv.getTenDVT() != null ? nv.getTenDVT() : "");
+                        getTableView().refresh();
                     }
                 });
             }
@@ -536,7 +540,22 @@ public class NhapKhoViewFXMLController extends BaseController {
             }
         });
 
-        tbl.getColumns().addAll(colNL, colSL, colDG, colHSD);
+        // Cột Đơn vị tính — read-only, tự điền khi chọn NL
+        TableColumn<CTPhieuNhapDTO, String> colDVT = new TableColumn<>("ĐVT");
+        colDVT.setPrefWidth(70);
+        colDVT.setCellValueFactory(c -> {
+            String dvt = c.getValue().getTenDVT();
+            if (dvt == null || dvt.isBlank()) {
+                // fallback: tìm trong dsNL
+                dvt = dsNL.stream()
+                        .filter(nl -> nl.getMaNL() == c.getValue().getMaNL())
+                        .map(NguyenLieuDTO::getTenDVT)
+                        .findFirst().orElse("");
+            }
+            return new SimpleStringProperty(dvt != null ? dvt : "");
+        });
+
+        tbl.getColumns().addAll(colNL, colSL, colDVT, colDG, colHSD);
         tbl.setEditable(true);
         tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         return tbl;
@@ -552,8 +571,10 @@ public class NhapKhoViewFXMLController extends BaseController {
             return;
         }
         CTPhieuNhapDTO dong = new CTPhieuNhapDTO();
-        dong.setMaNL(dsNL.get(0).getMaNL());
-        dong.setTenNL(dsNL.get(0).getTenNL());
+        NguyenLieuDTO nlDau = dsNL.get(0);
+        dong.setMaNL(nlDau.getMaNL());
+        dong.setTenNL(nlDau.getTenNL());
+        dong.setTenDVT(nlDau.getTenDVT() != null ? nlDau.getTenDVT() : "");
         dong.setSoLuong(1);
         dong.setDonGia(java.math.BigDecimal.ZERO);
         chiTiet.add(dong);

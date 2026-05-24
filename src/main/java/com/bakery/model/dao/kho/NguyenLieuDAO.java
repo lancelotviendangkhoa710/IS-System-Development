@@ -249,4 +249,26 @@ public class NguyenLieuDAO extends BaseDAO {
         }
         return list;
     }
+
+    /**
+     * Lập báo cáo kiểm kê nguyên liệu để mô phỏng và kiểm định hiện tượng Phantom Read.
+     * Gọi Stored Procedure PROC_LAPBAOCAOKIEMKE.
+     *
+     * @param maNL mã nguyên liệu cần kiểm kê
+     * @param maNV mã nhân viên lập báo cáo
+     * @throws Exception nếu xảy ra mâu thuẫn số liệu (Phantom Read)
+     */
+    public void lapBaoCaoKiemKe(int maNL, int maNV) throws Exception {
+        String sql = "{call PROC_LAPBAOCAOKIEMKE(?, ?, ?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setInt(1, maNL);
+            cstmt.setInt(2, maNV);
+            cstmt.registerOutParameter(3, Types.NUMERIC);
+            cstmt.registerOutParameter(4, Types.NUMERIC);
+            cstmt.execute();
+        } catch (SQLException e) {
+            handleException("lapBaoCaoKiemKe", e);
+        }
+    }
 }

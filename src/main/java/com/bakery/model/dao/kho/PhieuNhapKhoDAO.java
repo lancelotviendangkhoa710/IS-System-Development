@@ -1,6 +1,7 @@
 package com.bakery.model.dao.kho;
 
 import com.bakery.model.dao.BaseDAO;
+import com.bakery.model.dto.kho.KetQuaKiemKeDTO;
 import com.bakery.model.dto.kho.PhieuNhapKhoDTO;
 import com.bakery.model.dto.kho.CTPhieuNhapDTO;
 
@@ -113,6 +114,62 @@ public class PhieuNhapKhoDAO extends BaseDAO {
             cs.execute();
         } catch (SQLException e) {
             handleException("huyPhieuNhap", e);
+            throw e;
+        }
+    }
+
+    /**
+     * Demo Phantom Read §4.3 — lập báo cáo kiểm kê phiếu nhập kho.
+     *
+     * <p>Gọi {@code PROC_LAPBAOCAOPHIEUNHAP} — procedure tự quyết định
+     * isolation level thông qua {@code EXECUTE IMMEDIATE 'SET TRANSACTION ...'}.
+     *
+     * <p>Kịch bản BUG/FIX được toggle bằng comment/uncomment TRONG procedure:
+     * <ul>
+     *   <li><b>BUG</b> (mặc định): dòng SET TRANSACTION bị comment → READ COMMITTED
+     *       → Phase 3 cursor thấy phiếu mới → N+1 dòng → phantom read</li>
+     *   <li><b>FIX</b>: bỏ comment dòng SET TRANSACTION → SERIALIZABLE
+     *       → Phase 3 cursor dùng snapshot cũ → đúng N dòng</li>
+     * </ul>
+     *
+     * @return KetQuaKiemKeDTO { soPhieuDaDem, danhSachPhieu }
+     * @throws Exception nếu DB lỗi
+     */
+    public KetQuaKiemKeDTO lapBaoCaoPhieuNhap() throws Exception {
+        String sql = "{CALL PROC_LAPBAOCAOPHIEUNHAP(?, ?)}";
+        try (Connection conn = moKetNoi();
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.registerOutParameter(1, Types.NUMERIC);
+            cs.registerOutParameter(2, -10); // OracleTypes.CURSOR
+
+            cs.execute();
+
+            int soPhieu = cs.getInt(1);
+            List<PhieuNhapKhoDTO> danhSach = new ArrayList<>();
+
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                while (rs != null && rs.next()) {
+                    PhieuNhapKhoDTO dto = new PhieuNhapKhoDTO();
+                    dto.setMaPN(rs.getInt("MAPN"));
+                    dto.setTenNhaCungCap(rs.getString("TENNCC"));
+                    dto.setTenNhanVien(rs.getString("TENNV"));
+                    dto.setTongTienNhap(rs.getBigDecimal("TONGTIENNHAP"));
+                    String ngayStr = rs.getString("NGAYNHAP_STR");
+                    if (ngayStr != null) {
+                        try {
+                            dto.setNgayNhap(java.time.LocalDateTime.parse(ngayStr,
+                                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                        } catch (Exception ignored) { /* giữ null */ }
+                    }
+                    danhSach.add(dto);
+                }
+            }
+
+            return new KetQuaKiemKeDTO(soPhieu, danhSach);
+
+        } catch (SQLException e) {
+            handleException("lapBaoCaoPhieuNhap", e);
             throw e;
         }
     }

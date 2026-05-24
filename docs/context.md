@@ -91,27 +91,35 @@
 
 ## 4.4. Deadlock — Kịch bản lỗi
 
-| Phiên 1 (Nhân viên A) | Phiên 2 (Nhân viên B) | Giải thích |
+> **Cơ chế demo:** 2 cửa sổ app → cùng thao tác **Xuất Kho → Làm bánh** nhưng chọn 2 sản phẩm khác nhau có công thức ngược thứ tự khóa nguyên liệu.
+> - **Thợ A** → chọn *Bánh bông lan* (công thức: Đường 0.5 kg → Bột mì 0.1 kg, FIFO giảm dần → khóa Đường trước)
+> - **Thợ B** → chọn *Bánh mì gối* (công thức: Bột mì 0.5 kg → Đường 0.1 kg, FIFO giảm dần → khóa Bột mì trước)
+> - `PROC_XUATKHOSANXUAT` có `DBMS_SESSION.SLEEP(8)` giữa hai lần khóa → đủ thời gian cho thợ kia lock tài nguyên.
+
+| Phiên 1 (Thợ A — Bánh bông lan) | Phiên 2 (Thợ B — Bánh mì gối) | Giải thích |
 |---|---|---|
-| `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  20.00`<br>`1002  15.00` | `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  20.00`<br>`1002  15.00` | **Trạng thái ban đầu.** Bột mì (1001) = 20, Đường (1002) = 15. |
-| `SET AUTOCOMMIT OFF;`<br>`UPDATE NGUYENLIEU SET MUCTONANTOAN = 50 WHERE MANL = 1001;`<br><br>Output:<br>`1 row updated.` | Không có hành động | Phiên 1 cập nhật MANL=1001 trước. Oracle đặt **Exclusive Lock** trên dòng 1001. |
-| Không có hành động | `SET AUTOCOMMIT OFF;`<br>`UPDATE NGUYENLIEU SET MUCTONANTOAN = 40 WHERE MANL = 1002;`<br><br>Output:<br>`1 row updated.` | Phiên 2 cập nhật MANL=1002 trước — **thứ tự ngược**. Oracle đặt **Exclusive Lock** trên dòng 1002. |
-| `UPDATE NGUYENLIEU SET MUCTONANTOAN = 45 WHERE MANL = 1002;`<br><br>`-- (chờ, không trả về)` | Không có hành động | Phiên 1 cần lock MANL=1002 (Phiên 2 đang giữ) → **bị chặn**. |
-| Không có hành động | `UPDATE NGUYENLIEU SET MUCTONANTOAN = 55 WHERE MANL = 1001;`<br><br>Output:<br>`ORA-00060: deadlock detected while waiting for resource`<br><br>`ROLLBACK;` | Phiên 2 cần lock MANL=1001 (Phiên 1 đang giữ). Oracle phát hiện **chu trình** → ném **ORA-00060** cho Phiên 2. Phiên 2 rollback. |
-| *(được giải phóng)*<br>`1 row updated.`<br>`COMMIT;` | Không có hành động | Lock 1002 được giải phóng. Phiên 1 hoàn thành và commit. |
-| `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  50.00`<br>`1002  45.00` | `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  50.00`<br>`1002  45.00` | **Kiểm chứng kết quả: → BUG.** Phiên 2 bị deadlock và mất toàn bộ thay đổi. Nhân viên B phải thực hiện lại từ đầu. |
+| Trạng thái ban đầu:<br>`SELECT TENNL, SOLUONGTONTONG FROM NGUYENLIEU`<br>`WHERE TENNL IN (N'Bột mì số 8', N'Đường cát trắng');`<br><br>Output:<br>`TENNL           SOLUONGTONTONG`<br>`--------------  --------------`<br>`Bột mì số 8      ≥ 0.1`<br>`Đường cát trắng  ≥ 0.5` | (cùng trạng thái) | **Trạng thái ban đầu.** Đủ nguyên liệu cho cả hai ca sản xuất. |
+| **App 1:** Xuất Kho → Làm bánh → chọn **Bánh bông lan (1 cái)** → Xác nhận.<br><br>Procedure bắt đầu: `ORDER BY SOLUONGTIEUHAO DESC`<br>→ Đường (0.5) được chọn **TRƯỚC** → Oracle đặt `FOR UPDATE` lock trên các lô Đường. | Không có hành động | Phiên 1 khóa tài nguyên **Đường cát trắng**. `DBMS_SESSION.SLEEP(8)` bắt đầu. |
+| *(đang trong SLEEP 8s)* | **App 2:** Xuất Kho → Làm bánh → chọn **Bánh mì gối (1 cái)** → Xác nhận.<br><br>Procedure bắt đầu: `ORDER BY SOLUONGTIEUHAO DESC`<br>→ Bột mì (0.5) được chọn **TRƯỚC** → Oracle đặt `FOR UPDATE` lock trên các lô Bột mì. | Phiên 2 khóa tài nguyên **Bột mì số 8**. `DBMS_SESSION.SLEEP(8)` bắt đầu. |
+| *(SLEEP kết thúc)*<br>Procedure tiếp tục: cần khóa **Bột mì** (Đường đã xong).<br>→ Bột mì đang bị Phiên 2 giữ → **Phiên 1 bị chặn tại** `SELECT ... FOR UPDATE`. | *(đang trong SLEEP 8s)* | Phiên 1 chờ Phiên 2 giải phóng lock Bột mì. |
+| *(chờ)* | *(SLEEP kết thúc)*<br>Procedure tiếp tục: cần khóa **Đường** (Bột mì đã xong).<br>→ Đường đang bị Phiên 1 giữ → Oracle phát hiện **chu trình**: A→B→A.<br><br>Ném **ORA-00060** cho Phiên 2 (nạn nhân).<br>`ROLLBACK;`<br><br>**App 2 hiển thị dialog:**<br>*"⚠ Deadlock phát hiện! Giao dịch bị Oracle rollback vì xung đột khóa với phiên khác. Vui lòng thử lại."* | Oracle phát hiện **Circular Wait**: Phiên 1 đang chờ Phiên 2 (Bột mì), Phiên 2 đang chờ Phiên 1 (Đường). → Ném **ORA-00060** cho nạn nhân (Phiên 2). |
+| *(Phiên 1 được giải phóng)*<br>Tiếp tục khóa Bột mì thành công → hoàn thành xuất kho.<br>App 1 hiển thị: *"Đã xuất nguyên liệu làm 1 Bánh bông lan."* | *(đã rollback)* | Phiên 1 hoàn thành. Phiên 2 mất toàn bộ thay đổi — nhân viên B phải thực hiện lại. |
+| `SELECT TENNL, SOLUONGTONTONG FROM NGUYENLIEU`<br>`WHERE TENNL IN (N'Bột mì số 8', N'Đường cát trắng');`<br><br>*(Tồn kho giảm đúng 1 lần — của Phiên 1)* | `SELECT TENNL, SOLUONGTONTONG FROM NGUYENLIEU`<br>`WHERE TENNL IN (N'Bột mì số 8', N'Đường cát trắng');`<br><br>*(Kết quả giống Phiên 1 — không có thay đổi từ Phiên 2)* | **Kiểm chứng kết quả: → BUG.** Phiên 2 bị deadlock, mất toàn bộ thay đổi. Nhân viên B phải thực hiện lại từ đầu. |
 
 ---
 
 ## 4.4. Deadlock — Kịch bản đã khắc phục
 
-**Quy tắc:** Cả hai phiên luôn cập nhật theo thứ tự MANL tăng dần (1001 trước, 1002 sau).
+**Toggle FIX (1 dòng SQL):** Trong `PROC_XUATKHOSANXUAT`, đổi `CURSOR C_CONGTHUC`:
+```sql
+-- BUG (mặc định): ORDER BY C.SOLUONGTIEUHAO DESC  ← thứ tự theo lượng tiêu hao → dễ gây khóa chéo
+-- FIX: bỏ comment dòng dưới, comment dòng BUG:
+ORDER BY C.MANL ASC;   -- [FIX] Lock Ordering: luôn lock MANL tăng dần → ngăn Deadlock
+```
 
-| Phiên 1 (Nhân viên A) | Phiên 2 (Nhân viên B) | Giải thích |
+| Phiên 1 (Thợ A — Bánh bông lan) | Phiên 2 (Thợ B — Bánh mì gối) | Giải thích |
 |---|---|---|
-| `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  20.00`<br>`1002  15.00` | `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  20.00`<br>`1002  15.00` | **Trạng thái ban đầu.** Bột mì (1001) = 20, Đường (1002) = 15. |
-| `SET AUTOCOMMIT OFF;`<br>`UPDATE NGUYENLIEU SET MUCTONANTOAN = 50 WHERE MANL = 1001;`<br><br>Output:<br>`1 row updated.` | Không có hành động | Phiên 1 cập nhật MANL=**1001** trước (thứ tự tăng dần). Lock MANL=1001. |
-| Không có hành động | `SET AUTOCOMMIT OFF;`<br>`UPDATE NGUYENLIEU SET MUCTONANTOAN = 55 WHERE MANL = 1001;`<br><br>`-- (chờ, không trả về)` | Phiên 2 **cũng bắt đầu từ MANL=1001** (cùng thứ tự). MANL=1001 đang bị Phiên 1 lock → **Phiên 2 bị chặn tại đây**. Phiên 2 chưa giữ lock nào → không tạo chu trình. |
-| `UPDATE NGUYENLIEU SET MUCTONANTOAN = 40 WHERE MANL = 1002;`<br>`COMMIT;`<br><br>Output:<br>`1 row updated.` | Không có hành động | Phiên 1 cập nhật MANL=1002, commit. Giải phóng tất cả lock. |
-| Không có hành động | *(được giải phóng)*<br>`1 row updated.` (MANL=1001)<br>`UPDATE NGUYENLIEU SET MUCTONANTOAN = 45 WHERE MANL = 1002;`<br>`COMMIT;`<br><br>Output:<br>`1 row updated.` | Lock MANL=1001 được giải phóng → Phiên 2 tiếp tục. Cập nhật 1001 rồi 1002 thành công. |
-| `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  55.00`<br>`1002  45.00` | `SELECT MANL, MUCTONANTOAN FROM NGUYENLIEU WHERE MANL IN (1001, 1002);`<br><br>Output:<br>`MANL  MUCTONANTOAN`<br>`----  ------------`<br>`1001  55.00`<br>`1002  45.00` | **Kiểm chứng kết quả: → OK.** Cả hai phiên hoàn thành thành công. Không Deadlock. Phiên 2 ghi đè Phiên 1 đúng như nghiệp vụ. |
+| **App 1:** Xuất Kho → Làm bánh → **Bánh bông lan (1 cái)** → Xác nhận.<br><br>Procedure: `ORDER BY MANL ASC`<br>→ Bột mì (MANL nhỏ hơn) được khóa **TRƯỚC**. | Không có hành động | FIX: thứ tự khóa theo MANL tăng dần. Phiên 1 khóa **Bột mì** trước. `SLEEP(8)` bắt đầu. |
+| *(đang SLEEP 8s)* | **App 2:** Xuất Kho → Làm bánh → **Bánh mì gối (1 cái)** → Xác nhận.<br><br>Procedure: `ORDER BY MANL ASC`<br>→ Bột mì (MANL nhỏ hơn) cũng được khóa **TRƯỚC** → nhưng Phiên 1 đang giữ → **Phiên 2 bị chặn tại đây**.<br>*(Phiên 2 chưa giữ lock nào → không tạo chu trình.)* | Cả hai phiên đều muốn khóa Bột mì trước. Phiên 2 chờ Phiên 1 — **không có chu trình**. |
+| *(SLEEP kết thúc)*<br>Khóa Đường thành công → commit.<br>App 1: *"Đã xuất nguyên liệu làm 1 Bánh bông lan."* | *(Phiên 2 được giải phóng)*<br>Khóa Bột mì thành công → `SLEEP(8)` → khóa Đường → commit.<br>App 2: *"Đã xuất nguyên liệu làm 1 Bánh mì gối."* | Phiên 2 chờ tuần tự — tiếp tục sau khi Phiên 1 commit. |
+| `SELECT TENNL, SOLUONGTONTONG FROM NGUYENLIEU`<br>`WHERE TENNL IN (N'Bột mì số 8', N'Đường cát trắng');`<br><br>*(Tồn kho giảm đúng = Phiên 1 + Phiên 2)* | `SELECT TENNL, SOLUONGTONTONG FROM NGUYENLIEU`<br>`WHERE TENNL IN (N'Bột mì số 8', N'Đường cát trắng');`<br><br>*(Kết quả giống Phiên 1)* | **Kiểm chứng kết quả: → OK.** Cả hai phiên hoàn thành thành công. Không Deadlock. Tồn kho trừ đúng cho cả 2 lần xuất. |

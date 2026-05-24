@@ -20,29 +20,35 @@ import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Controller cho QuanLyNhanVienView (tab content trong NhanSuView).
- * Layout theo khuôn SanPhamView: toolbar nút hành động trên bảng, không có cột inline.
- * Thêm/Sửa qua ThemNhanVienDialog.fxml (dual-mode).
- */
 public class QuanLyNhanVienViewFXMLController extends BaseController {
 
-    @FXML private TableView<NhanVienDTO>           tblNhanVien;
-    @FXML private TableColumn<NhanVienDTO, Integer> colMaNV;
-    @FXML private TableColumn<NhanVienDTO, String>  colHoTen;
-    @FXML private TableColumn<NhanVienDTO, String>  colSdt;
-    @FXML private TableColumn<NhanVienDTO, String>  colVaiTro;
-    @FXML private TableColumn<NhanVienDTO, String>  colTenDangNhap;
-    @FXML private TableColumn<NhanVienDTO, String>  colTrangThai;
+    @FXML
+    private TableView<NhanVienDTO> tblNhanVien;
+    @FXML
+    private TableColumn<NhanVienDTO, Integer> colMaNV;
+    @FXML
+    private TableColumn<NhanVienDTO, String> colHoTen;
+    @FXML
+    private TableColumn<NhanVienDTO, String> colSdt;
+    @FXML
+    private TableColumn<NhanVienDTO, String> colVaiTro;
+    @FXML
+    private TableColumn<NhanVienDTO, String> colTenDangNhap;
+    @FXML
+    private TableColumn<NhanVienDTO, String> colTrangThai;
 
-    @FXML private TextField       txtTimKiem;
-    @FXML private ComboBox<String> cmbLocTrangThai;
-    @FXML private Button           btnSua;
-    @FXML private Button           btnThoiViec;
+    @FXML
+    private TextField txtTimKiem;
+    @FXML
+    private ComboBox<String> cmbLocTrangThai;
+    @FXML
+    private Button btnSua;
+    @FXML
+    private Button btnThoiViec;
 
-    private final NhanVienService             nhanVienService = new NhanVienService();
-    private final ObservableList<NhanVienDTO> masterData      = FXCollections.observableArrayList();
-    private FilteredList<NhanVienDTO>         filteredData;
+    private final NhanVienService nhanVienService = new NhanVienService();
+    private final ObservableList<NhanVienDTO> masterData = FXCollections.observableArrayList();
+    private FilteredList<NhanVienDTO> filteredData;
 
     @FXML
     public void initialize() {
@@ -69,7 +75,8 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         tblNhanVien.setRowFactory(tv -> {
             TableRow<NhanVienDTO> row = new TableRow<>();
             row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !row.isEmpty()) moDialogSua(row.getItem());
+                if (e.getClickCount() == 2 && !row.isEmpty())
+                    moDialogSua(row.getItem());
             });
             return row;
         });
@@ -79,8 +86,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     private void setupToolbarButtons() {
         // Mặc định disable, chỉ enable khi có hàng được chọn
         btnSua.disableProperty().bind(
-                tblNhanVien.getSelectionModel().selectedItemProperty().isNull()
-        );
+                tblNhanVien.getSelectionModel().selectedItemProperty().isNull());
 
         // Thôi việc: disable khi chưa chọn HOẶC NV đã thôi việc rồi
         tblNhanVien.getSelectionModel().selectedItemProperty().addListener((obs, oldNv, newNv) -> {
@@ -104,7 +110,7 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     }
 
     private void applyFilter() {
-        String keyword   = txtTimKiem.getText() == null ? "" : txtTimKiem.getText().trim().toLowerCase();
+        String keyword = txtTimKiem.getText() == null ? "" : txtTimKiem.getText().trim().toLowerCase();
         String trangThai = cmbLocTrangThai.getSelectionModel().getSelectedItem();
 
         filteredData.setPredicate(nv -> {
@@ -115,8 +121,8 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
 
             boolean matchTS = switch (trangThai == null ? "Tất cả" : trangThai) {
                 case "Đang làm việc" -> nv.getTrangThaiLamViec() == 1;
-                case "Đã thôi việc"  -> nv.getTrangThaiLamViec() == 0;
-                default              -> true;
+                case "Đã thôi việc" -> nv.getTrangThaiLamViec() == 0;
+                default -> true;
             };
             return matchKw && matchTS;
         });
@@ -144,21 +150,31 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
 
     // ── FXML handlers ──────────────────────────────────────────────────────
 
-    @FXML private void onThemMoi()  { moDialog(null); }
-    @FXML private void onLamMoi()   { tblNhanVien.getSelectionModel().clearSelection(); loadData(); }
+    @FXML
+    private void onThemMoi() {
+        moDialog(null);
+    }
+
+    @FXML
+    private void onLamMoi() {
+        tblNhanVien.getSelectionModel().clearSelection();
+        loadData();
+    }
 
     /** Sửa NV đang được chọn trong bảng. */
     @FXML
     private void onSua() {
         NhanVienDTO selected = tblNhanVien.getSelectionModel().getSelectedItem();
-        if (selected != null) moDialogSua(selected);
+        if (selected != null)
+            moDialogSua(selected);
     }
 
     /** Cho thôi việc NV đang được chọn trong bảng. */
     @FXML
     private void onThoiViec() {
         NhanVienDTO selected = tblNhanVien.getSelectionModel().getSelectedItem();
-        if (selected != null) xuLyChoThoiViec(selected);
+        if (selected != null)
+            xuLyChoThoiViec(selected);
     }
 
     // ── Dialog helpers ─────────────────────────────────────────────────────
@@ -167,14 +183,17 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
     private void moDialog(NhanVienDTO nv) {
         try {
             URL url = getClass().getResource("/fxml/nhansu/ThemNhanVienDialog.fxml");
-            if (url == null) throw new RuntimeException("Không tìm thấy ThemNhanVienDialog.fxml");
+            if (url == null)
+                throw new RuntimeException("Không tìm thấy ThemNhanVienDialog.fxml");
             FXMLLoader loader = new FXMLLoader(url);
             Scene scene = new Scene(loader.load());
             URL css = getClass().getResource("/css/bakery.css");
-            if (css != null) scene.getStylesheets().add(css.toExternalForm());
+            if (css != null)
+                scene.getStylesheets().add(css.toExternalForm());
 
             ThemNhanVienDialogController ctrl = loader.getController();
-            if (nv != null) ctrl.khoiTaoSua(nv);
+            if (nv != null)
+                ctrl.khoiTaoSua(nv);
             ctrl.setOnThemThanhCong(() -> {
                 loadData();
                 hienThiThanhCongLabel(nv == null ? "✅ Đã thêm nhân viên mới." : "✅ Đã cập nhật nhân viên.");
@@ -192,13 +211,15 @@ public class QuanLyNhanVienViewFXMLController extends BaseController {
         }
     }
 
-    private void moDialogSua(NhanVienDTO nv) { moDialog(nv); }
+    private void moDialogSua(NhanVienDTO nv) {
+        moDialog(nv);
+    }
 
     /** Xác nhận và thực hiện cho thôi việc. */
     private void xuLyChoThoiViec(NhanVienDTO nv) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                 "Cho nhân viên \"" + nv.getHoTen() + "\" thôi việc?\n" +
-                "Tài khoản đăng nhập sẽ bị khóa nhưng lịch sử được giữ lại.",
+                        "Tài khoản đăng nhập sẽ bị khóa nhưng lịch sử được giữ lại.",
                 ButtonType.YES, ButtonType.NO);
         confirm.setTitle("Xác nhận cho thôi việc");
         DialogHelper.applyBakeryTheme(confirm);
