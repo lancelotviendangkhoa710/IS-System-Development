@@ -9,9 +9,8 @@
 
     actor "Nhân viên" as NV #White
     boundary "GUI_DangNhap" as UI #White
-    control "Controller_DangNhap" as SYS #White
+    control "Controller_XacThuc" as SYS #White
     entity ": TAIKHOAN" as DB_TK #White
-    entity ": ACCOUNT_TOKEN" as DB_AT #White
     entity ": VAITRO" as DB_VT #White
     entity ": CALAMVIEC" as DB_CLV #White
 
@@ -32,9 +31,7 @@
     deactivate SYS
 
     group alt Kiểm tra định dạng
-
         note over of NV: [Thiếu thông tin]
-    
         autonumber stop
         NV -[hidden]-> DB_CLV
         autonumber resume "<b>##."
@@ -66,9 +63,6 @@
             autonumber stop
             NV -[hidden]-> DB_CLV
             autonumber resume "<b>##."
-            SYS -> DB_AT: Tạo và lưu token phiên đăng nhập
-            activate DB_AT
-            deactivate DB_AT
             
             SYS -> SYS: Lưu thông tin vào phiên làm việc
             activate SYS

@@ -1,0 +1,34 @@
+@startuml ThemKhachHang
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Nhấn "Thêm khách hàng";
+|Hệ thống|
+:Lấy biểu mẫu thêm khách hàng;
+:Mở hộp thoại nhập liệu;
+|Nhân viên|
+:Điền thông tin và nhấn "Lưu";
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+  :Báo lỗi tại ô tương ứng;
+else ([Hợp lệ])
+  :Gửi yêu cầu lưu hồ sơ khách hàng;
+  |CSDL|
+  :KHACHHANG]
+  :Lưu hồ sơ khách hàng;
+  :Trả kết quả lưu;
+  |Hệ thống|
+  :Thông báo và làm mới danh sách;
+endif
+|Hệ thống|
+stop
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+
+hide empty description
+
+' Giữ khoảng cách rộng để text không bị đè
+skinparam nodesep 120
+skinparam ranksep 120
+
+skinparam state {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' Căn chỉnh khung state cho bằng nhau
+state " Đang kinh doanh " as Dang_kinh_doanh
+state " Ngừng kinh doanh " as Ngung_kinh_doanh
+
+[*] -> Dang_kinh_doanh : [Thêm sản phẩm mới\nthành công]
+Dang_kinh_doanh -> Ngung_kinh_doanh : [Quản lý yêu cầu\nngừng kinh doanh]/Xóa mềm
+Ngung_kinh_doanh -> Dang_kinh_doanh : [Quản lý yêu cầu\nkhôi phục kinh doanh]/Khôi phục
+Ngung_kinh_doanh -> [*]
+@enduml

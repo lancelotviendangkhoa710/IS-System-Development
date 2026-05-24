@@ -1,0 +1,78 @@
+@startuml SuaNhanSu
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Chọn nhân viên từ danh sách;
+|Hệ thống|
+:Gửi yêu cầu lấy thông tin nhân viên;
+|CSDL|
+:Truy xuất thông tin nhân viên;
+fork
+  :NHANVIEN]
+fork again
+  :TAIKHOAN]
+fork again
+  :NHANVIEN_VAITRO]
+end fork
+:Trả kết quả truy xuất;
+|Hệ thống|
+:Lấy biểu mẫu sửa nhân sự;
+:Điền thông tin hiện tại lên biểu mẫu;
+|Quản lý|
+:Chỉnh sửa thông tin;
+:Nhấn "Lưu";
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+  :Báo lỗi tại ô tương ứng;
+else ([Hợp lệ])
+  :Kiểm tra ô mật khẩu có được điền hay không;
+  if () then ([Có nhập mật khẩu mới])
+    :Mã hóa mật khẩu mới;
+  else ([Không nhập])
+  endif
+
+  :Gửi yêu cầu kiểm tra trùng lặp thông tin;
+
+  |CSDL|
+  :Truy vấn kiểm tra trùng lặp;
+  fork
+    :NHANVIEN]
+  fork again
+    :TAIKHOAN]
+  end fork
+  :Trả kết quả kiểm tra;
+
+  |Hệ thống|
+  :Kiểm tra kết quả kiểm tra trùng;
+  if () then ([Trùng lặp])
+    :Báo lỗi và yêu cầu sửa;
+  else ([Không trùng])
+    :Gửi yêu cầu cập nhật thông tin nhân viên;
+
+    |CSDL|
+    :Cập nhật thông tin nhân viên;
+    fork
+      :NHANVIEN]
+    fork again
+      :TAIKHOAN]
+    fork again
+      :NHANVIEN_VAITRO]
+    end fork
+    :Trả kết quả cập nhật;
+
+    |Hệ thống|
+    :Làm mới danh sách, xóa trắng biểu mẫu và thông báo cập nhật thành công;
+  endif
+endif
+|Hệ thống|
+stop
+@enduml

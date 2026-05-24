@@ -1,0 +1,43 @@
+@startuml
+
+hide empty description
+
+' Giữ khoảng cách rộng để text không bị đè
+skinparam nodesep 120
+skinparam ranksep 120
+
+skinparam state {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' Căn chỉnh khung state cho bằng nhau
+state "     Mới đặt     " as Moi_dat
+state "      Đã cọc      " as Da_coc
+state "  Đang sản xuất  " as Dang_san_xuat
+state "     Chờ giao     " as Cho_giao
+state "  Chờ khách lấy  " as Cho_khach_lay
+state "   Hoàn thành   " as Hoan_thanh
+state "       Hủy       " as Huy
+state "    Hoàn hàng    " as Hoan_hang
+
+[*] -> Moi_dat : [Khách hàng đặt hàng thành công]
+Moi_dat -> Da_coc : [Khách hàng thanh toán\ntiền cọc]/Xác nhận cọc
+Moi_dat --> Huy : [Khách hàng yêu cầu\nhủy đơn]/Hủy
+Da_coc -down-> Dang_san_xuat : [Bắt đầu quá trình\nlàm bánh]/Sản xuất
+Da_coc --> Huy : [Khách hàng yêu cầu\nhủy đơn]/Hủy
+
+Dang_san_xuat -down-> Cho_giao : [Hoàn thành sản xuất,\nchờ nhân viên giao hàng]/Chờ giao
+Dang_san_xuat -down-> Cho_khach_lay : [Hoàn thành sản xuất,\nkhách hẹn đến lấy]/Chờ lấy
+
+Cho_giao -> Hoan_thanh : [Khách hàng đã\nnhận được bánh]/Hoàn thành
+Cho_khach_lay -> Hoan_thanh : [Khách hàng đã\nđến lấy bánh]/Hoàn thành
+
+Cho_giao --> Hoan_hang : [Giao hàng thất bại,\ntrả về cửa hàng]/Hoàn hàng
+Hoan_thanh --> Hoan_hang : [Khách hàng yêu cầu\ntrả hàng]/Hoàn hàng
+
+Hoan_hang --> [*]
+Hoan_thanh --> [*]
+Huy --> [*]
+
+@enduml

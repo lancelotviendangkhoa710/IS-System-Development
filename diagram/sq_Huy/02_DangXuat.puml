@@ -10,7 +10,6 @@ skinparam style strictuml
 actor "Nhân viên" as NV #White
 boundary "GUI_TrangChu" as UI #White
 control "Controller_XacThuc" as SYS #White
-entity ": ACCOUNT_TOKEN" as DB_AT #White
 
 NV -> UI: Nhấn nút "Đăng xuất"
 activate UI
@@ -19,10 +18,6 @@ deactivate UI
 UI -> SYS: Yêu cầu đăng xuất
 activate SYS
 deactivate SYS
-
-SYS -> DB_AT: Truy vấn và thu hồi token phiên làm việc
-activate DB_AT
-deactivate DB_AT
 
 SYS -> SYS: Xóa toàn bộ thông tin phiên làm việc 
 activate SYS

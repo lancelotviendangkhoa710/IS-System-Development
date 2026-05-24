@@ -1,0 +1,19 @@
+@startuml DangXuat
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Nhấn nút "Đăng xuất" trên thanh điều hướng;
+
+|Hệ thống|
+:Xóa toàn bộ thông tin phiên làm việc trong bộ nhớ ứng dụng;
+:Chuyển về màn hình đăng nhập;
+stop
+@enduml

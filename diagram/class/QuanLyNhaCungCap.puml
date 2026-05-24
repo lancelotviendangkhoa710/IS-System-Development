@@ -1,0 +1,123 @@
+@startuml QuanLyNhaCungCap
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class Form_ThemNhaCungCap <<boundary>> {
+    +HienThiBieuMauNhapThongTin()
+    +NhanNutHuy()
+    +NhapTenDiaChiSoDienThoaiEmailNguoiDaiDienVaNhanLuu()
+  }
+
+  class GUI_NhaCungCap <<boundary>> {
+    +ChuyenSangDanhSachNhaCungCapDaBiKhoa()
+    +ChonMotNhaCungCapCanThayDoiTrangThai()
+    +ChonSuaMotNhaCungCap()
+    +ChonThemNhaCungCapMoi()
+    +HienThiDanhSachTuongUng()
+    +HienThiYeuCauXacNhan()
+    +HuyBo()
+    +HuyThaoTacTrangThaiGiuNguyen()
+    +NhanKhoaHoacMoKhoa()
+    +ThongBaoLoiLuuDuLieu()
+    +ThongBaoLoiVaGiuNguyenBieuMau()
+    +ThongBaoLoiTrangThaiKhongThayDoi()
+    +ThongBaoThanhCongVaLamMoiDanhSach()
+    +XacNhan()
+    +DongBieuMauKhongLuuDuLieu()
+  }
+
+  class Form_SuaNhaCungCap <<boundary>> {
+    +ChinhSuaThongTinVaNhanLuu()
+    +HienThiBieuMauSua()
+    +HienThiBieuMauVoiThongTinHienTai()
+    +NhanNutHuy()
+  }
+
+  class GUI_TraCuuNhaCungCap <<boundary>> {
+    +ChonMotNhaCungCap()
+    +CapNhatDanhSachSauKhiLocHoacToanBoNeuTuKhoaRong()
+    +GoTuKhoaVaoOTimKiem()
+    +HienThiChiTietHoSoNhaCungCap()
+    +HienThiDanhSachBanDau()
+    +HienThiDanhSachCacPhieuNhapCoLienQuan()
+    +NhanXemLichSuGiaoDich()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_NhaCungCap <<control>> {
+  +GuiDuLieuCapNhat()
+  +GuiYeuCauCapNhatTrangThai()
+  +GuiYeuCauThayDoiTrangThai()
+  +GuiYeuCauThemNhaCungCap()
+  +HuyYeuCau()
+  +KiemTraKetQuaCapNhat()
+  +KiemTraKetQuaLuu()
+  +KiemTraTinhHopLeVaTenKhongTrungLap()
+  +KiemTraTinhHopLeVaTenKhongTrungVoiNccKhac()
+  +YeuCauLayDanhSachPhieuNhapKho()
+  +YeuCauLayThongTinChiTietNhaCungCap()
+  +YeuCauLayThongTin()
+  +YeuCauLocNhaCungCapTheoTuKhoa()
+  +YeuCauTaiDanhSachNhaCungCapBiKhoa()
+  +YeuCauTaiDanhSachNhaCungCap()
+  +YeuCauDongForm()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class NHACUNGCAP <<entity>> {
+    -maNCC: int
+    -tenNCC: String
+    -sdt: String
+    -diaChi: String
+    -thoiDiemXoa: LocalDateTime
+    -maNX: Integer
+    +CapNhatThongTinNhaCungCap()
+    +GhiNhanTrangThaiMoi()
+    +LuuThongTinNhaCungCapMoi()
+    +LayDuLieuChiTiet()
+    +LayDuLieuNhaCungCapTheoId()
+    +TruyVanDanhSachNhaCungCapDangHoatDong()
+    +Khoa()
+  }
+
+  class PHIEUNHAPKHO <<entity>> {
+    -maPN: int
+    -ngayNhap: LocalDateTime
+    -maNV: int
+    -maNCC: int
+    -tongTienNhap: BigDecimal
+    -tenNhanVien: String
+    -tenNhaCungCap: String
+    +TruyVanCacPhieuNhapKhoCuaNhaCungCapNay()
+  }
+}
+
+' ==================================================
+' QUAN HỆ CỦA CONTROLLER (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_NhaCungCap "1" -up- "1" GUI_TraCuuNhaCungCap
+Controller_NhaCungCap "1" -up- "1" Form_ThemNhaCungCap
+Controller_NhaCungCap "1" -up- "1" GUI_NhaCungCap
+Controller_NhaCungCap "1" -up- "1" Form_SuaNhaCungCap
+
+' Controller hướng XUỐNG các Entity
+Controller_NhaCungCap .down.> PHIEUNHAPKHO
+Controller_NhaCungCap .down.> NHACUNGCAP
+
+' ==================================================
+' QUAN HỆ GIỮA CÁC ENTITY (Dàn ngang)
+' ==================================================
+NHACUNGCAP "1" -right- "*" PHIEUNHAPKHO
+
+@enduml

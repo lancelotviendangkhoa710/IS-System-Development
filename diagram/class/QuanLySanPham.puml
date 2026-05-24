@@ -1,0 +1,142 @@
+@startuml QuanLySanPham
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class GUI_SanPham <<boundary>> {
+    +BaoLoiGiuNguyenONhap()
+    +BaoLoiTuChoiKhoa()
+    +BaoThanhCongVaLamMoiDanhSach()
+    +BaoThanhCongXoaTrangONhapVaLamMoiDanhSach()
+    +ChinhSuaTenVaNhanLuuThayDoi()
+    +ChonThemSanPham()
+    +ChonDanhMucVaNhanKhoaKhoiPhuc()
+    +ChonHangDanhMucCanSua()
+    +ChonSanPhamCanSua()
+    +ChonSanPhamVaNhanKhoaKhoiPhuc()
+    +CapNhatThanhCongVaLamMoiDanhSach()
+    +CapNhatThanhCongLamMoiManHinh()
+    +GoTuKhoaChonDanhMuc()
+    +NhapTenDanhMucVaNhanThemMoi()
+    +ThongBaoLoiGiuNguyenDuLieu()
+    +ThongBaoThanhCongVaLamMoiDanhSach()
+    +XemChiTietSanPham()
+  }
+
+  class Form_ThemSanPham <<boundary>> {
+    +BaoLoi()
+    +MoBieuMauThemSanPham()
+    +NhapThongTinChonDanhMucAnhVaNhanThemMoi()
+    +TraDuLieuDanhMuc()
+  }
+
+  class Form_SuaSanPham <<boundary>> {
+    +BaoLoi()
+    +ChinhSuaThongTinVaNhanLuuThayDoi()
+    +HienThiChiTietVaoBieuMau()
+  }
+}
+
+' ==================================================
+' HÀNG 2: CÁC LỚP CONTROLLER
+' ==================================================
+class Controller_SanPham <<control>> {
+  +GuiDuLieuCapNhat()
+  +GuiDuLieuTaoDanhMuc()
+  +GuiDuLieuTaoSanPham()
+  +KiemTraRongVaTrungLap()
+  +KiemTraTinhHopLe()
+  +LayDanhSachDanhMuc()
+  +YeuCauCapNhatTrangThai()
+  +YeuCauCapNhat()
+  +YeuCauLocSanPham()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class DANHMUCSANPHAM <<entity>> {
+    -maSP: int
+    -maDM: int
+    -tenSP: String
+    -giaVon: double
+    -giaBan: double
+    -hinhAnh: String
+    -choPhepTuyChinh: int
+    -thoiGianBaoQuan: int
+    -soLuongTon: double
+    -phienBan: int
+    -thoiDiemXoa: LocalDateTime
+    -thoiGianChuanBi: int
+    -maNX: Integer
+    -thanhPhan: String
+    +CapNhatTenDanhMuc()
+    +KiemTraTrungLapTen()
+    +LuuDanhMucMoi()
+    +LuuTrangThaiMoi()
+    +TruyVanDanhMuc()
+    +TruyVanKiemTraTen()
+  }
+
+  class SANPHAM <<entity>> {
+    -maSP: int
+    -maDM: int
+    -tenSP: String
+    -giaVon: double
+    -giaBan: double
+    -hinhAnh: String
+    -choPhepTuyChinh: int
+    -thoiGianBaoQuan: int
+    -soLuongTon: double
+    -phienBan: int
+    -thoiDiemXoa: LocalDateTime
+    -thoiGianChuanBi: int
+    -maNX: Integer
+    -thanhPhan: String
+    +CapNhatTrangThai()
+    +KiemTraSanPhamTrongDanhMuc()
+    +LuuDuLieuCapNhat()
+    +LuuSanPhamMoiVaHinhAnh()
+    +TruyVanTheoDieuKien()
+  }
+
+  class DONDATHANG <<entity>> {
+    -maDon: int
+    -ngayLap: LocalDateTime
+    -ngayGioNhanBanh: LocalDateTime
+    -maKH: Integer
+    -maNVLap: int
+    -maTrangThai: int
+    -tongTienHDBan: BigDecimal
+    -tienDaCoc: BigDecimal
+    -phienBan: Integer
+    -hinhThucNhan: Integer
+    -diaChiGiao: String
+    -tenTrangThai: String
+    +KiemTraDonHangChuaHoanTat()
+  }
+}
+
+' ==================================================
+' QUAN HỆ CỦA CONTROLLER (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_SanPham "1" -up- "1" GUI_SanPham
+Controller_SanPham "1" -up- "1" Form_ThemSanPham
+Controller_SanPham "1" -up- "1" Form_SuaSanPham
+
+' Controller hướng XUỐNG các Entity
+Controller_SanPham .down.> DANHMUCSANPHAM
+Controller_SanPham .down.> SANPHAM
+Controller_SanPham .down.> DONDATHANG
+
+' ==================================================
+' QUAN HỆ GIỮA CÁC ENTITY (Dàn ngang)
+' ==================================================
+DANHMUCSANPHAM "1" -right- "*" SANPHAM
+
+@enduml

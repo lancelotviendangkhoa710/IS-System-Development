@@ -1,0 +1,131 @@
+@startuml QuanLyDanhMucVaTonKho
+hide circle
+skinparam classAttributeIconSize 0
+
+
+
+    class Form_ThemNguyenLieu <<boundary>> {
+      +HienThiBieuMauNhapThongTin()
+      +NhanNutHuy()
+      +NhapTenNguyenLieuQuyCachBaoQuanDonViTinhVaNhanLuu()
+    }
+
+    class Form_SuaNguyenLieu <<boundary>> {
+      +ChinhSuaThongTinNguyenLieuVaNhanLuu()
+      +HienThiBieuMauVoiNThongTinNguyenLieuHienTai()
+      +NhanNutHuy()
+    }
+
+    class GUI_KhoVaNguyenLieu <<boundary>> {
+      +ChonSuaMotNguyenLieu()
+      +ChonThemNguyenLieuMoi()
+      +ThongBaoLoiLuuDuLieu()
+      +ThongBaoLoiVaGiuNguyenBieuMau()
+      +ThongBaoThanhCongVaLamMoiDanhSach()
+      +ThongBaoThanhCongVaLamMoiManHinh()
+      +DongBieuMauKhongLuuDuLieu()
+    }
+
+    class GUI_CanhBaoTonKho <<boundary>> {
+      +CungCapChiTietSoLuongTonKho()
+      +GuiThongTinCanhBao()
+      +NhanXemChiTiet()
+    }
+
+    class GUI_TraCuuTheKho <<boundary>> {
+      +ChonChucNangTraCuuTheKho()
+      +ChonMotDongTrongLichSu()
+      +ChonMotNguyenLieuCuThe()
+      +CapNhatDanhSachSauKhiLoc()
+      +HienThiChiTietPhieuTuongUng()
+      +HienThiDanhSachNguyenLieu()
+      +HienThiLichSuTheKhoVoiCacCotThongTinChiTiet()
+      +NhapTuKhoaTimKiem()
+    }
+
+    class GUI_TruyVetNguonGoc <<boundary>> {
+      +ChonMotPhieuNhap()
+      +HienThiChiTietPhieuNhapVaNhaCungCap()
+      +HienThiDanhSachPhieuNhapLienQuan()
+      +HienThiThongTinTheKho()
+      +LocCacPhieuLienQuanTheoLoaiPhieuNhap()
+      +MoChiTietHoSoNhaCungCap()
+      +NhanXemThongTinNhaCungCap()
+      +VaoTrangTheKhoCuaNguyenLieuGapSuCo()
+    }
+
+
+
+    class Controller_QuanLyNguyenLieu <<control>> {
+      +GuiDuLieuCapNhat()
+      +GuiYeuCauThemNguyenLieu()
+      +KiemTraKetQuaCapNhat()
+      +KiemTraKetQuaLuu()
+      +SoSanhTonKhoVoiMucAnToan()
+      +ThemNguyenLieuVaoDanhSachTam()
+      +YeuCauDanhSachPhieuNhapCuaNguyenLieu()
+      +YeuCauLayThongTinChiTiet()
+      +YeuCauLayThongTinTheKho()
+      +YeuCauLayThongTin()
+      +YeuCauLocNguyenLieuTheoTen()
+      +YeuCauTaiDanhSachNguyenLieu()
+      +YeuCauTaiLichSuTheKhoCuaNguyenLieuDo()
+      +YeuCauDongForm()
+      +TonKho()
+      +DinhKyGoiHamKiemTraTonKho()
+    }
+
+
+
+together {
+    class NGUYENLIEU <<entity>> {
+      -maNL: int
+      -tenNL: String
+      -xuatXu: String
+      -maDVT: int
+      -tenDVT: String
+      -giaVonTrungBinh: BigDecimal
+      -mucTonAnToan: Double
+      -soLuongTonTong: Double
+      -datChuanVSATTP: Integer
+      -phienBan: Integer
+      -thoiDiemXoa: LocalDateTime
+      -maNX: Integer
+      +CapNhatSoLuongTonKho()
+      +CapNhatThongTinNguyenLieu()
+      +LuuThongTinNguyenLieuMoi()
+      +LayDanhSachNguyenLieuTonKho0()
+      +LayDanhSachNguyenLieuVaMucAnToan()
+      +LayDanhSachNguyenLieu()
+      +LayDuLieuNguyenLieuTheoId()
+      +TruyVanDanhSachNguyenLieu()
+      +TruSoLuongTonKho()
+    }
+
+    class THEKHO <<entity>> {
+      -ngayGiaoDich: LocalDateTime
+      -loaiGiaoDich: String
+      -maLo: int
+      -soLuong: double
+      -soLuongConLai: double
+      +GhiNhanBienDongTheKho()
+      +LayDuLieuTheKho()
+      +LayLichSuBienDongNhapXuatTon()
+    }
+}
+
+' Mối quan hệ từ Boundary xuống Controller
+GUI_KhoVaNguyenLieu "1" ..> "1" Controller_QuanLyNguyenLieu
+Form_ThemNguyenLieu "1" ..> "1" Controller_QuanLyNguyenLieu
+Form_SuaNguyenLieu "1" ..> "1" Controller_QuanLyNguyenLieu
+GUI_CanhBaoTonKho "1" ..> "1" Controller_QuanLyNguyenLieu
+GUI_TraCuuTheKho "1" ..> "1" Controller_QuanLyNguyenLieu
+GUI_TruyVetNguonGoc "1" ..> "1" Controller_QuanLyNguyenLieu
+
+' Mối quan hệ từ Controller xuống Entity
+Controller_QuanLyNguyenLieu ..> NGUYENLIEU
+Controller_QuanLyNguyenLieu ..> THEKHO
+
+' Mối quan hệ giữa các Entity
+NGUYENLIEU "1" -left- "*" THEKHO
+@enduml

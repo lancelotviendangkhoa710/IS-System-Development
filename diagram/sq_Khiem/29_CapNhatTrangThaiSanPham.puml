@@ -1,0 +1,45 @@
+@startuml CapNhatTrangThaiSanPham
+mainframe sd Seq_CapNhatTrangThaiSanPham
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+skinparam noteBackgroundColor transparent
+skinparam noteBorderColor transparent
+
+actor "Quản lý" as QL #White
+boundary "GUI_SanPham" as UI #White
+control "Controller_SanPham" as SYS #White
+entity ": DONDATHANG" as DB_DDH #White
+entity ": SANPHAM" as DB_SP #White
+
+QL -> UI: Chọn sản phẩm và nhấn khóa/khôi phục
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu cập nhật
+activate SYS
+deactivate SYS
+
+SYS -> DB_DDH: Kiểm tra đơn hàng chưa hoàn tất
+activate DB_DDH
+deactivate DB_DDH
+
+group alt Kiểm tra
+    note over of QL: [Còn đơn hàng]
+    autonumber stop
+    QL -[hidden]-> DB_SP
+    autonumber resume "<b>##."
+    SYS -->> UI: Báo lỗi, từ chối khóa
+else
+    note over of QL: [Hợp lệ]
+    autonumber stop
+    QL -[hidden]-> DB_SP
+    autonumber resume "<b>##."
+    SYS -> DB_SP: Cập nhật trạng thái
+    activate DB_SP
+    deactivate DB_SP
+    
+    SYS -->> UI: Cập nhật thành công, làm mới màn hình
+end
+@enduml

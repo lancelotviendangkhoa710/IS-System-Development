@@ -1,0 +1,24 @@
+@startuml
+
+hide empty description
+
+' Giữ khoảng cách rộng để text không bị đè
+skinparam nodesep 120
+skinparam ranksep 120
+
+skinparam state {
+  BackgroundColor White
+  BorderColor Black
+}
+
+' Căn chỉnh khung state cho bằng nhau
+state "   Có hiệu lực   " as Co_hieu_luc
+state "      Đã hủy      " as Da_huy
+
+[*] -> Co_hieu_luc : [Thanh toán thành công\n(LOAIHD: bán lẻ/phiếu hẹn lấy bánh)]/Lập hóa đơn
+Co_hieu_luc -> Da_huy : [Nhân viên yêu cầu\nhủy hóa đơn]/Hủy
+
+Co_hieu_luc -> [*]
+Da_huy --> [*]
+
+@enduml

@@ -1,11 +1,12 @@
-@startuml
+@startuml uc_quan_ly_khach_hang
 left to right direction
 
 
   usecase "Quản lý khách hàng" as UC_Main
   usecase "Thêm khách hàng" as UC_Add
   usecase "Sửa khách hàng" as UC_Edit
-  usecase "Cập nhật trạng thái khách hàng" as UC_Status
+  usecase "Xóa khách hàng" as UC_Delete
+  usecase "Khôi phục khách hàng" as UC_Restore
   usecase "Tra cứu khách hàng" as UC_Search
   usecase "Xem lịch sử mua hàng" as UC_History
   usecase "Cấu hình hạng thành viên" as UC_Config
@@ -14,13 +15,15 @@ left to right direction
 
 UC_Add .up.> UC_Main : <<extend>>
 UC_Edit .up.> UC_Main : <<extend>>
-UC_Status .up.> UC_Main : <<extend>>
+UC_Delete .up.> UC_Main : <<extend>>
+UC_Restore .up.> UC_Main : <<extend>>
 UC_Search .up.> UC_Main : <<extend>>
 UC_History .up.> UC_Main : <<extend>>
 UC_Config .up.> UC_Main : <<extend>>
 
 UC_Edit ..> UC_Search : <<include>>
-UC_Status ..> UC_Search : <<include>>
+UC_Delete ..> UC_Search : <<include>>
+UC_Restore ..> UC_Search : <<include>>
 UC_History ..> UC_Search : <<include>>
 
 @enduml

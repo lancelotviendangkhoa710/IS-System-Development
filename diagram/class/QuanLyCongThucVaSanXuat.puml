@@ -1,0 +1,122 @@
+@startuml QuanLyCongThucVaSanXuat
+hide circle
+skinparam classAttributeIconSize 0
+
+' ==================================================
+' HÀNG 1: CÁC LỚP BOUNDARY
+' ==================================================
+together {
+  class Form_CongThuc <<boundary>> {
+    +BaoLoi()
+    +ChinhSuaDongThemBotVaNhanLuu()
+    +HienThiBangDinhLuong()
+    +MoBieuMauThemCongThuc()
+    +NhanLuuCongThuc()
+    +NhanThemDongChonNguyenLieuNhapSoLuong()
+    +ThongBaoLoi()
+  }
+
+  class GUI_CongThuc <<boundary>> {
+    +ChonCauHinhGioiHan()
+    +ChonMotSanPham()
+    +ChonSanPhamChuaCoCongThucVaChonThem()
+    +ChonSanPhamVaNhanVoHieuHoaKhoiPhuc()
+    +ChonSanPhamDaCoCongThucVaNhanSua()
+    +ChonSanPhamDeTinh()
+    +HienThiBangDinhLuongChiTiet()
+    +HienThiKetQuaVaDanhDauNguyenLieuGioiHan()
+    +NhanXacNhan()
+    +NhapTuKhoaTimKiem()
+    +ThongBaoThanhCongVaLamMoiDanhSach()
+    +ThongBaoThanhCong()
+  }
+
+  class Form_CauHinh <<boundary>> {
+    +BaoLoi()
+    +HienThiSoLuongCu()
+    +MoBieuMauCauHinh()
+    +NhapSoLuongMoiVaLuu()
+  }
+}
+
+' ==================================================
+' HÀNG 2: LỚP CONTROLLER
+' ==================================================
+class Controller_CongThuc <<control>> {
+  +CapNhat()
+  +GuiDuLieuCongThuc()
+  +GuiDuLieuCapNhat()
+  +GuiYeuCauCapNhat()
+  +KiemTraHopLeKhongTrungNguyenLieuSl0()
+  +KiemTraSoLuongHopLeNguyenDuong()
+  +KiemTraTinhHopLe()
+  +LayCauHinhHienTai()
+  +TinhToanSoLuongToiDa()
+  +YeuCauChiTiet()
+  +YeuCauTimKiem()
+  +YeuCauTinhToanToiDa()
+  +YeuCauTaiChiTietCongThuc()
+}
+
+' ==================================================
+' HÀNG 3: CÁC LỚP ENTITY
+' ==================================================
+together {
+  class CONGTHUC <<entity>> {
+    -maSP: int
+    -maNL: int
+    -soLuongTieuHao: double
+    -tenNguyenLieu: String
+    -donGia: double
+    -tenDVT: String
+    +CapNhatCongThuc()
+    +LuuCongThucMoi()
+    +LuuTrangThaiMoi()
+    +LayBangChiTietCongThuc()
+    +LayCongThucSanPham()
+    +LayDuLieuCongThuc()
+    +TruyVanDanhSach()
+  }
+
+  class NGUYENLIEU <<entity>> {
+    -maNL: int
+    -tenNL: String
+    -xuatXu: String
+    -maDVT: int
+    -tenDVT: String
+    -giaVonTrungBinh: BigDecimal
+    -mucTonAnToan: Double
+    -soLuongTonTong: Double
+    -datChuanVSATTP: Integer
+    -phienBan: Integer
+    -thoiDiemXoa: LocalDateTime
+    -maNX: Integer
+    +TruyVanTonKhoNguyenLieuTuongUng()
+  }
+
+  class CAUHINH <<entity>> {
+    -ngaySanXuat: LocalDate
+    -gioiHanSoBanh: int
+    -soBanhDaNhan: int
+    +LuuGioiHanMoi()
+    +LayDuLieu()
+  }
+}
+
+' ==================================================
+' QUAN HỆ (Định hướng layout)
+' ==================================================
+' Controller hướng LÊN các Boundary
+Controller_CongThuc "1" -up- "1" Form_CauHinh
+Controller_CongThuc "1" -up- "1" GUI_CongThuc
+Controller_CongThuc "1" -up- "1" Form_CongThuc
+
+' Controller hướng XUỐNG các Entity
+Controller_CongThuc .down.> CONGTHUC
+Controller_CongThuc .down.> NGUYENLIEU
+Controller_CongThuc .down.> CAUHINH
+
+' Quan hệ giữa các Entity (Dàn ngang để tối ưu khoảng trống)
+NGUYENLIEU "1" -right- "*" CONGTHUC
+
+@enduml

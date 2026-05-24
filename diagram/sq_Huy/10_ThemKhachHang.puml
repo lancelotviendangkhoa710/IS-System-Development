@@ -21,6 +21,21 @@ UI -> FRM: Hiển thị biểu mẫu nhập liệu
 activate FRM
 deactivate FRM
 
+group opt Hủy thao tác
+    autonumber stop
+    NV -[hidden]-> DB_KH
+    autonumber resume "<b>##."
+    NV -> FRM: Nhấn nút "Hủy"
+    activate FRM
+    deactivate FRM
+    
+FRM -> SYS: Yêu cầu đóng form
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Đóng biểu mẫu, không lưu dữ liệu
+end
+
 NV -> FRM: Nhập thông tin khách hàng
 activate FRM
 deactivate FRM

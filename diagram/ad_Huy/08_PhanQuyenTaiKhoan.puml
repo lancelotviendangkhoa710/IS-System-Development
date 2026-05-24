@@ -1,0 +1,54 @@
+@startuml PhanQuyenTaiKhoan
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Chọn chức năng phân quyền tài khoản;
+|Hệ thống|
+:Lấy biểu mẫu phân quyền tài khoản;
+:Gửi yêu cầu lấy danh sách tài khoản;
+|CSDL|
+:TAIKHOAN]
+:Truy xuất danh sách tài khoản;
+:Trả kết quả danh sách;
+|Hệ thống|
+:Hiển thị danh sách tài khoản;
+|Quản lý|
+:Chọn một tài khoản;
+|Hệ thống|
+:Gửi yêu cầu lấy danh sách quyền truy cập;
+|CSDL|
+:Truy xuất danh sách quyền truy cập;
+fork
+	:VAITRO_CHUCNANG]
+fork again
+	:CHUCNANG]
+end fork
+:Trả kết quả danh sách quyền;
+|Hệ thống|
+:Hiển thị danh sách quyền truy cập;
+|Quản lý|
+:Cấp phát hoặc thu hồi quyền;
+:Nhấn lưu thay đổi;
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+	:Báo lỗi và yêu cầu kiểm tra lại;
+else ([Hợp lệ])
+	:Gửi yêu cầu cập nhật quyền hạn;
+	|CSDL|
+	:VAITRO_CHUCNANG]
+	:Cập nhật quyền hạn;
+	:Trả kết quả cập nhật;
+	|Hệ thống|
+	:Thông báo thành công và làm mới;
+endif
+stop
+@enduml

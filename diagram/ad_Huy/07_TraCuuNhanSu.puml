@@ -1,0 +1,46 @@
+@startuml TraCuuNhanSu
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+:Lấy biểu mẫu tra cứu nhân sự;
+:Gửi yêu cầu tải danh sách nhân viên;
+|CSDL|
+:NHANVIEN]
+:Truy xuất danh sách nhân viên;
+:Trả kết quả danh sách;
+|Hệ thống|
+:Hiển thị danh sách;
+|Quản lý|
+:Gõ từ khóa vào ô tìm kiếm;
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Từ khóa trống])
+	:Hiển thị lại toàn bộ danh sách;
+else ([Có từ khóa])
+	:Gửi yêu cầu tra cứu nhân viên;
+	|CSDL|
+	:NHANVIEN]
+	:Truy xuất nhân viên theo từ khóa;
+	:Trả kết quả tra cứu;
+	|Hệ thống|
+	:Cập nhật danh sách kết quả;
+endif
+|Quản lý|
+:Chọn một nhân viên từ kết quả;
+|Hệ thống|
+:Gửi yêu cầu lấy chi tiết nhân viên;
+|CSDL|
+:NHANVIEN]
+:Truy xuất chi tiết nhân viên;
+:Trả kết quả chi tiết;
+|Hệ thống|
+:Hiển thị đầy đủ thông tin nhân viên;
+stop
+@enduml

@@ -1,0 +1,37 @@
+@startuml XemNhatKiHoatDong
+skinparam swimlaneBorderThickness 1.5
+skinparam swimlaneTitleBackgroundColor #F0F0F0
+skinparam swimlaneTitleFontColor black
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Chọn chức năng xem nhật ký hoạt động;
+|Hệ thống|
+:Lấy biểu mẫu nhật ký hoạt động;
+|Quản lý|
+:Chọn loại thao tác và khoảng thời gian;
+:Yêu cầu tìm kiếm;
+|Hệ thống|
+:Kiểm tra thông tin hợp lệ;
+if () then ([Không hợp lệ])
+	:Báo lỗi và yêu cầu nhập lại;
+else ([Hợp lệ])
+	:Gửi yêu cầu truy xuất dữ liệu nhật ký;
+	|CSDL|
+	:HOATDONGNHANVIEN]
+	:Truy xuất dữ liệu nhật ký;
+	:Trả kết quả truy xuất;
+	|Hệ thống|
+	:Hiển thị danh sách thao tác;
+endif
+|Quản lý|
+:Chọn xem chi tiết bản ghi;
+|Hệ thống|
+:Hiển thị chi tiết bản ghi;
+stop
+@enduml
