@@ -1,0 +1,95 @@
+@startuml GeneralClassDiagram_ThoBep
+top to bottom direction
+skinparam actorBackgroundColor White
+skinparam boundaryBackgroundColor White
+skinparam controlBackgroundColor White
+skinparam entityBackgroundColor White
+
+' Điều chỉnh để thu hẹp chiều ngang và kéo giãn chiều dọc
+skinparam nodesep 40
+skinparam ranksep 150
+skinparam arrowThickness 1.5
+
+actor "Thợ bếp" as TB
+
+boundary "Form_CauHinh"
+boundary "Form_CongThuc"
+boundary "Form_LapPhieuNhapKho"
+boundary "Form_LapPhieuXuatHuy"
+boundary "Form_LapPhieuXuatKho"
+boundary "Form_SuaNguyenLieu"
+boundary "Form_ThemNguyenLieu"
+boundary "GUI_CanhBaoTonKho"
+boundary "GUI_CongThuc"
+boundary "GUI_KhoVaNguyenLieu"
+boundary "GUI_TraCuuTheKho"
+boundary "GUI_TruyVetNguonGoc"
+
+control "Presenter_CongThuc"
+control "Presenter_GiaoDichKho"
+control "Presenter_QuanLyNguyenLieu"
+
+entity "CAUHINH"
+entity "CHITIETPHIEUNHAPKHO"
+entity "CHITIETPHIEUXUATHUY"
+entity "CHITIETPHIEUXUATKHO"
+entity "CONGTHUC"
+entity "NGUYENLIEU"
+entity "NHACUNGCAP"
+entity "PHIEUNHAPKHO"
+entity "PHIEUXUATHUY"
+entity "PHIEUXUATKHO"
+entity "THEKHO"
+
+TB -- Form_CauHinh
+TB -- Form_CongThuc
+TB -- Form_LapPhieuNhapKho
+TB -- Form_LapPhieuXuatHuy
+TB -- Form_LapPhieuXuatKho
+TB -- Form_SuaNguyenLieu
+TB -- Form_ThemNguyenLieu
+TB -- GUI_CanhBaoTonKho
+TB -- GUI_CongThuc
+TB -- GUI_KhoVaNguyenLieu
+TB -- GUI_TraCuuTheKho
+TB -- GUI_TruyVetNguonGoc
+
+Presenter_CongThuc "1" -up- "1" Form_CauHinh
+Presenter_CongThuc "1" -up- "1" Form_CongThuc
+Presenter_CongThuc "1" -up- "1" GUI_CongThuc
+Presenter_CongThuc .down.> CAUHINH
+Presenter_CongThuc .down.> CONGTHUC
+Presenter_CongThuc .down.> NGUYENLIEU
+
+Presenter_GiaoDichKho "1" -up- "1" Form_LapPhieuNhapKho
+Presenter_GiaoDichKho "1" -up- "1" Form_LapPhieuXuatHuy
+Presenter_GiaoDichKho "1" -up- "1" Form_LapPhieuXuatKho
+Presenter_GiaoDichKho .down.> CHITIETPHIEUNHAPKHO
+Presenter_GiaoDichKho .down.> CHITIETPHIEUXUATHUY
+Presenter_GiaoDichKho .down.> CHITIETPHIEUXUATKHO
+Presenter_GiaoDichKho .down.> NGUYENLIEU
+Presenter_GiaoDichKho .down.> NHACUNGCAP
+Presenter_GiaoDichKho .down.> PHIEUNHAPKHO
+Presenter_GiaoDichKho .down.> PHIEUXUATHUY
+Presenter_GiaoDichKho .down.> PHIEUXUATKHO
+
+Presenter_QuanLyNguyenLieu "1" -up- "1" Form_SuaNguyenLieu
+Presenter_QuanLyNguyenLieu "1" -up- "1" Form_ThemNguyenLieu
+Presenter_QuanLyNguyenLieu "1" -up- "1" GUI_CanhBaoTonKho
+Presenter_QuanLyNguyenLieu "1" -up- "1" GUI_KhoVaNguyenLieu
+Presenter_QuanLyNguyenLieu "1" -up- "1" GUI_TraCuuTheKho
+Presenter_QuanLyNguyenLieu "1" -up- "1" GUI_TruyVetNguonGoc
+Presenter_QuanLyNguyenLieu .down.> NGUYENLIEU
+Presenter_QuanLyNguyenLieu .down.> THEKHO
+
+NGUYENLIEU "1" -- "*" CHITIETPHIEUNHAPKHO
+NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATHUY
+NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATKHO
+NGUYENLIEU "1" -left- "*" THEKHO
+NGUYENLIEU "1" -right- "*" CONGTHUC
+NHACUNGCAP "1" -- "*" PHIEUNHAPKHO
+PHIEUNHAPKHO "1" -- "*" CHITIETPHIEUNHAPKHO
+PHIEUXUATHUY "1" -- "*" CHITIETPHIEUXUATHUY
+PHIEUXUATKHO "1" -- "*" CHITIETPHIEUXUATKHO
+
+@enduml

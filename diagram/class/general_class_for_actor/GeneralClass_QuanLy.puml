@@ -1,0 +1,184 @@
+@startuml GeneralClassDiagram_QuanLy
+top to bottom direction
+skinparam actorBackgroundColor White
+skinparam boundaryBackgroundColor White
+skinparam controlBackgroundColor White
+skinparam entityBackgroundColor White
+
+' Điều chỉnh để thu hẹp chiều ngang và kéo giãn chiều dọc
+skinparam nodesep 40
+skinparam ranksep 150
+skinparam arrowThickness 1.5
+
+actor "Quản lý" as QL
+
+boundary "Form_CauHinh"
+boundary "Form_CongThuc"
+boundary "Form_DatBanh"
+boundary "Form_HuyDon"
+boundary "Form_HuyHoaDon"
+boundary "Form_LapPhieuThuChi"
+boundary "Form_SuaKhachHang"
+boundary "Form_SuaLoaiThuChi"
+boundary "Form_SuaNhanSu"
+boundary "Form_SuaSanPham"
+boundary "Form_ThanhToan"
+boundary "Form_ThemKhachHang"
+boundary "Form_ThemLoaiThuChi"
+boundary "Form_ThemNhanSu"
+boundary "Form_ThemSanPham"
+boundary "GUI_BanHang"
+boundary "GUI_BaoCaoDoanhThu"
+boundary "GUI_BaoCaoLoiNhuan"
+boundary "GUI_CongThuc"
+boundary "GUI_HangThanhVien"
+boundary "GUI_KhachHang"
+boundary "GUI_NhanSu"
+boundary "GUI_NhatKy"
+boundary "GUI_PhanQuyen"
+boundary "GUI_QuanLyThuChi"
+boundary "GUI_SanPham"
+
+control "Controller_BanHang"
+control "Controller_BaoCaoThongKe"
+control "Controller_CongThuc"
+control "Controller_HangThanhVien"
+control "Controller_KhachHang"
+control "Controller_NhanSu"
+control "Controller_NhatKy"
+control "Controller_PhanQuyen"
+control "Controller_QuanLyThuChi"
+control "Controller_SanPham"
+
+entity "CALAMVIEC"
+entity "CAUHINH"
+entity "CHUCNANG"
+entity "CONGTHUC"
+entity "CTDONHANG"
+entity "CTDONTUYCHINH"
+entity "DANHMUCSANPHAM"
+entity "DONDATHANG"
+entity "HANGTHANHVIEN"
+entity "HOADON"
+entity "HOATDONGNHANVIEN"
+entity "KHACHHANG"
+entity "LOAITHUCHI"
+entity "NGUYENLIEU"
+entity "NHANVIEN"
+entity "NHANVIEN_VAITRO"
+entity "PHIEUNHAPKHO"
+entity "PHIEUTHUCHI"
+entity "SANPHAM"
+entity "TAIKHOAN"
+entity "THANHVIEN"
+entity "VAITRO"
+entity "VAITRO_CHUCNANG"
+entity "VW_HoatDongNhanVien"
+
+QL -- Form_CauHinh
+QL -- Form_CongThuc
+QL -- Form_DatBanh
+QL -- Form_HuyDon
+QL -- Form_HuyHoaDon
+QL -- Form_LapPhieuThuChi
+QL -- Form_SuaKhachHang
+QL -- Form_SuaLoaiThuChi
+QL -- Form_SuaNhanSu
+QL -- Form_SuaSanPham
+QL -- Form_ThanhToan
+QL -- Form_ThemKhachHang
+QL -- Form_ThemLoaiThuChi
+QL -- Form_ThemNhanSu
+QL -- Form_ThemSanPham
+QL -- GUI_BanHang
+QL -- GUI_BaoCaoDoanhThu
+QL -- GUI_BaoCaoLoiNhuan
+QL -- GUI_CongThuc
+QL -- GUI_HangThanhVien
+QL -- GUI_KhachHang
+QL -- GUI_NhanSu
+QL -- GUI_NhatKy
+QL -- GUI_PhanQuyen
+QL -- GUI_QuanLyThuChi
+QL -- GUI_SanPham
+
+Controller_BanHang "1" -up- "1" Form_DatBanh
+Controller_BanHang "1" -up- "1" Form_HuyDon
+Controller_BanHang "1" -up- "1" Form_HuyHoaDon
+Controller_BanHang "1" -up- "1" Form_ThanhToan
+Controller_BanHang "1" -up- "1" GUI_BanHang
+Controller_BanHang .down.> DONDATHANG
+Controller_BanHang .down.> HOADON
+Controller_BanHang .down.> KHACHHANG
+Controller_BanHang .down.> SANPHAM
+Controller_BanHang .down.> THANHVIEN
+
+Controller_BaoCaoThongKe "1" -up- "1" GUI_BaoCaoDoanhThu
+Controller_BaoCaoThongKe "1" -up- "1" GUI_BaoCaoLoiNhuan
+Controller_BaoCaoThongKe .down.> HOADON
+Controller_BaoCaoThongKe .down.> PHIEUNHAPKHO
+
+Controller_CongThuc "1" -up- "1" Form_CauHinh
+Controller_CongThuc "1" -up- "1" Form_CongThuc
+Controller_CongThuc "1" -up- "1" GUI_CongThuc
+Controller_CongThuc .down.> CAUHINH
+Controller_CongThuc .down.> CONGTHUC
+Controller_CongThuc .down.> NGUYENLIEU
+
+Controller_HangThanhVien "1" -up- "1" GUI_HangThanhVien
+Controller_HangThanhVien .down.> HANGTHANHVIEN
+
+Controller_KhachHang "1" -up- "1" Form_SuaKhachHang
+Controller_KhachHang "1" -up- "1" Form_ThemKhachHang
+Controller_KhachHang "1" -up- "1" GUI_KhachHang
+Controller_KhachHang .down.> CTDONHANG
+Controller_KhachHang .down.> CTDONTUYCHINH
+Controller_KhachHang .down.> DONDATHANG
+Controller_KhachHang .down.> HANGTHANHVIEN
+Controller_KhachHang .down.> KHACHHANG
+Controller_KhachHang .down.> SANPHAM
+
+Controller_NhanSu "1" -up- "1" Form_SuaNhanSu
+Controller_NhanSu "1" -up- "1" Form_ThemNhanSu
+Controller_NhanSu "1" -up- "1" GUI_NhanSu
+Controller_NhanSu .down.> HOATDONGNHANVIEN
+Controller_NhanSu .down.> NHANVIEN
+Controller_NhanSu .down.> NHANVIEN_VAITRO
+Controller_NhanSu .down.> TAIKHOAN
+
+Controller_NhatKy "1" -up- "1" GUI_NhatKy
+Controller_NhatKy .down.> VW_HoatDongNhanVien
+
+Controller_PhanQuyen "1" -up- "1" GUI_PhanQuyen
+Controller_PhanQuyen .down.> CHUCNANG
+Controller_PhanQuyen .down.> TAIKHOAN
+Controller_PhanQuyen .down.> VAITRO_CHUCNANG
+
+Controller_QuanLyThuChi "1" -up- "1" Form_LapPhieuThuChi
+Controller_QuanLyThuChi "1" -up- "1" Form_SuaLoaiThuChi
+Controller_QuanLyThuChi "1" -up- "1" Form_ThemLoaiThuChi
+Controller_QuanLyThuChi "1" -up- "1" GUI_QuanLyThuChi
+Controller_QuanLyThuChi .down.> CALAMVIEC
+Controller_QuanLyThuChi .down.> LOAITHUCHI
+Controller_QuanLyThuChi .down.> PHIEUTHUCHI
+
+Controller_SanPham "1" -up- "1" Form_SuaSanPham
+Controller_SanPham "1" -up- "1" Form_ThemSanPham
+Controller_SanPham "1" -up- "1" GUI_SanPham
+Controller_SanPham .down.> DANHMUCSANPHAM
+Controller_SanPham .down.> DONDATHANG
+Controller_SanPham .down.> SANPHAM
+
+CALAMVIEC "1" -right- "*" PHIEUTHUCHI
+DANHMUCSANPHAM "1" -right- "*" SANPHAM
+HOADON "1" -left- "1" DONDATHANG
+KHACHHANG "1" -left- "*" HOADON
+KHACHHANG "1" -right- "1" THANHVIEN
+LOAITHUCHI "1" -left- "*" PHIEUTHUCHI
+NGUYENLIEU "1" -right- "*" CONGTHUC
+NHANVIEN "1" -left- "*" HOATDONGNHANVIEN
+NHANVIEN "1" -right- "*" NHANVIEN_VAITRO
+NHANVIEN_VAITRO "*" -right- "1" VAITRO
+VAITRO_CHUCNANG "*" -right- "1" CHUCNANG
+
+@enduml

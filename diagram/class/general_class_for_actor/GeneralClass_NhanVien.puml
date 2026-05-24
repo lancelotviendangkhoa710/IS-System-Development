@@ -1,0 +1,31 @@
+@startuml GeneralClassDiagram_NhanVien
+top to bottom direction
+skinparam actorBackgroundColor White
+skinparam boundaryBackgroundColor White
+skinparam controlBackgroundColor White
+skinparam entityBackgroundColor White
+
+skinparam nodesep 100
+skinparam ranksep 60
+skinparam arrowThickness 1.5
+
+actor "Nhân viên" as NV
+
+boundary "GUI_DangNhap"
+
+control "Controller_XacThuc"
+
+entity "CALAMVIEC"
+entity "TAIKHOAN"
+entity "VAITRO"
+
+NV -- GUI_DangNhap
+
+Controller_XacThuc "1" -up- "1" GUI_DangNhap
+Controller_XacThuc .down.> CALAMVIEC
+Controller_XacThuc .down.> TAIKHOAN
+Controller_XacThuc .down.> VAITRO
+
+TAIKHOAN "1" -left- "*" VAITRO
+
+@enduml

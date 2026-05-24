@@ -1,0 +1,135 @@
+@startuml GeneralClassDiagram_ThuNgan
+top to bottom direction
+skinparam actorBackgroundColor White
+skinparam boundaryBackgroundColor White
+skinparam controlBackgroundColor White
+skinparam entityBackgroundColor White
+
+' Điều chỉnh để thu hẹp chiều ngang và kéo giãn chiều dọc
+skinparam nodesep 40
+skinparam ranksep 150
+skinparam arrowThickness 1.5
+
+actor "Thu ngân" as TN
+
+boundary "Form_DatBanh"
+boundary "Form_DoiSoat"
+boundary "Form_HuyDon"
+boundary "Form_HuyHoaDon"
+boundary "Form_LapPhieuThuChi"
+boundary "Form_SuaKhachHang"
+boundary "Form_SuaLoaiThuChi"
+boundary "Form_SuaSanPham"
+boundary "Form_ThanhToan"
+boundary "Form_ThemKhachHang"
+boundary "Form_ThemLoaiThuChi"
+boundary "Form_ThemSanPham"
+boundary "GUI_BanHang"
+boundary "GUI_BaoCaoDoanhThu"
+boundary "GUI_BaoCaoLoiNhuan"
+boundary "GUI_CaLamViec"
+boundary "GUI_HangThanhVien"
+boundary "GUI_KhachHang"
+boundary "GUI_QuanLyThuChi"
+boundary "GUI_SanPham"
+
+control "Presenter_BanHang"
+control "Presenter_BaoCaoThongKe"
+control "Presenter_CaLamViec"
+control "Presenter_HangThanhVien"
+control "Presenter_KhachHang"
+control "Presenter_QuanLyThuChi"
+control "Presenter_SanPham"
+
+entity "CALAMVIEC"
+entity "CTDONHANG"
+entity "CTDONTUYCHINH"
+entity "DANHMUCSANPHAM"
+entity "DONDATHANG"
+entity "HANGTHANHVIEN"
+entity "HOADON"
+entity "KHACHHANG"
+entity "LOAITHUCHI"
+entity "PHIEUNHAPKHO"
+entity "PHIEUTHUCHI"
+entity "SANPHAM"
+entity "THANHVIEN"
+
+TN -- Form_DatBanh
+TN -- Form_DoiSoat
+TN -- Form_HuyDon
+TN -- Form_HuyHoaDon
+TN -- Form_LapPhieuThuChi
+TN -- Form_SuaKhachHang
+TN -- Form_SuaLoaiThuChi
+TN -- Form_SuaSanPham
+TN -- Form_ThanhToan
+TN -- Form_ThemKhachHang
+TN -- Form_ThemLoaiThuChi
+TN -- Form_ThemSanPham
+TN -- GUI_BanHang
+TN -- GUI_BaoCaoDoanhThu
+TN -- GUI_BaoCaoLoiNhuan
+TN -- GUI_CaLamViec
+TN -- GUI_HangThanhVien
+TN -- GUI_KhachHang
+TN -- GUI_QuanLyThuChi
+TN -- GUI_SanPham
+
+CALAMVIEC "1" -right- "*" PHIEUTHUCHI
+
+Presenter_BanHang "1" -up- "1" Form_DatBanh
+Presenter_BanHang "1" -up- "1" Form_HuyDon
+Presenter_BanHang "1" -up- "1" Form_HuyHoaDon
+Presenter_BanHang "1" -up- "1" Form_ThanhToan
+Presenter_BanHang "1" -up- "1" GUI_BanHang
+Presenter_BanHang .down.> DONDATHANG
+Presenter_BanHang .down.> HOADON
+Presenter_BanHang .down.> KHACHHANG
+Presenter_BanHang .down.> SANPHAM
+Presenter_BanHang .down.> THANHVIEN
+
+Presenter_BaoCaoThongKe "1" -up- "1" GUI_BaoCaoDoanhThu
+Presenter_BaoCaoThongKe "1" -up- "1" GUI_BaoCaoLoiNhuan
+Presenter_BaoCaoThongKe .down.> HOADON
+Presenter_BaoCaoThongKe .down.> PHIEUNHAPKHO
+
+Presenter_CaLamViec "1" -up- "1" Form_DoiSoat
+Presenter_CaLamViec "1" -up- "1" GUI_CaLamViec
+Presenter_CaLamViec .down.> CALAMVIEC
+
+Presenter_HangThanhVien "1" -up- "1" GUI_HangThanhVien
+Presenter_HangThanhVien .down.> HANGTHANHVIEN
+
+Presenter_KhachHang "1" -up- "1" Form_SuaKhachHang
+Presenter_KhachHang "1" -up- "1" Form_ThemKhachHang
+Presenter_KhachHang "1" -up- "1" GUI_KhachHang
+Presenter_KhachHang .down.> CTDONHANG
+Presenter_KhachHang .down.> CTDONTUYCHINH
+Presenter_KhachHang .down.> DONDATHANG
+Presenter_KhachHang .down.> HANGTHANHVIEN
+Presenter_KhachHang .down.> KHACHHANG
+Presenter_KhachHang .down.> SANPHAM
+
+Presenter_QuanLyThuChi "1" -up- "1" Form_LapPhieuThuChi
+Presenter_QuanLyThuChi "1" -up- "1" Form_SuaLoaiThuChi
+Presenter_QuanLyThuChi "1" -up- "1" Form_ThemLoaiThuChi
+Presenter_QuanLyThuChi "1" -up- "1" GUI_QuanLyThuChi
+Presenter_QuanLyThuChi .down.> CALAMVIEC
+Presenter_QuanLyThuChi .down.> LOAITHUCHI
+Presenter_QuanLyThuChi .down.> PHIEUTHUCHI
+
+Presenter_SanPham "1" -up- "1" Form_SuaSanPham
+Presenter_SanPham "1" -up- "1" Form_ThemSanPham
+Presenter_SanPham "1" -up- "1" GUI_SanPham
+Presenter_SanPham .down.> DANHMUCSANPHAM
+Presenter_SanPham .down.> DONDATHANG
+Presenter_SanPham .down.> SANPHAM
+
+DANHMUCSANPHAM "1" -right- "*" SANPHAM
+HOADON "1" -left- "1" DONDATHANG
+KHACHHANG "1" -left- "*" HOADON
+KHACHHANG "1" -right- "1" THANHVIEN
+LOAITHUCHI "1" -left- "*" PHIEUTHUCHI
+
+@enduml

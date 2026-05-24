@@ -1,0 +1,94 @@
+@startuml GeneralClassDiagram_ThuKho
+top to bottom direction
+skinparam actorBackgroundColor White
+skinparam boundaryBackgroundColor White
+skinparam controlBackgroundColor White
+skinparam entityBackgroundColor White
+
+' Điều chỉnh để thu hẹp chiều ngang và kéo giãn chiều dọc
+skinparam nodesep 40
+skinparam ranksep 150
+skinparam arrowThickness 1.5
+
+actor "Thủ kho" as TK
+
+boundary "Form_LapPhieuNhapKho"
+boundary "Form_LapPhieuXuatHuy"
+boundary "Form_LapPhieuXuatKho"
+boundary "Form_SuaNguyenLieu"
+boundary "Form_SuaNhaCungCap"
+boundary "Form_ThemNguyenLieu"
+boundary "Form_ThemNhaCungCap"
+boundary "GUI_CanhBaoTonKho"
+boundary "GUI_KhoVaNguyenLieu"
+boundary "GUI_NhaCungCap"
+boundary "GUI_TraCuuNhaCungCap"
+boundary "GUI_TraCuuTheKho"
+boundary "GUI_TruyVetNguonGoc"
+
+control "Controller_GiaoDichKho"
+control "Controller_NhaCungCap"
+control "Controller_QuanLyNguyenLieu"
+
+entity "CHITIETPHIEUNHAPKHO"
+entity "CHITIETPHIEUXUATHUY"
+entity "CHITIETPHIEUXUATKHO"
+entity "NGUYENLIEU"
+entity "NHACUNGCAP"
+entity "PHIEUNHAPKHO"
+entity "PHIEUXUATHUY"
+entity "PHIEUXUATKHO"
+entity "THEKHO"
+
+TK -- Form_LapPhieuNhapKho
+TK -- Form_LapPhieuXuatHuy
+TK -- Form_LapPhieuXuatKho
+TK -- Form_SuaNguyenLieu
+TK -- Form_SuaNhaCungCap
+TK -- Form_ThemNguyenLieu
+TK -- Form_ThemNhaCungCap
+TK -- GUI_CanhBaoTonKho
+TK -- GUI_KhoVaNguyenLieu
+TK -- GUI_NhaCungCap
+TK -- GUI_TraCuuNhaCungCap
+TK -- GUI_TraCuuTheKho
+TK -- GUI_TruyVetNguonGoc
+
+Controller_GiaoDichKho "1" -up- "1" Form_LapPhieuNhapKho
+Controller_GiaoDichKho "1" -up- "1" Form_LapPhieuXuatHuy
+Controller_GiaoDichKho "1" -up- "1" Form_LapPhieuXuatKho
+Controller_GiaoDichKho .down.> CHITIETPHIEUNHAPKHO
+Controller_GiaoDichKho .down.> CHITIETPHIEUXUATHUY
+Controller_GiaoDichKho .down.> CHITIETPHIEUXUATKHO
+Controller_GiaoDichKho .down.> NGUYENLIEU
+Controller_GiaoDichKho .down.> NHACUNGCAP
+Controller_GiaoDichKho .down.> PHIEUNHAPKHO
+Controller_GiaoDichKho .down.> PHIEUXUATHUY
+Controller_GiaoDichKho .down.> PHIEUXUATKHO
+
+Controller_NhaCungCap "1" -up- "1" Form_SuaNhaCungCap
+Controller_NhaCungCap "1" -up- "1" Form_ThemNhaCungCap
+Controller_NhaCungCap "1" -up- "1" GUI_NhaCungCap
+Controller_NhaCungCap "1" -up- "1" GUI_TraCuuNhaCungCap
+Controller_NhaCungCap .down.> NHACUNGCAP
+Controller_NhaCungCap .down.> PHIEUNHAPKHO
+
+Controller_QuanLyNguyenLieu "1" -up- "1" Form_SuaNguyenLieu
+Controller_QuanLyNguyenLieu "1" -up- "1" Form_ThemNguyenLieu
+Controller_QuanLyNguyenLieu "1" -up- "1" GUI_CanhBaoTonKho
+Controller_QuanLyNguyenLieu "1" -up- "1" GUI_KhoVaNguyenLieu
+Controller_QuanLyNguyenLieu "1" -up- "1" GUI_TraCuuTheKho
+Controller_QuanLyNguyenLieu "1" -up- "1" GUI_TruyVetNguonGoc
+Controller_QuanLyNguyenLieu .down.> NGUYENLIEU
+Controller_QuanLyNguyenLieu .down.> THEKHO
+
+NGUYENLIEU "1" -- "*" CHITIETPHIEUNHAPKHO
+NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATHUY
+NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATKHO
+NGUYENLIEU "1" -left- "*" THEKHO
+NHACUNGCAP "1" -right- "*" PHIEUNHAPKHO
+PHIEUNHAPKHO "1" -- "*" CHITIETPHIEUNHAPKHO
+PHIEUXUATHUY "1" -- "*" CHITIETPHIEUXUATHUY
+PHIEUXUATKHO "1" -- "*" CHITIETPHIEUXUATKHO
+
+@enduml
