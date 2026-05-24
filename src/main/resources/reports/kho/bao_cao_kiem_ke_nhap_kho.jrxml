@@ -2,7 +2,6 @@
 <!DOCTYPE jasperReport PUBLIC "-//JasperReports//DTD Report Design//EN"
         "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
 
-<!-- Bao cao kiem ke phieu nhap kho H3K Bakery — Demo Phantom Read §4.3 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
@@ -13,15 +12,15 @@
               topMargin="30" bottomMargin="30"
               uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
 
-    <!-- PARAMETERS -->
-    <parameter name="P_SO_PHIEU_DA_DEM" class="java.lang.String">
+    <!-- ═══ PARAMETERS ══════════════════════════════════════════════════════ -->
+    <parameter name="P_SO_PHIEU" class="java.lang.String">
         <defaultValueExpression><![CDATA["0"]]></defaultValueExpression>
     </parameter>
     <parameter name="P_TONG_TIEN" class="java.lang.String">
-        <defaultValueExpression><![CDATA["0 d"]]></defaultValueExpression>
+        <defaultValueExpression><![CDATA["0 ₫"]]></defaultValueExpression>
     </parameter>
     <parameter name="P_NGUOI_LAP" class="java.lang.String">
-        <defaultValueExpression><![CDATA["He thong"]]></defaultValueExpression>
+        <defaultValueExpression><![CDATA["Hệ thống"]]></defaultValueExpression>
     </parameter>
     <parameter name="P_NGAY_LAP" class="java.lang.String">
         <defaultValueExpression><![CDATA["--"]]></defaultValueExpression>
@@ -30,344 +29,472 @@
         <defaultValueExpression><![CDATA["--"]]></defaultValueExpression>
     </parameter>
 
-    <!-- FIELDS -->
-    <field name="STT"          class="java.lang.String"/>
-    <field name="MA_PHIEU"     class="java.lang.String"/>
-    <field name="NGAY_NHAP"    class="java.lang.String"/>
-    <field name="NHA_CUNG_CAP" class="java.lang.String"/>
-    <field name="NGUOI_NHAP"   class="java.lang.String"/>
-    <field name="TONG_TIEN"    class="java.lang.String"/>
+    <!-- ═══ FIELDS ══════════════════════════════════════════════════════════ -->
+    <field name="MA_PHIEU"         class="java.lang.String"/>
+    <field name="NGAY_NHAP"        class="java.lang.String"/>
+    <field name="NHA_CUNG_CAP"     class="java.lang.String"/>
+    <field name="NGUOI_NHAP"       class="java.lang.String"/>
+    <field name="TONG_TIEN_PHIEU"  class="java.lang.String"/>
+    <field name="TEN_NL"           class="java.lang.String"/>
+    <field name="SO_LUONG"         class="java.lang.String"/>
+    <field name="TEN_DVT"          class="java.lang.String"/>
+    <field name="DON_GIA"          class="java.lang.String"/>
+    <field name="THANH_TIEN"       class="java.lang.String"/>
+    <field name="THANH_TIEN_NUM"   class="java.lang.Double"/>
 
-    <!-- TITLE BAND -->
+    <!-- ═══ VARIABLES ═══════════════════════════════════════════════════════ -->
+    <variable name="SUBTOTAL_NCC" class="java.lang.Double"
+              resetType="Group" resetGroup="GroupNCC" calculation="Sum">
+        <variableExpression><![CDATA[$F{THANH_TIEN_NUM}]]></variableExpression>
+        <initialValueExpression><![CDATA[0.0]]></initialValueExpression>
+    </variable>
+    <variable name="SUBTOTAL_PHIEU" class="java.lang.Double"
+              resetType="Group" resetGroup="GroupPhieu" calculation="Sum">
+        <variableExpression><![CDATA[$F{THANH_TIEN_NUM}]]></variableExpression>
+        <initialValueExpression><![CDATA[0.0]]></initialValueExpression>
+    </variable>
+    <variable name="GRAND_TOTAL" class="java.lang.Double"
+              resetType="Report" calculation="Sum">
+        <variableExpression><![CDATA[$F{THANH_TIEN_NUM}]]></variableExpression>
+        <initialValueExpression><![CDATA[0.0]]></initialValueExpression>
+    </variable>
+
+    <!-- ═══ GROUP NCC (ngoài): Nhà cung cấp ════════════════════════════════ -->
+    <group name="GroupNCC" minHeightToStartNewPage="80">
+        <groupExpression><![CDATA[$F{NHA_CUNG_CAP}]]></groupExpression>
+
+        <groupHeader>
+            <band height="24" splitType="Stretch">
+                <rectangle>
+                    <reportElement x="0" y="0" width="535" height="24"
+                                   backcolor="#185FA5"
+                                   uuid="20000000-0000-0000-0000-000000000001"/>
+                    <graphicElement><pen lineWidth="0"/></graphicElement>
+                </rectangle>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="6" y="4" width="529" height="16"
+                                   forecolor="#FFFFFF"
+                                   uuid="20000000-0000-0000-0000-000000000002"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["■  Nhà cung cấp: " + $F{NHA_CUNG_CAP}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupHeader>
+
+        <groupFooter>
+            <band height="20" splitType="Stretch">
+                <rectangle>
+                    <reportElement x="0" y="1" width="535" height="19"
+                                   backcolor="#D6EAFF"
+                                   uuid="20000000-0000-0000-0000-000000000003"/>
+                    <graphicElement><pen lineWidth="0.5" lineColor="#185FA5"/></graphicElement>
+                </rectangle>
+                <staticText>
+                    <reportElement x="6" y="4" width="390" height="12"
+                                   forecolor="#185FA5"
+                                   uuid="20000000-0000-0000-0000-000000000004"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Cộng nhà cung cấp:]]></text>
+                </staticText>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="396" y="4" width="135" height="12"
+                                   forecolor="#185FA5"
+                                   uuid="20000000-0000-0000-0000-000000000005"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression>
+                        <![CDATA[new java.text.DecimalFormat("#,##0").format($V{SUBTOTAL_NCC}) + " ₫"]]>
+                    </textFieldExpression>
+                </textField>
+            </band>
+        </groupFooter>
+    </group>
+
+    <!-- ═══ GROUP PHIEU (trong): từng Phiếu nhập ════════════════════════════ -->
+    <group name="GroupPhieu" minHeightToStartNewPage="60">
+        <groupExpression><![CDATA[$F{MA_PHIEU}]]></groupExpression>
+
+        <groupHeader>
+            <band height="26" splitType="Stretch">
+                <rectangle>
+                    <reportElement x="0" y="0" width="535" height="26"
+                                   backcolor="#EBF4FF"
+                                   uuid="30000000-0000-0000-0000-000000000001"/>
+                    <graphicElement><pen lineWidth="0.5" lineColor="#9BC2E6"/></graphicElement>
+                </rectangle>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="4" y="5" width="110" height="16"
+                                   forecolor="#003D80"
+                                   uuid="30000000-0000-0000-0000-000000000002"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["▶ Phiếu #" + $F{MA_PHIEU}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="115" y="5" width="140" height="16"
+                                   forecolor="#444444"
+                                   uuid="30000000-0000-0000-0000-000000000003"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="7"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Ngày: " + $F{NGAY_NHAP}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="255" y="5" width="140" height="16"
+                                   forecolor="#444444"
+                                   uuid="30000000-0000-0000-0000-000000000004"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="7"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Người nhập: " + $F{NGUOI_NHAP}]]></textFieldExpression>
+                </textField>
+                <textField isBlankWhenNull="true">
+                    <reportElement x="395" y="5" width="136" height="16"
+                                   forecolor="#003D80"
+                                   uuid="30000000-0000-0000-0000-000000000005"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Tổng: " + $F{TONG_TIEN_PHIEU}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupHeader>
+
+        <groupFooter>
+            <band height="4" splitType="Stretch">
+                <line>
+                    <reportElement x="0" y="3" width="535" height="1"
+                                   forecolor="#9BC2E6"
+                                   uuid="30000000-0000-0000-0000-000000000006"/>
+                </line>
+            </band>
+        </groupFooter>
+    </group>
+
+    <!-- ═══ TITLE ════════════════════════════════════════════════════════════ -->
     <title>
-        <band height="220" splitType="Stretch">
-            <!-- Nen header xanh kho -->
+        <band height="158" splitType="Stretch">
+
             <rectangle>
-                <reportElement x="0" y="0" width="535" height="60" backcolor="#185FA5"
-                               uuid="11111111-1111-1111-1111-111111111101"/>
+                <reportElement x="0" y="0" width="535" height="52"
+                               backcolor="#003D80"
+                               uuid="10000000-0000-0000-0000-000000000001"/>
                 <graphicElement><pen lineWidth="0"/></graphicElement>
             </rectangle>
-
-            <!-- Ten thuong hieu -->
             <staticText>
-                <reportElement x="10" y="6" width="515" height="28" forecolor="#FFFFFF"
-                               uuid="11111111-1111-1111-1111-111111111102"/>
+                <reportElement x="10" y="6" width="515" height="24"
+                               forecolor="#FFFFFF"
+                               uuid="10000000-0000-0000-0000-000000000002"/>
                 <textElement textAlignment="Left" verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="14" isBold="true"/>
+                    <font fontName="DejaVu Sans" size="13" isBold="true"/>
                 </textElement>
-                <text><![CDATA[H3K BAKERY — BAO CAO KIEM KE PHIEU NHAP KHO]]></text>
+                <text><![CDATA[H3K BAKERY — BÁO CÁO PHIẾU NHẬP KHO]]></text>
             </staticText>
             <staticText>
-                <reportElement x="10" y="34" width="515" height="20" forecolor="#CCE4FF"
-                               uuid="11111111-1111-1111-1111-111111111103"/>
+                <reportElement x="10" y="32" width="515" height="16"
+                               forecolor="#99C2E8"
+                               uuid="10000000-0000-0000-0000-000000000003"/>
                 <textElement textAlignment="Left" verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="9" isItalic="true"/>
+                    <font fontName="DejaVu Sans" size="8" isItalic="true"/>
                 </textElement>
-                <text><![CDATA[Kiem ke tong hop phieu nhap kho — Demo §4.3 Phantom Read]]></text>
+                <text><![CDATA[Thống kê chi tiết phiếu nhập kho theo nhà cung cấp trong kỳ]]></text>
             </staticText>
 
-            <!-- Duong ke -->
             <line>
-                <reportElement x="0" y="64" width="535" height="1" forecolor="#185FA5"
-                               uuid="11111111-1111-1111-1111-111111111104"/>
+                <reportElement x="0" y="56" width="535" height="1"
+                               forecolor="#003D80"
+                               uuid="10000000-0000-0000-0000-000000000004"/>
                 <graphicElement><pen lineWidth="1.5"/></graphicElement>
             </line>
 
-            <!-- Thong tin bao cao — cot trai -->
             <staticText>
-                <reportElement x="0" y="72" width="130" height="16" forecolor="#555555"
-                               uuid="11111111-1111-1111-1111-111111111105"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
-                <text><![CDATA[Nguoi lap bao cao:]]></text>
+                <reportElement x="0" y="64" width="115" height="13" forecolor="#555555"
+                               uuid="10000000-0000-0000-0000-000000000005"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Người lập báo cáo:]]></text>
             </staticText>
-            <textField>
-                <reportElement x="130" y="72" width="135" height="16"
-                               uuid="11111111-1111-1111-1111-111111111106"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+            <textField isBlankWhenNull="true">
+                <reportElement x="115" y="64" width="140" height="13"
+                               uuid="10000000-0000-0000-0000-000000000006"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
                 <textFieldExpression><![CDATA[$P{P_NGUOI_LAP}]]></textFieldExpression>
             </textField>
 
             <staticText>
-                <reportElement x="0" y="92" width="130" height="16" forecolor="#555555"
-                               uuid="11111111-1111-1111-1111-111111111107"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
-                <text><![CDATA[Ngay lap bao cao:]]></text>
+                <reportElement x="0" y="80" width="115" height="13" forecolor="#555555"
+                               uuid="10000000-0000-0000-0000-000000000007"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Ngày lập báo cáo:]]></text>
             </staticText>
-            <textField>
-                <reportElement x="130" y="92" width="135" height="16"
-                               uuid="11111111-1111-1111-1111-111111111108"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+            <textField isBlankWhenNull="true">
+                <reportElement x="115" y="80" width="140" height="13"
+                               uuid="10000000-0000-0000-0000-000000000008"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
                 <textFieldExpression><![CDATA[$P{P_NGAY_LAP}]]></textFieldExpression>
             </textField>
 
             <staticText>
-                <reportElement x="0" y="112" width="130" height="16" forecolor="#555555"
-                               uuid="11111111-1111-1111-1111-111111111109"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
-                <text><![CDATA[Ngay in:]]></text>
+                <reportElement x="0" y="96" width="115" height="13" forecolor="#555555"
+                               uuid="10000000-0000-0000-0000-000000000009"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Ngày in:]]></text>
             </staticText>
-            <textField>
-                <reportElement x="130" y="112" width="135" height="16"
-                               uuid="11111111-1111-1111-1111-111111111110"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+            <textField isBlankWhenNull="true">
+                <reportElement x="115" y="96" width="140" height="13"
+                               uuid="10000000-0000-0000-0000-000000000010"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
                 <textFieldExpression><![CDATA[$P{P_NGAY_IN}]]></textFieldExpression>
             </textField>
 
-            <!-- Thong tin bao cao — cot phai -->
             <staticText>
-                <reportElement x="270" y="72" width="150" height="16" forecolor="#555555"
-                               uuid="11111111-1111-1111-1111-111111111111"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
-                <text><![CDATA[So phieu kiem dem (Phase 1):]]></text>
+                <reportElement x="270" y="64" width="140" height="13" forecolor="#555555"
+                               uuid="10000000-0000-0000-0000-000000000011"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Số phiếu trong kỳ:]]></text>
             </staticText>
-            <textField>
-                <reportElement x="420" y="72" width="115" height="16" forecolor="#D85A30"
-                               uuid="11111111-1111-1111-1111-111111111112"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
-                <textFieldExpression><![CDATA[$P{P_SO_PHIEU_DA_DEM} + " phieu"]]></textFieldExpression>
+            <textField isBlankWhenNull="true">
+                <reportElement x="410" y="64" width="125" height="13"
+                               forecolor="#003D80"
+                               uuid="10000000-0000-0000-0000-000000000012"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{P_SO_PHIEU} + " phiếu"]]></textFieldExpression>
             </textField>
 
             <staticText>
-                <reportElement x="270" y="92" width="150" height="16" forecolor="#555555"
-                               uuid="11111111-1111-1111-1111-111111111113"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9" isBold="true"/></textElement>
-                <text><![CDATA[Tong tien nhap kho:]]></text>
+                <reportElement x="270" y="80" width="140" height="13" forecolor="#555555"
+                               uuid="10000000-0000-0000-0000-000000000013"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Tổng tiền nhập kho:]]></text>
             </staticText>
-            <textField>
-                <reportElement x="420" y="92" width="115" height="16"
-                               uuid="11111111-1111-1111-1111-111111111114"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="9"/></textElement>
+            <textField isBlankWhenNull="true">
+                <reportElement x="410" y="80" width="125" height="13"
+                               uuid="10000000-0000-0000-0000-000000000014"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
                 <textFieldExpression><![CDATA[$P{P_TONG_TIEN}]]></textFieldExpression>
             </textField>
 
-            <!-- Hop tong ket noi bat: So phieu da dem -->
-            <rectangle>
-                <reportElement x="0" y="138" width="535" height="44" backcolor="#E8F4FF"
-                               uuid="11111111-1111-1111-1111-111111111115"/>
-                <graphicElement><pen lineWidth="0.5" lineColor="#185FA5"/></graphicElement>
-            </rectangle>
-            <staticText>
-                <reportElement x="10" y="146" width="330" height="28" forecolor="#185FA5"
-                               uuid="11111111-1111-1111-1111-111111111116"/>
-                <textElement verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="11" isBold="true"/>
-                </textElement>
-                <text><![CDATA[So phieu ghi nhan tai thoi diem bat dau kiem ke:]]></text>
-            </staticText>
-            <textField>
-                <reportElement x="340" y="146" width="185" height="28" forecolor="#D85A30"
-                               uuid="11111111-1111-1111-1111-111111111117"/>
-                <textElement textAlignment="Right" verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="18" isBold="true"/>
-                </textElement>
-                <textFieldExpression><![CDATA[$P{P_SO_PHIEU_DA_DEM} + " phieu"]]></textFieldExpression>
-            </textField>
-
-            <!-- Duong ke cuoi header -->
             <line>
-                <reportElement x="0" y="186" width="535" height="1" forecolor="#185FA5"
-                               uuid="11111111-1111-1111-1111-111111111118"/>
-                <graphicElement><pen lineWidth="1.0"/></graphicElement>
+                <reportElement x="0" y="118" width="535" height="1"
+                               forecolor="#CCCCCC"
+                               uuid="10000000-0000-0000-0000-000000000015"/>
             </line>
-
-            <!-- Chu thich phantom read -->
-            <staticText>
-                <reportElement x="0" y="192" width="535" height="16" forecolor="#888888"
-                               uuid="11111111-1111-1111-1111-111111111119"/>
-                <textElement verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="8" isItalic="true"/>
-                </textElement>
-                <text><![CDATA[(*) Neu so dong trong bang ben duoi KHAC so phieu o tren => Phat hien Phantom Read! (READ COMMITTED)]]></text>
-            </staticText>
         </band>
     </title>
 
-    <!-- COLUMN HEADER -->
+    <!-- ═══ COLUMN HEADER ════════════════════════════════════════════════════ -->
     <columnHeader>
-        <band height="22">
+        <band height="20">
             <rectangle>
-                <reportElement x="0" y="0" width="535" height="22" backcolor="#185FA5"
-                               uuid="22222222-2222-2222-2222-222222222201"/>
+                <reportElement x="0" y="0" width="535" height="20"
+                               backcolor="#003D80"
+                               uuid="40000000-0000-0000-0000-000000000001"/>
                 <graphicElement><pen lineWidth="0"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="2"   y="3" width="28"  height="16" forecolor="#FFFFFF"
-                               uuid="22222222-2222-2222-2222-222222222202"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <text><![CDATA[STT]]></text>
+                <reportElement x="2"   y="3" width="195" height="14" forecolor="#FFFFFF"
+                               uuid="40000000-0000-0000-0000-000000000002"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Nguyên liệu]]></text>
             </staticText>
             <staticText>
-                <reportElement x="30"  y="3" width="55"  height="16" forecolor="#FFFFFF"
-                               uuid="22222222-2222-2222-2222-222222222203"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <text><![CDATA[MA PHIEU]]></text>
+                <reportElement x="197" y="3" width="55"  height="14" forecolor="#FFFFFF"
+                               uuid="40000000-0000-0000-0000-000000000003"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Số lượng]]></text>
             </staticText>
             <staticText>
-                <reportElement x="85"  y="3" width="100" height="16" forecolor="#FFFFFF"
-                               uuid="22222222-2222-2222-2222-222222222204"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <text><![CDATA[NGAY NHAP]]></text>
+                <reportElement x="252" y="3" width="55"  height="14" forecolor="#FFFFFF"
+                               uuid="40000000-0000-0000-0000-000000000004"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[ĐVT]]></text>
             </staticText>
             <staticText>
-                <reportElement x="185" y="3" width="145" height="16" forecolor="#FFFFFF"
-                               uuid="22222222-2222-2222-2222-222222222205"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <text><![CDATA[NHA CUNG CAP]]></text>
+                <reportElement x="307" y="3" width="110" height="14" forecolor="#FFFFFF"
+                               uuid="40000000-0000-0000-0000-000000000005"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Đơn giá (₫)]]></text>
             </staticText>
             <staticText>
-                <reportElement x="330" y="3" width="100" height="16" forecolor="#FFFFFF"
-                               uuid="22222222-2222-2222-2222-222222222206"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <text><![CDATA[NGUOI NHAP]]></text>
-            </staticText>
-            <staticText>
-                <reportElement x="430" y="3" width="103" height="16" forecolor="#FFFFFF"
-                               uuid="22222222-2222-2222-2222-222222222207"/>
-                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <text><![CDATA[TONG TIEN (d)]]></text>
+                <reportElement x="417" y="3" width="116" height="14" forecolor="#FFFFFF"
+                               uuid="40000000-0000-0000-0000-000000000006"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Thành tiền (₫)]]></text>
             </staticText>
         </band>
     </columnHeader>
 
-    <!-- DETAIL -->
+    <!-- ═══ DETAIL ═══════════════════════════════════════════════════════════ -->
     <detail>
-        <band height="18" splitType="Stretch">
-            <!-- Zebra stripe -->
+        <band height="16" splitType="Stretch">
             <rectangle>
-                <reportElement x="0" y="0" width="535" height="18" backcolor="#F0F9FF"
-                               uuid="33333333-3333-3333-3333-333333333301">
+                <reportElement x="0" y="0" width="535" height="16"
+                               backcolor="#F5FAFF"
+                               uuid="50000000-0000-0000-0000-000000000001">
                     <printWhenExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></printWhenExpression>
                 </reportElement>
                 <graphicElement><pen lineWidth="0"/></graphicElement>
             </rectangle>
 
             <textField isBlankWhenNull="true">
-                <reportElement x="2"   y="2" width="28"  height="14"
-                               uuid="33333333-3333-3333-3333-333333333302"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
-                <textFieldExpression><![CDATA[$F{STT}]]></textFieldExpression>
+                <reportElement x="2"   y="2" width="193" height="12"
+                               uuid="50000000-0000-0000-0000-000000000002"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TEN_NL}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true">
-                <reportElement x="30"  y="2" width="55"  height="14" forecolor="#185FA5"
-                               uuid="33333333-3333-3333-3333-333333333303"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <textFieldExpression><![CDATA["#" + $F{MA_PHIEU}]]></textFieldExpression>
+                <reportElement x="195" y="2" width="55"  height="12"
+                               uuid="50000000-0000-0000-0000-000000000003"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{SO_LUONG}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true">
-                <reportElement x="85"  y="2" width="100" height="14"
-                               uuid="33333333-3333-3333-3333-333333333304"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
-                <textFieldExpression><![CDATA[$F{NGAY_NHAP}]]></textFieldExpression>
+                <reportElement x="252" y="2" width="53"  height="12"
+                               uuid="50000000-0000-0000-0000-000000000004"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{TEN_DVT}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true">
-                <reportElement x="185" y="2" width="145" height="14"
-                               uuid="33333333-3333-3333-3333-333333333305"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
-                <textFieldExpression><![CDATA[$F{NHA_CUNG_CAP}]]></textFieldExpression>
+                <reportElement x="305" y="2" width="110" height="12"
+                               uuid="50000000-0000-0000-0000-000000000005"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{DON_GIA}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true">
-                <reportElement x="330" y="2" width="100" height="14"
-                               uuid="33333333-3333-3333-3333-333333333306"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
-                <textFieldExpression><![CDATA[$F{NGUOI_NHAP}]]></textFieldExpression>
+                <reportElement x="415" y="2" width="118" height="12"
+                               forecolor="#003D80"
+                               uuid="50000000-0000-0000-0000-000000000006"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{THANH_TIEN}]]></textFieldExpression>
             </textField>
-            <textField isBlankWhenNull="true">
-                <reportElement x="430" y="2" width="103" height="14"
-                               uuid="33333333-3333-3333-3333-333333333307"/>
-                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8" isBold="true"/></textElement>
-                <textFieldExpression><![CDATA[$F{TONG_TIEN}]]></textFieldExpression>
-            </textField>
-
             <line>
-                <reportElement x="0" y="17" width="535" height="1" forecolor="#D6EAFF"
-                               uuid="33333333-3333-3333-3333-333333333308"/>
+                <reportElement x="0" y="15" width="535" height="1"
+                               forecolor="#DDE8F4"
+                               uuid="50000000-0000-0000-0000-000000000007"/>
             </line>
         </band>
     </detail>
 
-    <!-- PAGE FOOTER -->
+    <!-- ═══ PAGE FOOTER ══════════════════════════════════════════════════════ -->
     <pageFooter>
-        <band height="24" splitType="Stretch">
+        <band height="22" splitType="Stretch">
             <line>
-                <reportElement x="0" y="0" width="535" height="1" forecolor="#185FA5"
-                               uuid="44444444-4444-4444-4444-444444444401"/>
+                <reportElement x="0" y="0" width="535" height="1"
+                               forecolor="#003D80"
+                               uuid="60000000-0000-0000-0000-000000000001"/>
             </line>
             <staticText>
-                <reportElement x="0" y="4" width="267" height="16" forecolor="#A8A29E"
-                               uuid="44444444-4444-4444-4444-444444444402"/>
-                <textElement verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
-                <text><![CDATA[H3K Bakery Management System — Bao cao kiem ke phieu nhap]]></text>
+                <reportElement x="0" y="4" width="267" height="14" forecolor="#999999"
+                               uuid="60000000-0000-0000-0000-000000000002"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7"/>
+                </textElement>
+                <text><![CDATA[H3K Bakery Management System — Báo cáo phiếu nhập kho]]></text>
             </staticText>
-            <textField>
-                <reportElement x="268" y="4" width="267" height="16" forecolor="#A8A29E"
-                               uuid="44444444-4444-4444-4444-444444444403"/>
-                <textElement textAlignment="Right" verticalAlignment="Middle"><font fontName="DejaVu Sans" size="8"/></textElement>
+            <textField isBlankWhenNull="true">
+                <reportElement x="268" y="4" width="267" height="14" forecolor="#999999"
+                               uuid="60000000-0000-0000-0000-000000000003"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7"/>
+                </textElement>
                 <textFieldExpression><![CDATA["Trang " + $V{PAGE_NUMBER} + " / " + $V{PAGE_COUNT}]]></textFieldExpression>
             </textField>
         </band>
     </pageFooter>
 
-    <!-- SUMMARY — Tong ket & phat hien Phantom Read -->
+    <!-- ═══ SUMMARY: Tổng cộng toàn kỳ ════════════════════════════════════ -->
     <summary>
-        <band height="100" splitType="Prevent">
+        <band height="56" splitType="Prevent">
             <line>
-                <reportElement x="0" y="8" width="535" height="1" forecolor="#185FA5"
-                               uuid="55555555-5555-5555-5555-555555555501"/>
+                <reportElement x="0" y="4" width="535" height="1"
+                               forecolor="#003D80"
+                               uuid="70000000-0000-0000-0000-000000000001"/>
+                <graphicElement><pen lineWidth="1.5"/></graphicElement>
             </line>
-
-            <!-- Hop tong ket — so dong THUC TE trong bao cao -->
             <rectangle>
-                <reportElement x="0" y="14" width="535" height="44" backcolor="#FFF3CD"
-                               uuid="55555555-5555-5555-5555-555555555502"/>
-                <graphicElement><pen lineWidth="0.8" lineColor="#D85A30"/></graphicElement>
+                <reportElement x="0" y="10" width="535" height="40"
+                               backcolor="#003D80"
+                               uuid="70000000-0000-0000-0000-000000000002"/>
+                <graphicElement><pen lineWidth="0"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="10" y="22" width="330" height="28" forecolor="#2C2C2A"
-                               uuid="55555555-5555-5555-5555-555555555503"/>
+                <reportElement x="10" y="18" width="320" height="24"
+                               forecolor="#FFFFFF"
+                               uuid="70000000-0000-0000-0000-000000000003"/>
                 <textElement verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="11" isBold="true"/>
+                    <font fontName="DejaVu Sans" size="12" isBold="true"/>
                 </textElement>
-                <text><![CDATA[So dong THUC TE trong bao cao (Phase 3):]]></text>
+                <text><![CDATA[TỔNG CỘNG TOÀN KỲ:]]></text>
             </staticText>
-            <textField>
-                <reportElement x="340" y="22" width="185" height="28" forecolor="#D85A30"
-                               uuid="55555555-5555-5555-5555-555555555504"/>
+            <textField isBlankWhenNull="true">
+                <reportElement x="330" y="18" width="195" height="24"
+                               forecolor="#FFD700"
+                               uuid="70000000-0000-0000-0000-000000000004"/>
                 <textElement textAlignment="Right" verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="18" isBold="true"/>
+                    <font fontName="DejaVu Sans" size="14" isBold="true"/>
                 </textElement>
-                <textFieldExpression><![CDATA[$V{REPORT_COUNT} + " dong"]]></textFieldExpression>
+                <textFieldExpression>
+                    <![CDATA[new java.text.DecimalFormat("#,##0").format($V{GRAND_TOTAL}) + " ₫"]]>
+                </textFieldExpression>
             </textField>
-
-            <!-- Chu thich so sanh -->
-            <staticText>
-                <reportElement x="0" y="64" width="535" height="14" forecolor="#555555"
-                               uuid="55555555-5555-5555-5555-555555555505"/>
-                <textElement verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="8" isItalic="true"/>
-                </textElement>
-                <text><![CDATA[So sanh: "So phieu kiem dem Phase 1" (hop xanh o tren) voi "So dong Phase 3" (hop vang tren).]]></text>
-            </staticText>
-            <staticText>
-                <reportElement x="0" y="80" width="535" height="14" forecolor="#D85A30"
-                               uuid="55555555-5555-5555-5555-555555555506"/>
-                <textElement verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="8" isBold="true" isItalic="true"/>
-                </textElement>
-                <text><![CDATA[(*) Neu hai con so KHAC NHAU => day la bang chung cua Phantom Read! (READ COMMITTED isolation)]]></text>
-            </staticText>
         </band>
     </summary>
 
-    <!-- NO DATA -->
+    <!-- ═══ NO DATA ══════════════════════════════════════════════════════════ -->
     <noData>
         <band height="40">
             <staticText>
-                <reportElement x="0" y="8" width="535" height="24" forecolor="#A8A29E"
-                               uuid="66666666-6666-6666-6666-666666666601"/>
+                <reportElement x="0" y="8" width="535" height="24" forecolor="#999999"
+                               uuid="80000000-0000-0000-0000-000000000001"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="11" isItalic="true"/>
                 </textElement>
-                <text><![CDATA[Chua co phieu nhap kho nao trong he thong.]]></text>
+                <text><![CDATA[Không có phiếu nhập kho nào trong kỳ được chọn.]]></text>
             </staticText>
         </band>
     </noData>

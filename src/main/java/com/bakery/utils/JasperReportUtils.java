@@ -329,27 +329,26 @@ public final class JasperReportUtils {
         exportToPdf(print, outputFile, "Phiếu xuất kho #" + maPhieu);
     }
 
-    // ─── BÁO CÁO KIỂM KÊ PHIẾU NHẬP KHO (PDF) — Demo §4.3 Phantom Read ─────
+    // ─── BÁO CÁO PHIẾU NHẬP KHO (PDF) ───────────────────────────────────────
 
     /**
-     * Xuất báo cáo kiểm kê phiếu nhập kho sang PDF.
+     * Xuất báo cáo phiếu nhập kho sang PDF.
      * Template: {@code /reports/kho/bao_cao_kiem_ke_nhap_kho.jrxml}
      *
-     * <p>Header ghi "Số phiếu Phase 1 = {@code soPhieuDaDem}".
-     * Summary ghi "Số dòng Phase 3 = rows.size()".
-     * Nếu hai con số khác nhau → phantom row lộ ra trực quan trong PDF.</p>
+     * <p>Dữ liệu được nhóm theo Nhà cung cấp (Group), có tổng tiền từng nhóm
+     * và tổng cộng cuối báo cáo.</p>
      *
-     * @param outputFile    File PDF đích
-     * @param soPhieuDaDem  Số phiếu COUNT ở phase 1 (trước delay)
-     * @param tongTien      Tổng tiền nhập kho đã format
-     * @param nguoiLap      Tên người lập báo cáo
-     * @param ngayLap       Ngày lập đã format (dd/MM/yyyy HH:mm)
-     * @param rows          Mỗi row = String[]{maPhieu, ngayNhap, nhaCungCap, nguoiNhap, tongTienNhap}
-     * @throws JRException  nếu compile/fill thất bại
+     * @param outputFile  File PDF đích
+     * @param soPhieu     Số phiếu trong kỳ
+     * @param tongTien    Tổng tiền nhập kho đã format
+     * @param nguoiLap    Tên người lập báo cáo
+     * @param ngayLap     Ngày lập đã format (dd/MM/yyyy)
+     * @param rows        Mỗi row = String[]{maPhieu, ngayNhap, nhaCungCap, nguoiNhap, tongTienNhap}
+     * @throws JRException nếu compile/fill thất bại
      */
     public static void xuatBaoCaoKiemKePhieuNhapPDF(
             File outputFile,
-            String soPhieuDaDem,
+            String soPhieu,
             String tongTien,
             String nguoiLap,
             String ngayLap,
@@ -359,30 +358,56 @@ public final class JasperReportUtils {
         JasperReport report = JasperCompileManager.compileReport(stream);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("P_SO_PHIEU_DA_DEM", nvlParam(soPhieuDaDem, "0"));
-        params.put("P_TONG_TIEN",       nvlParam(tongTien,      "0 ₫"));
-        params.put("P_NGUOI_LAP",       nvlParam(nguoiLap,      "Hệ thống"));
-        params.put("P_NGAY_LAP",        nvlParam(ngayLap,        "—"));
-        params.put("P_NGAY_IN",         LocalDate.now().format(DF_DAY));
+        params.put("P_SO_PHIEU", nvlParam(soPhieu,   "0"));
+        params.put("P_TONG_TIEN", nvlParam(tongTien,  "0 \u20ab"));
+        params.put("P_NGUOI_LAP", nvlParam(nguoiLap,  "Hệ thống"));
+        params.put("P_NGAY_LAP",  nvlParam(ngayLap,   "\u2014"));
+        params.put("P_NGAY_IN",   LocalDate.now().format(DF_DAY));
 
-        // row = {maPhieu, ngayNhap, nhaCungCap, nguoiNhap, tongTienNhap}
+        // Sắp xếp theo (NHA_CUNG_CAP, MA_PHIEU) — data từ controller đã sorted,
+        // sort lại ở đây để đảm bảo grouping đúng dù controller thay đổi
+        List<String[]> sorted = new ArrayList<>(rows);
+        sorted.sort((a, b) -> {
+            String nccA = safe(a, 2);
+            String nccB = safe(b, 2);
+            int cmp = nccA.compareToIgnoreCase(nccB);
+            if (cmp != 0) return cmp;
+            // So sánh MA_PHIEU dạng số
+            try { return Integer.compare(Integer.parseInt(safe(a, 0)), Integer.parseInt(safe(b, 0))); }
+            catch (NumberFormatException e) { return safe(a, 0).compareTo(safe(b, 0)); }
+        });
+
+        // row = {maPhieu[0], ngayNhap[1], nhaCungCap[2], nguoiNhap[3],
+        //        tongTienPhieu[4], tenNL[5], soLuong[6], tenDVT[7], donGia[8], thanhTien[9]}
+        // THANH_TIEN_NUM (Double) dùng cho biến SUM trong Jasper
         List<Map<String, ?>> dataRows = new ArrayList<>();
-        int stt = 1;
-        for (String[] r : rows) {
-            Map<String, String> m = new LinkedHashMap<>();
-            m.put("STT",          String.valueOf(stt++));
-            m.put("MA_PHIEU",     safe(r, 0));
-            m.put("NGAY_NHAP",    safe(r, 1));
-            m.put("NHA_CUNG_CAP", safe(r, 2));
-            m.put("NGUOI_NHAP",   safe(r, 3));
-            m.put("TONG_TIEN",    safe(r, 4));
+        for (String[] r : sorted) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("MA_PHIEU",         safe(r, 0));
+            m.put("NGAY_NHAP",        safe(r, 1));
+            m.put("NHA_CUNG_CAP",     safe(r, 2));
+            m.put("NGUOI_NHAP",       safe(r, 3));
+            m.put("TONG_TIEN_PHIEU",  safe(r, 4));
+            m.put("TEN_NL",           safe(r, 5));
+            m.put("SO_LUONG",         safe(r, 6));
+            m.put("TEN_DVT",          safe(r, 7));
+            m.put("DON_GIA",          safe(r, 8));
+            m.put("THANH_TIEN",       safe(r, 9));
+            // Parse THANH_TIEN sang số để Jasper tính SUM (bỏ ký tự phi số)
+            double thanhTienNum = 0.0;
+            try {
+                String raw = safe(r, 9).replaceAll("[^0-9]", "");
+                if (!raw.isEmpty()) thanhTienNum = Double.parseDouble(raw);
+            } catch (NumberFormatException ignored) {}
+            m.put("THANH_TIEN_NUM", thanhTienNum);
             dataRows.add(m);
         }
 
         JasperPrint print = JasperFillManager.fillReport(report, params,
                 new JRMapCollectionDataSource(dataRows));
-        exportToPdf(print, outputFile, "Báo cáo kiểm kê phiếu nhập H3K Bakery");
+        exportToPdf(print, outputFile, "Báo cáo phiếu nhập kho H3K Bakery");
     }
+
 
     // ─── PRIVATE HELPERS ─────────────────────────────────────────────────────
 

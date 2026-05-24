@@ -37,7 +37,7 @@
     "soLuong": 2000.0,
     "donGia": 35,
     "ngaySanXuat": "2026-05-01",
-    "hanSuDung": "2026-07-01"
+    "hanSuDung": "2027-07-01"
   },
   {
     "maNL": 0,
@@ -47,7 +47,7 @@
     "soLuong": 100.0,
     "donGia": 4500,
     "ngaySanXuat": "",
-    "hanSuDung": "2026-06-15"
+    "hanSuDung": "2027-06-15"
   },
   {
     "maNL": 0,
@@ -57,7 +57,7 @@
     "soLuong": 200.0,
     "donGia": 425,
     "ngaySanXuat": "2025-06-01",
-    "hanSuDung": "2026-06-01"
+    "hanSuDung": "2027-06-01"
   },
   {
     "maNL": 0,
@@ -77,7 +77,7 @@
     "soLuong": 8.0,
     "donGia": 210000,
     "ngaySanXuat": "2025-02-01",
-    "hanSuDung": "2026-08-01"
+    "hanSuDung": "2027-08-01"
   },
   {
     "maNL": 0,
@@ -107,7 +107,7 @@
     "soLuong": 1000.0,
     "donGia": 85,
     "ngaySanXuat": "2026-05-01",
-    "hanSuDung": "2026-08-01"
+    "hanSuDung": "2027-08-01"
   },
   {
     "maNL": 0,
@@ -177,6 +177,6 @@
     "soLuong": 100.0,
     "donGia": 850,
     "ngaySanXuat": "2025-09-01",
-    "hanSuDung": "2026-09-01"
+    "hanSuDung": "2027-09-01"
   }
 ]

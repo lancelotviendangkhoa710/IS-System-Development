@@ -55,8 +55,7 @@
                     V_CURRENT_MANL := ROW_DATA.MANL;
                 END IF;
 
-                -- FIX: Lấy hệ số quy đổi của nguyên liệu để tính số lượng đơn vị cơ bản
-                -- NVL = 1 để backward-compat với NL cũ chưa có HESOQUYDOI
+
                 BEGIN
                     SELECT NVL(HESOQUYDOI, 1) INTO V_HESOQUYDOI
                     FROM NGUYENLIEU
@@ -143,7 +142,6 @@
         END IF;
 
         -- 3. Thực thi Hủy (Xóa Chi tiết trước (Con), Xóa Phiếu gốc sau (Cha))
-        -- (Việc trừ ngược lại kho vật lý sẽ do Trigger AFTER DELETE của bảng CTPHIEUNHAP tự động lo liệu ngầm phía sau)
         DELETE FROM CTPHIEUNHAP WHERE MAPN = P_MAPN;
         DELETE FROM PHIEUNHAPKHO WHERE MAPN = P_MAPN;
 
@@ -163,7 +161,7 @@
         P_MANV IN NHANVIEN.MANV%type
     )
         IS
-        -- IMP-09: Record type + collection để cache kết quả cursor
+
         TYPE T_REC_CONGTHUC IS RECORD (
             MANL      CONGTHUC.MANL%TYPE,
             TENNL     NGUYENLIEU.TENNL%TYPE,
@@ -176,18 +174,17 @@
         V_MAPX         CTPHIEUXUAT_NL.MAPX%type;
         V_TONGTON      NGUYENLIEU.SOLUONGTONTONG%type;
         V_LUONGCANDUNG CONGTHUC.SOLUONGTIEUHAO%type;
+        V_TEN_NL_DANG_LOCK NGUYENLIEU.TENNL%TYPE;
 
-        V_DEMO_X       NUMBER := 0;
-
-        -- [DEMO §4.4 DEADLOCK] TOGGLE BUG / FIX:
 
         CURSOR C_CONGTHUC IS
             SELECT C.MANL, N.TENNL, (C.SOLUONGTIEUHAO * P_SOLUONGSANXUAT) AS TONG_CAN_DUNG
             FROM CONGTHUC C
                      JOIN NGUYENLIEU N ON C.MANL = N.MANL
             WHERE C.MASP = P_MASP
-            ORDER BY C.SOLUONGTIEUHAO DESC;
-            -- ORDER BY C.MANL ASC;
+            --root
+--             ORDER BY C.SOLUONGTIEUHAO DESC;
+            ORDER BY C.MANL ASC;
 
         CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
             SELECT MALO, SOLUONGCONLAI
@@ -197,13 +194,17 @@
             ORDER BY HANSUDUNG ASC, MALO ASC
                 FOR UPDATE OF SOLUONGCONLAI;
     BEGIN
-        -- 1. KIỂM TRA TOÀN DIỆN KHẢ NĂNG + CACHE vào collection (IMP-09: 1 lần scan duy nhất)
         FOR REC IN C_CONGTHUC
             LOOP
+
+                V_TEN_NL_DANG_LOCK := REC.TENNL;
                 SELECT SOLUONGTONTONG
                 INTO V_TONGTON
                 FROM NGUYENLIEU
                 WHERE MANL = REC.MANL
+                    -- ┌─ TOGGLE BUG/FIX (đổi cùng lúc với ORDER BY ở trên) ─┐
+                    -- BUG:  FOR UPDATE WAIT 5   ← timeout 5s → ORA-30006 → phá chu trình deadlock
+                    -- FIX:  FOR UPDATE          ← chờ tuần tự (lock ordering đã ngăn deadlock)
                     FOR UPDATE;
 
                 IF V_TONGTON < REC.TONG_CAN_DUNG THEN
@@ -232,7 +233,6 @@
         INSERT INTO MESANXUAT (MASP, SOLUONGSANXUAT, MANV, MAPX)
         VALUES (P_MASP, P_SOLUONGSANXUAT, P_MANV, V_MAPX);
 
-        -- 3. XUẤT THEO RÚT GỌN LÔ (FIFO)
         FOR I IN 1..V_TAB.COUNT
             LOOP
                 V_LUONGCANDUNG := V_TAB(I).TONG_CAN_DUNG;
@@ -266,18 +266,17 @@
         -- 5. GHI LOG HOẠT ĐỘNG NHÂN VIÊN (IMP-03: thêm audit trail cho nhất quán)
         INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
         VALUES (P_MANV, 'KHO', 'Xuat kho SX SP #' || P_MASP || ' SL:' || P_SOLUONGSANXUAT, V_MAPX);
-
-        -- 6. BÀN GIAO CHO TRIGGER
         COMMIT;
 
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            -- [DEMO §4.4 DEADLOCK] ORA-00060 phải được re-raise trực tiếp
-            -- để Java nhận errorCode=60 và hiển thị dialog Deadlock đúng.
-            -- KHÔNG wrap thành ORA-20xxx — sẽ mất signal deadlock.
             IF SQLCODE = -60 THEN
-                RAISE; -- ORA-00060: deadlock detected → Java bắt code=60
+                RAISE;
+            END IF;
+            IF SQLCODE = -30006 THEN
+                RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
+                    'LOCK_TIMEOUT|' || V_TEN_NL_DANG_LOCK);
             END IF;
             IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO
             OR SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_DU THEN

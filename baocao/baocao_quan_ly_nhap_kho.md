@@ -12,7 +12,7 @@
 | 6 | `colDate` | TableColumn | | Cột ngày giờ nhập kho |
 | 7 | `colUser` | TableColumn | | Cột tên nhân viên thực hiện nhập kho |
 | 8 | `colContent` | TableColumn | | Cột nội dung tóm tắt phiếu nhập (nhà cung cấp và tổng tiền) |
-| 9 | `colStatus` | TableColumn | | Cột mã số phiếu nhập |
+| 9 | `colStatus` | TableColumn | | Hiển thị mã số phiếu nhập dưới dạng "Phiếu #[mã]" |
 | 10 | `lblThongBao` | Label | | Hiển thị thông báo trạng thái thành công hoặc thông báo lỗi ở cuối màn hình |
 
 ## Bảng 2 — Danh sách biến cố và xử lý tương ứng trên màn hình

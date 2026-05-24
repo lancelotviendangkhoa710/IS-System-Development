@@ -17,7 +17,7 @@
         <padding><Insets bottom="16"/></padding>
         <VBox spacing="4">
             <Label text="🏪 Quản lý Kho hàng" styleClass="lbl-title-screen"/>
-            <Label text="Thẻ kho · Nhà cung cấp · Kiểm kê · Nguyên liệu · Nhập kho" styleClass="lbl-body"/>
+            <Label text="Thẻ kho · Nhà cung cấp · Quản lý Nguyên liệu · Nhập kho" styleClass="lbl-body"/>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
@@ -38,8 +38,8 @@
             <fx:include source="QuanLyNhaCungCapView.fxml"/>
         </Tab>
 
-        <!-- Tab 3: Kiểm kê kho — Nguyên liệu -->
-        <Tab text="📊  Kiểm kê kho" fx:id="tabKiemKe">
+        <!-- Tab 3: Quản lý Nguyên liệu -->
+        <Tab text="🥕  Quản lý Nguyên liệu" fx:id="tabKiemKe">
             <fx:include source="NguyenLieuView.fxml"/>
         </Tab>
 

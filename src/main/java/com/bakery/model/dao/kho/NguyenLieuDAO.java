@@ -29,8 +29,8 @@ public class NguyenLieuDAO extends BaseDAO {
                 "WHERE NL.THOIDIEMXOA IS NULL " +
                 "ORDER BY NL.MANL";
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 list.add(mapNguyenLieu(rs));
             }
@@ -52,7 +52,7 @@ public class NguyenLieuDAO extends BaseDAO {
                 "AND LOWER(NL.TENNL) LIKE ? " +
                 "ORDER BY NL.MANL";
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "%" + keyword.toLowerCase() + "%");
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -67,12 +67,13 @@ public class NguyenLieuDAO extends BaseDAO {
 
     /**
      * Thêm mới nguyên liệu qua PROC_THEM_NGUYENLIEU.
+     * 
      * @return mã nguyên liệu vừa tạo (>= 1), hoặc -1 nếu lỗi
      */
     public int themNguyenLieu(NguyenLieuDTO dto, int maNv) throws Exception {
         String sql = "{CALL PROC_THEM_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setString(1, dto.getTenNL());
             cstmt.setString(2, dto.getXuatXu());
             cstmt.setDouble(3, dto.getMucTonAnToan());
@@ -91,7 +92,7 @@ public class NguyenLieuDAO extends BaseDAO {
     public boolean capNhatNguyenLieu(NguyenLieuDTO dto) throws Exception {
         String sql = "{CALL PROC_SUA_NGUYENLIEU(?, ?, ?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, dto.getMaNL());
             cstmt.setString(2, dto.getTenNL());
             cstmt.setString(3, dto.getXuatXu());
@@ -113,7 +114,7 @@ public class NguyenLieuDAO extends BaseDAO {
     public boolean xoaNguyenLieu(int maNL, int maNv) throws Exception {
         String sql = "{CALL PROC_XOA_NGUYENLIEU(?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, maNL);
             cstmt.setInt(2, maNv);
             cstmt.execute();
@@ -125,16 +126,19 @@ public class NguyenLieuDAO extends BaseDAO {
     }
 
     /**
-     * Thêm nguyên liệu + phiếu nhập đầu tiên trong 1 transaction (có quy đổi đơn vị).
-     * soLuong = số lượng theo đơn vị nhập, Procedure tự nhân hesoQuydoi để lưu đơn vị cơ bản.
+     * Thêm nguyên liệu + phiếu nhập đầu tiên trong 1 transaction (có quy đổi đơn
+     * vị).
+     * soLuong = số lượng theo đơn vị nhập, Procedure tự nhân hesoQuydoi để lưu đơn
+     * vị cơ bản.
+     * 
      * @return int[]{maNL, maPN}
      */
     public int[] themNguyenLieuVaNhapKho(NguyenLieuDTO dto, int maNCC, int maNV,
-                                          double soLuong, double donGia,
-                                          java.sql.Date ngaySanXuat, java.sql.Date hanSuDung) throws Exception {
+            double soLuong, double donGia,
+            java.sql.Date ngaySanXuat, java.sql.Date hanSuDung) throws Exception {
         String sql = "{CALL PROC_THEM_NGUYENLIEU_VA_NHAP_KHO(?,?,?,?,?,?,?,?,?,?,?,?,?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
             cs.setString(1, dto.getTenNL());
             cs.setString(2, dto.getXuatXu());
             cs.setDouble(3, dto.getMucTonAnToan());
@@ -143,17 +147,23 @@ public class NguyenLieuDAO extends BaseDAO {
             cs.setInt(6, maNV);
             cs.setDouble(7, soLuong);
             cs.setDouble(8, donGia);
-            if (ngaySanXuat != null) cs.setDate(9, ngaySanXuat); else cs.setNull(9, Types.DATE);
-            if (hanSuDung != null) cs.setDate(10, hanSuDung); else cs.setNull(10, Types.DATE);
+            if (ngaySanXuat != null)
+                cs.setDate(9, ngaySanXuat);
+            else
+                cs.setNull(9, Types.DATE);
+            if (hanSuDung != null)
+                cs.setDate(10, hanSuDung);
+            else
+                cs.setNull(10, Types.DATE);
             cs.registerOutParameter(11, Types.NUMERIC);
             cs.registerOutParameter(12, Types.NUMERIC);
             cs.setDouble(13, dto.getHesoQuydoi()); // Hệ số quy đổi
             cs.execute();
-            return new int[]{cs.getInt(11), cs.getInt(12)};
+            return new int[] { cs.getInt(11), cs.getInt(12) };
         } catch (SQLException e) {
             handleException("themNguyenLieuVaNhapKho", e);
         }
-        return new int[]{-1, -1};
+        return new int[] { -1, -1 };
     }
 
     private NguyenLieuDTO mapNguyenLieu(ResultSet rs) throws SQLException {
@@ -163,7 +173,10 @@ public class NguyenLieuDAO extends BaseDAO {
         dto.setXuatXu(rs.getString("XUATXU"));
         dto.setMaDVT(rs.getInt("MADVT"));
         // TENDVT có khi query JOIN DONVITINH
-        try { dto.setTenDVT(rs.getString("TENDVT")); } catch (SQLException ignored) {}
+        try {
+            dto.setTenDVT(rs.getString("TENDVT"));
+        } catch (SQLException ignored) {
+        }
         dto.setGiaVonTrungBinh(rs.getBigDecimal("GIAVONTRUNGBINH"));
         dto.setMucTonAnToan(rs.getDouble("MUCTONANTOAN"));
         dto.setSoLuongTonTong(rs.getDouble("SOLUONGTONTONG"));
@@ -173,12 +186,15 @@ public class NguyenLieuDAO extends BaseDAO {
             dto.setThoiDiemXoa(rs.getTimestamp("THOIDIEMXOA").toLocalDateTime());
         }
         int maNX = rs.getInt("MANX");
-        if (!rs.wasNull()) dto.setMaNX(maNX);
+        if (!rs.wasNull())
+            dto.setMaNX(maNX);
         // Hệ số quy đổi — mặc định 1.0 nếu cột chưa có (backward-compat)
         try {
             double heso = rs.getDouble("HESOQUYDOI");
             dto.setHesoQuydoi(rs.wasNull() ? 1.0 : heso);
-        } catch (SQLException ignored) { dto.setHesoQuydoi(1.0); }
+        } catch (SQLException ignored) {
+            dto.setHesoQuydoi(1.0);
+        }
         return dto;
     }
 
@@ -195,7 +211,7 @@ public class NguyenLieuDAO extends BaseDAO {
         List<NguyenLieuDTO> list = new ArrayList<>();
         String sql = "BEGIN ? := FUNC_TONKHOTOITHIEU(); END;";
         try (Connection conn = moKetNoi();
-             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+                java.sql.CallableStatement cs = conn.prepareCall(sql)) {
             cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
             cs.execute();
             try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(1)) {
@@ -216,26 +232,27 @@ public class NguyenLieuDAO extends BaseDAO {
     }
 
     /**
-     * Gọi FUNC_XACDINHPHIEUNHAPFEFO(P_MANL) — DB trả các lô còn hàng theo thứ tự FEFO.
+     * Gọi FUNC_XACDINHPHIEUNHAPFEFO(P_MANL) — DB trả các lô còn hàng theo thứ tự
+     * FEFO.
      *
      * Dùng để hiển thị lô ưu tiên xuất trong UI kế hoạch / thủ kho kiểm tra.
      * (Thực tế xuất kho vẫn do PROC_XUATKHOSANXUAT xử lý trong transaction.)
      *
      * @param maNL mã nguyên liệu
-     * @return list CTPhieuNhapDTO sắp xếp FEFO: mãLô, soLuongConLai, hanSuDung, donGia
+     * @return list CTPhieuNhapDTO sắp xếp FEFO: mãLô, soLuongConLai, hanSuDung,
+     *         donGia
      */
     public List<com.bakery.model.dto.kho.CTPhieuNhapDTO> layLoHangFEFO(int maNL) throws Exception {
         List<com.bakery.model.dto.kho.CTPhieuNhapDTO> list = new ArrayList<>();
         String sql = "BEGIN ? := FUNC_XACDINHPHIEUNHAPFEFO(?); END;";
         try (Connection conn = moKetNoi();
-             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+                java.sql.CallableStatement cs = conn.prepareCall(sql)) {
             cs.registerOutParameter(1, -10); // OracleTypes.CURSOR
             cs.setInt(2, maNL);
             cs.execute();
             try (java.sql.ResultSet rs = (java.sql.ResultSet) cs.getObject(1)) {
                 while (rs != null && rs.next()) {
-                    com.bakery.model.dto.kho.CTPhieuNhapDTO dto =
-                            new com.bakery.model.dto.kho.CTPhieuNhapDTO();
+                    com.bakery.model.dto.kho.CTPhieuNhapDTO dto = new com.bakery.model.dto.kho.CTPhieuNhapDTO();
                     dto.setMaLo(rs.getInt("MALO"));
                     dto.setSoLuongConLai(rs.getDouble("SOLUONGCONLAI"));
                     if (rs.getDate("HANSUDUNG") != null)
@@ -250,18 +267,10 @@ public class NguyenLieuDAO extends BaseDAO {
         return list;
     }
 
-    /**
-     * Lập báo cáo kiểm kê nguyên liệu để mô phỏng và kiểm định hiện tượng Phantom Read.
-     * Gọi Stored Procedure PROC_LAPBAOCAOKIEMKE.
-     *
-     * @param maNL mã nguyên liệu cần kiểm kê
-     * @param maNV mã nhân viên lập báo cáo
-     * @throws Exception nếu xảy ra mâu thuẫn số liệu (Phantom Read)
-     */
     public void lapBaoCaoKiemKe(int maNL, int maNV) throws Exception {
         String sql = "{call PROC_LAPBAOCAOKIEMKE(?, ?, ?, ?)}";
         try (Connection conn = moKetNoi();
-             CallableStatement cstmt = conn.prepareCall(sql)) {
+                CallableStatement cstmt = conn.prepareCall(sql)) {
             cstmt.setInt(1, maNL);
             cstmt.setInt(2, maNV);
             cstmt.registerOutParameter(3, Types.NUMERIC);
