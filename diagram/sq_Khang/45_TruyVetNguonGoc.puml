@@ -1,0 +1,97 @@
+@startuml TruyVetNguonGoc
+mainframe sd Seq_TruyVetNguonGoc
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "GUI_TruyVetNguonGoc" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": MESANXUAT" as DB_ME #White
+entity ": CTPHIEUXUAT_NL" as DB_CTPX #White
+entity ": CTPHIEUNHAP" as DB_CTPN #White
+entity ": PHIEUNHAPKHO" as DB_PNK #White
+entity ": NHACUNGCAP" as DB_NCC #White
+
+TK -> UI: Chọn chức năng truy xuất nguồn gốc
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu tải danh sách mẻ sản xuất
+activate SYS
+deactivate SYS
+
+SYS -> DB_ME: Lấy danh sách mẻ sản xuất
+activate DB_ME
+deactivate DB_ME
+
+SYS -->> UI: Hiển thị danh sách mẻ sản xuất
+
+group opt Tìm kiếm mẻ sản xuất theo sản phẩm
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    TK -> UI: Nhập từ khóa sản phẩm hoặc khoảng thời gian
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Yêu cầu lọc mẻ sản xuất theo điều kiện
+    activate SYS
+    deactivate SYS
+    
+    SYS -> DB_ME: Lấy danh sách mẻ đã lọc
+    activate DB_ME
+    deactivate DB_ME
+    
+    SYS -->> UI: Cập nhật danh sách sau khi lọc
+end
+
+TK -> UI: Chọn một mẻ sản xuất
+activate UI
+deactivate UI
+
+UI -> SYS: Yêu cầu chi tiết nguồn gốc nguyên liệu
+activate SYS
+deactivate SYS
+
+SYS -> DB_ME: Lấy thông tin mẻ
+activate DB_ME
+deactivate DB_ME
+
+SYS -> DB_CTPX: Lấy danh sách lô nguyên liệu đã xuất
+activate DB_CTPX
+deactivate DB_CTPX
+
+SYS -> DB_CTPN: Lấy chi tiết nhập kho của lô
+activate DB_CTPN
+deactivate DB_CTPN
+
+SYS -> DB_PNK: Lấy thông tin phiếu nhập kho của lô
+activate DB_PNK
+deactivate DB_PNK
+
+SYS -> DB_NCC: Lấy thông tin nhà cung cấp
+activate DB_NCC
+deactivate DB_NCC
+
+SYS -> SYS: Tổng hợp chi tiết nguồn gốc
+activate SYS
+deactivate SYS
+
+group alt Tải dữ liệu thành công
+    note over TK: [Xác định được thông tin lô hàng gặp sự cố]
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    SYS -->> UI: Hiển thị chi tiết
+else 
+    note over TK: [Lỗi kết nối]
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    SYS -->> UI: Hệ thống báo lỗi, danh sách hiển thị rỗng
+end
+@enduml

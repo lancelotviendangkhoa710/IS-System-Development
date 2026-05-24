@@ -1,0 +1,39 @@
+@startuml TraCuuNhaCungCap
+mainframe sd Seq_TraCuuNhaCungCap
+autonumber "<b>##."
+skinparam sequenceMessageAlign center
+skinparam style strictuml
+
+    skinparam noteBackgroundColor transparent
+    skinparam noteBorderColor transparent
+
+actor "Thủ kho" as TK #White
+boundary "GUI_TraCuuNhaCungCap" as UI #White
+control "Controller_NhaCungCap" as SYS #White
+entity ": NHACUNGCAP" as DB_NCC #White
+
+UI -> SYS: Yêu cầu tải danh sách nhà cung cấp
+activate SYS
+deactivate SYS
+
+SYS -> DB_NCC: Truy vấn danh sách nhà cung cấp đang hoạt động
+activate DB_NCC
+deactivate DB_NCC
+
+SYS -->> UI: Hiển thị danh sách ban đầu
+
+group opt Tìm kiếm nhà cung cấp
+    autonumber stop
+    TK -[hidden]-> DB_NCC
+    autonumber resume "<b>##."
+    TK -> UI: Gõ từ khóa vào ô tìm kiếm
+    activate UI
+    deactivate UI
+    
+    UI -> SYS: Yêu cầu lọc nhà cung cấp theo từ khóa
+    activate SYS
+    deactivate SYS
+    
+    SYS -->> UI: Cập nhật danh sách sau khi lọc
+end
+@enduml

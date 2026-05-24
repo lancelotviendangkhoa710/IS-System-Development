@@ -30,9 +30,7 @@ group alt So sánh mức tồn kho
     autonumber stop
     HT -[hidden]-> DB_NL
     autonumber resume "<b>##."
-    SYS -->> UI: Gửi thông tin cảnh báo
-    
-    UI -->> TK: Hiển thị cảnh báo hoặc hộp thoại thông báo
+    SYS -->> UI: Hiển thị cảnh báo hoặc hộp thoại thông báo
     
     group opt Xem chi tiết
         autonumber stop
@@ -46,8 +44,7 @@ group alt So sánh mức tồn kho
         activate SYS
         deactivate SYS
         
-        SYS -->> UI: Cung cấp chi tiết số lượng tồn kho
-        UI -->> TK: Hiển thị bảng chi tiết tồn kho
+        SYS -->> UI: Hiển thị bảng chi tiết số lượng tồn kho
     end
 else 
     note over of TK: [Không có nguyên liệu nào dưới mức an toàn]

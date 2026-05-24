@@ -1,37 +1,36 @@
-@startuml SuaNhaCungCap
-mainframe sd Seq_SuaNhaCungCap
+@startuml SuaNguyenLieu
+mainframe sd Seq_SuaNguyenLieu
 autonumber "<b>##."
 skinparam sequenceMessageAlign center
 skinparam style strictuml
 
-    skinparam noteBackgroundColor transparent
+    skinparam noteBackgroundColor transpar1ent
     skinparam noteBorderColor transparent
 
 actor "Thủ kho" as TK #White
-boundary "Form_SuaNhaCungCap" as FRM #White
-boundary "GUI_NhaCungCap" as UI #White
-control "Controller_NhaCungCap" as SYS #White
-entity ": NHACUNGCAP" as DB_NCC #White
+boundary "Form_SuaNguyenLieu" as FRM #White
+boundary "GUI_KhoVaNguyenLieu" as UI #White
+control "Controller_KhoVaNguyenLieu" as SYS #White
+entity ": NGUYENLIEU" as DB_NL #White
 
-TK -> UI: Chọn sửa một nhà cung cấp
+TK -> UI: Chọn sửa một nguyên liệu
 activate UI
 deactivate UI
 
-UI -->> FRM: Hiển thị biểu mẫu sửa
 
-FRM -> SYS: Yêu cầu lấy thông tin
+UI -> SYS: Yêu cầu lấy thông tin
 activate SYS
 deactivate SYS
 
-SYS -> DB_NCC: Lấy dữ liệu nhà cung cấp theo ID
-activate DB_NCC
-deactivate DB_NCC
+SYS -> DB_NL: Lấy dữ liệu nguyên liệu theo ID
+activate DB_NL
+deactivate DB_NL
 
-SYS -->> FRM: Hiển thị biểu mẫu với thông tin hiện tại
+SYS -->> FRM: Hiển thị biểu mẫu với \n thông tin nguyên liệu hiện tại
 
 group opt Hủy thao tác
     autonumber stop
-    TK -[hidden]-> DB_NCC
+    TK -[hidden]-> DB_NL
     autonumber resume "<b>##."
     TK -> FRM: Nhấn nút "Hủy"
     activate FRM
@@ -44,8 +43,7 @@ FRM -> SYS: Yêu cầu đóng form
     SYS -->> UI: Đóng biểu mẫu, không lưu dữ liệu
 end
 
-
-TK -> FRM: Chỉnh sửa thông tin và nhấn "Lưu"
+TK -> FRM: Chỉnh sửa thông tin nguyên liệu và nhấn "Lưu"
 activate FRM
 deactivate FRM
 
@@ -53,24 +51,24 @@ FRM -> SYS: Gửi dữ liệu cập nhật
 activate SYS
 deactivate SYS
 
-SYS -> SYS: Kiểm tra tính hợp lệ và tên không trùng với NCC khác
+SYS -> SYS: Kiểm tra tính hợp lệ của dữ liệu
 activate SYS
 deactivate SYS
 
 group alt Kiểm tra dữ liệu
-    note over of TK: [Thông tin không hợp lệ hoặc trùng tên]
+    note over of TK: [Thông tin không hợp lệ]
     autonumber stop
-    TK -[hidden]-> DB_NCC
+    TK -[hidden]-> DB_NL
     autonumber resume "<b>##."
     SYS -->> UI: Thông báo lỗi và giữ nguyên biểu mẫu
 else 
     note over of TK: [Thông tin hợp lệ]
     autonumber stop
-    TK -[hidden]-> DB_NCC
+    TK -[hidden]-> DB_NL
     autonumber resume "<b>##."
-    SYS -> DB_NCC: Cập nhật thông tin nhà cung cấp
-    activate DB_NCC
-    deactivate DB_NCC
+    SYS -> DB_NL: Cập nhật thông tin nguyên liệu
+    activate DB_NL
+    deactivate DB_NL
 
     SYS -> SYS: Kiểm tra kết quả cập nhật
     activate SYS
@@ -79,16 +77,18 @@ else
     group alt Kết quả cập nhật
         note over of TK: [Lưu thất bại]
         autonumber stop
-        TK -[hidden]-> DB_NCC
+        TK -[hidden]-> DB_NL
         autonumber resume "<b>##."
         SYS -->> UI: Thông báo lỗi lưu dữ liệu
     else 
-        note over of TK: [Lưu thành công (kể cả không có thay đổi)]
+        note over of TK: [Lưu thành công]
         autonumber stop
-        TK -[hidden]-> DB_NCC
+        TK -[hidden]-> DB_NL
         autonumber resume "<b>##."
         SYS -->> UI: Thông báo thành công và làm mới danh sách
     end
 end
+
+
 
 @enduml
