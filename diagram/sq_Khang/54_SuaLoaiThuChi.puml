@@ -54,7 +54,7 @@ FRM -> SYS: Gửi dữ liệu cập nhật
 activate SYS
 deactivate SYS
 
-SYS -> SYS: Kiểm tra tính hợp lệ (tên không rỗng)
+SYS -> SYS: Kiểm tra tính hợp lệ
 activate SYS
 deactivate SYS
 

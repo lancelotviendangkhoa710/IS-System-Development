@@ -55,7 +55,7 @@ FRM -> SYS: Gửi dữ liệu phiếu thu chi
 activate SYS
 deactivate SYS
 
-SYS -> SYS: Kiểm tra tính hợp lệ (có danh mục, số tiền > 0)
+SYS -> SYS: Kiểm tra tính hợp lệ
 activate SYS
 deactivate SYS
 

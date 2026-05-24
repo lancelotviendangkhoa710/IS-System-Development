@@ -43,7 +43,7 @@ FRM -> SYS: Gửi dữ liệu loại thu chi mới
 activate SYS
 deactivate SYS
 
-SYS -> SYS: Kiểm tra tính hợp lệ (tên không rỗng, phân loại hợp lệ)
+SYS -> SYS: Kiểm tra tính hợp lệ
 activate SYS
 deactivate SYS
 
