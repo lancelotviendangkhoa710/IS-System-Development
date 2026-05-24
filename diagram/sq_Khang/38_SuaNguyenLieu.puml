@@ -10,7 +10,7 @@ skinparam style strictuml
 actor "Thủ kho" as TK #White
 boundary "Form_SuaNguyenLieu" as FRM #White
 boundary "GUI_KhoVaNguyenLieu" as UI #White
-control "Controller_KhoVaNguyenLieu" as SYS #White
+control "Controller_QuanLyNguyenLieu" as SYS #White
 entity ": NGUYENLIEU" as DB_NL #White
 
 TK -> UI: Chọn sửa một nguyên liệu

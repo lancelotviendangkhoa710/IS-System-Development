@@ -10,7 +10,7 @@ skinparam style strictuml
 actor "Hệ thống" as HT #White
 actor "Thủ kho" as TK #White
 boundary "GUI_CanhBaoTonKho" as UI #White
-control "Controller_KhoVaNguyenLieu" as SYS #White
+control "Controller_QuanLyNguyenLieu" as SYS #White
 entity ": NGUYENLIEU" as DB_NL #White
 
 HT -> SYS: Định kỳ gọi hàm kiểm tra tồn kho
