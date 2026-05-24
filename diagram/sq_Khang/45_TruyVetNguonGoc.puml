@@ -9,7 +9,7 @@ skinparam style strictuml
 
 actor "Thủ kho" as TK #White
 boundary "GUI_TruyVetNguonGoc" as UI #White
-control "Controller_KhoVaNguyenLieu" as SYS #White
+control "Controller_QuanLyNguyenLieu" as SYS #White
 entity ": MESANXUAT" as DB_ME #White
 entity ": CTPHIEUXUAT_NL" as DB_CTPX #White
 entity ": CTPHIEUNHAP" as DB_CTPN #White
