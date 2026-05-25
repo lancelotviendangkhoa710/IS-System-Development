@@ -81,9 +81,14 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
     public void navigateToMain() {
         Platform.runLater(() -> {
             try {
-                // Phai dung quayLaiMenuChinh de load AppShell.fxml dung cach
-                // (transitionTo MainMenuView.fxml truc tiep se bi null appShellController)
-                quayLaiMenuChinh(btnBatDau);
+                javafx.stage.Stage stage = (javafx.stage.Stage) btnBatDau.getScene().getWindow();
+                if (stage.getOwner() != null) {
+                    // Nếu là cửa sổ dialog (mở từ MainMenu), đóng dialog
+                    stage.close();
+                } else {
+                    // Nếu là cửa sổ chính (mở sau khi đăng nhập), chuyển hướng về menu chính
+                    quayLaiMenuChinh(btnBatDau);
+                }
             } catch (Exception e) {
                 hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
             }
@@ -94,7 +99,16 @@ public class MoCaViewFXMLController extends BaseController implements IMoCaView 
     public void navigateToLogin() {
         Platform.runLater(() -> {
             try {
-                transitionTo(btnBatDau, "/fxml/hethong/DangNhapView.fxml", "H3K Bakery - Đăng nhập", 1366, 768);
+                javafx.stage.Stage stage = (javafx.stage.Stage) btnBatDau.getScene().getWindow();
+                if (stage.getOwner() != null) {
+                    // Đóng cửa sổ dialog
+                    stage.close();
+                    // Chuyển hướng cửa sổ chính (owner) sang màn hình Đăng nhập
+                    javafx.stage.Stage ownerStage = (javafx.stage.Stage) stage.getOwner();
+                    transitionTo(ownerStage.getScene().getRoot(), "/fxml/hethong/DangNhapView.fxml", "H3K Bakery - Đăng nhập", 1366, 768);
+                } else {
+                    transitionTo(btnBatDau, "/fxml/hethong/DangNhapView.fxml", "H3K Bakery - Đăng nhập", 1366, 768);
+                }
             } catch (Exception e) {
                 hienThiLoi("Lỗi chuyển màn hình: " + e.getMessage());
             }
