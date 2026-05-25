@@ -2,6 +2,10 @@
 hide circle
 skinparam classAttributeIconSize 0
 
+skinparam nodesep 80
+skinparam ranksep 80
+skinparam arrowThickness 1.5
+
 class CALAMVIEC <<entity>> {
   +GhiNhanDoiSoatDauCa()
   +KiemTraCaLamViecHienTaiDangMo()
@@ -232,7 +236,6 @@ class KHACHHANG <<entity>> {
 class LOAITHUCHI <<entity>> {
   +CapNhatThongTinLoaiThuChi()
   +GhiNhanTrangThaiMoi()
-  +Khoa()
   +LayDanhSachLoaiThuChi()
   +LayDuLieuLoaiThuChiTheoId()
   +LuuLoaiThuChiMoi()

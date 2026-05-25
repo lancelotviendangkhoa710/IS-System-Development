@@ -1,539 +1,342 @@
-@startuml ThucThe
+@startuml Entity_Model
 hide circle
 skinparam classAttributeIconSize 0
 
-class CALAMVIEC <<entity>> {
-  +GhiNhanDoiSoatDauCa()
-  +KiemTraCaLamViecHienTaiDangMo()
-  +LuuKetQuaDoiSoatVaDongCa()
-  +TaoCaLamViecMoi()
-  +TinhTongDoanhThuCa()
-  -maCa: int
-  -maMayPOS: String
-  -maNV: int
-  -thoiGianDongCa: LocalDateTime
-  -thoiGianMoCa: LocalDateTime
-  -trangThai: String
+class CALAMVIEC {
+  - maCa : int
+  - maNV : int
+  - maMayPOS : String
+  - thoiGianMoCa : Timestamp
+  - thoiGianDongCa : Timestamp
+  - trangThai : String
 }
 
-class CAUHINH <<entity>> {
-  +LayDuLieu()
-  +LuuGioiHanMoi()
-  -gioiHanSoBanh: int
-  -ngaySanXuat: LocalDate
-  -soBanhDaNhan: int
+class DOISOAT {
+  - maCa : int
+  - tienKhaiBaoDauCa : BigDecimal
+  - tongTienHeThong : BigDecimal
+  - tienThucTeDem : BigDecimal
+  - chenhLech : BigDecimal
+  - lyDoChenhLech : String
 }
 
-class CHITIETPHIEUNHAPKHO <<entity>> {
-  +LuuChiTietCacNguyenLieuNhap()
-  -maNCC: int
-  -maNV: int
-  -maPN: int
-  -ngayNhap: LocalDateTime
-  -tenNhaCungCap: String
-  -tenNhanVien: String
-  -tongTienNhap: BigDecimal
+class NANGLUCSANXUAT {
+  - ngaySanXuat : Date
+  - gioiHanSoBanh : int
+  - soBanhDaNhan : int
 }
 
-class CHITIETPHIEUXUATHUY <<entity>> {
-  +LuuChiTietCacNguyenLieuHuy()
+class CTPHIEUNHAP {
+  - maLo : int
+  - maPN : int
+  - maNL : int
+  - soLuong : double
+  - donGia : BigDecimal
+  - soLuongConLai : double
+  - ngaySanXuat : Date
+  - hanSuDung : Date
+  - maVach_Lo : String
 }
 
-class CHITIETPHIEUXUATKHO <<entity>> {
-  +LuuChiTietCacNguyenLieuXuat()
-  -lyDoXuat: String
-  -maNV: int
-  -maPX: int
-  -ngayXuat: LocalDateTime
-  -tenNhanVien: String
+class CTPHIEUXUAT_NL {
+  - maPX : int
+  - maLo : int
+  - soLuong : double
 }
 
-class CHUCNANG <<entity>> {
-  +LayDanhSachChucNang()
-  -canAdd: boolean
-  -canDelete: boolean
-  -canDownload: boolean
-  -canEdit: boolean
-  -canView: boolean
-  -maChucNang: int
-  -moTa: String
-  -module: SystemModule
-  -tenChucNang: String
+class CTPHIEUXUAT_TP {
+  - maPX : int
+  - maSP : int
+  - soLuong : double
+  - donGiaVon : BigDecimal
 }
 
-class CONGTHUC <<entity>> {
-  +CapNhatCongThuc()
-  +LayBangChiTietCongThuc()
-  +LayCongThucSanPham()
-  +LayDuLieuCongThuc()
-  +LuuCongThucMoi()
-  +LuuTrangThaiMoi()
-  +TruyVanDanhSach()
-  -donGia: double
-  -maNL: int
-  -maSP: int
-  -soLuongTieuHao: double
-  -tenDVT: String
-  -tenNguyenLieu: String
+class CHUCNANG {
+  - maChucNang : int
+  - tenChucNang : String
+  - moTa : String
+  - module : String
 }
 
-class CTDONHANG <<entity>> {
-  +LayChiTietDonBanLe()
-  -donGia: BigDecimal
-  -donGiaVon: BigDecimal
-  -maCTHD: int
-  -maDon: int
-  -maSP: int
-  -phanTramGiam: double
-  -soLuong: int
+class CONGTHUC {
+  - maSP : int
+  - maNL : int
+  - soLuongTieuHao : double
 }
 
-class CTDONTUYCHINH <<entity>> {
-  +LayChiTietDonTuyChinh()
-  -donGia: BigDecimal
-  -donGiaVon: BigDecimal
-  -ghiChuThoBanh: String
-  -hinhAnhThamKhao: String
-  -loiChucTrenBanh: String
-  -maCTTC: int
-  -maCot: Integer
-  -maDon: int
-  -maKC: Integer
-  -maNhan: Integer
-  -maSP: int
-  -maTrangTri: Integer
-  -soLuong: int
-  -thoiGianChuanBi: Integer
+class CTDONHANG {
+  - maCTHD : int
+  - maDon : int
+  - maSP : int
+  - soLuong : int
+  - donGia : BigDecimal
+  - phanTramGiam : double
+  - donGiaVon : BigDecimal
 }
 
-class DANHMUCSANPHAM <<entity>> {
-  +CapNhatTenDanhMuc()
-  +KiemTraTrungLapTen()
-  +LuuDanhMucMoi()
-  +LuuTrangThaiMoi()
-  +TruyVanDanhMuc()
-  +TruyVanKiemTraTen()
-  -choPhepTuyChinh: int
-  -giaBan: double
-  -giaVon: double
-  -hinhAnh: String
-  -maDM: int
-  -maNX: Integer
-  -maSP: int
-  -phienBan: int
-  -soLuongTon: double
-  -tenSP: String
-  -thanhPhan: String
-  -thoiDiemXoa: LocalDateTime
-  -thoiGianBaoQuan: int
-  -thoiGianChuanBi: int
+class CTDONTUYCHINH {
+  - maCTTC : int
+  - maDon : int
+  - maSP : int
+  - soLuong : int
+  - maKC : Integer
+  - maCot : Integer
+  - maNhan : Integer
+  - maTrangTri : Integer
+  - loiChucTrenBanh : String
+  - ghiChuThoBanh : String
+  - hinhAnhThamKhao : String
+  - donGia : BigDecimal
+  - donGiaVon : BigDecimal
+  - thoiGianChuanBi : Integer
 }
 
-class DONDATHANG <<entity>> {
-  +CapNhatTrangThai()
-  +CapNhatTrangThaiDaHuy()
-  +CapNhatTrangThaiHoanThanh()
-  +GhiNhanHoanCoc()
-  +KiemTraDonHangChuaHoanTat()
-  +LocDonHangTheoDieuKien()
-  +LuuDonHangDaCoc()
-  +LuuPhieuThuCoc()
-  +TimKiemLichSuDonHangHoaDonLeDatBanh()
-  +TruyVanDanhSachTrongNgay()
-  +TruyVanThongTinCoc()
-  -diaChiGiao: String
-  -hinhThucNhan: Integer
-  -maDon: int
-  -maKH: Integer
-  -maNVLap: int
-  -maTrangThai: int
-  -ngayGioNhanBanh: LocalDateTime
-  -ngayLap: LocalDateTime
-  -phienBan: Integer
-  -tenTrangThai: String
-  -tienDaCoc: BigDecimal
-  -tongTienHDBan: BigDecimal
+class DANHMUCSP {
+  - maDM : int
+  - tenDM : String
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class HANGTHANHVIEN <<entity>> {
-  +CapNhatThongTinHangLuongNen()
-  +LayDanhSachHangSapXepTheoDiemTangDan()
-  +LayThongTinHangThanhVien()
-  +TaiLaiDanhSach()
-  -diemToiThieu: Integer
-  -maHang: int
-  -maNX: Integer
-  -phanTramGiamGia: BigDecimal
-  -tenHang: String
-  -thoiDiemXoa: LocalDateTime
+class DONDATHANG {
+  - maDon : int
+  - ngayLap : Timestamp
+  - ngayGioNhanBanh : Timestamp
+  - maKH : Integer
+  - maNV_Lap : int
+  - maTrangThai : int
+  - tongTienHDBan : BigDecimal
+  - tienDaCoc : BigDecimal
+  - phienBan : int
+  - hinhThucNhan : int
+  - diaChiGiao : String
+  - sdtGiao : String
 }
 
-class HOADON <<entity>> {
-  +CapNhatTrangThaiDaHuy()
-  +LayChiTietHoaDon()
-  +LayMaCa()
-  +LuuGiaoDichHoanTien()
-  +LuuHoaDonMoiHoanThanh()
-  +LuuPhieuThuVaoSoQuy()
-  +TaoHoaDonVaLuuPhieuThu()
-  +TongHopDuLieuHoaDonTrongKhoangThoiGianYeuCau()
-  +TruyVanTongDoanhThuTuHoaDonBanHangHoanTat()
-  -loaiHD: String
-  -maCa: int
-  -maDon: Integer
-  -maHD: int
-  -maPTTT: int
-  -ngayXuatHd: LocalDateTime
-  -thueVAT: Double
-  -tienHangGoc: BigDecimal
-  -tongTienThanhToan: BigDecimal
-  -trangThai: String
+class HANGTHANHVIEN {
+  - maHang : int
+  - tenHang : String
+  - diemToiThieu : int
+  - phanTramGiamGia : BigDecimal
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class HOATDONGNHANVIEN <<entity>> {
-  +GhiNhanLichSuHoatDong()
-  -entityId: Integer
-  -hanhDong: String
-  -maHoatDong: int
-  -maNV: int
-  -nhom: String
-  -tenNhanVien: String
-  -thoiGian: LocalDateTime
-  -vaitro: String
+class HOADON {
+  - maHD : int
+  - maDon : Integer
+  - maCa : int
+  - ngayXuatHD : Timestamp
+  - thueVAT : double
+  - tongTienThanhToan : BigDecimal
+  - tienHangGoc : BigDecimal
+  - maPTTT : int
+  - loaiHD : String
+  - trangThai : String
 }
 
-class KHACHHANG <<entity>> {
-  +CapNhatThoiDiemXoaNVaMaNguoiXoa()
-  +CapNhatThongTinKhachHang()
-  +LayThongTinKhachHang()
-  +LuuHoSoKhachHangMoi()
-  +TaiLaiDanhSach()
-  +TruyVanDanhSachKhachHangDaXoa()
-  +TruyVanDanhSachKhachHangHoatDong()
-  +TruyVanKetHopTuKhoaVaBoLoc()
-  +TruyVanKhachHang()
-  +TruyVanThongTinKhachHang()
-  +TruyVanTrangDuLieuMoi()
-  +XoaThoiDiemXoaVaMaNguoiXoa()
-  -diaChi: String
-  -diemTichLuy: Integer
-  -hoTen: String
-  -maHang: Integer
-  -maKH: int
-  -maNX: Integer
-  -ngayDangKy: LocalDate
-  -phanTramGiamGia: BigDecimal
-  -sdt: String
-  -tenHang: String
-  -tenNguoiXoa: String
-  -thoiDiemXoa: LocalDateTime
+class HOATDONGNHANVIEN {
+  - maHoatDong : int
+  - maNV : int
+  - nhom : String
+  - hanhDong : String
+  - entityId : Integer
+  - thoiGian : Timestamp
 }
 
-class LOAITHUCHI <<entity>> {
-  +CapNhatThongTinLoaiThuChi()
-  +GhiNhanTrangThaiMoi()
-  +Khoa()
-  +LayDanhSachLoaiThuChi()
-  +LayDuLieuLoaiThuChiTheoId()
-  +LuuLoaiThuChiMoi()
-  -maLoaiThuChi: int
-  -maNguoiXoa: Integer
-  -phanLoai: String
-  -tenLoaiThuChi: String
+class KHACHHANG {
+  - maKH : int
+  - hoTen : String
+  - sdt : String
+  - diaChi : String
+  - ngayDangKy : Date
+  - diemTichLuy : int
+  - maHang : Integer
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class NGUYENLIEU <<entity>> {
-  +CapNhatSoLuongTonKho()
-  +CapNhatThongTinNguyenLieu()
-  +LayDanhSachNguyenLieu()
-  +LayDanhSachNguyenLieuTonKho0()
-  +LayDanhSachNguyenLieuVaMucAnToan()
-  +LayDuLieuNguyenLieuTheoId()
-  +LuuThongTinNguyenLieuMoi()
-  +TruSoLuongTonKho()
-  +TruyVanDanhSachNguyenLieu()
-  +TruyVanTonKhoNguyenLieuTuongUng()
-  -datChuanVSATTP: Integer
-  -giaVonTrungBinh: BigDecimal
-  -maDVT: int
-  -maNL: int
-  -maNX: Integer
-  -mucTonAnToan: Double
-  -phienBan: Integer
-  -soLuongTonTong: Double
-  -tenDVT: String
-  -tenNL: String
-  -thoiDiemXoa: LocalDateTime
-  -xuatXu: String
+class LOAITHUCHI {
+  - maLoaiThuChi : int
+  - tenLoaiThuChi : String
+  - phanLoai : String
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class NHACUNGCAP <<entity>> {
-  +CapNhatThongTinNhaCungCap()
-  +GhiNhanTrangThaiMoi()
-  +Khoa()
-  +LayDanhSachNhaCungCap()
-  +LayDuLieuChiTiet()
-  +LayDuLieuNhaCungCapTheoId()
-  +LayThongTinNhaCungCap()
-  +LuuThongTinNhaCungCapMoi()
-  +TruyVanDanhSachNhaCungCapDangHoatDong()
-  -diaChi: String
-  -maNCC: int
-  -maNX: Integer
-  -sdt: String
-  -tenNCC: String
-  -thoiDiemXoa: LocalDateTime
+class NGUYENLIEU {
+  - maNL : int
+  - tenNL : String
+  - xuatXu : String
+  - maDVT : int
+  - giaVonTrungBinh : BigDecimal
+  - mucTonAnToan : double
+  - soLuongTonTong : double
+  - datChuanVSATTP : int
+  - heSoQuyDoi : double
+  - phienBan : int
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class NHANVIEN <<entity>> {
-  +CapNhatThongTinCaNhan()
-  +CapNhatTrangThaiLamViec()
-  +LayDanhSachCapNhat()
-  +LayDanhSachNhanVien()
-  +LuuHoSoNhanVienMoi()
-  +ThucHienTruyVanThongTinNNhanVienTheoDieuKien()
-  +TimKiemNhanVienTheoDieuKien()
-  -diaChi: String
-  -email: String
-  -hoTen: String
-  -maNV: int
-  -maTaiKhoan: int
-  -matKhau: String
-  -ngaySinh: LocalDate
-  -sdt: String
-  -tenDangNhap: String
-  -trangThaiLamViec: int
-  -trangThaiTK: int
+class NHACUNGCAP {
+  - maNCC : int
+  - tenNCC : String
+  - sdt : String
+  - diaChi : String
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class NHANVIEN_VAITRO <<entity>> {
-  +LuuVaiTroNhanVien()
-  +XoaVaCapNhatVaiTroNhanVien()
-  -diaChi: String
-  -email: String
-  -hoTen: String
-  -maNV: int
-  -maTaiKhoan: int
-  -matKhau: String
-  -ngaySinh: LocalDate
-  -sdt: String
-  -tenDangNhap: String
-  -trangThaiLamViec: int
-  -trangThaiTK: int
+class NHANVIEN {
+  - maNV : int
+  - hoTen : String
+  - ngaySinh : Date
+  - sdt : String
+  - trangThaiLamViec : int
 }
 
-class PHIEUNHAPKHO <<entity>> {
-  +LayChiTietPhieuNhapSoLoThoiHan()
-  +LuuThongTinPhieuNhapKho()
-  +TruyVanCacPhieuNhapKho()
-  +TruyVanCacPhieuNhapKhoCuaNhaCungCapNay()
-  +TruyVanTongChiPhiTuPhieuNhapKho()
-  -maNCC: int
-  -maNV: int
-  -maPN: int
-  -ngayNhap: LocalDateTime
-  -tenNhaCungCap: String
-  -tenNhanVien: String
-  -tongTienNhap: BigDecimal
+class TAIKHOAN {
+  - maTaiKhoan : int
+  - maNV : int
+  - tenDangNhap : String
+  - matKhau : String
+  - email : String
+  - trangThaiTK : int
+  - ngayTao : Timestamp
 }
 
-class PHIEUTHUCHI <<entity>> {
-  +CapNhatTrangThaiPhieuThanhDaHuyVaGhiNhanLyDo()
-  +LuuThongTinPhieuThuChiMoi()
-  -ghiChu: String
-  -maCa: int
-  -maHD: Integer
-  -maLoaiThuChi: int
-  -maNV: int
-  -maPhieuTC: int
-  -maPieuNhap: Integer
-  -ngayTao: LocalDateTime
-  -phanLoai: String
-  -soTien: double
-  -tenLoaiThuChi: String
-  -tenNhanVien: String
-  -trangThai: String
+class NHANVIEN_VAITRO {
+  - maNV : int
+  - maVaiTro : int
 }
 
-class PHIEUXUATHUY <<entity>> {
-  +LuuThongTinPhieuXuatHuy()
+class PHIEUNHAPKHO {
+  - maPN : int
+  - ngayNhap : Timestamp
+  - maNV : int
+  - maNCC : int
+  - tongTienNhap : BigDecimal
 }
 
-class PHIEUXUATKHO <<entity>> {
-  +LuuThongTinPhieuXuatKho()
-  -lyDoXuat: String
-  -maNV: int
-  -maPX: int
-  -ngayXuat: LocalDateTime
-  -tenNhanVien: String
+class PHIEUXUATKHO {
+  - maPX : int
+  - ngayXuat : Timestamp
+  - lyDoXuat : String
+  - maNV : int
 }
 
-class SANPHAM <<entity>> {
-  +CapNhatTrangThai()
-  +HoanTraSoLuongTonKho()
-  +KiemTraSanPhamTrongDanhMuc()
-  +LayThongTinSanPham()
-  +LayThongTinSanPhamBanhGoc()
-  +LuuDuLieuCapNhat()
-  +LuuSanPhamMoiVaHinhAnh()
-  +TruyVanTheoDieuKien()
-  -choPhepTuyChinh: int
-  -giaBan: double
-  -giaVon: double
-  -hinhAnh: String
-  -maDM: int
-  -maNX: Integer
-  -maSP: int
-  -phienBan: int
-  -soLuongTon: double
-  -tenSP: String
-  -thanhPhan: String
-  -thoiDiemXoa: LocalDateTime
-  -thoiGianBaoQuan: int
-  -thoiGianChuanBi: int
+class PHIEUTHUCHI {
+  - maPhieuTC : int
+  - ngayTao : Timestamp
+  - maLoaiThuChi : int
+  - soTien : BigDecimal
+  - maNV : int
+  - maHD : Integer
+  - maPN : Integer
+  - maCa : Integer
+  - ghiChu : String
+  - trangThai : String
 }
 
-class TAIKHOAN <<entity>> {
-  +CapNhatTaiKhoanDangNhap()
-  +CapNhatTrangThaiTaiKhoan()
-  +KiemTraTaiKhoanCoBiVoHieuHoaKhong()
-  +KiemTraTrungTenDangNhap()
-  +KiemTraTrungTenDangNhapTruNhanVienHienTai()
-  +TaoTaiKhoanDangNhap()
+class SANPHAM {
+  - maSP : int
+  - maDM : int
+  - tenSP : String
+  - giaVon : BigDecimal
+  - giaBan : BigDecimal
+  - hinhAnh : String
+  - choPhepTuyChinh : int
+  - thoiGianBaoQuan : int
+  - soLuongTon : double
+  - phienBan : int
+  - thoiDiemXoa : Timestamp
+  - thoiGianChuanBi : int
+  - maNX : int
 }
 
-class THANHVIEN <<entity>> {
-  +CongDiemThanhVienNeuCo()
-  +TruyVanHangThanhVien()
-  -diemToiThieu: Integer
-  -maHang: int
-  -maNX: Integer
-  -phanTramGiamGia: BigDecimal
-  -tenHang: String
-  -thoiDiemXoa: LocalDateTime
+class VAITRO {
+  - maVaiTro : int
+  - tenVaiTro : String
+  - moTa : String
+  - thoiDiemXoa : Timestamp
+  - maNX : int
 }
 
-class THEKHO <<entity>> {
-  +GhiNhanBienDongTheKho()
-  +LayDuLieuTheKho()
-  +LayLichSuBienDongNhapXuatTon()
-  -loaiGiaoDich: String
-  -maLo: int
-  -ngayGiaoDich: LocalDateTime
-  -soLuong: double
-  -soLuongConLai: double
+class VAITRO_CHUCNANG {
+  - maVaiTro : int
+  - maChucNang : int
+  - canView : int
+  - canAdd : int
+  - canEdit : int
+  - canDelete : int
+  - canDownload : int
+  - thoiDiemXoa : Timestamp
+  - createdAt : Timestamp
 }
 
-class VAITRO <<entity>> {
-  -maNX: Integer
-  -maVaiTro: int
-  -moTa: String
-  -tenVaiTro: String
-  -thoiDiemXoa: LocalDateTime
+class TRANGTHAIDON {
+  - maTrangThai : int
+  - tenTrangThai : String
 }
 
-class VAITRO_CHUCNANG <<entity>> {
-  +CapNhatQuyenHanChiTiet()
-  +LayDanhSachQuyenHanTheoVaiTroCuaTaiKhoan()
-  -canAdd: boolean
-  -canDelete: boolean
-  -canDownload: boolean
-  -canEdit: boolean
-  -canView: boolean
-  -maChucNang: int
-  -moTa: String
-  -module: SystemModule
-  -tenChucNang: String
+class MESANXUAT {
+  - maMe : int
+  - maSP : int
+  - soLuongSanXuat : double
+  - ngaySanXuat : Timestamp
+  - maNV : int
+  - maPX : int
+  - hanSuDung : Date
+  - soLuongConLai : double
 }
 
-class VW_HoatDongNhanVien <<entity>> {
-  +LayDuLieuTuViewVw_hoatdongnhanvien()
-  -entityId: Integer
-  -hanhDong: String
-  -maHoatDong: int
-  -maNV: int
-  -nhom: String
-  -tenNhanVien: String
-  -thoiGian: LocalDateTime
-  -vaitro: String
-}
+' Quan hệ
+CALAMVIEC "1" -- "0..1" DOISOAT : 1-1
+CALAMVIEC "1" -- "*" HOADON
+CALAMVIEC "1" -- "*" PHIEUTHUCHI
 
-' ==========================================
-' QUAN HỆ GIỮA CÁC ENTITY (giữ nguyên)
-' ==========================================
-CALAMVIEC "1" -right- "*" PHIEUTHUCHI
-DANHMUCSANPHAM "1" -right- "*" SANPHAM
-DONDATHANG "1" *-left- "*" CTDONHANG
-DONDATHANG "1" *-right- "*" CTDONTUYCHINH
-HOADON "1" -left- "1" DONDATHANG
-KHACHHANG "1" -left- "*" HOADON
-KHACHHANG "1" -right- "1" THANHVIEN
-LOAITHUCHI "1" -left- "*" PHIEUTHUCHI
-NGUYENLIEU "1" -- "*" CHITIETPHIEUNHAPKHO
-NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATHUY
-NGUYENLIEU "1" -- "*" CHITIETPHIEUXUATKHO
-NGUYENLIEU "1" -left- "*" THEKHO
-NGUYENLIEU "1" -right- "*" CONGTHUC
+NHANVIEN "1" -- "0..1" TAIKHOAN
+NHANVIEN "1" -- "*" NHANVIEN_VAITRO
+NHANVIEN_VAITRO "*" -- "1" VAITRO
+VAITRO "1" -- "*" VAITRO_CHUCNANG
+VAITRO_CHUCNANG "*" -- "1" CHUCNANG
+
+NHANVIEN "1" -- "*" HOATDONGNHANVIEN
+NHANVIEN "1" -- "*" PHIEUNHAPKHO
+NHANVIEN "1" -- "*" PHIEUXUATKHO
+NHANVIEN "1" -- "*" DONDATHANG : lap don
+NHANVIEN "1" -- "*" MESANXUAT
+
+KHACHHANG "*" -- "0..1" HANGTHANHVIEN
+KHACHHANG "1" -- "*" DONDATHANG
+
+DONDATHANG "1" -- "*" CTDONHANG
+DONDATHANG "1" -- "*" CTDONTUYCHINH
+DONDATHANG "*" -- "1" TRANGTHAIDON
+DONDATHANG "0..1" -- "1" HOADON
+
+SANPHAM "*" -- "1" DANHMUCSP
+SANPHAM "1" -- "*" CTDONHANG
+SANPHAM "1" -- "*" CTDONTUYCHINH
+SANPHAM "1" -- "*" CONGTHUC
+SANPHAM "1" -- "*" MESANXUAT
+
+NGUYENLIEU "1" -- "*" CONGTHUC
+NGUYENLIEU "1" -- "*" CTPHIEUNHAP
+NGUYENLIEU "1" -- "*" CTPHIEUXUAT_NL
+
 NHACUNGCAP "1" -- "*" PHIEUNHAPKHO
-NHANVIEN "1" *-down- "*" TAIKHOAN
-NHANVIEN "1" -left- "*" HOATDONGNHANVIEN
-NHANVIEN "1" -right- "*" NHANVIEN_VAITRO
-NHANVIEN_VAITRO "*" -right- "1" VAITRO
-PHIEUNHAPKHO "1" -- "*" CHITIETPHIEUNHAPKHO
-PHIEUXUATHUY "1" -- "*" CHITIETPHIEUXUATHUY
-PHIEUXUATKHO "1" -- "*" CHITIETPHIEUXUATKHO
-VAITRO "1" *-right- "*" VAITRO_CHUCNANG
-VAITRO_CHUCNANG "*" -right- "1" CHUCNANG
-VW_HoatDongNhanVien -[hidden]right- HOATDONGNHANVIEN
 
-' ==========================================
-' BỐ CỤC LẠI VỊ TRÍ CÁC BẢNG (chỉ thêm liên kết ẩn)
-' ==========================================
-' Cột 1: Lịch sử hoạt động
-VW_HoatDongNhanVien -[hidden]down- HOATDONGNHANVIEN
+PHIEUNHAPKHO "1" -- "*" CTPHIEUNHAP
+PHIEUXUATKHO "1" -- "*" CTPHIEUXUAT_NL
+PHIEUXUATKHO "1" -- "*" CTPHIEUXUAT_TP
+PHIEUXUATKHO "1" -- "1" MESANXUAT : nguyen lieu SX
 
-' Cột 2: Nhân viên – tài khoản (xếp dọc)
-NHANVIEN -[hidden]down- TAIKHOAN
+CTPHIEUNHAP "1" -- "*" CTPHIEUXUAT_NL : FEFO
 
-' Cột 3: Vai trò – chức năng (xếp dọc)
-VAITRO -[hidden]down- VAITRO_CHUCNANG
-VAITRO_CHUCNANG -[hidden]down- CHUCNANG
-
-' Cột 4: Khách hàng – thành viên – hạng
-KHACHHANG -[hidden]down- THANHVIEN
-THANHVIEN -[hidden]down- HANGTHANHVIEN
-
-' Cột 5: Đơn hàng – hoá đơn (xếp dọc)
-HOADON -[hidden]down- DONDATHANG
-DONDATHANG -[hidden]down- CTDONHANG
-CTDONHANG -[hidden]down- CTDONTUYCHINH
-
-' Cột 6: Sản phẩm – danh mục – công thức – nguyên liệu
-SANPHAM -[hidden]down- DANHMUCSANPHAM
-DANHMUCSANPHAM -[hidden]down- CONGTHUC
-CONGTHUC -[hidden]down- NGUYENLIEU
-
-' Cột 7: Kho – nhập xuất (xếp dọc)
-THEKHO -[hidden]down- NHACUNGCAP
-NHACUNGCAP -[hidden]down- PHIEUNHAPKHO
-PHIEUNHAPKHO -[hidden]down- CHITIETPHIEUNHAPKHO
-CHITIETPHIEUNHAPKHO -[hidden]down- PHIEUXUATKHO
-PHIEUXUATKHO -[hidden]down- CHITIETPHIEUXUATKHO
-CHITIETPHIEUXUATKHO -[hidden]down- PHIEUXUATHUY
-PHIEUXUATHUY -[hidden]down- CHITIETPHIEUXUATHUY
-
-' Cột 8: Thu chi – ca làm việc – cấu hình
-LOAITHUCHI -[hidden]down- PHIEUTHUCHI
-PHIEUTHUCHI -[hidden]down- CALAMVIEC
-CALAMVIEC -[hidden]down- CAUHINH
-
-' Liên kết ngang giữa các cột để trải đều
-VW_HoatDongNhanVien -[hidden]right- NHANVIEN
-NHANVIEN -[hidden]right- VAITRO
-VAITRO -[hidden]right- KHACHHANG
-KHACHHANG -[hidden]right- HOADON
-HOADON -[hidden]right- SANPHAM
-SANPHAM -[hidden]right- THEKHO
-THEKHO -[hidden]right- LOAITHUCHI
+LOAITHUCHI "1" -- "*" PHIEUTHUCHI
+PHIEUTHUCHI "*" -- "0..1" HOADON
+PHIEUTHUCHI "*" -- "0..1" PHIEUNHAPKHO
 
 @enduml
