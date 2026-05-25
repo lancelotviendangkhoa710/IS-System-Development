@@ -10,7 +10,7 @@ skinparam nodesep 40
 skinparam ranksep 150
 skinparam arrowThickness 1.5
 
-actor "Thợ bếp" as TB
+' actor "Thợ bếp" as TB
 
 boundary "Form_CauHinh"
 boundary "Form_CongThuc"
@@ -41,18 +41,18 @@ entity "PHIEUXUATHUY"
 entity "PHIEUXUATKHO"
 entity "THEKHO"
 
-TB -- Form_CauHinh
-TB -- Form_CongThuc
-TB -- Form_LapPhieuNhapKho
-TB -- Form_LapPhieuXuatHuy
-TB -- Form_LapPhieuXuatKho
-TB -- Form_SuaNguyenLieu
-TB -- Form_ThemNguyenLieu
-TB -- GUI_CanhBaoTonKho
-TB -- GUI_CongThuc
-TB -- GUI_KhoVaNguyenLieu
-TB -- GUI_TraCuuTheKho
-TB -- GUI_TruyVetNguonGoc
+' TB -- Form_CauHinh
+' TB -- Form_CongThuc
+' TB -- Form_LapPhieuNhapKho
+' TB -- Form_LapPhieuXuatHuy
+' TB -- Form_LapPhieuXuatKho
+' TB -- Form_SuaNguyenLieu
+' TB -- Form_ThemNguyenLieu
+' TB -- GUI_CanhBaoTonKho
+' TB -- GUI_CongThuc
+' TB -- GUI_KhoVaNguyenLieu
+' TB -- GUI_TraCuuTheKho
+' TB -- GUI_TruyVetNguonGoc
 
 Presenter_CongThuc "1" -up- "1" Form_CauHinh
 Presenter_CongThuc "1" -up- "1" Form_CongThuc

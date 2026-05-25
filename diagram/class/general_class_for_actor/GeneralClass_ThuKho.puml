@@ -10,7 +10,7 @@ skinparam nodesep 40
 skinparam ranksep 150
 skinparam arrowThickness 1.5
 
-actor "Thủ kho" as TK
+' actor "Thủ kho" as TK
 
 boundary "Form_LapPhieuNhapKho"
 boundary "Form_LapPhieuXuatHuy"
@@ -40,19 +40,19 @@ entity "PHIEUXUATHUY"
 entity "PHIEUXUATKHO"
 entity "THEKHO"
 
-TK -- Form_LapPhieuNhapKho
-TK -- Form_LapPhieuXuatHuy
-TK -- Form_LapPhieuXuatKho
-TK -- Form_SuaNguyenLieu
-TK -- Form_SuaNhaCungCap
-TK -- Form_ThemNguyenLieu
-TK -- Form_ThemNhaCungCap
-TK -- GUI_CanhBaoTonKho
-TK -- GUI_KhoVaNguyenLieu
-TK -- GUI_NhaCungCap
-TK -- GUI_TraCuuNhaCungCap
-TK -- GUI_TraCuuTheKho
-TK -- GUI_TruyVetNguonGoc
+' TK -- Form_LapPhieuNhapKho
+' TK -- Form_LapPhieuXuatHuy
+' TK -- Form_LapPhieuXuatKho
+' TK -- Form_SuaNguyenLieu
+' TK -- Form_SuaNhaCungCap
+' TK -- Form_ThemNguyenLieu
+' TK -- Form_ThemNhaCungCap
+' TK -- GUI_CanhBaoTonKho
+' TK -- GUI_KhoVaNguyenLieu
+' TK -- GUI_NhaCungCap
+' TK -- GUI_TraCuuNhaCungCap
+' TK -- GUI_TraCuuTheKho
+' TK -- GUI_TruyVetNguonGoc
 
 Controller_GiaoDichKho "1" -up- "1" Form_LapPhieuNhapKho
 Controller_GiaoDichKho "1" -up- "1" Form_LapPhieuXuatHuy

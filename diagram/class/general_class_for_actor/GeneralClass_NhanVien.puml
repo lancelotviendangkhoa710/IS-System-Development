@@ -9,7 +9,7 @@ skinparam nodesep 100
 skinparam ranksep 60
 skinparam arrowThickness 1.5
 
-actor "Nhân viên" as NV
+' actor "Nhân viên" as NV
 
 boundary "GUI_DangNhap"
 
@@ -19,7 +19,7 @@ entity "CALAMVIEC"
 entity "TAIKHOAN"
 entity "VAITRO"
 
-NV -- GUI_DangNhap
+' NV -- GUI_DangNhap
 
 Controller_XacThuc "1" -up- "1" GUI_DangNhap
 Controller_XacThuc .down.> CALAMVIEC

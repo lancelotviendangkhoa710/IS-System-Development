@@ -10,7 +10,7 @@ skinparam nodesep 40
 skinparam ranksep 150
 skinparam arrowThickness 1.5
 
-actor "Quản lý" as QL
+' actor "Quản lý" as QL
 
 boundary "Form_CauHinh"
 boundary "Form_CongThuc"
@@ -75,32 +75,32 @@ entity "VAITRO"
 entity "VAITRO_CHUCNANG"
 entity "VW_HoatDongNhanVien"
 
-QL -- Form_CauHinh
-QL -- Form_CongThuc
-QL -- Form_DatBanh
-QL -- Form_HuyDon
-QL -- Form_HuyHoaDon
-QL -- Form_LapPhieuThuChi
-QL -- Form_SuaKhachHang
-QL -- Form_SuaLoaiThuChi
-QL -- Form_SuaNhanSu
-QL -- Form_SuaSanPham
-QL -- Form_ThanhToan
-QL -- Form_ThemKhachHang
-QL -- Form_ThemLoaiThuChi
-QL -- Form_ThemNhanSu
-QL -- Form_ThemSanPham
-QL -- GUI_BanHang
-QL -- GUI_BaoCaoDoanhThu
-QL -- GUI_BaoCaoLoiNhuan
-QL -- GUI_CongThuc
-QL -- GUI_HangThanhVien
-QL -- GUI_KhachHang
-QL -- GUI_NhanSu
-QL -- GUI_NhatKy
-QL -- GUI_PhanQuyen
-QL -- GUI_QuanLyThuChi
-QL -- GUI_SanPham
+' QL -- Form_CauHinh
+' QL -- Form_CongThuc
+' QL -- Form_DatBanh
+' QL -- Form_HuyDon
+' QL -- Form_HuyHoaDon
+' QL -- Form_LapPhieuThuChi
+' QL -- Form_SuaKhachHang
+' QL -- Form_SuaLoaiThuChi
+' QL -- Form_SuaNhanSu
+' QL -- Form_SuaSanPham
+' QL -- Form_ThanhToan
+' QL -- Form_ThemKhachHang
+' QL -- Form_ThemLoaiThuChi
+' QL -- Form_ThemNhanSu
+' QL -- Form_ThemSanPham
+' QL -- GUI_BanHang
+' QL -- GUI_BaoCaoDoanhThu
+' QL -- GUI_BaoCaoLoiNhuan
+' QL -- GUI_CongThuc
+' QL -- GUI_HangThanhVien
+' QL -- GUI_KhachHang
+' QL -- GUI_NhanSu
+' QL -- GUI_NhatKy
+' QL -- GUI_PhanQuyen
+' QL -- GUI_QuanLyThuChi
+' QL -- GUI_SanPham
 
 Controller_BanHang "1" -up- "1" Form_DatBanh
 Controller_BanHang "1" -up- "1" Form_HuyDon

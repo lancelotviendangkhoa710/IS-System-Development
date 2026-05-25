@@ -446,20 +446,8 @@ class VAITRO_CHUCNANG <<entity>> {
   -tenChucNang: String
 }
 
-class VW_HoatDongNhanVien <<entity>> {
-  +LayDuLieuTuViewVw_hoatdongnhanvien()
-  -entityId: Integer
-  -hanhDong: String
-  -maHoatDong: int
-  -maNV: int
-  -nhom: String
-  -tenNhanVien: String
-  -thoiGian: LocalDateTime
-  -vaitro: String
-}
-
 ' ==========================================
-' QUAN HỆ GIỮA CÁC ENTITY (giữ nguyên)
+' QUAN HỆ GIỮA CÁC ENTITY
 ' ==========================================
 CALAMVIEC "1" -right- "*" PHIEUTHUCHI
 DANHMUCSANPHAM "1" -right- "*" SANPHAM
@@ -478,62 +466,16 @@ NHACUNGCAP "1" -- "*" PHIEUNHAPKHO
 NHANVIEN "1" *-down- "*" TAIKHOAN
 NHANVIEN "1" -left- "*" HOATDONGNHANVIEN
 NHANVIEN "1" -right- "*" NHANVIEN_VAITRO
-NHANVIEN_VAITRO "*" -right- "1" VAITRO
+NHANVIEN_VAITRO "*" -down- "1" VAITRO
 PHIEUNHAPKHO "1" -- "*" CHITIETPHIEUNHAPKHO
 PHIEUXUATHUY "1" -- "*" CHITIETPHIEUXUATHUY
 PHIEUXUATKHO "1" -- "*" CHITIETPHIEUXUATKHO
 VAITRO "1" *-right- "*" VAITRO_CHUCNANG
-VAITRO_CHUCNANG "*" -right- "1" CHUCNANG
-VW_HoatDongNhanVien -[hidden]right- HOATDONGNHANVIEN
+VAITRO_CHUCNANG "*" -down- "1" CHUCNANG
+KHACHHANG -[hidden]down- PHIEUTHUCHI
 
-' ==========================================
-' BỐ CỤC LẠI VỊ TRÍ CÁC BẢNG (chỉ thêm liên kết ẩn)
-' ==========================================
-' Cột 1: Lịch sử hoạt động
-VW_HoatDongNhanVien -[hidden]down- HOATDONGNHANVIEN
-
-' Cột 2: Nhân viên – tài khoản (xếp dọc)
-NHANVIEN -[hidden]down- TAIKHOAN
-
-' Cột 3: Vai trò – chức năng (xếp dọc)
-VAITRO -[hidden]down- VAITRO_CHUCNANG
-VAITRO_CHUCNANG -[hidden]down- CHUCNANG
-
-' Cột 4: Khách hàng – thành viên – hạng
-KHACHHANG -[hidden]down- THANHVIEN
-THANHVIEN -[hidden]down- HANGTHANHVIEN
-
-' Cột 5: Đơn hàng – hoá đơn (xếp dọc)
-HOADON -[hidden]down- DONDATHANG
-DONDATHANG -[hidden]down- CTDONHANG
-CTDONHANG -[hidden]down- CTDONTUYCHINH
-
-' Cột 6: Sản phẩm – danh mục – công thức – nguyên liệu
-SANPHAM -[hidden]down- DANHMUCSANPHAM
-DANHMUCSANPHAM -[hidden]down- CONGTHUC
-CONGTHUC -[hidden]down- NGUYENLIEU
-
-' Cột 7: Kho – nhập xuất (xếp dọc)
-THEKHO -[hidden]down- NHACUNGCAP
-NHACUNGCAP -[hidden]down- PHIEUNHAPKHO
-PHIEUNHAPKHO -[hidden]down- CHITIETPHIEUNHAPKHO
-CHITIETPHIEUNHAPKHO -[hidden]down- PHIEUXUATKHO
-PHIEUXUATKHO -[hidden]down- CHITIETPHIEUXUATKHO
-CHITIETPHIEUXUATKHO -[hidden]down- PHIEUXUATHUY
-PHIEUXUATHUY -[hidden]down- CHITIETPHIEUXUATHUY
-
-' Cột 8: Thu chi – ca làm việc – cấu hình
-LOAITHUCHI -[hidden]down- PHIEUTHUCHI
-PHIEUTHUCHI -[hidden]down- CALAMVIEC
+TAIKHOAN -[hidden]down- DANHMUCSANPHAM
 CALAMVIEC -[hidden]down- CAUHINH
-
-' Liên kết ngang giữa các cột để trải đều
-VW_HoatDongNhanVien -[hidden]right- NHANVIEN
-NHANVIEN -[hidden]right- VAITRO
-VAITRO -[hidden]right- KHACHHANG
-KHACHHANG -[hidden]right- HOADON
-HOADON -[hidden]right- SANPHAM
-SANPHAM -[hidden]right- THEKHO
-THEKHO -[hidden]right- LOAITHUCHI
+PHIEUTHUCHI -[hidden]down- HANGTHANHVIEN
 
 @enduml
