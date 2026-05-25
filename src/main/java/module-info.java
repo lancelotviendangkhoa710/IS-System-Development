@@ -8,6 +8,7 @@
 open module BakeryManagementSystem {
     // ── Java SE ───────────────────────────────────────────────────────────────
     requires java.datatransfer;
+    requires java.desktop;
     requires transitive java.sql;
 
     // ── JavaFX ────────────────────────────────────────────────────────────────

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+  QuanLyLoaiThuChiView.fxml — Màn hình Quản lý Loại Thu Chi (UC53–UC55)
+  Design pattern: giống NguyenLieuView — full-width table + toolbar header.
+  Thêm / Sửa qua dialog. Nút Sửa/Xóa disable mặc định, enable khi chọn dòng.
+  Controller: QuanLyLoaiThuChiViewFXMLController
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.taichinh.QuanLyLoaiThuChiViewFXMLController"
+      styleClass="bg-app"
+      spacing="20">
+
+    <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+    <!-- ① HEADER -->
+    <VBox spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <VBox spacing="5">
+                <Label text="Quản lý Loại Thu Chi" styleClass="lbl-title-screen"/>
+                <Label text="Thêm, sửa, vô hiệu hóa các hạng mục phân loại dòng tiền trong sổ quỹ."
+                       styleClass="lbl-body"/>
+            </VBox>
+        </HBox>
+
+        <!-- Toolbar: Search + Filter + Actions -->
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Danh sách hạng mục" styleClass="lbl-title-card"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="txtTimKiem" promptText="🔍 Tìm hạng mục..."
+                       prefWidth="220" onKeyReleased="#onTimKiem" styleClass="text-field"/>
+            <ComboBox fx:id="cmbLocTrangThai" prefWidth="150" styleClass="combo-box"
+                      onAction="#onLocTrangThai"/>
+            <ComboBox fx:id="cmbLocPhanLoai" prefWidth="120" styleClass="combo-box"
+                      onAction="#onLocPhanLoai"/>
+            <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
+            <Button fx:id="btnSua" text="✏️ Sửa" styleClass="btn-secondary"
+                    onAction="#onSuaAction" disable="true"/>
+            <Button fx:id="btnVoHieuHoa" text="🔒 Vô hiệu hóa" styleClass="btn-danger"
+                    onAction="#onVoHieuHoaAction" disable="true"/>
+            <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-success"
+                    onAction="#onThemMoi"/>
+        </HBox>
+    </VBox>
+
+    <!-- ② TABLE — full width -->
+    <TableView fx:id="tblLoaiThuChi" styleClass="table-view" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colMa"        text="Mã"           prefWidth="80"/>
+            <TableColumn fx:id="colTenLoai"   text="Tên hạng mục" prefWidth="300"/>
+            <TableColumn fx:id="colPhanLoai"  text="Phân loại"   prefWidth="110"/>
+            <TableColumn fx:id="colTrangThai" text="Trạng thái"  prefWidth="130"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+    </TableView>
+
+    <!-- ③ FOOTER STATUS -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label fx:id="lblSoLuong" styleClass="lbl-small-bold" text=""/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblThongBao" styleClass="lbl-small-bold"/>
+    </HBox>
+
+</VBox>

@@ -579,7 +579,8 @@ public class XuatKhoViewFXMLController extends BaseController {
                 String msg = e.getMessage() != null ? e.getMessage() : "Lỗi không xác định.";
                 javafx.application.Platform.runLater(() -> {
                     // Deadlock / lock timeout → hiện Alert chi tiết thay vì label
-                    if (msg.startsWith("⏱") || msg.contains("Deadlock") || msg.contains("LOCK_TIMEOUT")) {
+                    if (msg.startsWith("⏱") || msg.startsWith("⚠ Deadlock")
+                            || msg.contains("Deadlock") || msg.contains("LOCK_TIMEOUT")) {
                         hienThiAlertDeadlock(msg);
                     } else {
                         hienThiLoiLabel(errPrefix + ": " + msg);
@@ -592,23 +593,35 @@ public class XuatKhoViewFXMLController extends BaseController {
     }
 
     /**
-     * Hiển thị Alert chi tiết khi xảy ra deadlock hoặc lock timeout.
-     * Message có thể chứa nhiều dòng (tên NL bị khóa, hướng dẫn thử lại).
+     * Hiển thị Alert rõ ràng khi xảy ra deadlock hoặc lock timeout (§4.4).
+     *
+     * <p>Message có thể từ 2 path:
+     * <ul>
+     *   <li>LOCK_TIMEOUT: cả 2 phiên đồng thời timeout → cả 2 ROLLBACK (BUG mode)</li>
+     *   <li>DEADLOCK_DETECTED: Oracle chọn 1 nạn nhân → phiên này ROLLBACK</li>
+     * </ul>
+     * Cả 2 trường hợp đều kết luận: giao dịch không được lưu — cần thử lại.
      */
     private void hienThiAlertDeadlock(String msg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Xung đột khóa dữ liệu");
-        alert.setHeaderText("⏱ Không thể hoàn thành giao dịch");
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("§4.4 Deadlock — Giao Dịch Bị Hủy");
+        alert.setHeaderText("❌ Giao dịch không được thực hiện");
 
-        // Tách dòng đầu (tiêu đề ngắn) và phần còn lại (chi tiết)
+        // Dòng đầu = loại lỗi ngắn; phần sau = chi tiết + kết luận ROLLBACK
         String[] lines = msg.split("\n", 2);
         String dongChinh = lines[0].trim();
-        String chiTiet = lines.length > 1 ? lines[1].trim() : "";
+        String chiTiet   = lines.length > 1 ? lines[1].trim() : "";
 
-        alert.setContentText(dongChinh + (chiTiet.isEmpty() ? "" : "\n\n" + chiTiet));
+        // Nếu message đã có dòng ROLLBACK (từ BaseDAO) thì không cần thêm
+        boolean daCoRollback = chiTiet.contains("ROLLBACK");
+        String footer = daCoRollback ? "" :
+                "\n\u274c Giao dịch đã bị ROLLBACK hoàn toàn — không có dữ liệu nào được lưu.";
 
-        // Làm rộng dialog để hiện đủ nội dung
-        alert.getDialogPane().setMinWidth(420);
+        alert.setContentText(dongChinh
+                + (chiTiet.isEmpty() ? "" : "\n\n" + chiTiet)
+                + footer);
+
+        alert.getDialogPane().setMinWidth(460);
         alert.showAndWait();
 
         // Cập nhật label footer tóm tắt
@@ -728,23 +741,52 @@ public class XuatKhoViewFXMLController extends BaseController {
                 String nguoiXuat = nvl(phieu.getTenNhanVien());
                 String ghiChu = "Lý do: " + lyDo;
 
-                // Phiếu xuất chỉ có 1 dòng tổng hợp
+                // Lấy chi tiết thực từ DB (NL + TP)
+                PhieuXuatKhoDAO xuatDAO = new PhieuXuatKhoDAO();
+                List<CTPhieuXuatDTO> chiTiet = xuatDAO.layChiTietPhieuXuat(
+                        Integer.parseInt(maPhieu));
+
                 java.util.List<String[]> rows = new java.util.ArrayList<>();
-                rows.add(new String[] {
-                        "(Xem chi tiết trong hệ thống)", // tenHang
-                        lyDo, // loaiHang
-                        "—", // soLuong
-                        "—", // donVi
-                        "" // ghiChu
-                });
+                for (CTPhieuXuatDTO ct : chiTiet) {
+                    String loaiLabel = "NL".equals(ct.getLoai())
+                            ? "Nguyên liệu" : "Thành phẩm";
+                    String soLuongStr = String.valueOf(
+                            ct.getSoLuong() % 1 == 0
+                                    ? (long) ct.getSoLuong()
+                                    : ct.getSoLuong());
+                    String ghiChuRow = ct.getDonGiaVon() != null
+                            ? "Đơn giá: " + String.format("%,.0f ₫", ct.getDonGiaVon())
+                            : "";
+                    // Format: {tenHang, loaiHang, soLuong, donVi, ghiChu}
+                    // JasperReportUtils tự thêm STT nội bộ
+                    rows.add(new String[]{
+                            ct.getTenHang(),
+                            loaiLabel,
+                            soLuongStr,
+                            ct.getDonViTinh() != null ? ct.getDonViTinh() : "—",
+                            ghiChuRow
+                    });
+                }
+
+                if (rows.isEmpty()) {
+                    rows.add(new String[]{
+                            "(Không có chi tiết hàng hóa)", "—", "—", "—", ""
+                    });
+                }
 
                 File outputFile = ReportPathUtils.buildPdfPath("PhieuXuat", "PX-" + maPhieu);
 
                 JasperReportUtils.xuatPhieuXuatKhoPDF(
                         outputFile, maPhieu, ngayXuat, lyDo, nguoiXuat, ghiChu, rows);
 
-                javafx.application.Platform.runLater(() -> hienThiThongTin("In phiếu xuất thành công",
-                        "PDF đã lưu tại:\n" + outputFile.getAbsolutePath()));
+                javafx.application.Platform.runLater(() -> {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported())
+                            java.awt.Desktop.getDesktop().open(outputFile);
+                    } catch (Exception ignored) { }
+                    hienThiThongTin("In phiếu xuất thành công",
+                            "PDF đã lưu tại:\n" + outputFile.getAbsolutePath());
+                });
 
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() -> hienThiThongBaoLoi("Lỗi in phiếu xuất", e.getMessage()));

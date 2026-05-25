@@ -11,6 +11,7 @@
               pageWidth="595" pageHeight="842"
               columnWidth="535" leftMargin="30" rightMargin="30"
               topMargin="30" bottomMargin="30"
+              whenNoDataType="AllSectionsNoDetail"
               uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
 
     <!-- ═══ PARAMETERS ══════════════════════════════════════════════════════ -->
@@ -372,20 +373,5 @@
             </textField>
         </band>
     </pageFooter>
-
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- NO DATA — Hiển thị khi không có giao dịch                          -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <noData>
-        <band height="40">
-            <staticText>
-                <reportElement x="0" y="8" width="535" height="24" forecolor="#A8A29E" uuid="c594b74f-3f37-4880-91ff-e792d92d19a9"/>
-                <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font fontName="DejaVu Sans" size="11" isItalic="true"/>
-                </textElement>
-                <text><![CDATA[Không có giao dịch trong kỳ báo cáo này.]]></text>
-            </staticText>
-        </band>
-    </noData>
 
 </jasperReport>

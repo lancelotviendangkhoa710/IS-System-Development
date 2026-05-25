@@ -57,7 +57,8 @@ public class SoQuyService extends BaseService {
     }
 
     public void xoaLoai(int ma) throws Exception {
-        ltcDAO.xoa(ma);
+        int maNV = com.bakery.utils.SessionContext.getInstance().getMaNV();
+        ltcDAO.xoa(ma, maNV);
     }
 
     public BigDecimal tinhTongThu(List<PhieuThuChiDTO> ds) {

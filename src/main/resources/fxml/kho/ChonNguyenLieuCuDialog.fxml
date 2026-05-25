@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.kho.ChonNguyenLieuCuDialogController"
+      spacing="0" prefWidth="480">
+
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <Label text="📋 Chọn nguyên liệu có sẵn vào công thức" styleClass="dialog-header-title"/>
+    </HBox>
+
+    <!-- Body -->
+    <VBox styleClass="dialog-body" spacing="16" VBox.vgrow="ALWAYS">
+
+        <!-- Chọn nguyên liệu -->
+        <VBox spacing="6">
+            <Label text="Nguyên liệu: *" styleClass="lbl-body-bold"/>
+            <ComboBox fx:id="cmbNguyenLieu" maxWidth="Infinity"
+                      promptText="Tìm kiếm theo tên nguyên liệu..." styleClass="combo-box"
+                      editable="true"/>
+        </VBox>
+
+        <!-- Thông tin readonly -->
+        <HBox spacing="16">
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Đơn vị tính:" styleClass="lbl-body-bold"/>
+                <Label fx:id="lblDonViTinh" text="—" styleClass="lbl-body"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="6">
+                <Label text="Tồn kho hiện tại:" styleClass="lbl-body-bold"/>
+                <Label fx:id="lblTonKho" text="—" styleClass="lbl-body"/>
+            </VBox>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Định mức -->
+        <VBox spacing="6">
+            <Label text="Định mức tiêu hao: *" styleClass="lbl-body-bold"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="txtDinhMuc" promptText="VD: 0.25" styleClass="text-field"
+                           HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblDonViDinhMuc" text="" styleClass="lbl-body-bold" minWidth="50"/>
+            </HBox>
+        </VBox>
+
+        <Label fx:id="lblLoi" text="" styleClass="lbl-danger" wrapText="true"/>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Hủy" styleClass="btn-secondary" onAction="#onHuy"/>
+        <Button text="✅ Thêm vào công thức" styleClass="btn-success" onAction="#onXacNhan"/>
+    </HBox>
+
+</VBox>

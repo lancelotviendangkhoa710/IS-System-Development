@@ -42,8 +42,9 @@ public class NhapKhoViewFXMLController extends BaseController {
 
     // ── Header row (từ FXML cũ — dùng lại fx:id) ──────────────────────
     @FXML private Label lblTitle;
-    @FXML private Button btnXoa;     // chỉ visible với Admin/Quản lý
-    @FXML private Button btnInPhieu; // in phiếu nhập đang chọn bằng JasperReports
+    @FXML private Button btnXoa;      // chỉ visible với Admin/Quản lý
+    @FXML private Button btnInPhieu;  // in phiếu nhập đang chọn bằng JasperReports
+    @FXML private Button btnLapBaoCao; // lập báo cáo thống kê phiếu nhập theo tháng/năm
     @FXML private TableView<PhieuNhapKhoDTO> tblData;
     @FXML
     private TableColumn<PhieuNhapKhoDTO, String> colDate;
@@ -789,9 +790,14 @@ public class NhapKhoViewFXMLController extends BaseController {
                 JasperReportUtils.xuatPhieuNhapKhoPDF(
                         outputFile, maPhieu, ngayNhap, ncc, nguoiNhap, tongTien, rows);
 
-                javafx.application.Platform.runLater(() ->
+                javafx.application.Platform.runLater(() -> {
+                        try {
+                            if (java.awt.Desktop.isDesktopSupported())
+                                java.awt.Desktop.getDesktop().open(outputFile);
+                        } catch (Exception ignored) { }
                         hienThiThongTin("In phiếu thành công",
-                                "PDF đã lưu tại:\n" + outputFile.getAbsolutePath()));
+                                "PDF đã lưu tại:\n" + outputFile.getAbsolutePath());
+                });
 
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() ->
@@ -799,5 +805,163 @@ public class NhapKhoViewFXMLController extends BaseController {
             }
         }, "in-phieu-nhap-jasper").start();
     }
-}
 
+    // ── Lập báo cáo thống kê phiếu nhập kho ─────────────────────────────────
+
+    /**
+     * Lập báo cáo phiếu nhập kho — lọc theo tháng/năm, xuất PDF JasperReports.
+     * (Nút chuyển từ màn hình Nguyên liệu sang đây)
+     */
+    @FXML
+    private void onLapBaoCao() {
+        // Đếm nhanh tổng số phiếu trong hệ thống
+        int tongPhieu;
+        try {
+            tongPhieu = nhapKhoDAO.layDanhSachPhieuNhap().size();
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể truy vấn danh sách phiếu nhập: " + e.getMessage());
+            return;
+        }
+
+        // ── Dialog chọn tháng/năm ────────────────────────────────────────────
+        LocalDate now = LocalDate.now();
+
+        ComboBox<Integer> cboThang = new ComboBox<>();
+        for (int i = 1; i <= 12; i++)
+            cboThang.getItems().add(i);
+        cboThang.setValue(now.getMonthValue());
+
+        ComboBox<Integer> cboNam = new ComboBox<>();
+        for (int y = now.getYear(); y >= now.getYear() - 4; y--)
+            cboNam.getItems().add(y);
+        cboNam.setValue(now.getYear());
+
+        javafx.scene.layout.HBox hboxLoc = new javafx.scene.layout.HBox(8,
+                new Label("Tháng:"), cboThang,
+                new Label("Năm:"), cboNam);
+        hboxLoc.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        VBox content = new VBox(12,
+                new Label("Hệ thống hiện có " + tongPhieu + " phiếu nhập trong kho."),
+                new Label("Lọc báo cáo theo:"),
+                hboxLoc);
+        content.setPadding(new Insets(4, 0, 0, 0));
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Lập Báo Cáo Phiếu Nhập Kho");
+        dialog.setHeaderText("📋  Lập báo cáo phiếu nhập kho");
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        DialogHelper.applyBakeryTheme(dialog);
+
+        java.util.Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK)
+            return;
+
+        final int thang = cboThang.getValue();
+        final int nam = cboNam.getValue();
+
+        // ── Background: truy vấn + lọc tháng + xuất PDF ─────────────────────
+        if (btnLapBaoCao != null)
+            btnLapBaoCao.setDisable(true);
+        hienThiThanhCongLabel("⏳  Đang lập báo cáo tháng " + thang + "/" + nam + "...");
+
+        final String nguoiLap = UserSession.getCurrentUser() != null
+                ? UserSession.getCurrentUser().getHoTen()
+                : "Hệ thống";
+        final String ngayLap = now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        new Thread(() -> {
+            try {
+                com.bakery.model.dto.kho.KetQuaKiemKeDTO ketQua = nhapKhoDAO.lapBaoCaoPhieuNhap();
+
+                FMT_TIEN.setMaximumFractionDigits(0);
+                DateTimeFormatter fmtDt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+                // Lọc theo tháng/năm đã chọn
+                List<PhieuNhapKhoDTO> dsLoc = ketQua.getDanhSachPhieu().stream()
+                        .filter(p -> p.getNgayNhap() != null
+                                && p.getNgayNhap().getMonthValue() == thang
+                                && p.getNgayNhap().getYear() == nam)
+                        .collect(java.util.stream.Collectors.toList());
+
+                // Tổng tiền cả kỳ
+                java.math.BigDecimal tongTien = dsLoc.stream()
+                        .filter(p -> p.getTongTienNhap() != null)
+                        .map(PhieuNhapKhoDTO::getTongTienNhap)
+                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+                List<Integer> maPhieuList = dsLoc.stream()
+                        .map(PhieuNhapKhoDTO::getMaPN)
+                        .collect(java.util.stream.Collectors.toList());
+                java.util.Map<Integer, List<String[]>> ctMap =
+                        nhapKhoDAO.layChiTietNhieuPhieuNhap(maPhieuList);
+
+                // Sort: theo NCC rồi mã phiếu tăng dần
+                dsLoc.sort(java.util.Comparator
+                        .comparing((PhieuNhapKhoDTO p) ->
+                                p.getTenNhaCungCap() != null ? p.getTenNhaCungCap() : "")
+                        .thenComparingInt(PhieuNhapKhoDTO::getMaPN));
+
+                // Build flat rows cho Jasper
+                List<String[]> jasperRows = new ArrayList<>();
+                for (PhieuNhapKhoDTO dto : dsLoc) {
+                    String tongTienPhieu = dto.getTongTienNhap() != null
+                            ? FMT_TIEN.format(dto.getTongTienNhap()) + " ₫" : "0 ₫";
+                    String ngayNhapStr = dto.getNgayNhap() != null
+                            ? dto.getNgayNhap().format(fmtDt) : "—";
+                    String ncc = nvl(dto.getTenNhaCungCap());
+                    String nguoiNhap = nvl(dto.getTenNhanVien());
+                    String maPhieuStr = String.valueOf(dto.getMaPN());
+
+                    List<String[]> ctLines = ctMap.getOrDefault(dto.getMaPN(), List.of());
+                    if (ctLines.isEmpty()) {
+                        jasperRows.add(new String[] {
+                                maPhieuStr, ngayNhapStr, ncc, nguoiNhap, tongTienPhieu,
+                                "(Không có chi tiết)", "", "", "0 ₫", "0 ₫"
+                        });
+                    } else {
+                        for (String[] ct : ctLines) {
+                            // ct = {TENNL, soLuong, TENDVT, donGia_raw, thanhTien_raw}
+                            String donGiaFmt = FMT_TIEN.format(Long.parseLong(ct[3])) + " ₫";
+                            String thanhTienFmt = FMT_TIEN.format(Long.parseLong(ct[4])) + " ₫";
+                            jasperRows.add(new String[] {
+                                    maPhieuStr, ngayNhapStr, ncc, nguoiNhap, tongTienPhieu,
+                                    ct[0], ct[1], ct[2], donGiaFmt, thanhTienFmt
+                            });
+                        }
+                    }
+                }
+
+                File outputFile = ReportPathUtils.buildPdfPath("BaoCaoPhieuNhap", thang + "-" + nam);
+                JasperReportUtils.xuatBaoCaoKiemKePhieuNhapPDF(
+                        outputFile,
+                        String.valueOf(dsLoc.size()),
+                        FMT_TIEN.format(tongTien) + " ₫",
+                        nguoiLap, ngayLap, jasperRows);
+
+                final String tenFile = outputFile.getName();
+                final String folder  = outputFile.getParent();
+
+                javafx.application.Platform.runLater(() -> {
+                    if (btnLapBaoCao != null) btnLapBaoCao.setDisable(false);
+                    hienThiThanhCongLabel("✅ Đã lưu báo cáo: " + tenFile);
+                    hienThiThongTin("Lập báo cáo thành công",
+                            "Báo cáo phiếu nhập tháng " + thang + "/" + nam
+                                    + " (" + dsLoc.size() + " phiếu) đã được lưu vào:\n" + folder);
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported())
+                            java.awt.Desktop.getDesktop().open(outputFile);
+                    } catch (Exception ignored) { }
+                });
+
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    if (btnLapBaoCao != null) btnLapBaoCao.setDisable(false);
+                    hienThiLoiLabel("Lỗi lập báo cáo: " + e.getMessage());
+                    hienThiThongBaoLoi("Lỗi Lập Báo Cáo", e.getMessage());
+                });
+            }
+        }, "thread-lap-bao-cao-phieunhap").start();
+    }
+}

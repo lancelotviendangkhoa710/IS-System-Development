@@ -364,13 +364,27 @@ public class DonHangPresenter {
         } catch (Exception e) {
             String msg = e.getMessage() != null ? e.getMessage() : "Lỗi không xác định";
             String msgLower = msg.toLowerCase();
-            if (msgLower.contains("het hang") || msgLower.contains("mua truoc") || msgLower.contains("ck_sp_soluongton") 
-                    || msgLower.contains("soluongton") || msgLower.contains("ora-08177") || msgLower.contains("serialize") || msgLower.contains("xung đột")) {
-                // Lỗi hết hàng đồng thời hoặc vi phạm ràng buộc tồn kho hoặc xung đột dữ liệu đồng thời — hiển thị Alert nổi bật
+            // Nhận diện lỗi năng lực sản xuất (Java Fail-Fast hoặc Trigger DB)
+            boolean laLoiNangLuc = msg.contains("Xưởng bánh") || msg.contains("suất")
+                    || msgLower.contains("tu choi nhan don") || msgLower.contains("cong suat")
+                    || msgLower.contains("nang luc");
+            if (laLoiNangLuc) {
                 javafx.application.Platform.runLater(() -> {
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                             javafx.scene.control.Alert.AlertType.WARNING);
-                    alert.setTitle(msgLower.contains("xung đột") || msgLower.contains("ora-08177") || msgLower.contains("serialize") 
+                    alert.setTitle("⚠ Xưởng đã kín đơn");
+                    alert.setHeaderText("Không đủ năng lực sản xuất");
+                    alert.setContentText(msg);
+                    com.bakery.utils.DialogHelper.applyBakeryTheme(alert);
+                    alert.showAndWait();
+                });
+            } else if (msgLower.contains("het hang") || msgLower.contains("mua truoc") || msgLower.contains("ck_sp_soluongton")
+                    || msgLower.contains("soluongton") || msgLower.contains("ora-08177") || msgLower.contains("serialize") || msgLower.contains("xung đột")) {
+                // Lỗi hết hàng đồng thời hoặc vi phạm ràng buộc tồn kho
+                javafx.application.Platform.runLater(() -> {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                            javafx.scene.control.Alert.AlertType.WARNING);
+                    alert.setTitle(msgLower.contains("xung đột") || msgLower.contains("ora-08177") || msgLower.contains("serialize")
                             ? "⚠ Xung đột dữ liệu đồng thời" : "⚠ Cảnh báo tồn kho");
                     alert.setHeaderText("Không thể hoàn tất giao dịch");
                     alert.setContentText(msg.replace("San pham", "Sản phẩm")
@@ -417,6 +431,19 @@ public class DonHangPresenter {
 
     /** Luồng 2: Đặt trước (pre-order) */
     private void xuLyDatTruoc(IDonHangDialogFactory.YeuCauDonHang req, double tongTien) throws Exception {
+        // ➔ UC18 + UC36: Kiểm tra năng lực sản xuất trước khi ghi DB (Fail-Fast)
+        // Chỉ kiểm tra khi giỏ hàng có bánh tùy chỉnh
+        boolean coTuyChinh = gioHangItems.stream().anyMatch(YeuCauChiTietDonHangDTO::isCustom);
+        if (coTuyChinh && req.ngayGioNhan() != null) {
+            LocalDate ngayNhan = req.ngayGioNhan().toLocalDate();
+            int soBanhTuyChinh = gioHangItems.stream()
+                    .filter(YeuCauChiTietDonHangDTO::isCustom)
+                    .mapToInt(YeuCauChiTietDonHangDTO::getSoLuong)
+                    .sum();
+            // Throw Exception nếu không đủ năng lực — bị bắt bởi caller (moDialogTaoDon)
+            orderService.kiemTraNangLucSanXuat(ngayNhan, soBanhTuyChinh);
+        }
+
         YeuCauTaoDonHangDTO request = new YeuCauTaoDonHangDTO();
         request.setMaKH(req.maKH());
         request.setMaNVLap(getCurrentUserId());

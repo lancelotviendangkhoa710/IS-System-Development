@@ -10,6 +10,8 @@
     <HBox alignment="CENTER_LEFT" spacing="20">
         <Label fx:id="lblTitle" text="QUẢN LÝ NHẬP KHO" styleClass="lbl-header"/>
         <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnLapBaoCao" text="📋 Lập Báo Cáo" onAction="#onLapBaoCao"
+                styleClass="btn-secondary"/>
         <Button fx:id="btnXoa" text="🗑 Xóa phiếu" onAction="#onXoa"
                 styleClass="btn-danger" visible="false" managed="false"/>
         <Button fx:id="btnInPhieu" text="🖨 In phiếu" onAction="#onInPhieuNhap"

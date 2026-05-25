@@ -208,6 +208,45 @@
                                     </VBox>
                                 </HBox>
 
+                                <!-- BIỂU ĐỒ THEO THÁNG: DOANH THU + LỢI NHUẬN (side-by-side) -->
+                                <HBox spacing="20">
+                                    <!-- Doanh thu 12 tháng -->
+                                    <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" spacing="8">
+                                        <HBox alignment="CENTER_LEFT" spacing="12">
+                                            <Label text="📅" style="-fx-font-size: 18px;"/>
+                                            <VBox HBox.hgrow="ALWAYS">
+                                                <Label text="Doanh thu theo tháng" styleClass="lbl-medium-bold"/>
+                                                <Label text="So sánh 12 tháng trong năm"
+                                                       style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+                                            </VBox>
+                                            <ComboBox fx:id="cbNamBieuDo" prefWidth="90" styleClass="combo-box"/>
+                                        </HBox>
+                                        <BarChart fx:id="monthlyBarChart" prefHeight="280"
+                                                  legendVisible="false" animated="true">
+                                            <xAxis><CategoryAxis side="BOTTOM" label="Tháng"/></xAxis>
+                                            <yAxis><NumberAxis side="LEFT" label="Doanh thu (VNĐ)"/></yAxis>
+                                        </BarChart>
+                                    </VBox>
+
+                                    <!-- Lợi nhuận 12 tháng -->
+                                    <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" spacing="8">
+                                        <HBox alignment="CENTER_LEFT" spacing="12">
+                                            <Label text="💹" style="-fx-font-size: 18px;"/>
+                                            <VBox HBox.hgrow="ALWAYS">
+                                                <Label text="Lợi nhuận theo tháng" styleClass="lbl-medium-bold"/>
+                                                <Label text="Doanh thu − Giá vốn COGS"
+                                                       style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+                                            </VBox>
+                                            <ComboBox fx:id="cbNamBieuDoLoiNhuan" prefWidth="90" styleClass="combo-box"/>
+                                        </HBox>
+                                        <BarChart fx:id="monthlyProfitBarChart" prefHeight="280"
+                                                  legendVisible="false" animated="true">
+                                            <xAxis><CategoryAxis side="BOTTOM" label="Tháng"/></xAxis>
+                                            <yAxis><NumberAxis side="LEFT" label="Lợi nhuận (VNĐ)"/></yAxis>
+                                        </BarChart>
+                                    </VBox>
+                                </HBox>
+
                             </VBox>
                         </ScrollPane>
                     </content>
@@ -216,6 +255,12 @@
                 <Tab fx:id="tabSoQuyThuChi" text="💰  Sổ quỹ thu chi">
                     <content>
                         <fx:include source="SoQuyView.fxml"/>
+                    </content>
+                </Tab>
+
+                <Tab fx:id="tabQuanLyLoai" text="📋  Quản lý loại thu chi">
+                    <content>
+                        <fx:include source="../taichinh/QuanLyLoaiThuChiView.fxml"/>
                     </content>
                 </Tab>
 

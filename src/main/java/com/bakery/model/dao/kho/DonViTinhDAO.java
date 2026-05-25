@@ -1,4 +1,5 @@
 package com.bakery.model.dao.kho;
+
 import com.bakery.model.dao.BaseDAO;
 
 import com.bakery.model.dto.kho.DonViTinhDTO;
@@ -18,19 +19,20 @@ public class DonViTinhDAO extends BaseDAO {
 
     /**
      * Lấy tất cả đơn vị tính còn hoạt động (chưa bị xóa mềm).
-     *
+     * uaw
+     * 
      * @return danh sách DonViTinhDTO, rỗng nếu không có dữ liệu
      */
     public List<DonViTinhDTO> layTatCaDonViTinh() throws Exception {
         List<DonViTinhDTO> list = new ArrayList<>();
         String sql = "SELECT MADVT, TENDVT, THOIDIEMXOA, MANX " +
-                     "FROM DONVITINH " +
-                     "WHERE THOIDIEMXOA IS NULL " +
-                     "ORDER BY MADVT";
+                "FROM DONVITINH " +
+                "WHERE THOIDIEMXOA IS NULL " +
+                "ORDER BY MADVT";
 
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 DonViTinhDTO dto = new DonViTinhDTO();

@@ -98,5 +98,17 @@ public class ThongKeService {
         Map<String, Double> res = thongKeDAO.getDoanhThu12ThangTrongNam(nam);
         return res != null ? res : Map.of();
     }
+
+    /**
+     * Biểu đồ lợi nhuận theo tháng — Lợi nhuận 12 tháng trong năm chỉ định.
+     * Lợi nhuận = Doanh thu − Giá vốn (COGS snapshot tại thời điểm bán).
+     *
+     * @param nam năm cần thống kê (VD: 2025)
+     * @return Map: "Th.1" … "Th.12" → lợi nhuận (VND)
+     */
+    public Map<String, Double> getLoiNhuan12ThangTrongNam(int nam) throws Exception {
+        Map<String, Double> res = thongKeDAO.getLoiNhuan12ThangTrongNam(nam);
+        return res != null ? res : Map.of();
+    }
 }
 

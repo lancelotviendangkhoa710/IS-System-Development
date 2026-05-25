@@ -4311,3 +4311,63 @@
     -fx-padding: 16px;
     -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.15), 10, 0, 0, 3);
 }
+
+/* ─── TOGGLE BUTTON THU/CHI ─── */
+.toggle-thu {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #4B5563;
+    -fx-border-color: #D1D5DB;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.toggle-chi {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #4B5563;
+    -fx-border-color: #D1D5DB;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.toggle-thu-active {
+    -fx-background-color: #D1FAE5;
+    -fx-text-fill: #065F46;
+    -fx-border-color: #34D399;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.toggle-chi-active {
+    -fx-background-color: #FEE2E2;
+    -fx-text-fill: #991B1B;
+    -fx-border-color: #F87171;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.toggle-inactive {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #9CA3AF;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.lbl-muted {
+    -fx-text-fill: #888780;
+}

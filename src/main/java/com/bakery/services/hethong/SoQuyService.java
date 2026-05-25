@@ -1,5 +1,6 @@
 package com.bakery.services.hethong;
 import com.bakery.services.BaseService;
+import com.bakery.utils.SessionContext;
 
 import com.bakery.model.dao.hethong.LoaiThuChiDAO;
 import com.bakery.model.dao.hethong.PhieuThuChiDAO;
@@ -64,8 +65,21 @@ public class SoQuyService extends BaseService {
         ltcDAO.sua(ma, ten, phanLoai);
     }
 
+    /**
+     * Xóa mềm loại thu chi — lấy maNV từ SessionContext.
+     * Backward-compat cho SoQuyPresenter và các controller cũ.
+     */
     public void xoaLoai(int ma) throws Exception {
-        ltcDAO.xoa(ma);
+        int maNV = SessionContext.getInstance().getMaNV();
+        ltcDAO.xoa(ma, maNV);
+    }
+
+    /**
+     * Xóa mềm loại thu chi — truyền maNV tường minh.
+     * Dùng cho controller mới biết maNV trước khi gọi.
+     */
+    public void xoaLoai(int ma, int maNV) throws Exception {
+        ltcDAO.xoa(ma, maNV);
     }
 
     /**

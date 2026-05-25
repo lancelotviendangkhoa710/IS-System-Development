@@ -85,4 +85,25 @@ public class CauHinhGioiHanDAO extends BaseDAO {
         }
         return null;
     }
+
+    /**
+     * Gọi FUNC_DIEMKHADUNG để lấy số slot bánh tùy chỉnh còn trống cho ngày chỉ định.
+     * @param ngayNhan ngày khách hẹn nhận bánh
+     * @return số bánh tùy chỉnh còn có thể nhận, 0 nếu đã đầy hoặc chưa cấu hình
+     */
+    public int laySlotsConTrong(LocalDate ngayNhan) throws Exception {
+        String sql = "SELECT FUNC_DIEMKHADUNG(?) FROM DUAL";
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDate(1, java.sql.Date.valueOf(ngayNhan));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("laySlotsConTrong", e);
+        }
+        return 0;
+    }
 }

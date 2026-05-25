@@ -20,6 +20,10 @@ EXCEPTION
         RETURN 0;
 END;
 
+
+
+
+
 CREATE OR REPLACE FUNCTION FUNC_DIEMKHADUNG(
     P_NGAYCANKIEMTRA IN NANGLUCSANXUAT.NGAYSANXUAT%type
 ) RETURN NUMBER
@@ -36,7 +40,7 @@ BEGIN
         WHERE TRUNC(NGAYSANXUAT) = TRUNC(P_NGAYCANKIEMTRA);
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            V_GIOIHAN := 0; -- Náº¿u xÆ°á»Ÿng chÆ°a cáº¥u hÃ¬nh táº£i trá»ng cho ngÃ y nÃ y, máº·c Ä‘á»‹nh lÃ  0 (KhÃ´ng nháº­n)
+            V_GIOIHAN := 0;
     END;
 
 

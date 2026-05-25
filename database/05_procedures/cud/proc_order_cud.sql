@@ -42,7 +42,7 @@
 
 
        EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = SERIALIZABLE';
---        EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = READ COMMITTED';
+      ---   EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = READ COMMITTED';
 
         -- 0. Validate JSON input
         IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
@@ -148,20 +148,31 @@
         VALUES (P_NGAYGIONHANBANH, P_MAKH, P_MANV_LAP, P_MATRANGTHAI, 0, 0, P_HINHTHUCNHAN, P_DIACHIGIAO)
         RETURNING MADON INTO P_MADON_OUT;
 
-        -- 4. Insert chi tiết — skip trigger trừ kho (procedure tự trừ)
+        -- 4. Insert chi tiết 
+        --    IS_CUSTOM = 'false' → CTDONHANG (bánh có sẵn)
+        --    IS_CUSTOM = 'true'  → CTDONTUYCHINH (bánh tùy chỉnh) → kích hoạt TRG_KIEMSOAT_CONGSUAT_TUYCHINH
         PKG_ERROR_CODES.G_SKIP_STOCK_TRIGGER := TRUE;
         FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
                 INSERT INTO CTDONHANG (MADON, MASP, SOLUONG, DONGIA)
                 VALUES (P_MADON_OUT, V_TAB(I).MASP, V_TAB(I).SOLUONG, V_TAB(I).DONGIA);
+            ELSIF LOWER(V_TAB(I).IS_CUSTOM) = 'true' THEN
+                -- DONGIAVON được TRG_CTDONTUYCHINH_GIAVON tự động gán, không cần truyền
+                INSERT INTO CTDONTUYCHINH (
+                    MADON, MASP, SOLUONG, DONGIA,
+                    LOICHUCTRENBANH, GHICHUTHOBANH,
+                    MAKC, MACOT, MANHAN, MATRANGTRI,
+                    THOIGIANCHUANBI
+                ) VALUES (
+                    P_MADON_OUT, V_TAB(I).MASP, V_TAB(I).SOLUONG, V_TAB(I).DONGIA,
+                    V_TAB(I).GHICHU, V_TAB(I).PHUKIEN,
+                    NULLIF(V_TAB(I).MAKC, 0), NULLIF(V_TAB(I).MACOT, 0),
+                    NULLIF(V_TAB(I).MANHAN, 0), NULLIF(V_TAB(I).MATRANGTRI, 0),
+                    1 
+                );
             END IF;
         END LOOP;
         PKG_ERROR_CODES.G_SKIP_STOCK_TRIGGER := FALSE;
-
-        -- [DELAY Phase 2] Đợi để cả 2 thu ngân cùng ở trong Phase 2
-        -- Snapshot SERIALIZABLE đã chụp tại INSERT DONDATHANG ở trên
-        -- Nếu không delay: thu ngân 1 COMMIT Phase 2 trước khi thu ngân 2
-        -- bắt đầu Phase 2 → snapshot mới bao gồm commit → không phát hiện xung đột
         DBMS_SESSION.SLEEP(5);
 
         -- V_TONKHO_CACHE(I) được đọc ở Phase 1 TRƯỚC delay

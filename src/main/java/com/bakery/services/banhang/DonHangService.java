@@ -1,6 +1,7 @@
 package com.bakery.services.banhang;
 
 import com.bakery.model.dto.banhang.YeuCauChiTietDonHangDTO;
+import com.bakery.services.hethong.CauHinhGioiHanService;
 import com.bakery.services.khachhang.KhachHangService;
 import com.bakery.services.kho.SanPhamService;
 
@@ -33,6 +34,7 @@ public class DonHangService {
     private final TuyChinhBanhService tuyChinhBanhService;
     private final TheoDoiDonService theoDoiDonService;
     private final PhuongThucTTDAO phuongThucTTDAO;
+    private final CauHinhGioiHanService cauHinhGioiHanService;
 
     public DonHangService() {
         this.donHangService = new QuanLyDonHangService();
@@ -42,6 +44,7 @@ public class DonHangService {
         this.tuyChinhBanhService = new TuyChinhBanhService();
         this.theoDoiDonService = new TheoDoiDonService();
         this.phuongThucTTDAO = new PhuongThucTTDAO();
+        this.cauHinhGioiHanService = new CauHinhGioiHanService();
     }
 
     // =========================================================
@@ -207,5 +210,21 @@ public class DonHangService {
      */
     public List<DonDatHangDTO> layDonBepCoTuyChinhChuaHoanThanh() throws Exception {
         return theoDoiDonService.layDonCoTuyChinhChuaHoanThanh();
+    }
+
+    // =========================================================
+    // 6. KIỂM TRA NĂNG LỰC SẢN XUẤT (UC36)
+    // =========================================================
+
+    /**
+     * Kiểm tra xưởng bánh còn đủ năng lực nhận đơn vào ngày chỉ định.
+     * Gọi FUNC_DIEMKHADUNG qua CauHinhGioiHanService.
+     * Throw Exception với thông báo tiếng Việt nếu không đủ năng lực.
+     *
+     * @param ngayNhan      ngày khách hẹn nhận bánh (từ dialog đặt đơn)
+     * @param soBanhTuyChinh tổng số bánh tùy chỉnh trong giỏ hàng
+     */
+    public void kiemTraNangLucSanXuat(LocalDate ngayNhan, int soBanhTuyChinh) throws Exception {
+        cauHinhGioiHanService.kiemTraNangLuc(ngayNhan, soBanhTuyChinh);
     }
 }

@@ -221,6 +221,58 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
             hienThiLoiLabel("Vui lòng chọn sản phẩm từ ComboBox trước.");
             return;
         }
+
+        // ── Chọn luồng: NL có sẵn (ưu tiên) hoặc tạo NL mới ──────────────
+        ButtonType btnChonCo  = new ButtonType("📋 Chọn nguyên liệu có sẵn");
+        ButtonType btnThemMoi = new ButtonType("➕ Tạo nguyên liệu mới");
+        Alert chonLuong = new Alert(Alert.AlertType.NONE,
+                "Bạn muốn dùng nguyên liệu đã có trong hệ thống\nhay tạo mới hoàn toàn?",
+                btnChonCo, btnThemMoi, ButtonType.CANCEL);
+        chonLuong.setTitle("Thêm nguyên liệu vào công thức");
+        chonLuong.setHeaderText("Chọn cách thêm nguyên liệu");
+        DialogHelper.applyBakeryTheme(chonLuong);
+
+        ButtonType chon = chonLuong.showAndWait().orElse(ButtonType.CANCEL);
+        if (chon == ButtonType.CANCEL) return;
+
+        if (chon == btnChonCo) {
+            moDialogChonNguyenLieuCo();
+        } else {
+            moDialogThemNguyenLieuMoi();
+        }
+    }
+
+    /** Luồng 1 (ưu tiên): Chọn nguyên liệu đã có trong DB → chỉ nhập định mức. */
+    private void moDialogChonNguyenLieuCo() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/kho/ChonNguyenLieuCuDialog.fxml"));
+            Parent root = loader.load();
+
+            ChonNguyenLieuCuDialogController dialogCtrl = loader.getController();
+            dialogCtrl.khoiTao(cachedDsNguyenLieu);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Chọn nguyên liệu có sẵn vào công thức");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(tblCongThuc.getScene().getWindow());
+
+            Scene scene = new Scene(root);
+            URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+            if (dialogCtrl.isConfirmed()) {
+                presenter.luuCongThuc(dialogCtrl.getMaNL(), dialogCtrl.getDinhMuc());
+            }
+        } catch (Exception e) {
+            hienThiLoiLabel("Không thể mở dialog chọn nguyên liệu: " + e.getMessage());
+        }
+    }
+
+    /** Luồng 2: Tạo nguyên liệu hoàn toàn mới + nhập kho lần đầu + định mức. */
+    private void moDialogThemNguyenLieuMoi() {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/kho/ThemCongThucDialog.fxml"));
@@ -241,8 +293,8 @@ public class CongThucViewFXMLController extends BaseController implements ICongT
             dialogStage.showAndWait();
 
             if (dialogCtrl.isConfirmed()) {
-                int maDVT  = dialogCtrl.getDonViTinh()  != null ? dialogCtrl.getDonViTinh().getMaDVT()   : 0;
-                int maNCC  = dialogCtrl.getNhaCungCap() != null ? dialogCtrl.getNhaCungCap().getMaNCC() : 0;
+                int maDVT = dialogCtrl.getDonViTinh()  != null ? dialogCtrl.getDonViTinh().getMaDVT()  : 0;
+                int maNCC = dialogCtrl.getNhaCungCap() != null ? dialogCtrl.getNhaCungCap().getMaNCC() : 0;
                 presenter.themNguyenLieuMoiVaoCongThuc(
                         dialogCtrl.getTenNL(),
                         dialogCtrl.getXuatXu(),

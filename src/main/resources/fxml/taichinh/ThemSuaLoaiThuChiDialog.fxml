@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  ThemSuaLoaiThuChiDialog.fxml — Dialog Thêm / Sửa Loại Thu Chi (UC53-UC54)
+  Design pattern: giống ThemNguyenLieuDialog — dialog-header / dialog-body / dialog-footer.
+  Controller: ThemSuaLoaiThuChiDialogController
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bakery.views.controllers.taichinh.ThemSuaLoaiThuChiDialogController"
+      spacing="0" prefWidth="440">
+
+    <!-- Header -->
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <Label fx:id="lblDialogTitle" text="➕ Thêm hạng mục mới" styleClass="dialog-header-title"/>
+    </HBox>
+
+    <!-- Body -->
+    <VBox styleClass="dialog-body" spacing="16" VBox.vgrow="ALWAYS">
+
+        <!-- Tên hạng mục -->
+        <VBox spacing="6">
+            <Label text="Tên hạng mục: *" styleClass="lbl-body-bold"/>
+            <TextField fx:id="txtTenLoai"
+                       promptText="VD: Tiền điện, Tiền mặt bán hàng..."
+                       styleClass="text-field"/>
+        </VBox>
+
+        <!-- Phân loại: Thu / Chi -->
+        <VBox spacing="8">
+            <Label text="Phân loại: *" styleClass="lbl-body-bold"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <ToggleButton fx:id="btnThu" text="💰  Khoản THU"
+                              prefWidth="180" styleClass="toggle-thu"
+                              onAction="#onChonPhanLoai"/>
+                <ToggleButton fx:id="btnChi" text="💸  Khoản CHI"
+                              prefWidth="180" styleClass="toggle-chi"
+                              onAction="#onChonPhanLoai"/>
+            </HBox>
+            <Label text="Thu: doanh thu, hoàn ứng... · Chi: điện nước, mua sắm..."
+                   styleClass="lbl-body" style="-fx-text-fill: #888780;"/>
+        </VBox>
+
+        <!-- Thông báo lỗi -->
+        <Label fx:id="lblLoi" text="" styleClass="lbl-danger" wrapText="true"/>
+
+    </VBox>
+
+    <!-- Footer -->
+    <HBox styleClass="dialog-footer" alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Hủy" styleClass="btn-secondary" onAction="#onHuy"/>
+        <Button fx:id="btnXacNhan" text="✅ Lưu hạng mục"
+                styleClass="btn-success" onAction="#onXacNhan"/>
+    </HBox>
+
+</VBox>

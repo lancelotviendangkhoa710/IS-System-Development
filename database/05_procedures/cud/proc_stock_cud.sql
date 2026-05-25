@@ -182,9 +182,8 @@
             FROM CONGTHUC C
                      JOIN NGUYENLIEU N ON C.MANL = N.MANL
             WHERE C.MASP = P_MASP
-            --root
---             ORDER BY C.SOLUONGTIEUHAO DESC;
-            ORDER BY C.MANL ASC;
+--         ORDER BY C.SOLUONGTIEUHAO DESC;
+           ORDER BY C.MANL ASC;
 
         CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
             SELECT MALO, SOLUONGCONLAI
@@ -202,9 +201,17 @@
                 INTO V_TONGTON
                 FROM NGUYENLIEU
                 WHERE MANL = REC.MANL
-                    -- ┌─ TOGGLE BUG/FIX (đổi cùng lúc với ORDER BY ở trên) ─┐
-                    -- BUG:  FOR UPDATE WAIT 5   ← timeout 5s → ORA-30006 → phá chu trình deadlock
-                    -- FIX:  FOR UPDATE          ← chờ tuần tự (lock ordering đã ngăn deadlock)
+                    -- ┌─ TOGGLE BUG/FIX (đổi cùng lúc với ORDER BY ở trên) ─────────────────────────┐
+                    -- BUG (deadlock §4.4):
+                    --   Bỏ comment dòng FOR UPDATE WAIT 5, comment dòng FOR UPDATE bên dưới.
+                    --   ORDER BY C.SOLUONGTIEUHAO DESC ở trên phải được bỏ comment.
+
+
+                    -- FIX (lock ordering §4.4):
+                    --   Giữ nguyên dòng FOR UPDATE (không WAIT). ORDER BY C.MANL ASC ở trên.
+
+
+                    -- FOR UPDATE WAIT 5;
                     FOR UPDATE;
 
                 IF V_TONGTON < REC.TONG_CAN_DUNG THEN
@@ -221,7 +228,7 @@
 
 
                 -- [DEMO §4.4 DEADLOCK] Giả lập thời gian tính toán giữa các lần lock.
-                DBMS_SESSION.SLEEP(8);
+                DBMS_SESSION.SLEEP(6);
             END LOOP;
 
         -- 2. TẠO CHỨNG TỪ XUẤT TỔNG
@@ -271,9 +278,14 @@
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
+            -- ORA-00060: deadlock thực sự — Oracle đã chọn phiên này làm nạn nhân và tự ROLLBACK.
+            -- Dùng marker DEADLOCK_DETECTED để Java hiển thị Alert rõ ràng (nhất quán với LOCK_TIMEOUT).
             IF SQLCODE = -60 THEN
-                RAISE;
+                RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
+                    'DEADLOCK_DETECTED|' || NVL(V_TEN_NL_DANG_LOCK, 'khong xac dinh'));
             END IF;
+            -- ORA-30006: FOR UPDATE WAIT N hết giờ — cả 2 phiên đồng thời đều nhận lỗi này
+            -- → cả 2 đều ROLLBACK → cả 2 section báo lỗi (kịch bản BUG §4.4 hoàn chỉnh).
             IF SQLCODE = -30006 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
                     'LOCK_TIMEOUT|' || V_TEN_NL_DANG_LOCK);

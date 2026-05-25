@@ -46,11 +46,15 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private Tab tabThongKeKinhDoanh;
     @FXML private Tab tabSoQuyThuChi;
     @FXML private Tab tabGiamSatCa;
+    @FXML private Tab tabQuanLyLoai;
 
     // Biểu đồ doanh thu theo tháng
     @FXML private BarChart<String, Number> monthlyBarChart;
     @FXML private ComboBox<Integer>        cbNamBieuDo;
 
+    // Biểu đồ lợi nhuận theo tháng
+    @FXML private BarChart<String, Number> monthlyProfitBarChart;
+    @FXML private ComboBox<Integer>        cbNamBieuDoLoiNhuan;
 
 
     private ThongKeService thongKeService = new ThongKeService();
@@ -75,14 +79,15 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     /**
      * Chuyển tab trong BaoCaoView từ MainMenu.
-     * tabKey: "thongke" | "soquy" | "giamsatca"
+     * tabKey: "thongke" | "soquy" | "giamsatca" | "quanlyloai"
      */
     public void chuyenTab(String tabKey) {
         if (tabPaneBaoCao == null || tabKey == null) return;
         Tab target = switch (tabKey.toLowerCase()) {
-            case "soquy" -> tabSoQuyThuChi;
-            case "giamsatca" -> tabGiamSatCa;
-            default -> tabThongKeKinhDoanh;
+            case "soquy"       -> tabSoQuyThuChi;
+            case "giamsatca"   -> tabGiamSatCa;
+            case "quanlyloai" -> tabQuanLyLoai;
+            default            -> tabThongKeKinhDoanh;
         };
         if (target != null) {
             tabPaneBaoCao.getSelectionModel().select(target);
@@ -95,17 +100,29 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     /** Khởi tạo ComboBox năm và tải dữ liệu biểu đồ tháng lần đầu. */
     private void setupNamBieuDo() {
-        if (cbNamBieuDo == null) return;
         int namHienTai = java.time.LocalDate.now().getYear();
-        // Cho phép chọn 5 năm gần nhất
-        for (int y = namHienTai; y >= namHienTai - 4; y--) {
-            cbNamBieuDo.getItems().add(y);
+
+        // ── Biểu đồ doanh thu ──────────────────────────────────────────────
+        if (cbNamBieuDo != null) {
+            for (int y = namHienTai; y >= namHienTai - 4; y--)
+                cbNamBieuDo.getItems().add(y);
+            cbNamBieuDo.setValue(namHienTai);
+            cbNamBieuDo.valueProperty().addListener((obs, oldY, newY) -> {
+                if (newY != null) capNhatBieuDoTheoThang(newY);
+            });
+            capNhatBieuDoTheoThang(namHienTai);
         }
-        cbNamBieuDo.setValue(namHienTai);
-        cbNamBieuDo.valueProperty().addListener((obs, oldY, newY) -> {
-            if (newY != null) capNhatBieuDoTheoThang(newY);
-        });
-        capNhatBieuDoTheoThang(namHienTai);
+
+        // ── Biểu đồ lợi nhuận ──────────────────────────────────────────────
+        if (cbNamBieuDoLoiNhuan != null) {
+            for (int y = namHienTai; y >= namHienTai - 4; y--)
+                cbNamBieuDoLoiNhuan.getItems().add(y);
+            cbNamBieuDoLoiNhuan.setValue(namHienTai);
+            cbNamBieuDoLoiNhuan.valueProperty().addListener((obs, oldY, newY) -> {
+                if (newY != null) capNhatBieuDoLoiNhuanTheoThang(newY);
+            });
+            capNhatBieuDoLoiNhuanTheoThang(namHienTai);
+        }
     }
 
     /**
@@ -148,6 +165,43 @@ public class BaoCaoViewFXMLController extends BaseController {
                     hienThiCanhBao("Lỗi biểu đồ tháng", e.getMessage()));
             }
         }, "monthly-chart-loader").start();
+    }
+
+    /**
+     * Tải dữ liệu lợi nhuận 12 tháng và cập nhật monthlyProfitBarChart.
+     * Cột xanh lá = lợi nhuận dương, cột đỏ = lợi nhuận âm.
+     * Chạy DB query trên Thread phụ, update UI qua Platform.runLater.
+     */
+    private void capNhatBieuDoLoiNhuanTheoThang(int nam) {
+        if (monthlyProfitBarChart == null) return;
+        new Thread(() -> {
+            try {
+                Map<String, Double> data = thongKeService.getLoiNhuan12ThangTrongNam(nam);
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                series.setName("Lợi nhuận " + nam);
+                for (Map.Entry<String, Double> entry : data.entrySet()) {
+                    series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+                }
+                javafx.application.Platform.runLater(() -> {
+                    monthlyProfitBarChart.getData().clear();
+                    monthlyProfitBarChart.getData().add(series);
+                    // Xanh lá = dương, đỏ = âm
+                    for (XYChart.Data<String, Number> d : series.getData()) {
+                        double val = d.getYValue().doubleValue();
+                        final String color = val >= 0 ? "#16A34A" : "#DC2626";
+                        if (d.getNode() != null) {
+                            d.getNode().setStyle("-fx-bar-fill: " + color + ";");
+                        }
+                        d.nodeProperty().addListener((obs, oldN, newN) -> {
+                            if (newN != null) newN.setStyle("-fx-bar-fill: " + color + ";");
+                        });
+                    }
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                    hienThiCanhBao("Lỗi biểu đồ lợi nhuận", e.getMessage()));
+            }
+        }, "monthly-profit-chart-loader").start();
     }
 
     // ── Bộ lọc báo cáo kinh doanh ────────────────────────────────────────────
@@ -370,8 +424,8 @@ public class BaoCaoViewFXMLController extends BaseController {
         // Build file đích
         String suffix = loaiStr + "_" + ngay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         File outputFile = excel
-                ? ReportPathUtils.buildExcelPath("ThongKe", suffix)
-                : ReportPathUtils.buildPdfPath("ThongKe_Jasper", suffix);
+                ? ReportPathUtils.buildExcelPath("BaoCaoKinhDoanh", suffix)
+                : ReportPathUtils.buildPdfPath("BaoCaoKinhDoanh", suffix);
 
         // [PDF only] Snapshot biểu đồ LineChart TRÊN FX thread trước khi vào background
         final InputStream chartStream = excel ? null : snapshotBieuDo();
@@ -401,9 +455,14 @@ public class BaoCaoViewFXMLController extends BaseController {
                             strDoanhThu, strGiaVon, strLoiNhuan, strTongGD, nguoiXuat, rows, chartStream);
                 }
 
-                javafx.application.Platform.runLater(() ->
+                javafx.application.Platform.runLater(() -> {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported())
+                            java.awt.Desktop.getDesktop().open(outputFile);
+                    } catch (Exception ignored) { }
                     hienThiThongTin("Xuất báo cáo thành công",
-                        (excel ? "Excel" : "PDF") + " đã lưu tại:\n" + outputFile.getAbsolutePath()));
+                        (excel ? "Excel" : "PDF") + " đã lưu tại:\n" + outputFile.getAbsolutePath());
+                });
 
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() ->
@@ -500,9 +559,14 @@ public class BaoCaoViewFXMLController extends BaseController {
                         String.format("%,.0f ₫", tongTien),
                         nguoiXuat, rows);
 
-                javafx.application.Platform.runLater(() ->
+                javafx.application.Platform.runLater(() -> {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported())
+                            java.awt.Desktop.getDesktop().open(outputFile);
+                    } catch (Exception ignored) { }
                     hienThiThongTin("Xuất lịch sử thành công",
-                        "PDF đã lưu tại:\n" + outputFile.getAbsolutePath()));
+                        "PDF đã lưu tại:\n" + outputFile.getAbsolutePath());
+                });
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() ->
                     hienThiThongBaoLoi("Lỗi xuất lịch sử", e.getMessage()));

@@ -653,6 +653,45 @@ public class ThongKeDAO extends BaseDAO {
     }
 
     /**
+     * Biểu đồ lợi nhuận theo tháng — Lợi nhuận 12 tháng trong một năm cụ thể.
+     * Lợi nhuận = Doanh thu − Giá vốn (COGS từ CT.DONGIAVON snapshot tại thời bán).
+     * Trả LinkedHashMap giữ thứ tự Tháng 1 → 12; fill 0 cho tháng chưa có dữ liệu.
+     *
+     * @param nam năm cần thống kê (VD: 2025)
+     * @return Map: "Th.1" … "Th.12" → lợi nhuận (VND)
+     */
+    public Map<String, Double> getLoiNhuan12ThangTrongNam(int nam) throws Exception {
+        Map<String, Double> result = new LinkedHashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            result.put("Th." + i, 0.0);
+        }
+
+        String sql = "SELECT TO_NUMBER(TO_CHAR(H.NGAYXUATHD, 'MM')) AS THANG, " +
+                "       NVL(SUM(H.TONGTIENTHANHTOAN), 0) - " +
+                "       NVL(SUM(CT.SOLUONG * NVL(CT.DONGIAVON, 0)), 0) AS LOI_NHUAN " +
+                "FROM HOADON H " +
+                "JOIN CTDONHANG CT ON CT.MADON = H.MADON " +
+                "WHERE TO_CHAR(H.NGAYXUATHD, 'YYYY') = ? " +
+                "GROUP BY TO_NUMBER(TO_CHAR(H.NGAYXUATHD, 'MM')) " +
+                "ORDER BY THANG";
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, String.valueOf(nam));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int thang = rs.getInt("THANG");
+                    double loiNhuan = rs.getDouble("LOI_NHUAN");
+                    result.put("Th." + thang, loiNhuan);
+                }
+            }
+        } catch (SQLException e) {
+            handleException("getLoiNhuan12ThangTrongNam", e);
+        }
+        return result;
+    }
+
+    /**
      * Task 2.4: Gọi FUNC_DOANHTHUTHEOPTTT(tuNgay, denNgay) thay vì inline SQL trùng lặp.
      * Function trả SYS_REFCURSOR — dùng CallableStatement với OracleTypes.CURSOR.
      *
