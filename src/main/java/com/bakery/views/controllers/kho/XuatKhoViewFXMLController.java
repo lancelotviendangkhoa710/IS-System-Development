@@ -181,23 +181,26 @@ public class XuatKhoViewFXMLController extends BaseController {
         dialog.getDialogPane().getButtonTypes().addAll(btnTiepTuc, ButtonType.CANCEL);
         injectDialogCss(dialog);
 
-        RadioButton rdoLamBanh = new RadioButton("Xuất để làm bánh");
+        RadioButton rdoLamBanh = new RadioButton("Xuất đơn bánh (1 loại bánh)");
+        RadioButton rdoLamBanhGop = new RadioButton("Xuất mẻ bánh (nhiều loại bánh)");
         RadioButton rdoNLHong = new RadioButton("Xuất vì nguyên liệu hỏng");
         RadioButton rdoSPHong = new RadioButton("Xuất vì bánh bảo quản hỏng");
         RadioButton rdoSaiSot = new RadioButton("Xuất vì sai sót trong làm bánh");
         rdoLamBanh.getStyleClass().add("radio-button");
+        rdoLamBanhGop.getStyleClass().add("radio-button");
         rdoNLHong.getStyleClass().add("radio-button");
         rdoSPHong.getStyleClass().add("radio-button");
         rdoSaiSot.getStyleClass().add("radio-button");
 
         ToggleGroup group = new ToggleGroup();
         rdoLamBanh.setToggleGroup(group);
+        rdoLamBanhGop.setToggleGroup(group);
         rdoNLHong.setToggleGroup(group);
         rdoSPHong.setToggleGroup(group);
         rdoSaiSot.setToggleGroup(group);
-        rdoLamBanh.setSelected(true);
+        rdoLamBanhGop.setSelected(true); // new multi-product export as default
 
-        VBox box = new VBox(14, rdoLamBanh, rdoNLHong, rdoSPHong, rdoSaiSot);
+        VBox box = new VBox(14, rdoLamBanh, rdoLamBanhGop, rdoNLHong, rdoSPHong, rdoSaiSot);
         box.setPadding(new Insets(20));
         dialog.getDialogPane().setContent(box);
         dialog.getDialogPane().setPrefWidth(400);
@@ -207,12 +210,188 @@ public class XuatKhoViewFXMLController extends BaseController {
                 return;
             if (rdoLamBanh.isSelected())
                 moDialogLamBanh();
+            else if (rdoLamBanhGop.isSelected())
+                moDialogLamBanhGop();
             else if (rdoNLHong.isSelected())
                 moDialogNguyenLieuHong();
             else if (rdoSPHong.isSelected())
                 moDialogSanPhamHong();
             else if (rdoSaiSot.isSelected())
                 moDialogSaiSotBanh();
+        });
+    }
+
+    public static class ItemSanXuat {
+        private final int maSP;
+        private final String tenSP;
+        private final double soLuong;
+        private final double toiDaNL;
+
+        public ItemSanXuat(int maSP, String tenSP, double soLuong, double toiDaNL) {
+            this.maSP = maSP;
+            this.tenSP = tenSP;
+            this.soLuong = soLuong;
+            this.toiDaNL = toiDaNL;
+        }
+
+        public int getMaSP() { return maSP; }
+        public String getTenSP() { return tenSP; }
+        public double getSoLuong() { return soLuong; }
+        public double getToiDaNL() { return toiDaNL; }
+    }
+
+    // ── Lý do 1b: Xuất nhiều loại bánh gộp (Xuất mẻ bánh) ──────────────────
+    private void moDialogLamBanhGop() {
+        List<SanPhamDTO> dsSP = loadSanPham();
+        if (dsSP == null)
+            return;
+
+        Dialog<ButtonType> dialog = buildDialog(
+                "Xuất Kho — Làm Bánh (Mẻ Bánh)",
+                "Xuất nguyên liệu gộp để làm nhiều loại bánh cùng lúc\n(Lý do: " + LYDO_LAM_BANH + ")");
+
+        ObservableList<ItemSanXuat> dsChon = FXCollections.observableArrayList();
+
+        // ── Danh sách sản phẩm đã thêm ───────────────────────────────────
+        TableView<ItemSanXuat> tblSelected = new TableView<>();
+        tblSelected.setPlaceholder(new Label("Chưa có sản phẩm nào trong danh sách."));
+        tblSelected.setItems(dsChon);
+        tblSelected.setPrefHeight(220);
+        tblSelected.setPrefWidth(420);
+
+        TableColumn<ItemSanXuat, String> colTen = new TableColumn<>("Sản phẩm");
+        colTen.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTenSP()));
+
+        TableColumn<ItemSanXuat, Double> colSL = new TableColumn<>("Số lượng");
+        colSL.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getSoLuong()));
+
+        TableColumn<ItemSanXuat, Double> colToiDaNL = new TableColumn<>("Tối đa (NL)");
+        colToiDaNL.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getToiDaNL()));
+
+        tblSelected.getColumns().addAll(List.of(colTen, colSL, colToiDaNL));
+        tblSelected.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        // ── Khu vực chọn và thêm sản phẩm ─────────────────────────────────
+        double[] khaDungHolder = { 0 };
+        ComboBox<SanPhamDTO> cbSP = buildCbSanPham(dsSP);
+        Label lblToiDa = new Label("Đang tính...");
+        TextField txtSL = new TextField("1");
+        Button btnAdd = new Button("➕ Thêm bánh");
+        Button btnRemove = new Button("➖ Xóa bánh");
+
+        cbSP.getStyleClass().add("combo-box");
+        txtSL.getStyleClass().add("text-field");
+        lblToiDa.getStyleClass().add("lbl-info");
+        btnAdd.getStyleClass().add("btn-primary");
+        btnRemove.getStyleClass().add("btn-secondary");
+
+        cbSP.setOnAction(e -> {
+            SanPhamDTO sp = cbSP.getValue();
+            if (sp == null) {
+                lblToiDa.setText("—");
+                return;
+            }
+            lblToiDa.setText("Đang tính...");
+            Thread t = new Thread(() -> {
+                try {
+                    double kd = xuatSanXuatSvc.tinhSoLuongKhaDung(sp.getMaSP());
+                    khaDungHolder[0] = kd;
+                    javafx.application.Platform.runLater(() -> {
+                        lblToiDa.setText(kd <= 0
+                                ? "⚠ Không đủ nguyên liệu"
+                                : String.format("Tối đa: %.0f cái (theo NL)", kd));
+                    });
+                } catch (Exception ex) {
+                    javafx.application.Platform.runLater(() -> lblToiDa.setText("Lỗi: " + ex.getMessage()));
+                }
+            }, "xuat-tinh-khadung-gop");
+            t.setDaemon(true);
+            t.start();
+        });
+        cbSP.fireEvent(new javafx.event.ActionEvent());
+
+        // ── Xử lý nút Thêm/Xóa ────────────────────────────────────────────
+        btnAdd.setOnAction(e -> {
+            SanPhamDTO sp = cbSP.getValue();
+            if (sp == null) return;
+            double sl = parsePositive(txtSL.getText());
+            if (sl <= 0) return;
+
+            if (sl > khaDungHolder[0]) {
+                hienThiLoiLabel("Số lượng vượt quá khả năng sản xuất (tối đa theo NL: " + (int)khaDungHolder[0] + " cái).");
+                return;
+            }
+
+            // Kiểm tra trùng
+            ItemSanXuat existed = dsChon.stream().filter(item -> item.getMaSP() == sp.getMaSP()).findFirst().orElse(null);
+            if (existed != null) {
+                double totalSL = existed.getSoLuong() + sl;
+                if (totalSL > khaDungHolder[0]) {
+                    hienThiLoiLabel("Tổng số lượng cho " + sp.getTenSP() + " vượt quá khả năng sản xuất (tối đa: " + (int)khaDungHolder[0] + " cái).");
+                    return;
+                }
+                dsChon.remove(existed);
+                dsChon.add(new ItemSanXuat(sp.getMaSP(), sp.getTenSP(), totalSL, khaDungHolder[0]));
+            } else {
+                dsChon.add(new ItemSanXuat(sp.getMaSP(), sp.getTenSP(), sl, khaDungHolder[0]));
+            }
+            txtSL.setText("1");
+        });
+
+        btnRemove.setOnAction(e -> {
+            ItemSanXuat selected = tblSelected.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                dsChon.remove(selected);
+            }
+        });
+
+        // ── Bố cục GridPane & Dialog content ──────────────────────────────
+        GridPane inputGrid = new GridPane();
+        inputGrid.setHgap(12);
+        inputGrid.setVgap(10);
+        inputGrid.add(new Label("Sản phẩm:"), 0, 0);
+        inputGrid.add(cbSP, 1, 0);
+        inputGrid.add(new Label("Tối đa NL:"), 0, 1);
+        inputGrid.add(lblToiDa, 1, 1);
+        inputGrid.add(new Label("Số lượng:"), 0, 2);
+        inputGrid.add(txtSL, 1, 2);
+
+        HBox btnBox = new HBox(12, btnAdd, btnRemove);
+        btnBox.setAlignment(Pos.CENTER_LEFT);
+        inputGrid.add(btnBox, 1, 3);
+
+        VBox leftBox = new VBox(10, new Label("📋 Mẻ sản xuất gộp (Danh sách bánh):"), tblSelected);
+        VBox rightBox = new VBox(10, new Label("✏ Thêm bánh vào mẻ:"), inputGrid);
+
+        HBox contentBox = new HBox(25, leftBox, rightBox);
+        contentBox.setPadding(new Insets(20));
+        dialog.getDialogPane().setContent(contentBox);
+        dialog.getDialogPane().setPrefWidth(850);
+
+        dialog.showAndWait().ifPresent(r -> {
+            if (r != ButtonType.OK)
+                return;
+            if (dsChon.isEmpty()) {
+                hienThiLoiLabel("Vui lòng thêm ít nhất 1 sản phẩm vào mẻ.");
+                return;
+            }
+
+            // Xây dựng JSON array
+            StringBuilder json = new StringBuilder("[");
+            for (int i = 0; i < dsChon.size(); i++) {
+                if (i > 0) json.append(",");
+                ItemSanXuat item = dsChon.get(i);
+                json.append("{")
+                    .append("\"maSP\":").append(item.getMaSP()).append(",")
+                    .append("\"soLuong\":").append(item.getSoLuong())
+                    .append("}");
+            }
+            json.append("]");
+
+            int maNV = SessionContext.getInstance().getMaNV();
+            runAsync(() -> xuatSanXuatSvc.yeuCauMultiSanXuat(json.toString(), maNV),
+                    "Đã xuất nguyên liệu làm mẻ bánh thành công (" + dsChon.size() + " loại bánh).",
+                    "Lỗi xuất mẻ bánh", "xuat-multi-lam-banh");
         });
     }
 
@@ -229,42 +408,15 @@ public class XuatKhoViewFXMLController extends BaseController {
 
         // Dùng mảng để capture biến thay đổi trong lambda
         double[] khaDungHolder = { 0 };
-        // [0]=gioiHan, [1]=daDung; Integer.MAX_VALUE = chưa cấu hình → không giới hạn
-        int[] gioiHanHolder = { Integer.MAX_VALUE, 0 };
 
         ComboBox<SanPhamDTO> cbSP = buildCbSanPham(dsSP);
         Label lblToiDa = new Label("Đang tính...");
-        Label lblGioiHan = new Label("Đang tải...");
         TextField txtSL = new TextField("1");
         Button btnOk = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
 
         cbSP.getStyleClass().add("combo-box");
         txtSL.getStyleClass().add("text-field");
         lblToiDa.getStyleClass().add("lbl-info");
-        lblGioiHan.getStyleClass().add("lbl-info");
-
-        // Tải giới hạn ngày 1 lần khi mở dialog (không phụ thuộc vào sản phẩm)
-        Thread tGioiHan = new Thread(() -> {
-            try {
-                int[] gh = xuatSanXuatSvc.layGioiHanVaDaLam(java.time.LocalDate.now());
-                gioiHanHolder[0] = gh[0];
-                gioiHanHolder[1] = gh[1];
-                javafx.application.Platform.runLater(() -> {
-                    if (gh[0] == Integer.MAX_VALUE) {
-                        lblGioiHan.setText("Không giới hạn");
-                    } else {
-                        int conLai = Math.max(0, gh[0] - gh[1]);
-                        lblGioiHan.setText(String.format("%d/%d cái (còn: %d)", gh[1], gh[0], conLai));
-                        if (conLai <= 0 && btnOk != null)
-                            btnOk.setDisable(true);
-                    }
-                });
-            } catch (Exception ex) {
-                javafx.application.Platform.runLater(() -> lblGioiHan.setText("Lỗi: " + ex.getMessage()));
-            }
-        }, "xuat-load-gioihan");
-        tGioiHan.setDaemon(true);
-        tGioiHan.start();
 
         // Mỗi khi đổi sản phẩm → gọi FUNC_SOLUONGKHADUNG trên thread phụ
         cbSP.setOnAction(e -> {
@@ -284,12 +436,9 @@ public class XuatKhoViewFXMLController extends BaseController {
                         lblToiDa.setText(kd <= 0
                                 ? "⚠ Không đủ nguyên liệu"
                                 : String.format("Tối đa: %.0f cái (theo NL)", kd));
-                        // Disable OK nếu NL không đủ hoặc đã đạt giới hạn ngày
-                        int conLai = gioiHanHolder[0] == Integer.MAX_VALUE
-                                ? Integer.MAX_VALUE
-                                : Math.max(0, gioiHanHolder[0] - gioiHanHolder[1]);
+                        // Disable OK nếu NL không đủ
                         if (btnOk != null)
-                            btnOk.setDisable(kd <= 0 || conLai <= 0);
+                            btnOk.setDisable(kd <= 0);
                     });
                 } catch (Exception ex) {
                     javafx.application.Platform.runLater(() -> lblToiDa.setText("Lỗi: " + ex.getMessage()));
@@ -304,7 +453,6 @@ public class XuatKhoViewFXMLController extends BaseController {
         GridPane grid = buildGrid(
                 "Sản phẩm:", cbSP,
                 "Tối đa (nguyên liệu):", lblToiDa,
-                "Giới hạn hôm nay:", lblGioiHan,
                 "Số lượng cần làm:", txtSL);
         dialog.getDialogPane().setContent(grid);
 
@@ -319,19 +467,10 @@ public class XuatKhoViewFXMLController extends BaseController {
             double sl = parsePositive(txtSL.getText());
             if (sl < 0)
                 return;
-            // Giới hạn tối đa = min(khả dụng NL, còn lại theo giới hạn ngày)
-            double conLaiGioiHan = gioiHanHolder[0] == Integer.MAX_VALUE
-                    ? Double.MAX_VALUE
-                    : Math.max(0, gioiHanHolder[0] - gioiHanHolder[1]);
-            double toiDa = Math.min(khaDungHolder[0], conLaiGioiHan);
-            if (sl > toiDa) {
-                if (conLaiGioiHan < khaDungHolder[0]) {
-                    hienThiLoiLabel(String.format(
-                            "Vượt giới hạn ngày! Hôm nay còn được làm tối đa %.0f cái.", conLaiGioiHan));
-                } else {
-                    hienThiLoiLabel(String.format(
-                            "Số lượng vượt quá khả năng sản xuất (tối đa %.0f cái).", toiDa));
-                }
+            
+            if (sl > khaDungHolder[0]) {
+                hienThiLoiLabel(String.format(
+                        "Số lượng vượt quá khả năng sản xuất (tối đa %.0f cái).", khaDungHolder[0]));
                 return;
             }
             int maNV = SessionContext.getInstance().getMaNV();

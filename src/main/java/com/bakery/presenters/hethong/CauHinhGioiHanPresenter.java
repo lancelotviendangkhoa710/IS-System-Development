@@ -78,7 +78,7 @@ public class CauHinhGioiHanPresenter {
      * khi schema hỗ trợ per-product (thêm cột MASP), cập nhật thêm ở đây.
      */
     public void luuCauHinhSanPhamBanLe(int maSP, String gioiHanStr) {
-        luuCauHinh(LocalDate.now(), gioiHanStr, "giới hạn bánh có sẵn (mã SP: " + maSP + ")");
+        view.hienThiLoi("Hệ thống chỉ cấu hình giới hạn cho bánh tùy chỉnh.");
     }
 
     /**

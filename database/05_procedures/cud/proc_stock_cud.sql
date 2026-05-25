@@ -123,38 +123,6 @@
 
 
 
-    -- Procedure Hủy nhập kho
-    CREATE OR REPLACE PROCEDURE PROC_HUYPHIEUNHAPKHO (
-        P_MAPN IN PHIEUNHAPKHO.MAPN%type
-    )
-    IS
-        V_DA_SUDUNG NUMBER := 0;
-    BEGIN
-        -- 1. Kiểm tra rủi ro (Rất quan trọng): Lô hàng này đã bị lấy nguyên liệu đem chế biến chưa?
-        SELECT COUNT(*) INTO V_DA_SUDUNG
-        FROM CTPHIEUNHAP
-        WHERE MAPN = P_MAPN
-          AND SOLUONGCONLAI < SOLUONG;
-
-        -- 2. Bắt lỗi và Chặn đứng giao dịch nếu phát hiện dấu vết xé niêm phong
-        IF V_DA_SUDUNG > 0 THEN
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_THE_HUY_PN, 'Khong the huy phieu nhap nay vi nguyen lieu da duoc mang di lam banh!');
-        END IF;
-
-        -- 3. Thực thi Hủy (Xóa Chi tiết trước (Con), Xóa Phiếu gốc sau (Cha))
-        DELETE FROM CTPHIEUNHAP WHERE MAPN = P_MAPN;
-        DELETE FROM PHIEUNHAPKHO WHERE MAPN = P_MAPN;
-
-        -- 4. Chốt sổ hoàn tất giao dịch khép kín
-        COMMIT;
-    EXCEPTION
-        WHEN OTHERS THEN
-            ROLLBACK;
-            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HOAN_PHIEU_NHAP_KHO, 'Loi he thong khi huy phieu nhap kho: ' || SQLERRM);
-    END;
-    /
-
-    -- Procedure Xuất Kho Sản Xuất
     CREATE OR REPLACE PROCEDURE PROC_XUATKHOSANXUAT (
         P_MASP IN SANPHAM.MASP%type,
         P_SOLUONGSANXUAT IN CONGTHUC.SOLUONGTIEUHAO%type,
@@ -163,10 +131,10 @@
         IS
 
         TYPE T_REC_CONGTHUC IS RECORD (
-            MANL      CONGTHUC.MANL%TYPE,
-            TENNL     NGUYENLIEU.TENNL%TYPE,
-            TONG_CAN_DUNG NUMBER
-        );
+                                          MANL      CONGTHUC.MANL%TYPE,
+                                          TENNL     NGUYENLIEU.TENNL%TYPE,
+                                          TONG_CAN_DUNG NUMBER
+                                      );
         TYPE T_TAB_CONGTHUC IS TABLE OF T_REC_CONGTHUC INDEX BY PLS_INTEGER;
         V_TAB      T_TAB_CONGTHUC;
         V_IDX      PLS_INTEGER := 0;
@@ -182,8 +150,8 @@
             FROM CONGTHUC C
                      JOIN NGUYENLIEU N ON C.MANL = N.MANL
             WHERE C.MASP = P_MASP
---         ORDER BY C.SOLUONGTIEUHAO DESC;
-           ORDER BY C.MANL ASC;
+            --- ORDER BY C.SOLUONGTIEUHAO DESC;
+            ORDER BY C.MANL ASC;
 
         CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
             SELECT MALO, SOLUONGCONLAI
@@ -201,18 +169,18 @@
                 INTO V_TONGTON
                 FROM NGUYENLIEU
                 WHERE MANL = REC.MANL
-                    -- ┌─ TOGGLE BUG/FIX (đổi cùng lúc với ORDER BY ở trên) ─────────────────────────┐
-                    -- BUG (deadlock §4.4):
-                    --   Bỏ comment dòng FOR UPDATE WAIT 5, comment dòng FOR UPDATE bên dưới.
-                    --   ORDER BY C.SOLUONGTIEUHAO DESC ở trên phải được bỏ comment.
+                      -- ┌─ TOGGLE BUG/FIX (đổi cùng lúc với ORDER BY ở trên) ─────────────────────────┐
+                      -- BUG (deadlock §4.4):
+                      --   Bỏ comment dòng FOR UPDATE WAIT 5, comment dòng FOR UPDATE bên dưới.
+                      --   ORDER BY C.SOLUONGTIEUHAO DESC ở trên phải được bỏ comment.
 
 
-                    -- FIX (lock ordering §4.4):
-                    --   Giữ nguyên dòng FOR UPDATE (không WAIT). ORDER BY C.MANL ASC ở trên.
+                      -- FIX (lock ordering §4.4):
+                      --   Giữ nguyên dòng FOR UPDATE (không WAIT). ORDER BY C.MANL ASC ở trên.
 
 
-                    -- FOR UPDATE WAIT 5;
-                    FOR UPDATE;
+                       --FOR UPDATE WAIT 5;
+                      FOR UPDATE;
 
                 IF V_TONGTON < REC.TONG_CAN_DUNG THEN
                     RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DU,
@@ -228,7 +196,7 @@
 
 
                 -- [DEMO §4.4 DEADLOCK] Giả lập thời gian tính toán giữa các lần lock.
-                DBMS_SESSION.SLEEP(6);
+                DBMS_SESSION.SLEEP(5);
             END LOOP;
 
         -- 2. TẠO CHỨNG TỪ XUẤT TỔNG
@@ -278,20 +246,17 @@
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            -- ORA-00060: deadlock thực sự — Oracle đã chọn phiên này làm nạn nhân và tự ROLLBACK.
-            -- Dùng marker DEADLOCK_DETECTED để Java hiển thị Alert rõ ràng (nhất quán với LOCK_TIMEOUT).
+
             IF SQLCODE = -60 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
-                    'DEADLOCK_DETECTED|' || NVL(V_TEN_NL_DANG_LOCK, 'khong xac dinh'));
+                                        'DEADLOCK_DETECTED|' || NVL(V_TEN_NL_DANG_LOCK, 'khong xac dinh'));
             END IF;
-            -- ORA-30006: FOR UPDATE WAIT N hết giờ — cả 2 phiên đồng thời đều nhận lỗi này
-            -- → cả 2 đều ROLLBACK → cả 2 section báo lỗi (kịch bản BUG §4.4 hoàn chỉnh).
             IF SQLCODE = -30006 THEN
                 RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
-                    'LOCK_TIMEOUT|' || V_TEN_NL_DANG_LOCK);
+                                        'LOCK_TIMEOUT|' || V_TEN_NL_DANG_LOCK);
             END IF;
             IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO
-            OR SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_DU THEN
+                OR SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_DU THEN
                 RAISE;
             END IF;
             RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
@@ -299,6 +264,143 @@
     END;
     /
 
+    -- Procedure Xuất kho sản xuất cho nhiều loại bánh cùng lúc (Xuất mẻ bánh)
+    CREATE OR REPLACE PROCEDURE PROC_XUATKHOMULTISANXUAT (
+        P_JSON_DATALIST IN CLOB,
+        P_MANV          IN NHANVIEN.MANV%TYPE
+    )
+    IS
+        TYPE T_REC_CONGTHUC IS RECORD (
+            MANL          CONGTHUC.MANL%TYPE,
+            TENNL         NGUYENLIEU.TENNL%TYPE,
+            TONG_CAN_DUNG NUMBER
+        );
+        TYPE T_TAB_CONGTHUC IS TABLE OF T_REC_CONGTHUC INDEX BY PLS_INTEGER;
+        V_TAB          T_TAB_CONGTHUC;
+        V_IDX          PLS_INTEGER := 0;
+
+        V_MAPX         PHIEUXUATKHO.MAPX%TYPE;
+        V_TONGTON      NGUYENLIEU.SOLUONGTONTONG%TYPE;
+        V_LUONGCANDUNG NGUYENLIEU.SOLUONGTONTONG%TYPE;
+        V_TEN_NL_DANG_LOCK NGUYENLIEU.TENNL%TYPE;
+
+        -- Cursor lấy danh sách nguyên liệu cần dùng (đã gộp và sắp xếp MANL tăng dần để tránh deadlock)
+        CURSOR C_AGGREGATED_CONGTHUC IS
+            SELECT C.MANL, N.TENNL, SUM(C.SOLUONGTIEUHAO * J.SOLUONG) AS TONG_CAN_DUNG
+            FROM JSON_TABLE(P_JSON_DATALIST, '$[*]'
+                            COLUMNS (
+                                MASP NUMBER PATH '$.maSP',
+                                SOLUONG NUMBER PATH '$.soLuong'
+                            )
+                 ) J
+            JOIN CONGTHUC C ON C.MASP = J.MASP
+            JOIN NGUYENLIEU N ON C.MANL = N.MANL
+            GROUP BY C.MANL, N.TENNL
+            ORDER BY C.MANL ASC;
+
+        -- Cursor duyệt các lô nguyên liệu theo FEFO (Hạn sử dụng gần nhất trước)
+        CURSOR C_LOHANG(P_MANL_TARGET NUMBER) IS
+            SELECT MALO, SOLUONGCONLAI
+            FROM CTPHIEUNHAP
+            WHERE MANL = P_MANL_TARGET
+              AND SOLUONGCONLAI > 0
+            ORDER BY HANSUDUNG ASC, MALO ASC
+            FOR UPDATE OF SOLUONGCONLAI;
+    BEGIN
+        -- 1. DUYỆT CÔNG THỨC GỘP, KHÓA NGUYÊN LIỆU (PESSIMISTIC LOCK) VÀ KIỂM TRA TỒN KHO
+        FOR REC IN C_AGGREGATED_CONGTHUC LOOP
+            V_TEN_NL_DANG_LOCK := REC.TENNL;
+            SELECT SOLUONGTONTONG
+            INTO V_TONGTON
+            FROM NGUYENLIEU
+            WHERE MANL = REC.MANL
+            FOR UPDATE;
+
+            IF V_TONGTON < REC.TONG_CAN_DUNG THEN
+                RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_KHONG_DU,
+                                        'Kho khong du dinh muc (NL: ' || REC.TENNL || ') de lam banh. Can: ' || REC.TONG_CAN_DUNG || ' nhung chi con: ' || V_TONGTON);
+            END IF;
+
+            V_IDX := V_IDX + 1;
+            V_TAB(V_IDX).MANL := REC.MANL;
+            V_TAB(V_IDX).TENNL := REC.TENNL;
+            V_TAB(V_IDX).TONG_CAN_DUNG := REC.TONG_CAN_DUNG;
+        END LOOP;
+
+        -- 2. TẠO CHỨNG TỪ XUẤT KHO DUY NHẤT
+        INSERT INTO PHIEUXUATKHO (MANV, LYDOXUAT)
+        VALUES (P_MANV, 'Lam banh')
+        RETURNING MAPX INTO V_MAPX;
+
+        -- 3. GHI MẺ SẢN XUẤT VÀ CẬP NHẬT TỒN KHO THÀNH PHẨM CHO TỪNG LOẠI BÁNH
+        FOR ROW_SP IN (
+            SELECT J.MASP, J.SOLUONG
+            FROM JSON_TABLE(P_JSON_DATALIST, '$[*]'
+                            COLUMNS (
+                                MASP NUMBER PATH '$.maSP',
+                                SOLUONG NUMBER PATH '$.soLuong'
+                            )
+                 ) J
+        ) LOOP
+            -- Ghi mẻ sản xuất
+            INSERT INTO MESANXUAT (MASP, SOLUONGSANXUAT, MANV, MAPX)
+            VALUES (ROW_SP.MASP, ROW_SP.SOLUONG, P_MANV, V_MAPX);
+
+            -- Cập nhật tồn kho thành phẩm
+            UPDATE SANPHAM
+            SET SOLUONGTON = NVL(SOLUONGTON, 0) + ROW_SP.SOLUONG
+            WHERE MASP = ROW_SP.MASP;
+
+            -- Ghi log hoạt động nhân viên
+            INSERT INTO HOATDONGNHANVIEN (MANV, NHOM, HANHDONG, ENTITY_ID)
+            VALUES (P_MANV, 'KHO', 'Xuat kho SX SP #' || ROW_SP.MASP || ' SL:' || ROW_SP.SOLUONG, V_MAPX);
+        END LOOP;
+
+        -- 4. TRỪ TỒN KHO NGUYÊN LIỆU THEO FIFO/FEFO
+        FOR I IN 1..V_TAB.COUNT LOOP
+            V_LUONGCANDUNG := V_TAB(I).TONG_CAN_DUNG;
+
+            FOR LO_REC IN C_LOHANG(V_TAB(I).MANL) LOOP
+                EXIT WHEN V_LUONGCANDUNG <= 0;
+
+                IF LO_REC.SOLUONGCONLAI >= V_LUONGCANDUNG THEN
+                    INSERT INTO CTPHIEUXUAT_NL (MAPX, MALO, SOLUONG)
+                    VALUES (V_MAPX, LO_REC.MALO, V_LUONGCANDUNG);
+                    V_LUONGCANDUNG := 0;
+                ELSE
+                    INSERT INTO CTPHIEUXUAT_NL (MAPX, MALO, SOLUONG)
+                    VALUES (V_MAPX, LO_REC.MALO, LO_REC.SOLUONGCONLAI);
+                    V_LUONGCANDUNG := V_LUONGCANDUNG - LO_REC.SOLUONGCONLAI;
+                END IF;
+            END LOOP;
+
+            IF V_LUONGCANDUNG > 0 THEN
+                RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_NL_TON_AO,
+                                        'Dong bo du lieu ton ao o muc lo hang: ' || V_TAB(I).TENNL);
+            END IF;
+        END LOOP;
+
+        COMMIT;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            IF SQLCODE = -60 THEN
+                RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
+                                        'DEADLOCK_DETECTED|' || NVL(V_TEN_NL_DANG_LOCK, 'khong xac dinh'));
+            END IF;
+            IF SQLCODE = -30006 THEN
+                RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
+                                        'LOCK_TIMEOUT|' || V_TEN_NL_DANG_LOCK);
+            END IF;
+            IF SQLCODE = PKG_ERROR_CODES.ERR_NL_TON_AO
+                OR SQLCODE = PKG_ERROR_CODES.ERR_NL_KHONG_DU THEN
+                RAISE;
+            END IF;
+            RAISE_APPLICATION_ERROR(PKG_ERROR_CODES.ERR_HUY_XUAT_KHO,
+                                    'Loi he thong khi xuat kho san xuat: ' || SQLERRM);
+    END;
+    /
     -- Procedure Xuất hủy bánh bảo quản hỏng
     CREATE OR REPLACE PROCEDURE PROC_XUATHUYBANH (
         P_MASP       IN SANPHAM.MASP%TYPE,
@@ -485,5 +587,5 @@
 
 
 
-    select *
-    from CTPHIEUNHAP
+
+

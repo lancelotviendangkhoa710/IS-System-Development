@@ -53,12 +53,12 @@
             </VBox>
 
             <!-- Giới hạn từng sản phẩm bán lẻ -->
-            <VBox spacing="8">
+            <VBox spacing="8" visible="false" managed="false">
                 <Label text="Chọn sản phẩm bán lẻ:" styleClass="lbl-body-bold"/>
                 <ComboBox fx:id="cmbSanPhamBanLe" promptText="-- Chọn sản phẩm --"
                           styleClass="combo-box" maxWidth="Infinity"/>
             </VBox>
-            <VBox spacing="8">
+            <VBox spacing="8" visible="false" managed="false">
                 <Label text="Giới hạn số lượng sản phẩm (cái/ngày): *" styleClass="lbl-body-bold"/>
                 <TextField fx:id="txtGioiHanSanPham" promptText="VD: 100"
                            styleClass="text-field"/>

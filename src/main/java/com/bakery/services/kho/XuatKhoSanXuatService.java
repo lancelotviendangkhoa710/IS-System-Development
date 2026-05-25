@@ -50,6 +50,22 @@ public class XuatKhoSanXuatService extends BaseService {
     }
 
     /**
+     * Yêu cầu làm thêm nhiều loại bánh (Xuất mẻ bánh): kiểm tra điều kiện -> gọi DB procedure.
+     *
+     * @param jsonPayload chuỗi JSON dạng [{"maSP":1,"soLuong":5}]
+     * @param maNV        mã thợ bếp thực hiện
+     */
+    public void yeuCauMultiSanXuat(String jsonPayload, int maNV) throws Exception {
+        if (jsonPayload == null || jsonPayload.isBlank() || "[]".equals(jsonPayload.trim())) {
+            throw new Exception("Danh sách sản phẩm sản xuất không được để trống.");
+        }
+        if (maNV <= 0) throw new Exception("Mã nhân viên không hợp lệ.");
+
+        // Gọi DB Procedure
+        phieuXuatKhoDAO.xuatKhoMultiSanXuat(jsonPayload, maNV);
+    }
+
+    /**
      * Tính số lượng bánh tối đa có thể làm được với tồn kho hiện tại.
      * Gọi FUNC_SOLUONGKHADUNG (đã có trên DB).
      */

@@ -98,25 +98,11 @@ public class CauHinhGioiHanDonViewFXMLController implements ICauHinhGioiHanView 
     @FXML
     private void onLuuCauHinh() {
         String gioiHanTuyChinh = txtGioiHanTuyChinhMoi.getText().trim();
-        SanPhamDTO spDaChon = cmbSanPhamBanLe.getValue();
-        String gioiHanSP = txtGioiHanSanPham.getText().trim();
-
-        boolean coTuyChinh = !gioiHanTuyChinh.isBlank();
-        boolean coCuSan = spDaChon != null && !gioiHanSP.isBlank();
-
-        if (coTuyChinh && coCuSan) {
-            hienThiLoi("Vui lòng chỉ nhập 1 loại giới hạn cùng lúc.");
+        if (gioiHanTuyChinh.isBlank()) {
+            hienThiLoi("Vui lòng nhập giới hạn bánh tùy chỉnh.");
             return;
         }
-        if (coTuyChinh) {
-            presenter.luuCauHinhTuyChinh(gioiHanTuyChinh);
-            return;
-        }
-        if (coCuSan) {
-            presenter.luuCauHinhSanPhamBanLe(spDaChon.getMaSP(), gioiHanSP);
-            return;
-        }
-        hienThiLoi("Vui lòng nhập giới hạn bánh tùy chỉnh HOẶC chọn sản phẩm và nhập giới hạn.");
+        presenter.luuCauHinhTuyChinh(gioiHanTuyChinh);
     }
 
     @FXML

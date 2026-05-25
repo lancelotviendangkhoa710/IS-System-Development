@@ -72,6 +72,7 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
 
     private static final NumberFormat FMT_TIEN = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
     private static final DateTimeFormatter FMT_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final double THUE_VAT = 0.085;
 
     static {
         FMT_TIEN.setMaximumFractionDigits(0);
@@ -300,7 +301,8 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
         Label lblNgayNhan = new Label("Nhận lúc: "
                 + (don.getNgayGioNhanBanh() == null ? "N/A" : don.getNgayGioNhanBanh().format(FMT_NGAY_GIO)));
         lblNgayNhan.getStyleClass().add("lbl-small");
-        Label lblTongTien = new Label("Tổng: " + dinhDangTien(don.getTongTienHDBan()));
+        double tongCoThue = don.getTongTienHDBan() != null ? don.getTongTienHDBan().doubleValue() * (1 + THUE_VAT) : 0.0;
+        Label lblTongTien = new Label("Tổng: " + dinhDangTien(tongCoThue));
         lblTongTien.getStyleClass().add("lbl-primary");
 
         // ── Actions ──
@@ -394,12 +396,13 @@ public class TheoDoiDonHangViewFXMLController implements IDonHangView, Initializ
     @Override
     public void showOrderDetails(DonDatHangDTO order) {
         // Tiêu đề header
+        double tongCoThue = order.getTongTienHDBan() != null ? order.getTongTienHDBan().doubleValue() * (1 + THUE_VAT) : 0.0;
         String header = "Chi tiết đơn #" + order.getMaDon()
                 + "  —  " + order.getTenTrangThai()
                 + "  |  Khách: " + (order.getMaKH() == null ? "Khách lẻ" : "KH #" + order.getMaKH())
                 + "  |  Nhận: "
                 + (order.getNgayGioNhanBanh() == null ? "N/A" : order.getNgayGioNhanBanh().format(FMT_NGAY_GIO))
-                + "  |  Tổng: " + dinhDangTien(order.getTongTienHDBan())
+                + "  |  Tổng: " + dinhDangTien(tongCoThue)
                 + "  —  Đã cọc: " + dinhDangTien(order.getTienDaCoc());
 
         // Lấy chi tiết từ presenter

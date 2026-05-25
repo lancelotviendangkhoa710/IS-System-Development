@@ -47,8 +47,8 @@
                                 onAction="#onTimKhach"/>
                     </HBox>
                     <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <Button text="+ Them KH" onAction="#onThemKhachHang" styleClass="btn-success"/>
-                        <Button text="Sua KH" onAction="#onSuaKhachHang" styleClass="btn-secondary"/>
+                        <Button text="+ Thêm KH" onAction="#onThemKhachHang" styleClass="btn-success"/>
+                        <Button text="Sửa KH" onAction="#onSuaKhachHang" styleClass="btn-secondary"/>
                     </HBox>
 
                     <Label text="Khách hàng:" GridPane.columnIndex="0" GridPane.rowIndex="2"

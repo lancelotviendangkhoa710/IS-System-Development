@@ -167,7 +167,7 @@
                     <Label fx:id="lblTongTienHang" text="0 đ" styleClass="lbl-body-bold"/>
                 </HBox>
                 <HBox>
-                    <Label text="Giảm giá (10%):" styleClass="lbl-body"/>
+                    <Label text="Giảm giá:" styleClass="lbl-body"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label fx:id="lblTienGiamGia" text="0 đ"
                            style="-fx-text-fill: #16A34A; -fx-font-weight: bold;"/>

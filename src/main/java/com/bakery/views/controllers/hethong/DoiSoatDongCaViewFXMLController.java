@@ -51,6 +51,8 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
     @FXML
     private VBox boxThanhCong;
     @FXML
+    private Label lblThanhCong;
+    @FXML
     private VBox vboxLyDo;
     @FXML
     private TextArea taLyDo;
@@ -219,6 +221,12 @@ public class DoiSoatDongCaViewFXMLController extends BaseController implements I
             if (amTien) {
                 taLyDo.clear();
                 taLyDo.textProperty().addListener((obs, oldV, newV) -> presenter.onLyDoChanged(newV));
+            } else {
+                if (chenhLech.compareTo(BigDecimal.ZERO) == 0) {
+                    lblThanhCong.setText("✓ Tuyệt vời! Số tiền đếm thực tế khớp 100%.");
+                } else {
+                    lblThanhCong.setText("✓ Số tiền đếm thực tế chênh lệch không âm (dương).");
+                }
             }
 
             setVisible(sectionNhapTien, false);

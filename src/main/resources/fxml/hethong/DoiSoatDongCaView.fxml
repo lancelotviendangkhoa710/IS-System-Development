@@ -128,7 +128,7 @@
                 <!-- Thành công (match) -->
                 <VBox fx:id="boxThanhCong" styleClass="alert-box-success"
                       visible="false" managed="false">
-                    <Label text="&#10003; Tuyệt vời! Số tiền đếm thực tế khớp 100%."
+                    <Label fx:id="lblThanhCong" text="&#10003; Tuyệt vời! Số tiền đếm thực tế khớp 100%."
                            style="-fx-font-weight: bold; -fx-text-fill: -color-success;
                                   -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;"/>
                 </VBox>

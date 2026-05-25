@@ -42,6 +42,7 @@ PROMPT [3/6] Tạo functions...
 @@03_functions/func_fefo.sql
 @@03_functions/func_idealcash.sql
 @@03_functions/func_measureability.sql
+@@03_functions/func_max_products.sql
 @@03_functions/func_profit_paymethod.sql
 @@03_functions/func_profitgross.sql
 @@03_functions/func_recipe.sql
@@ -56,11 +57,13 @@ PROMPT [4/6] Tạo triggers...
 @@04_triggers/03_trg_stock_recipe/trg_prohibit_expired_scam.sql
 @@04_triggers/03_trg_stock_recipe/trg_recalc_product_cost.sql
 @@04_triggers/03_trg_stock_recipe/trg_remove_expired_cakes.sql
+@@04_triggers/03_trg_stock_recipe/trg_set_expiry_batch.sql
 @@04_triggers/03_trg_stock_recipe/trg_total_imports.sql
 @@04_triggers/04_trg_order/trg_assign_price_custom.sql
 @@04_triggers/04_trg_order/trg_assign_price_standard.sql
 @@04_triggers/04_trg_order/trg_control_capacity_custom.sql
 @@04_triggers/04_trg_order/trg_except_stock.sql
+@@04_triggers/04_trg_order/trg_sync_batch_qty.sql
 @@04_triggers/04_trg_order/trg_update_order_total.sql
 @@04_triggers/05_trg_finance/trg_prohibit_delete_invoice.sql
 @@04_triggers/05_trg_finance/trg_prohibit_delete_voucher.sql
@@ -71,13 +74,18 @@ PROMPT [5/6] Tạo stored procedures...
 @@05_procedures/proc_cancel_invoice.sql
 @@05_procedures/proc_cancel_refund.sql
 @@05_procedures/proc_change_status.sql
+@@05_procedures/job_quet_banh_hethan.sql
 @@05_procedures/proc_checking_shift.sql
+@@05_procedures/proc_demo_chapter4.sql
+@@05_procedures/proc_lapbaocao_phieunhap.sql
 @@05_procedures/proc_open_shift.sql
 @@05_procedures/proc_payment_uprannk.sql
 @@05_procedures/proc_purge_expired.sql
+@@05_procedures/proc_xuat_hethan_banh.sql
 @@05_procedures/cud/proc_customer_cud.sql
 @@05_procedures/cud/proc_employee_cud.sql
 @@05_procedures/cud/proc_finance_cud.sql
+@@05_procedures/cud/proc_huy_phieunhapkho.sql
 @@05_procedures/cud/proc_material_cud.sql
 @@05_procedures/cud/proc_order_cud.sql
 @@05_procedures/cud/proc_product_cud.sql
@@ -86,6 +94,7 @@ PROMPT [5/6] Tạo stored procedures...
 
 -- ── BƯỚC 6: Views ────────────────────────────────────────────
 PROMPT [6/6] Tạo views...
+@@06_views/vw_banh_saphethan.sql
 @@06_views/vw_employee_activity.sql
 @@06_views/vw_order_detail.sql
 @@06_views/vw_order_list.sql
@@ -96,7 +105,7 @@ PROMPT [6/6] Tạo views...
 
 -- ── DỮ LIỆU MẪU ──────────────────────────────────────────────
 PROMPT Nạp dữ liệu mẫu (demo)...
-@@config/script_insert_data.sql
+@@script_insert_data.sql
 
 PROMPT ============================================================
 PROMPT  Cài đặt hoàn tất! Vui lòng cấu hình application.properties

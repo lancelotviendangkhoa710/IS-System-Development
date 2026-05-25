@@ -88,6 +88,25 @@ public class PhieuXuatKhoDAO extends BaseDAO {
     }
 
     /**
+     * Xuất kho sản xuất cho nhiều sản phẩm cùng lúc qua PROC_XUATKHOMULTISANXUAT (Xuất mẻ bánh).
+     *
+     * @param jsonDatalist chuỗi JSON dạng [{"maSP":1,"soLuong":5}]
+     * @param maNV         mã nhân viên thực hiện
+     */
+    public void xuatKhoMultiSanXuat(String jsonDatalist, int maNV) throws Exception {
+        String sql = "{CALL PROC_XUATKHOMULTISANXUAT(?, ?)}";
+        try (Connection conn = moKetNoi();
+                CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setString(1, jsonDatalist);
+            cs.setInt(2, maNV);
+            cs.execute();
+        } catch (SQLException e) {
+            handleException("xuatKhoMultiSanXuat", e);
+            throw e;
+        }
+    }
+
+    /**
      * Xuất hủy nguyên liệu hỏng qua PROC_XUATNGUYENLIEUHONG.
      * Procedure tự: kiểm tra tồn kho (Pessimistic Lock) → tạo phiếu xuất
      * → rút lô FIFO → trigger TRG_XUATSLNGUYENLIEU trừ tồn tự động.
