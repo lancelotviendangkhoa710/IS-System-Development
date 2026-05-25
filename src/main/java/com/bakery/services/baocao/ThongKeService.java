@@ -110,5 +110,13 @@ public class ThongKeService {
         Map<String, Double> res = thongKeDAO.getLoiNhuan12ThangTrongNam(nam);
         return res != null ? res : Map.of();
     }
+
+    /**
+     * Lấy danh sách doanh thu, giá vốn, lợi nhuận gộp theo từng sản phẩm trong kỳ.
+     */
+    public List<String[]> getLoiNhuanSanPham(String loai, String giaTri) throws Exception {
+        List<String[]> res = thongKeDAO.getLoiNhuanSanPham(loai, giaTri);
+        return res != null ? res : List.of();
+    }
 }
 

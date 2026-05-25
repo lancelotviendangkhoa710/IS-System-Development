@@ -9,6 +9,7 @@ import com.bakery.views.controllers.hethong.DoiSoatDongCaViewFXMLController;
 import com.bakery.views.interfaces.baocao.IBangDieuKhienView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -97,8 +98,10 @@ public class BangDieuKhienViewFXMLController implements IBangDieuKhienView {
                 return;
             }
             int maxBan = ds.stream().mapToInt(TopSanPhamDTO::tongBan).max().orElse(1);
+            int rank = 0;
             for (TopSanPhamDTO sp : ds) {
-                vboxTop5.getChildren().add(taoRowTop5(sp, maxBan));
+                vboxTop5.getChildren().add(taoRowTop5(sp, maxBan, rank));
+                rank++;
             }
         });
     }
@@ -120,14 +123,22 @@ public class BangDieuKhienViewFXMLController implements IBangDieuKhienView {
 
     // ── Builder UI ────────────────────────────────────────────────────────────
 
-    private HBox taoRowTop5(TopSanPhamDTO sp, int maxBan) {
-        HBox row = new HBox(12);
+    private static final String[] MEDALS = {"🥇", "🥈", "🥉", "4️⃣", "5️⃣"};
+
+    private HBox taoRowTop5(TopSanPhamDTO sp, int maxBan, int rank) {
+        HBox row = new HBox(10);
         row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(8, 12, 8, 12));
+        row.getStyleClass().add(rank == 0 ? "top5-row-gold" : "top5-row");
+
+        // Rank emoji (🥇 🥈 🥉 4️⃣ 5️⃣)
+        Label lblRank = new Label(rank < MEDALS.length ? MEDALS[rank] : (rank + 1) + ".");
+        lblRank.getStyleClass().add("top5-rank");
 
         Label lblTen = new Label(sp.tenSP());
-        lblTen.setPrefWidth(160);
-        lblTen.setMinWidth(160);
-        lblTen.setMaxWidth(160);
+        lblTen.setPrefWidth(150);
+        lblTen.setMinWidth(100);
+        lblTen.setMaxWidth(150);
         lblTen.getStyleClass().add("text-body");
         lblTen.setWrapText(false);
 
@@ -137,12 +148,12 @@ public class BangDieuKhienViewFXMLController implements IBangDieuKhienView {
         HBox.setHgrow(bar, Priority.ALWAYS);
 
         Label lblSo = new Label(String.valueOf(sp.tongBan()));
-        lblSo.setPrefWidth(40);
-        lblSo.setMinWidth(40);
+        lblSo.setPrefWidth(36);
+        lblSo.setMinWidth(36);
         lblSo.getStyleClass().add("text-body-bold");
         lblSo.setAlignment(Pos.CENTER_RIGHT);
 
-        row.getChildren().addAll(lblTen, bar, lblSo);
+        row.getChildren().addAll(lblRank, lblTen, bar, lblSo);
         return row;
     }
 }

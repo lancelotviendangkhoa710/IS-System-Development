@@ -23,7 +23,7 @@
             </TableView>
             <HBox spacing="10">
                 <Button text="➕" onAction="#onThemCot" styleClass="btn-primary" />
-                <Button text="✏️" onAction="#onSuaCot" styleClass="btn-secondary" />
+                <Button text="Sửa" onAction="#onSuaCot" styleClass="btn-secondary" />
                 <Button text="🗑" onAction="#onXoaCot" styleClass="btn-danger" />
             </HBox>
         </VBox>
@@ -41,7 +41,7 @@
             </TableView>
             <HBox spacing="10">
                 <Button text="➕" onAction="#onThemNhan" styleClass="btn-primary" />
-                <Button text="✏️" onAction="#onSuaNhan" styleClass="btn-secondary" />
+                <Button text="Sửa" onAction="#onSuaNhan" styleClass="btn-secondary" />
                 <Button text="🗑" onAction="#onXoaNhan" styleClass="btn-danger" />
             </HBox>
         </VBox>
@@ -59,7 +59,7 @@
             </TableView>
             <HBox spacing="10">
                 <Button text="➕" onAction="#onThemTrangTri" styleClass="btn-primary" />
-                <Button text="✏️" onAction="#onSuaTrangTri" styleClass="btn-secondary" />
+                <Button text="Sửa" onAction="#onSuaTrangTri" styleClass="btn-secondary" />
                 <Button text="🗑" onAction="#onXoaTrangTri" styleClass="btn-danger" />
             </HBox>
         </VBox>

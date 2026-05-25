@@ -56,6 +56,22 @@ public class BaoCaoViewFXMLController extends BaseController {
     @FXML private BarChart<String, Number> monthlyProfitBarChart;
     @FXML private ComboBox<Integer>        cbNamBieuDoLoiNhuan;
 
+    // Product Profit Tab Components
+    @FXML private Tab tabLoiNhuanSanPham;
+    @FXML private TableView<String[]> tblLoiNhuanSanPham;
+    @FXML private TableColumn<String[], String> colLoiNhuanTenSP;
+    @FXML private TableColumn<String[], String> colLoiNhuanTenDM;
+    @FXML private TableColumn<String[], String> colLoiNhuanSoLuong;
+    @FXML private TableColumn<String[], String> colLoiNhuanDoanhThu;
+    @FXML private TableColumn<String[], String> colLoiNhuanGiaVon;
+    @FXML private TableColumn<String[], String> colLoiNhuanLoiNhuan;
+    @FXML private TableColumn<String[], String> colLoiNhuanTyle;
+
+    @FXML private Label lblLoiNhuanSPSinhLoiNhat;
+    @FXML private Label lblLoiNhuanSPSinhLoiNhatGiaTri;
+    @FXML private Label lblLoiNhuanSPBanChayNhat;
+    @FXML private Label lblLoiNhuanSPBanChayNhatGiaTri;
+    @FXML private Label lblLoiNhuanBienLNTB;
 
     private ThongKeService thongKeService = new ThongKeService();
 
@@ -69,6 +85,7 @@ public class BaoCaoViewFXMLController extends BaseController {
             lblAdminName.setText(name);
         }
 
+        setupLoiNhuanSanPhamTableColumns();
         setupFilters();
         refreshData();
         if (tabPaneBaoCao != null && tabThongKeKinhDoanh != null) {
@@ -263,6 +280,7 @@ public class BaoCaoViewFXMLController extends BaseController {
             updateCategoryCharts(loai, giaTri);
             updateTable(loai, giaTri);
             loadTopSellers();
+            updateLoiNhuanSanPhamTable(loai, giaTri);
         } catch (Exception e) {
             hienThiCanhBao("Lỗi tải dữ liệu", "Không thể tải dữ liệu báo cáo: " + e.getMessage());
         }
@@ -372,6 +390,95 @@ public class BaoCaoViewFXMLController extends BaseController {
         colTien.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[3]));
         TableColumn<String[], String> colTrangThai = (TableColumn<String[], String>) tableGiaoDich.getColumns().get(4);
         colTrangThai.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[4]));
+    }
+
+    private void setupLoiNhuanSanPhamTableColumns() {
+        if (colLoiNhuanTenSP != null) {
+            colLoiNhuanTenSP.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[0]));
+            colLoiNhuanTenDM.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[1]));
+            colLoiNhuanSoLuong.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[2]));
+            colLoiNhuanDoanhThu.setCellValueFactory(cellData -> {
+                double val = Double.parseDouble(cellData.getValue()[3]);
+                return new SimpleStringProperty(String.format("%,.0fđ", val));
+            });
+            colLoiNhuanGiaVon.setCellValueFactory(cellData -> {
+                double val = Double.parseDouble(cellData.getValue()[4]);
+                return new SimpleStringProperty(String.format("%,.0fđ", val));
+            });
+            colLoiNhuanLoiNhuan.setCellValueFactory(cellData -> {
+                double val = Double.parseDouble(cellData.getValue()[5]);
+                return new SimpleStringProperty(String.format("%,.0fđ", val));
+            });
+            colLoiNhuanTyle.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue()[6]));
+        }
+    }
+
+    private void updateLoiNhuanSanPhamTable(String loai, String giaTri) {
+        if (tblLoiNhuanSanPham == null) return;
+        new Thread(() -> {
+            try {
+                List<String[]> data = thongKeService.getLoiNhuanSanPham(loai, giaTri);
+                
+                // Calculate KPIs
+                String bestProfitProduct = "Chưa có";
+                double maxProfit = -Double.MAX_VALUE;
+                double bestProfitVal = 0;
+
+                String bestQtyProduct = "Chưa có";
+                int maxQty = -1;
+
+                double totalRevenue = 0;
+                double totalProfit = 0;
+
+                for (String[] row : data) {
+                    String tenSP = row[0];
+                    int qty = Integer.parseInt(row[2]);
+                    double rev = Double.parseDouble(row[3]);
+                    double prof = Double.parseDouble(row[5]);
+
+                    totalRevenue += rev;
+                    totalProfit += prof;
+
+                    if (prof > maxProfit) {
+                        maxProfit = prof;
+                        bestProfitProduct = tenSP;
+                        bestProfitVal = prof;
+                    }
+
+                    if (qty > maxQty) {
+                        maxQty = qty;
+                        bestQtyProduct = tenSP;
+                    }
+                }
+
+                final String finalBestProfitProduct = bestProfitProduct;
+                final double finalBestProfitVal = bestProfitVal;
+                final String finalBestQtyProduct = bestQtyProduct;
+                final int finalMaxQty = maxQty;
+                final double finalAvgMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0.0;
+
+                javafx.application.Platform.runLater(() -> {
+                    tblLoiNhuanSanPham.setItems(FXCollections.observableArrayList(data));
+                    
+                    if (data.isEmpty()) {
+                        lblLoiNhuanSPSinhLoiNhat.setText("Không có dữ liệu");
+                        lblLoiNhuanSPSinhLoiNhatGiaTri.setText("0đ");
+                        lblLoiNhuanSPBanChayNhat.setText("Không có dữ liệu");
+                        lblLoiNhuanSPBanChayNhatGiaTri.setText("0 cái");
+                        lblLoiNhuanBienLNTB.setText("0.0%");
+                    } else {
+                        lblLoiNhuanSPSinhLoiNhat.setText(finalBestProfitProduct);
+                        lblLoiNhuanSPSinhLoiNhatGiaTri.setText(String.format("%,.0fđ", finalBestProfitVal));
+                        lblLoiNhuanSPBanChayNhat.setText(finalBestQtyProduct);
+                        lblLoiNhuanSPBanChayNhatGiaTri.setText(finalMaxQty + " cái");
+                        lblLoiNhuanBienLNTB.setText(String.format("%.1f%%", finalAvgMargin));
+                    }
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        hienThiCanhBao("Lỗi tải dữ liệu sản phẩm", e.getMessage()));
+            }
+        }, "product-profit-loader").start();
     }
 
     // onTaiBaoCaoNhanh đã được xóa — thay thế bởi Jasper PDF/Excel

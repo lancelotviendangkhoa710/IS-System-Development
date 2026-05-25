@@ -41,7 +41,7 @@
             <TextField fx:id="txtTimKiem" promptText="🔍 Tìm nguyên liệu..."
                        prefWidth="240" onKeyReleased="#onTimKiem" styleClass="text-field"/>
             <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
-            <Button fx:id="btnSua" text="✏️ Sửa" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
+            <Button fx:id="btnSua" text="Sửa" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
             <Button fx:id="btnXoa" text="🗑 Xóa" styleClass="btn-danger" onAction="#onXoaAction" disable="true"/>
             <Button fx:id="btnThemMoi" text="➕ Thêm mới" styleClass="btn-success" onAction="#onThemMoi"/>
         </HBox>

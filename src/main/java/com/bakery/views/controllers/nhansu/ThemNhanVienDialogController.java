@@ -69,7 +69,7 @@ public class ThemNhanVienDialogController {
      */
     public void khoiTaoSua(NhanVienDTO nv) {
         this.nvGoc = nv;
-        if (lblTieuDe != null) lblTieuDe.setText("✏ Sửa Nhân Viên");
+        if (lblTieuDe != null) lblTieuDe.setText("Sửa Nhân Viên");
         txtHoTen.setText(nv.getHoTen() != null ? nv.getHoTen() : "");
         txtSdt.setText(nv.getSdt() != null ? nv.getSdt() : "");
         dpNgaySinh.setValue(nv.getNgaySinh());

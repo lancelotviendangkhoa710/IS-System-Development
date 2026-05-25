@@ -47,7 +47,7 @@
             <ComboBox fx:id="cmbLocPhanLoai" prefWidth="120" styleClass="combo-box"
                       onAction="#onLocPhanLoai"/>
             <Button text="↺ Làm mới" styleClass="btn-reset" onAction="#onLamMoi"/>
-            <Button fx:id="btnSua" text="✏️ Sửa" styleClass="btn-secondary"
+            <Button fx:id="btnSua" text="Sửa" styleClass="btn-secondary"
                     onAction="#onSuaAction" disable="true"/>
             <Button fx:id="btnVoHieuHoa" text="🔒 Vô hiệu hóa" styleClass="btn-danger"
                     onAction="#onVoHieuHoaAction" disable="true"/>

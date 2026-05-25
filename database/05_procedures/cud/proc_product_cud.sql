@@ -90,9 +90,17 @@ BEGIN
 
     -- 2. Tính giá bán: ưu tiên P_GIABAN, fallback tính từ giá vốn; bỏ qua nếu chưa có
     IF NVL(P_GIABAN, 0) > 0 THEN
-        V_GIABAN := ROUND(P_GIABAN, -3);
+        IF P_GIABAN >= 1000 THEN
+            V_GIABAN := ROUND(P_GIABAN, -3);
+        ELSE
+            V_GIABAN := P_GIABAN;
+        END IF;
     ELSIF V_GIAVON > 0 THEN
-        V_GIABAN := ROUND(V_GIAVON * 2, -3);
+        IF (V_GIAVON * 2) >= 1000 THEN
+            V_GIABAN := ROUND(V_GIAVON * 2, -3);
+        ELSE
+            V_GIABAN := V_GIAVON * 2;
+        END IF;
     END IF;
 
     -- 3. Cập nhật giá bán chỉ khi đã tính được
@@ -139,9 +147,17 @@ BEGIN
 
     -- 2. Xác định giá bán: nếu truyền vào thì làm tròn, ngược lại tính theo công thức
     IF NVL(P_GIABAN, 0) > 0 THEN
-        V_GIABAN := ROUND(P_GIABAN, -3);
+        IF P_GIABAN >= 1000 THEN
+            V_GIABAN := ROUND(P_GIABAN, -3);
+        ELSE
+            V_GIABAN := P_GIABAN;
+        END IF;
     ELSE
-        V_GIABAN := ROUND(V_GIAVON * 2, -3);
+        IF (V_GIAVON * 2) >= 1000 THEN
+            V_GIABAN := ROUND(V_GIAVON * 2, -3);
+        ELSE
+            V_GIABAN := V_GIAVON * 2;
+        END IF;
     END IF;
 
     -- 3. Cập nhật toàn bộ thông tin sản phẩm

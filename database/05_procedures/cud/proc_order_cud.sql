@@ -37,12 +37,11 @@
         V_TONGTIEN    NUMBER := 0;
         V_TONKHO      NUMBER := 0;
         V_TENSP       NVARCHAR2(200);
-        V_GIABAN_LAN2 NUMBER := 0;
     BEGIN
 
 
-       EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = SERIALIZABLE';
-      ---   EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = READ COMMITTED';
+    EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = SERIALIZABLE';
+--       EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = READ COMMITTED';
 
         -- 0. Validate JSON input
         IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
@@ -93,16 +92,13 @@
         -- Cả 2 thu ngân đều đọc cùng giá trị SOLUONGTON ở đây
         -- ============================================================
 
-        -- 2. Kiểm tra tồn kho + chốt giá bán + cache SOLUONGTON
+        -- 2. Kiểm tra tồn kho + chốt giá bán
         FOR I IN 1..V_TAB.COUNT LOOP
                 IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
-                    -- Cache cả GIABAN (fix NRR) và SOLUONGTON (demo Lost Update)
                     SELECT SOLUONGTON, TENSP, GIABAN
                     INTO V_TONKHO, V_TENSP, V_TAB(I).DONGIA
                     FROM SANPHAM
                     WHERE MASP = V_TAB(I).MASP;
-
-                    -- [LOST UPDATE] Cache tồn kho tại snapshot hiện tại
                     V_TONKHO_CACHE(I) := V_TONKHO;
 
                     IF V_TONKHO < V_TAB(I).SOLUONG THEN
@@ -127,8 +123,8 @@
         DBMS_SESSION.SLEEP(6);
 
         -- [DEMO Non-repeatable Read] Đọc lại GIABAN sau delay → GHI ĐÈ V_TAB(I).DONGIA
-        -- • READ COMMITTED: đọc giá MỚI → INSERT giá mới → BUG NRR hiện trong đơn ❌
-        -- • SERIALIZABLE: đọc giá CŨ (snapshot) → INSERT giá cũ → FIX ✅
+        -- • READ COMMITTED: đọc giá MỚI → INSERT giá mới → BUG NRR hiện trong đơn
+        -- • SERIALIZABLE: đọc giá CŨ (snapshot) → INSERT giá cũ
         FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
                 SELECT GIABAN INTO V_TAB(I).DONGIA
@@ -136,9 +132,6 @@
                 WHERE MASP = V_TAB(I).MASP;
             END IF;
         END LOOP;
-
-        -- Kết thúc Phase 1 — COMMIT read-only (không có DML nào)
-        -- → Reset snapshot SCN để Phase 2 bắt đầu transaction mới
             COMMIT;
 
 
@@ -150,7 +143,7 @@
 
         -- 4. Insert chi tiết 
         --    IS_CUSTOM = 'false' → CTDONHANG (bánh có sẵn)
-        --    IS_CUSTOM = 'true'  → CTDONTUYCHINH (bánh tùy chỉnh) → kích hoạt TRG_KIEMSOAT_CONGSUAT_TUYCHINH
+        --    IS_CUSTOM = 'true'  → CTDONTUYCHINH (bánh tùy chỉnh)
         PKG_ERROR_CODES.G_SKIP_STOCK_TRIGGER := TRUE;
         FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN

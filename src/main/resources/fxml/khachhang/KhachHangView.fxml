@@ -52,7 +52,7 @@
                             <Button fx:id="btnLichSu" onAction="#onLichSuClicked"
                                     styleClass="btn-secondary" text="Lịch sử" disable="true"/>
                             <Button fx:id="btnSua" onAction="#onSuaClicked"
-                                    styleClass="btn-secondary" text="✏️ Sửa" disable="true"/>
+                                    styleClass="btn-secondary" text="Sửa" disable="true"/>
                             <Button fx:id="btnXoa" onAction="#onXoaClicked"
                                     styleClass="btn-danger" text="🗑 Xóa" disable="true"/>
                             <Button onAction="#onAddCustomerClicked"

@@ -361,7 +361,7 @@ public class XuatKhoViewFXMLController extends BaseController {
         inputGrid.add(btnBox, 1, 3);
 
         VBox leftBox = new VBox(10, new Label("📋 Mẻ sản xuất gộp (Danh sách bánh):"), tblSelected);
-        VBox rightBox = new VBox(10, new Label("✏ Thêm bánh vào mẻ:"), inputGrid);
+        VBox rightBox = new VBox(10, new Label("Thêm bánh vào mẻ:"), inputGrid);
 
         HBox contentBox = new HBox(25, leftBox, rightBox);
         contentBox.setPadding(new Insets(20));

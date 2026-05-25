@@ -30,7 +30,7 @@
         <TextField fx:id="txtTimKiem" promptText="🔍 Tìm theo tên hoặc SĐT..."
                    prefWidth="280" onKeyReleased="#onTimKiem" styleClass="text-field"/>
         <Button text="↺ Tải lại" onAction="#onTaiLai" styleClass="btn-reset"/>
-        <Button fx:id="btnSua" text="✏️ Sửa" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
+        <Button fx:id="btnSua" text="Sửa" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
         <Button fx:id="btnXoa" text="🗑 Xóa" styleClass="btn-danger" onAction="#onXoaAction" disable="true"/>
         <Button text="➕ Thêm mới" onAction="#onThem" styleClass="btn-success"/>
     </HBox>

@@ -33,7 +33,7 @@
                       prefWidth="175" styleClass="combo-box"/>
             <Button onAction="#onLamMoi" styleClass="btn-reset" text="↺ Làm mới"/>
             <Button fx:id="btnSua" onAction="#onSua" styleClass="btn-secondary"
-                    text="✏️ Sửa" disable="true"/>
+                    text="Sửa" disable="true"/>
             <Button fx:id="btnThoiViec" onAction="#onThoiViec" styleClass="btn-danger"
                     text="🔒 Thôi việc" disable="true"/>
             <Button fx:id="btnThemMoi" onAction="#onThemMoi" styleClass="btn-success"

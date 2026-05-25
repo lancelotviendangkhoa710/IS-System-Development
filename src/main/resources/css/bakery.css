@@ -4264,7 +4264,28 @@
     -fx-font-weight: bold;
 }
 
-/* Progress bar màu cam (nếu muốn thêm sau) */
+/* ProgressBar xếp hạng Top 5 — bo góc + màu cam */
+.bar-top5 {
+    -fx-pref-height: 8px;
+    -fx-max-height: 8px;
+    -fx-background-radius: 6px;
+}
+
+/* Track (nền thanh xám nhạt) */
+.bar-top5 > .track {
+    -fx-background-color: #F3F0E8;
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+}
+
+/* Bar (phần fill màu cam gradient) */
+.bar-top5 > .bar {
+    -fx-background-color: linear-gradient(to right, #F59E0B, #D97706);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+}
+
+/* Legacy alias — giữ lại để không break code cũ */
 .top5-bar {
     -fx-background-color: linear-gradient(to right, #F59E0B, #D97706);
     -fx-background-radius: 4px;

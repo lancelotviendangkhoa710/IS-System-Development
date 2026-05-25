@@ -16,7 +16,7 @@
                 <Label text="Thiết lập mức thưởng và điều kiện cho khách hàng thân thiết" styleClass="lbl-small" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnSua" text="✏️ Sửa hạng" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
+            <Button fx:id="btnSua" text="Sửa hạng" styleClass="btn-secondary" onAction="#onSuaAction" disable="true"/>
         </HBox>
 
         <TableView fx:id="tierTable" styleClass="table-view" VBox.vgrow="ALWAYS">

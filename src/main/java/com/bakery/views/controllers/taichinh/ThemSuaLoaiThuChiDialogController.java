@@ -46,7 +46,7 @@ public class ThemSuaLoaiThuChiDialogController {
     public void khoiTao(LoaiThuChiDTO existing) {
         if (existing != null) {
             // Chế độ sửa
-            lblDialogTitle.setText("✏️ Sửa hạng mục");
+            lblDialogTitle.setText("Sửa hạng mục");
             btnXacNhan.setText("💾 Lưu thay đổi");
             txtTenLoai.setText(existing.getTenLoaiThuChi());
             if ("Chi".equals(existing.getPhanLoai())) {

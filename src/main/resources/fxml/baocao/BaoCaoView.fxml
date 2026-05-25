@@ -252,6 +252,83 @@
                     </content>
                 </Tab>
 
+                <Tab fx:id="tabLoiNhuanSanPham" text="📊  Lợi nhuận sản phẩm">
+                    <content>
+                        <ScrollPane fitToWidth="true" styleClass="report-scroll">
+                            <VBox spacing="24" style="-fx-padding: 20 40 40 40;">
+                                <!-- KPI Cards cho Sản phẩm -->
+                                <GridPane hgap="20" vgap="20">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="33.3"/>
+                                        <ColumnConstraints percentWidth="33.3"/>
+                                        <ColumnConstraints percentWidth="33.4"/>
+                                    </columnConstraints>
+                                    
+                                    <!-- KPI 1: SP Sinh Lời Nhất — Green gradient -->
+                                    <VBox GridPane.columnIndex="0" styleClass="kpi-card, kpi-green" spacing="10">
+                                        <HBox alignment="CENTER_LEFT" spacing="8">
+                                            <Label text="🏦" style="-fx-font-size: 22px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="Lợi nhuận cao nhất" styleClass="kpi-badge-up"/>
+                                        </HBox>
+                                        <Label text="SẢN PHẨM SINH LỜI NHẤT" styleClass="kpi-label"/>
+                                        <Label fx:id="lblLoiNhuanSPSinhLoiNhat" text="Chưa có dữ liệu" styleClass="kpi-value" style="-fx-font-size: 18px;"/>
+                                        <Label fx:id="lblLoiNhuanSPSinhLoiNhatGiaTri" text="0đ" styleClass="kpi-sub"/>
+                                    </VBox>
+
+                                    <!-- KPI 2: SP Bán Chạy Nhất — Amber gradient -->
+                                    <VBox GridPane.columnIndex="1" styleClass="kpi-card, kpi-amber" spacing="10">
+                                        <HBox alignment="CENTER_LEFT" spacing="8">
+                                            <Label text="🏆" style="-fx-font-size: 22px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="Số lượng bán nhiều nhất" styleClass="kpi-badge-neutral"/>
+                                        </HBox>
+                                        <Label text="SẢN PHẨM BÁN CHẠY NHẤT" styleClass="kpi-label"/>
+                                        <Label fx:id="lblLoiNhuanSPBanChayNhat" text="Chưa có dữ liệu" styleClass="kpi-value" style="-fx-font-size: 18px;"/>
+                                        <Label fx:id="lblLoiNhuanSPBanChayNhatGiaTri" text="0 cái" styleClass="kpi-sub"/>
+                                    </VBox>
+
+                                    <!-- KPI 3: Biên Lợi Nhuận Gộp TB — Blue gradient -->
+                                    <VBox GridPane.columnIndex="2" styleClass="kpi-card, kpi-blue" spacing="10">
+                                        <HBox alignment="CENTER_LEFT" spacing="8">
+                                            <Label text="💹" style="-fx-font-size: 22px;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Label text="Hiệu quả gộp" styleClass="kpi-badge-up"/>
+                                        </HBox>
+                                        <Label text="BIÊN LỢI NHUẬN GỘP TB" styleClass="kpi-label"/>
+                                        <Label fx:id="lblLoiNhuanBienLNTB" text="0.0%" styleClass="kpi-value"/>
+                                        <Label text="Tổng lợi nhuận / Tổng doanh thu" styleClass="kpi-sub"/>
+                                    </VBox>
+                                </GridPane>
+
+                                <!-- Table View: Danh sách sản phẩm -->
+                                <VBox styleClass="chart-card" spacing="12">
+                                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 0 14 0; -fx-border-color: #F0EDEA; -fx-border-width: 0 0 1 0;">
+                                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                            <Label text="Chi tiết lợi nhuận theo sản phẩm" styleClass="lbl-medium-bold"/>
+                                            <Label text="Danh sách thống kê doanh số và lợi nhuận gộp từng sản phẩm trong kỳ" style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+                                        </VBox>
+                                    </HBox>
+                                    <TableView fx:id="tblLoiNhuanSanPham" prefHeight="400" styleClass="table-view" style="-fx-background-color: transparent;">
+                                        <columns>
+                                            <TableColumn fx:id="colLoiNhuanTenSP" text="Tên sản phẩm" prefWidth="250"/>
+                                            <TableColumn fx:id="colLoiNhuanTenDM" text="Danh mục" prefWidth="150"/>
+                                            <TableColumn fx:id="colLoiNhuanSoLuong" text="Số lượng bán" prefWidth="120"/>
+                                            <TableColumn fx:id="colLoiNhuanDoanhThu" text="Doanh thu" prefWidth="140"/>
+                                            <TableColumn fx:id="colLoiNhuanGiaVon" text="Giá vốn (COGS)" prefWidth="140"/>
+                                            <TableColumn fx:id="colLoiNhuanLoiNhuan" text="Lợi nhuận" prefWidth="140"/>
+                                            <TableColumn fx:id="colLoiNhuanTyle" text="Tỷ suất LN" prefWidth="120"/>
+                                        </columns>
+                                        <columnResizePolicy>
+                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                        </columnResizePolicy>
+                                    </TableView>
+                                </VBox>
+                            </VBox>
+                        </ScrollPane>
+                    </content>
+                </Tab>
+
                 <Tab fx:id="tabSoQuyThuChi" text="💰  Sổ quỹ thu chi">
                     <content>
                         <fx:include source="SoQuyView.fxml"/>

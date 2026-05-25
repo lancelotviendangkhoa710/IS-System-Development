@@ -789,4 +789,78 @@ public class ThongKeDAO extends BaseDAO {
         }
         return result;
     }
+
+    /**
+     * Lấy danh sách doanh thu, giá vốn, lợi nhuận gộp theo từng sản phẩm trong kỳ.
+     * Kết hợp cả CTDONHANG (đơn thường) và CTDONTUYCHINH (đơn tùy chỉnh) trong kỳ chỉ định.
+     */
+    public List<String[]> getLoiNhuanSanPham(String loai, String giaTri) throws Exception {
+        List<String[]> result = new ArrayList<>();
+        String condition = "";
+        switch (loai.toUpperCase()) {
+            case "DAY":
+                condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
+                break;
+            case "WEEK":
+                condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
+                break;
+            case "MONTH":
+                condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";
+                break;
+            case "QUARTER":
+                condition = "TO_CHAR(H.NGAYXUATHD, 'Q/YYYY') = ?";
+                break;
+            case "YEAR":
+                condition = "TO_CHAR(H.NGAYXUATHD, 'YYYY') = ?";
+                break;
+            default:
+                condition = "TRUNC(H.NGAYXUATHD) = TRUNC(SYSDATE)";
+                break;
+        }
+
+        String sql = "SELECT SP.TENSP, DM.TENDM, " +
+                "       SUM(T.SOLUONG) AS SOLUONG_BAN, " +
+                "       SUM(T.SOLUONG * T.DONGIA * (1 - NVL(T.PHANTRAMGIAM, 0)/100)) AS REVENUE, " +
+                "       SUM(T.SOLUONG * NVL(T.DONGIAVON, 0)) AS COGS, " +
+                "       SUM(T.SOLUONG * (T.DONGIA * (1 - NVL(T.PHANTRAMGIAM, 0)/100) - NVL(T.DONGIAVON, 0))) AS PROFIT " +
+                "FROM (" +
+                "    SELECT MADON, MASP, SOLUONG, DONGIA, PHANTRAMGIAM, DONGIAVON FROM CTDONHANG " +
+                "    UNION ALL " +
+                "    SELECT MADON, MASP, SOLUONG, DONGIA, 0 AS PHANTRAMGIAM, DONGIAVON FROM CTDONTUYCHINH " +
+                ") T " +
+                "JOIN SANPHAM SP ON T.MASP = SP.MASP " +
+                "JOIN DANHMUCSP DM ON SP.MADM = DM.MADM " +
+                "JOIN DONDATHANG D ON T.MADON = D.MADON " +
+                "JOIN HOADON H ON H.MADON = D.MADON " +
+                "WHERE " + condition + " " +
+                "GROUP BY SP.MASP, SP.TENSP, DM.TENDM " +
+                "ORDER BY PROFIT DESC, SOLUONG_BAN DESC";
+
+        try (Connection conn = moKetNoi();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            if (!condition.contains("SYSDATE")) {
+                pstmt.setString(1, giaTri);
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    double revenue = rs.getDouble("REVENUE");
+                    double cogs = rs.getDouble("COGS");
+                    double profit = rs.getDouble("PROFIT");
+                    double margin = revenue > 0 ? (profit / revenue) * 100 : 0.0;
+                    result.add(new String[] {
+                            rs.getString("TENSP"),
+                            rs.getString("TENDM"),
+                            String.valueOf(rs.getInt("SOLUONG_BAN")),
+                            String.format("%.0f", revenue),
+                            String.format("%.0f", cogs),
+                            String.format("%.0f", profit),
+                            String.format("%.1f%%", margin)
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            handleException("getLoiNhuanSanPham", e);
+        }
+        return result;
+    }
 }
