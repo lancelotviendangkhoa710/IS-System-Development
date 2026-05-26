@@ -137,18 +137,37 @@ public class KhoiPhucDuLieuViewFXMLController extends BaseController implements 
 
     @FXML
     private void onXoaVinhVien() {
-        Alert confirm = new Alert(Alert.AlertType.WARNING,
-                "Thao tác này sẽ XÓA VĨNH VIỄN tất cả bản ghi đã xóa mềm quá "
-                + NGUONG_NGAY + " ngày.\nHành động KHÔNG THỂ hoàn tác!\n\nBạn có chắc chắn?",
-                ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("⚠ Xác nhận xóa");
-        confirm.setHeaderText("Xóa vĩnh viễn bản ghi đã xóa quá " + NGUONG_NGAY + " ngày");
-        DialogHelper.applyBakeryTheme(confirm);
-        confirm.showAndWait().ifPresent(btn -> {
-            if (btn == ButtonType.YES) {
-                presenter.xoaVinhVienQuaHan(loaiBoLocHienTai());
-            }
-        });
+        KhoiPhucDuLieuDTO chon = tblDanhSach.getSelectionModel().getSelectedItem();
+
+        if (chon != null) {
+            // Có bản ghi đang chọn → xóa đúng bản ghi đó
+            Alert confirm = new Alert(Alert.AlertType.WARNING,
+                    "Xóa vĩnh viễn \"" + chon.getTenDoiTuong() + "\"?\n"
+                    + "Hành động NÀY KHÔNG THỂ hoàn tác!",
+                    ButtonType.YES, ButtonType.NO);
+            confirm.setTitle("⚠ Xác nhận xóa vĩnh viễn");
+            confirm.setHeaderText("Dữ liệu này sẽ bị xóa vĩnh viễn khỏi hệ thống");
+            DialogHelper.applyBakeryTheme(confirm);
+            confirm.showAndWait().ifPresent(btn -> {
+                if (btn == ButtonType.YES) {
+                    presenter.xoaTrucTiep(chon, loaiBoLocHienTai());
+                }
+            });
+        } else {
+            // Không có bản ghi đang chọn → bulk-delete tất cả quá 120 ngày
+            Alert confirm = new Alert(Alert.AlertType.WARNING,
+                    "Thao tác này sẽ XÓA VĩNH VIỄN tất cả bản ghi đã xóa mềm quá "
+                    + NGUONG_NGAY + " ngày.\nHành động KHÔNG THỂ hoàn tác!\n\nBạn có chắc chắn?",
+                    ButtonType.YES, ButtonType.NO);
+            confirm.setTitle("⚠ Xác nhận xóa");
+            confirm.setHeaderText("Xóa vĩnh viễn bản ghi đã xóa quá " + NGUONG_NGAY + " ngày");
+            DialogHelper.applyBakeryTheme(confirm);
+            confirm.showAndWait().ifPresent(btn -> {
+                if (btn == ButtonType.YES) {
+                    presenter.xoaVinhVienQuaHan(loaiBoLocHienTai());
+                }
+            });
+        }
     }
 
     // ─── Private helpers ──────────────────────────────────────────────────────

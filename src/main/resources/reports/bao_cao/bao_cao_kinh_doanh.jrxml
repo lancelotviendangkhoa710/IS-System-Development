@@ -139,29 +139,29 @@
                 <graphicElement><pen lineWidth="1.0"/></graphicElement>
             </line>
 
-        </band>
-    </title>
+            <!-- =================================================================== -->
+            <!-- KPI CARDS (nằm trong title → chỉ in ở trang đầu tiên)                -->
+            <!-- =================================================================== -->
 
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- PAGE HEADER — KPI tóm tắt (chỉ hiện trang đầu nhờ pageNumber)     -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <pageHeader>
-        <band height="70" splitType="Stretch">
+            <!-- Separator trước KPI -->
+            <line>
+                <reportElement x="0" y="385" width="535" height="1" forecolor="#E5E5E3" uuid="kpi-sep-top-001"/>
+            </line>
 
             <!-- KPI Box — Doanh thu -->
             <rectangle>
-                <reportElement x="0" y="4" width="125" height="58" backcolor="#FFF3ED" uuid="875bcf56-e446-4d05-80bd-21d941d7b71b"/>
+                <reportElement x="0" y="394" width="125" height="58" backcolor="#FFF3ED" uuid="875bcf56-e446-4d05-80bd-21d941d7b71b"/>
                 <graphicElement><pen lineWidth="0.5" lineColor="#D85A30"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="0" y="8" width="125" height="16" forecolor="#92400E" uuid="b2bb3849-f46b-467f-965e-09b134414238"/>
+                <reportElement x="0" y="398" width="125" height="16" forecolor="#92400E" uuid="b2bb3849-f46b-467f-965e-09b134414238"/>
                 <textElement textAlignment="Center">
                     <font fontName="DejaVu Sans" size="9" isBold="true"/>
                 </textElement>
                 <text><![CDATA[DOANH THU]]></text>
             </staticText>
             <textField>
-                <reportElement x="0" y="26" width="125" height="26" forecolor="#D85A30" uuid="f152de1d-e82c-4fd0-b582-11598177a279"/>
+                <reportElement x="0" y="416" width="125" height="26" forecolor="#D85A30" uuid="f152de1d-e82c-4fd0-b582-11598177a279"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="11" isBold="true"/>
                 </textElement>
@@ -170,18 +170,18 @@
 
             <!-- KPI Box — Giá vốn -->
             <rectangle>
-                <reportElement x="135" y="4" width="125" height="58" backcolor="#F0F9FF" uuid="e62b6d23-aeec-4148-9c54-4fc8357e88a2"/>
+                <reportElement x="135" y="394" width="125" height="58" backcolor="#F0F9FF" uuid="e62b6d23-aeec-4148-9c54-4fc8357e88a2"/>
                 <graphicElement><pen lineWidth="0.5" lineColor="#185FA5"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="135" y="8" width="125" height="16" forecolor="#185FA5" uuid="12f96731-8704-45a9-8e98-be27c1be7648"/>
+                <reportElement x="135" y="398" width="125" height="16" forecolor="#185FA5" uuid="12f96731-8704-45a9-8e98-be27c1be7648"/>
                 <textElement textAlignment="Center">
                     <font fontName="DejaVu Sans" size="9" isBold="true"/>
                 </textElement>
                 <text><![CDATA[GIÁ VỐN]]></text>
             </staticText>
             <textField>
-                <reportElement x="135" y="26" width="125" height="26" forecolor="#185FA5" uuid="59ba82da-18a5-40fe-9839-db4f36cf0878"/>
+                <reportElement x="135" y="416" width="125" height="26" forecolor="#185FA5" uuid="59ba82da-18a5-40fe-9839-db4f36cf0878"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="11" isBold="true"/>
                 </textElement>
@@ -190,18 +190,18 @@
 
             <!-- KPI Box — Lợi nhuận -->
             <rectangle>
-                <reportElement x="270" y="4" width="125" height="58" backcolor="#F0FDF4" uuid="df0e101c-3bfc-426a-9ef6-03abd15d9dba"/>
+                <reportElement x="270" y="394" width="125" height="58" backcolor="#F0FDF4" uuid="df0e101c-3bfc-426a-9ef6-03abd15d9dba"/>
                 <graphicElement><pen lineWidth="0.5" lineColor="#16A34A"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="270" y="8" width="125" height="16" forecolor="#16A34A" uuid="567319f4-8342-494a-96c6-32caaa746f2c"/>
+                <reportElement x="270" y="398" width="125" height="16" forecolor="#16A34A" uuid="567319f4-8342-494a-96c6-32caaa746f2c"/>
                 <textElement textAlignment="Center">
                     <font fontName="DejaVu Sans" size="9" isBold="true"/>
                 </textElement>
                 <text><![CDATA[LỢI NHUẬN]]></text>
             </staticText>
             <textField>
-                <reportElement x="270" y="26" width="125" height="26" forecolor="#16A34A" uuid="a19a790e-d71c-4cef-8a95-37b345ab4a73"/>
+                <reportElement x="270" y="416" width="125" height="26" forecolor="#16A34A" uuid="a19a790e-d71c-4cef-8a95-37b345ab4a73"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="11" isBold="true"/>
                 </textElement>
@@ -210,25 +210,34 @@
 
             <!-- KPI Box — Giao dịch -->
             <rectangle>
-                <reportElement x="405" y="4" width="130" height="58" backcolor="#FEF9EC" uuid="f66b313e-4b59-41b2-be44-26b13915c9aa"/>
+                <reportElement x="405" y="394" width="130" height="58" backcolor="#FEF9EC" uuid="f66b313e-4b59-41b2-be44-26b13915c9aa"/>
                 <graphicElement><pen lineWidth="0.5" lineColor="#D97706"/></graphicElement>
             </rectangle>
             <staticText>
-                <reportElement x="405" y="8" width="130" height="16" forecolor="#D97706" uuid="b9d73680-3eea-4b05-8295-306f4d0ff068"/>
+                <reportElement x="405" y="398" width="130" height="16" forecolor="#D97706" uuid="b9d73680-3eea-4b05-8295-306f4d0ff068"/>
                 <textElement textAlignment="Center">
                     <font fontName="DejaVu Sans" size="9" isBold="true"/>
                 </textElement>
                 <text><![CDATA[GIAO DỊCH]]></text>
             </staticText>
             <textField>
-                <reportElement x="405" y="26" width="130" height="26" forecolor="#D97706" uuid="9c8d3808-f10b-40e1-9391-03f1b9c32bae"/>
+                <reportElement x="405" y="416" width="130" height="26" forecolor="#D97706" uuid="9c8d3808-f10b-40e1-9391-03f1b9c32bae"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font fontName="DejaVu Sans" size="11" isBold="true"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{P_TONG_GIAO_DICH}]]></textFieldExpression>
             </textField>
+
+            <!-- Separator sau KPI -->
+            <line>
+                <reportElement x="0" y="458" width="535" height="1" forecolor="#D85A30" uuid="kpi-sep-bot-001"/>
+                <graphicElement><pen lineWidth="1.5"/></graphicElement>
+            </line>
+
         </band>
-    </pageHeader>
+    </title>
+
+    <!-- pageHeader đã được xóa — KPI cards được chuyển vào title band để tránh lặp ở trang 2+ -->
 
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- COLUMN HEADER — Header bảng giao dịch                              -->

@@ -923,6 +923,14 @@
     border-width: 0 0 1 0;
 }
 
+/* Fix: JavaFX độc lập -fx-text-fill cho Label bên trong column-header.
+   Thiết lập rõ ràng để tránh bị kế thừa màu trắng từ nền tối (chart-card) */
+.table-view .column-header .label {
+    -fx-text-fill: #78350F;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
 .table-view .column-header-background {
     -fx-background-color: linear-gradient(to bottom, #FEF9E7, #FEF3C7);
     background-color: #FEF3C7;

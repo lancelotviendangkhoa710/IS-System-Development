@@ -28,7 +28,6 @@ import java.util.Map;
 
 public class BaoCaoViewFXMLController extends BaseController {
 
-    @FXML private Label lblAdminName;
     @FXML private LineChart<String, Number> revenueChart;
     @FXML private TableView<String[]> tableGiaoDich;
     @FXML private Label lblDoanhThu;
@@ -77,14 +76,6 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     @FXML
     public void initialize() {
-        if (UserSession.getCurrentUser() != null) {
-            String name = UserSession.getCurrentUser().getHoTen();
-            if (name == null || name.isEmpty()) {
-                name = UserSession.getCurrentUser().getTenDangNhap();
-            }
-            lblAdminName.setText(name);
-        }
-
         setupLoiNhuanSanPhamTableColumns();
         setupFilters();
         refreshData();
@@ -683,12 +674,12 @@ public class BaoCaoViewFXMLController extends BaseController {
 
     @FXML
     private void onMoPOS() {
-        transitionTo(lblAdminName, "/fxml/banhang/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
+        transitionTo(lblDoanhThu, "/fxml/banhang/DonHangView.fxml", "H3K Bakery - POS", 1280, 720);
     }
 
     @FXML
     private void onMoInventory() {
-        transitionTo(lblAdminName, "/fxml/kho/KhoView.fxml", "H3K Bakery - Inventory", 1366, 768);
+        transitionTo(lblDoanhThu, "/fxml/kho/KhoView.fxml", "H3K Bakery - Inventory", 1366, 768);
     }
 
     /**

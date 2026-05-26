@@ -96,8 +96,8 @@ public class DonHangPresenter {
 
             List<SanPhamDTO> spTuyChinh = new ArrayList<>();
             for (SanPhamDTO sp : tatCaSanPham) {
-                String tenDM = mapDanhMuc.getOrDefault(sp.getMaDM(), "");
-                if (tenDM.equalsIgnoreCase("Cake")) {
+                // Dùng choPhepTuyChinh thay vì hardcode tên danh mục tiếng Anh
+                if (sp.getChoPhepTuyChinh() == 1) {
                     spTuyChinh.add(sp);
                 }
             }
