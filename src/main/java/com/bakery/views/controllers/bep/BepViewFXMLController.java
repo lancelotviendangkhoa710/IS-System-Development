@@ -1,5 +1,7 @@
 package com.bakery.views.controllers.bep;
 
+import com.bakery.services.nhansu.PhanQuyenService;
+import com.bakery.utils.UserSession;
 import com.bakery.views.controllers.BaseController;
 import com.bakery.views.controllers.banhang.TheoDoiDonHangViewFXMLController;
 import javafx.fxml.FXML;
@@ -38,6 +40,7 @@ public class BepViewFXMLController extends BaseController {
 
     @FXML
     public void initialize() {
+        apDungPhanQuyen();
         if (tabPaneBep != null && tabXuatKho != null) {
             tabPaneBep.getSelectionModel().select(tabXuatKho);
         }
@@ -46,6 +49,25 @@ public class BepViewFXMLController extends BaseController {
             theoDoiDonHangBepController.setBepMode(true);
         }
         // Auto-refresh đã bị TẮT ở màn hình bếp — nhân viên bếp tự F5 khi cần.
+    }
+
+    private void apDungPhanQuyen() {
+        PhanQuyenService svc = new PhanQuyenService();
+        com.bakery.model.dto.nhansu.NhanVienDTO user = UserSession.getCurrentUser();
+
+        boolean laThoBep = svc.laThoBep(user);
+        if (laThoBep) {
+            // Thợ bếp không được vào tab cấu hình giới hạn nhận đơn
+            xoaTab(tabCauHinhGioiHan);
+        }
+    }
+
+    /** Ẩn và xóa 1 tab ra khỏi TabPane an toàn. */
+    private void xoaTab(Tab tab) {
+        if (tab != null && tabPaneBep != null) {
+            tab.setDisable(true);
+            tabPaneBep.getTabs().remove(tab);
+        }
     }
 
     public void chuyenTab(String tabKey) {
@@ -57,7 +79,7 @@ public class BepViewFXMLController extends BaseController {
             case "cauhinhgioihan", "gioihan" -> tabCauHinhGioiHan;
             default -> tabXuatKho;
         };
-        if (target != null) {
+        if (target != null && tabPaneBep.getTabs().contains(target)) {
             tabPaneBep.getSelectionModel().select(target);
         }
     }
