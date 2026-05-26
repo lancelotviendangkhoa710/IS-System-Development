@@ -12,8 +12,8 @@
     <HBox alignment="CENTER_LEFT" spacing="15">
         <VBox spacing="5">
             <Label text="Khôi Phục Dữ Liệu" styleClass="lbl-title-screen"/>
-            <Label text="Quản lý các bản ghi đã bị xóa mềm — khôi phục hoặc xóa vĩnh viễn sau 120 ngày."
-                   styleClass="lbl-body"/>
+            <Label text="Quản lý các bản ghi đã bị xóa mềm. Khôi phục hoặc xóa vĩnh viễn bản đang chọn (tự động xóa các bản ghi đã qua 120 ngày)."
+                   styleClass="lbl-body" wrapText="true"/>
         </VBox>
     </HBox>
 
@@ -58,8 +58,8 @@
             <Label fx:id="lblSoBanGhi" text="" styleClass="lbl-body"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="btnKhoiPhuc" text="↩ Khôi phục bản đã chọn"
-                    onAction="#onKhoiPhuc" styleClass="btn-primary"/>
-            <Button fx:id="btnXoaVinhVien" text="🗑 Xóa vĩnh viễn (&gt;120 ngày)"
+                    onAction="#onKhoiPhuc" styleClass="btn-primary" disable="true"/>
+            <Button fx:id="btnXoaVinhVien" text="🗑 Xóa"
                     onAction="#onXoaVinhVien" styleClass="btn-danger"/>
         </HBox>
 

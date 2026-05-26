@@ -40,8 +40,8 @@
     BEGIN
 
 
-    EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = SERIALIZABLE';
---       EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = READ COMMITTED';
+       EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = SERIALIZABLE';
+      --EXECUTE IMMEDIATE 'ALTER SESSION SET ISOLATION_LEVEL = READ COMMITTED';
 
         -- 0. Validate JSON input
         IF P_JSONCHITIET IS NULL OR DBMS_LOB.GETLENGTH(P_JSONCHITIET) = 0 THEN
@@ -88,11 +88,10 @@
         END IF;
 
         -- ============================================================
-        -- PHASE 1: Snapshot giá + tồn kho → cache trước delay
-        -- Cả 2 thu ngân đều đọc cùng giá trị SOLUONGTON ở đây
+        -- PHASE 1: Cả 2 thu ngân đều đọc cùng giá trị SOLUONGTON ở đây
         -- ============================================================
 
-        -- 2. Kiểm tra tồn kho + chốt giá bán
+
         FOR I IN 1..V_TAB.COUNT LOOP
                 IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
                     SELECT SOLUONGTON, TENSP, GIABAN
@@ -142,8 +141,7 @@
         RETURNING MADON INTO P_MADON_OUT;
 
         -- 4. Insert chi tiết 
-        --    IS_CUSTOM = 'false' → CTDONHANG (bánh có sẵn)
-        --    IS_CUSTOM = 'true'  → CTDONTUYCHINH (bánh tùy chỉnh)
+
         PKG_ERROR_CODES.G_SKIP_STOCK_TRIGGER := TRUE;
         FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
@@ -168,9 +166,6 @@
         PKG_ERROR_CODES.G_SKIP_STOCK_TRIGGER := FALSE;
         DBMS_SESSION.SLEEP(5);
 
-        -- V_TONKHO_CACHE(I) được đọc ở Phase 1 TRƯỚC delay
-        -- → Cả 2 thu ngân đều cache cùng giá trị (vd: 10)
-        -- → Thu ngân sau ĐÈ LÊN kết quả thu ngân trước
         FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN
                 UPDATE SANPHAM

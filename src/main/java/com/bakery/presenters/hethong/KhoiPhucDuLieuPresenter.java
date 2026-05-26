@@ -148,6 +148,39 @@ public class KhoiPhucDuLieuPresenter {
         chayTask(task);
     }
 
+    /**
+     * Xóa vĩnh viễn trực tiếp bản ghi đang chọn (không cần đủ ngưỡng ngày).
+     *
+     * @param dto       Bản ghi cần xóa
+     * @param loaiBoLoc Loại đang lọc hiện tại (để reload đúng bộ lọc sau khi xong)
+     */
+    public void xoaTrucTiep(KhoiPhucDuLieuDTO dto, String loaiBoLoc) {
+        if (dto == null) {
+            view.hienThiLoi("Vui lòng chọn bản ghi cần xóa.");
+            return;
+        }
+        view.setLoading(true);
+
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() throws Exception {
+                return service.xoaTrucTiepMotBanGhi(dto);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            view.hienThiThanhCong("🗑️ " + task.getValue());
+            loc(loaiBoLoc);
+        });
+
+        task.setOnFailed(e -> {
+            view.hienThiLoi("❌ Không thể xóa: " + task.getException().getMessage());
+            view.setLoading(false);
+        });
+
+        chayTask(task);
+    }
+
     private void chayTask(Task<?> task) {
         Thread t = new Thread(task);
         t.setDaemon(true);

@@ -182,6 +182,30 @@ public class KhoiPhucDuLieuDAO extends BaseDAO {
     }
 
     /**
+     * Xóa vĩnh viễn trực tiếp một bản ghi đã soft-delete (không cần đủ ngưỡng ngày).
+     * Chỉ xóa khi THOIDIEMXOA IS NOT NULL để tránh xóa nhầm bản ghi đang hoạt động.
+     *
+     * @param tenBang  Tên bảng Oracle (VD: \"SANPHAM\")
+     * @param tenCotPK Tên cột PK (VD: \"MASP\")
+     * @param maId     Giá trị PK dạng chuỗi
+     * @return Số dòng bị xóa (0 = không tìm thấy hoặc chưa bị xóa mềm)
+     */
+    public int xoaTrucTiepMotBanGhi(String tenBang, String tenCotPK, String maId) throws Exception {
+        // PreparedStatement — tenBang/tenCotPK đến từ CAU_HINH_BANG nội bộ, không từ user input
+        String sql = "DELETE FROM " + tenBang
+                + " WHERE " + tenCotPK + " = ?"
+                + " AND THOIDIEMXOA IS NOT NULL";
+        try (Connection con = moKetNoi();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, Integer.parseInt(maId));
+            return ps.executeUpdate(); // autoCommit=true → tự COMMIT sau executeUpdate
+        } catch (Exception e) {
+            handleException("xoaTrucTiepMotBanGhi(" + tenBang + ")", e);
+            return 0;
+        }
+    }
+
+    /**
      * Trả về danh sách label loại đối tượng để populate ComboBox.
      */
     public List<String> layDanhSachLoai() {

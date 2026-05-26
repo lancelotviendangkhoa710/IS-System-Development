@@ -76,6 +76,27 @@ public class KhoiPhucDuLieuService {
         return dao.layDanhSachLoai();
     }
 
+    /**
+     * Xóa vĩnh viễn trực tiếp một bản ghi đang chọn (không cần đủ 120 ngày).
+     * Không áp dụng cho nhân viên (loại NHANVIEN không dùng THOIDIEMXOA).
+     *
+     * @param dto DTO chứa thông tin bảng + PK cần xóa
+     * @return Thông báo kết quả
+     */
+    public String xoaTrucTiepMotBanGhi(KhoiPhucDuLieuDTO dto) throws Exception {
+        if (dto == null || dto.getMaDoiTuong() == null || dto.getTenBang() == null) {
+            throw new Exception("Thông tin bản ghi không hợp lệ.");
+        }
+        if ("NHANVIEN".equalsIgnoreCase(dto.getTenBang())) {
+            throw new Exception("Không thể xóa vĩnh viễn nhân viên trực tiếp. Hãy dùng chức năng Khôi phục hoặc xóa qua màn hình Nhân sự.");
+        }
+        int sodong = dao.xoaTrucTiepMotBanGhi(dto.getTenBang(), dto.getTenCotXoa(), dto.getMaDoiTuong());
+        if (sodong == 0) {
+            return "Không tìm thấy bản ghi hoặc bản ghi chưa ở trạng thái đã xóa.";
+        }
+        return "Đã xóa vĩnh viễn \"" + dto.getTenDoiTuong() + "\" (" + dto.getLoaiDoiTuong() + ").";
+    }
+
     // ─── Private helpers ──────────────────────────────────────────────────────
 
     /** Lấy mã NV đang đăng nhập từ session. */

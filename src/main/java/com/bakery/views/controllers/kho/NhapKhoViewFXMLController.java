@@ -22,7 +22,9 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -411,16 +413,30 @@ public class NhapKhoViewFXMLController extends BaseController {
         });
         cbNCC.setMaxWidth(Double.MAX_VALUE);
 
-        // Bảng chi tiết lô
+        // Chi tiết lô hàng — dùng VBox+HBox rows thay TableView (tránh Dialog focus conflict)
         ObservableList<CTPhieuNhapDTO> chiTiet = FXCollections.observableArrayList();
-        TableView<CTPhieuNhapDTO> tblChiTiet = buildBangChiTiet(chiTiet, dsNL);
-        tblChiTiet.getStyleClass().add("table-view");
+        VBox rowsContainer = new VBox(6);
 
-        // Nút thêm dòng — chỉ chọn NL đã tồn tại, không tạo mới
+        // Header row
+        HBox headerRow = new HBox(8,
+                lblWith("Nguyên liệu", 175), lblWith("Số lượng", 85),
+                lblWith("ĐVT", 55), lblWith("Đơn giá (đ)", 105), lblWith("Hạn dùng (yyyy-MM-dd)", 130));
+        headerRow.getStyleClass().add("lbl-body-bold");
+        rowsContainer.getChildren().add(headerRow);
+
+        ScrollPane scrollChiTiet = new ScrollPane(rowsContainer);
+        scrollChiTiet.setFitToWidth(true);
+        scrollChiTiet.setPrefHeight(240);
+        scrollChiTiet.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        // Nút thêm dòng
         Button btnThemDong = new Button("+ Thêm dòng nguyên liệu");
         btnThemDong.getStyleClass().add("btn-secondary");
-        btnThemDong.setOnAction(e -> themDongChiTiet(chiTiet, dsNL));
-        btnThemDong.setDisable(dsNL.isEmpty());
+        btnThemDong.setOnAction(e -> {
+            CTPhieuNhapDTO dto = taoDongMacDinh(dsNL);
+            chiTiet.add(dto);
+            rowsContainer.getChildren().add(buildDongNhapLieu(dto, chiTiet, rowsContainer, dsNL));
+        });
 
         Label lblNhaCungCap = new Label("Nhà cung cấp:");
         lblNhaCungCap.getStyleClass().add("lbl-body-bold");
@@ -430,14 +446,13 @@ public class NhapKhoViewFXMLController extends BaseController {
         grid.add(lblNhaCungCap, 0, 0);
         grid.add(cbNCC, 1, 0);
         grid.add(lblChiTietLo, 0, 1);
-        grid.add(tblChiTiet, 0, 2, 2, 1);
+        grid.add(scrollChiTiet, 0, 2, 2, 1);
         grid.add(btnThemDong, 1, 3);
 
-        tblChiTiet.setPrefHeight(200);
         dialog.getDialogPane().setContent(new VBox(10, grid));
-        dialog.getDialogPane().setPrefWidth(700);
-        
-        // Áp dụng Amber theme cho dialog tạo phiếu nhập
+        dialog.getDialogPane().setPrefWidth(680);
+
+        // Áp dụng Amber theme
         java.net.URL cssUrlDialog = getClass().getResource("/css/bakery.css");
         if (cssUrlDialog != null) dialog.getDialogPane().getStylesheets().add(cssUrlDialog.toExternalForm());
         DialogHelper.applyBakeryTheme(dialog);
@@ -448,7 +463,9 @@ public class NhapKhoViewFXMLController extends BaseController {
         if (btnCancel != null) btnCancel.getStyleClass().add("btn-secondary");
 
         // Thêm dòng đầu tiên mặc định
-        themDongChiTiet(chiTiet, dsNL);
+        CTPhieuNhapDTO initDto = taoDongMacDinh(dsNL);
+        chiTiet.add(initDto);
+        rowsContainer.getChildren().add(buildDongNhapLieu(initDto, chiTiet, rowsContainer, dsNL));
 
         dialog.showAndWait().ifPresent(result -> {
             if (result == ButtonType.OK) {
@@ -457,120 +474,90 @@ public class NhapKhoViewFXMLController extends BaseController {
         });
     }
 
-    @SuppressWarnings("unchecked")
-    private TableView<CTPhieuNhapDTO> buildBangChiTiet(
-            ObservableList<CTPhieuNhapDTO> data, List<NguyenLieuDTO> dsNL) {
-
-        TableView<CTPhieuNhapDTO> tbl = new TableView<>(data);
-
-        TableColumn<CTPhieuNhapDTO, String> colNL = new TableColumn<>("Nguyên liệu");
-        colNL.setPrefWidth(200);
-        colNL.setCellValueFactory(c -> new SimpleStringProperty(nvl(c.getValue().getTenNL())));
-        colNL.setCellFactory(col -> new TableCell<>() {
-            private final ComboBox<NguyenLieuDTO> combo = new ComboBox<>(FXCollections.observableArrayList(dsNL));
-            {
-                combo.setCellFactory(lv -> new ListCell<>() {
-                    @Override
-                    protected void updateItem(NguyenLieuDTO item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText(empty || item == null ? null : item.getTenNL());
-                    }
-                });
-                combo.setButtonCell(new ListCell<>() {
-                    @Override
-                    protected void updateItem(NguyenLieuDTO item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText(empty || item == null ? "— Chọn NL —" : item.getTenNL());
-                    }
-                });
-                combo.setMaxWidth(Double.MAX_VALUE);
-                combo.valueProperty().addListener((obs, old, nv) -> {
-                    if (getIndex() < 0 || getIndex() >= getTableView().getItems().size()) return;
-                    CTPhieuNhapDTO dto = getTableView().getItems().get(getIndex());
-                    if (nv != null) {
-                        dto.setMaNL(nv.getMaNL());
-                        dto.setTenNL(nv.getTenNL());
-                        // Lưu DVT để cột Đơn vị tính hiển thị đúng
-                        dto.setTenDVT(nv.getTenDVT() != null ? nv.getTenDVT() : "");
-                        getTableView().refresh();
-                    }
-                });
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                    return;
-                }
-                CTPhieuNhapDTO dto = getTableView().getItems().get(getIndex());
-                dsNL.stream().filter(nl -> nl.getMaNL() == dto.getMaNL()).findFirst()
-                        .ifPresent(combo::setValue);
-                setGraphic(combo);
-            }
-        });
-
-        TableColumn<CTPhieuNhapDTO, String> colSL = editableNumberColumn("Số lượng", 90);
-        colSL.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
-        colSL.setOnEditCommit(e -> {
-            try {
-                e.getRowValue().setSoLuong(Double.parseDouble(e.getNewValue()));
-            } catch (NumberFormatException ignored) {
-            }
-        });
-
-        TableColumn<CTPhieuNhapDTO, String> colDG = editableNumberColumn("Đơn giá (đ)", 110);
-        colDG.setCellValueFactory(c -> new SimpleStringProperty(
-                c.getValue().getDonGia() != null
-                        ? c.getValue().getDonGia().stripTrailingZeros().toPlainString() : "0"));
-        colDG.setOnEditCommit(e -> {
-            try {
-                e.getRowValue().setDonGia(new java.math.BigDecimal(e.getNewValue()));
-            } catch (NumberFormatException ignored) {
-            }
-        });
-
-        TableColumn<CTPhieuNhapDTO, String> colHSD = editableTextColumn("Hạn dùng (yyyy-MM-dd)", 150);
-        colHSD.setCellValueFactory(c -> new SimpleStringProperty(
-                c.getValue().getHanSuDung() != null ? c.getValue().getHanSuDung().toString() : ""));
-        colHSD.setOnEditCommit(e -> {
-            try {
-                e.getRowValue().setHanSuDung(LocalDate.parse(e.getNewValue()));
-            } catch (Exception ignored) {
-            }
-        });
-
-        // Cột Đơn vị tính — read-only, tự điền khi chọn NL
-        TableColumn<CTPhieuNhapDTO, String> colDVT = new TableColumn<>("ĐVT");
-        colDVT.setPrefWidth(70);
-        colDVT.setCellValueFactory(c -> {
-            String dvt = c.getValue().getTenDVT();
-            if (dvt == null || dvt.isBlank()) {
-                // fallback: tìm trong dsNL
-                dvt = dsNL.stream()
-                        .filter(nl -> nl.getMaNL() == c.getValue().getMaNL())
-                        .map(NguyenLieuDTO::getTenDVT)
-                        .findFirst().orElse("");
-            }
-            return new SimpleStringProperty(dvt != null ? dvt : "");
-        });
-
-        tbl.getColumns().addAll(colNL, colSL, colDVT, colDG, colHSD);
-        tbl.setEditable(true);
-        tbl.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        return tbl;
-    }
+    // ── Builder cho 1 dòng nhập liệu (VBox+HBox pattern — không dùng TableView) ─────────────────
 
     /**
-     * Thêm dòng mới vào bảng chi tiết phiếu nhập.
-     * Chỉ cho phép chọn nguyên liệu đã tồn tại trong hệ thống — không tạo NL mới.
+     * Tạo HBox 1 dòng nhập liệu: ComboBox NL + TextField SL + Label DVT + TextField DG + TextField HSD + nút xóa.
+     * Binding 2 chiều trực tiếp vào {@code dto} — không qua TableView cell, tránh hoàn toàn Dialog focus conflict.
      */
-    private void themDongChiTiet(ObservableList<CTPhieuNhapDTO> chiTiet, List<NguyenLieuDTO> dsNL) {
-        if (dsNL.isEmpty()) {
-            // Không có NL nào để chọn — không thêm dòng trống
-            return;
-        }
+    private HBox buildDongNhapLieu(CTPhieuNhapDTO dto,
+                                    ObservableList<CTPhieuNhapDTO> chiTiet,
+                                    VBox rowsContainer,
+                                    List<NguyenLieuDTO> dsNL) {
+        // ComboBox nguyên liệu
+        ComboBox<NguyenLieuDTO> cbNL = new ComboBox<>(FXCollections.observableArrayList(dsNL));
+        cbNL.setPrefWidth(175);
+        cbNL.getStyleClass().add("combo-box");
+        cbNL.setCellFactory(lv -> new ListCell<>() {
+            @Override protected void updateItem(NguyenLieuDTO item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getTenNL());
+            }
+        });
+        cbNL.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(NguyenLieuDTO item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "— Chọn NL —" : item.getTenNL());
+            }
+        });
+        dsNL.stream().filter(nl -> nl.getMaNL() == dto.getMaNL()).findFirst().ifPresent(cbNL::setValue);
+
+        // Label đơn vị tính — tự cập nhật khi chọn NL
+        Label lblDVT = new Label(dto.getTenDVT() != null ? dto.getTenDVT() : "");
+        lblDVT.setPrefWidth(55);
+        lblDVT.getStyleClass().add("lbl-body");
+
+        cbNL.valueProperty().addListener((obs, old, nv) -> {
+            if (nv != null) {
+                dto.setMaNL(nv.getMaNL());
+                dto.setTenNL(nv.getTenNL());
+                dto.setTenDVT(nv.getTenDVT() != null ? nv.getTenDVT() : "");
+                lblDVT.setText(dto.getTenDVT());
+            }
+        });
+
+        // TextField số lượng
+        TextField txtSL = new TextField(
+                dto.getSoLuong() == (long) dto.getSoLuong()
+                        ? String.valueOf((long) dto.getSoLuong()) : String.valueOf(dto.getSoLuong()));
+        txtSL.setPrefWidth(85);
+        txtSL.setPromptText("Số lượng");
+        txtSL.textProperty().addListener((obs, old, nv) -> {
+            try { dto.setSoLuong(Double.parseDouble(nv)); } catch (NumberFormatException ignored) {}
+        });
+
+        // TextField đơn giá
+        TextField txtDG = new TextField(
+                dto.getDonGia() != null ? dto.getDonGia().stripTrailingZeros().toPlainString() : "0");
+        txtDG.setPrefWidth(105);
+        txtDG.setPromptText("Đơn giá");
+        txtDG.textProperty().addListener((obs, old, nv) -> {
+            try { dto.setDonGia(new java.math.BigDecimal(nv)); } catch (NumberFormatException ignored) {}
+        });
+
+        // TextField hạn sử dụng
+        TextField txtHSD = new TextField(
+                dto.getHanSuDung() != null ? dto.getHanSuDung().toString() : "");
+        txtHSD.setPrefWidth(130);
+        txtHSD.setPromptText("yyyy-MM-dd");
+        txtHSD.textProperty().addListener((obs, old, nv) -> {
+            try { dto.setHanSuDung(LocalDate.parse(nv)); } catch (Exception ignored) {}
+        });
+
+        // Nút xóa dòng
+        Button btnXoaDong = new Button("✕");
+        btnXoaDong.getStyleClass().add("btn-danger");
+        HBox row = new HBox(8, cbNL, txtSL, lblDVT, txtDG, txtHSD, btnXoaDong);
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        btnXoaDong.setOnAction(e -> {
+            chiTiet.remove(dto);
+            rowsContainer.getChildren().remove(row);
+        });
+        return row;
+    }
+
+    /** Tạo CTPhieuNhapDTO mặc định lấy NL đầu tiên trong danh sách. */
+    private CTPhieuNhapDTO taoDongMacDinh(List<NguyenLieuDTO> dsNL) {
         CTPhieuNhapDTO dong = new CTPhieuNhapDTO();
         NguyenLieuDTO nlDau = dsNL.get(0);
         dong.setMaNL(nlDau.getMaNL());
@@ -578,8 +565,17 @@ public class NhapKhoViewFXMLController extends BaseController {
         dong.setTenDVT(nlDau.getTenDVT() != null ? nlDau.getTenDVT() : "");
         dong.setSoLuong(1);
         dong.setDonGia(java.math.BigDecimal.ZERO);
-        chiTiet.add(dong);
+        return dong;
     }
+
+    /** Tạo Label header với chiều rộng cố định. */
+    private static Label lblWith(String text, double width) {
+        Label lbl = new Label(text);
+        lbl.setPrefWidth(width);
+        lbl.getStyleClass().add("lbl-body-bold");
+        return lbl;
+    }
+
 
     private void xuLyLuuPhieuNhap(NhaCungCapDTO ncc, List<CTPhieuNhapDTO> chiTiet) {
         if (ncc == null) {
@@ -634,19 +630,6 @@ public class NhapKhoViewFXMLController extends BaseController {
 
     // ── Helpers ────────────────────────────────────────────────────────
 
-    private static TableColumn<CTPhieuNhapDTO, String> editableNumberColumn(String title, double width) {
-        TableColumn<CTPhieuNhapDTO, String> col = new TableColumn<>(title);
-        col.setPrefWidth(width);
-        col.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
-        return col;
-    }
-
-    private static TableColumn<CTPhieuNhapDTO, String> editableTextColumn(String title, double width) {
-        TableColumn<CTPhieuNhapDTO, String> col = new TableColumn<>(title);
-        col.setPrefWidth(width);
-        col.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
-        return col;
-    }
 
     private static String nvl(String s) {
         return s != null ? s : "—";

@@ -60,6 +60,11 @@ public class KhoiPhucDuLieuViewFXMLController extends BaseController implements 
         presenter.tuDongXoaQuaHan(loaiBoLocHienTai());
         // Auto-refresh mỗi 60s: purge ngầm rồi reload danh sách
         batDauAutoRefresh(tblDanhSach, () -> presenter.tuDongXoaQuaHan(loaiBoLocHienTai()), 60);
+        // Enable/disable nút Khôi phục theo selection
+        if (btnKhoiPhuc != null) btnKhoiPhuc.setDisable(true);
+        tblDanhSach.getSelectionModel().selectedItemProperty().addListener((obs, old, nv) -> {
+            if (btnKhoiPhuc != null) btnKhoiPhuc.setDisable(nv == null);
+        });
     }
 
     // ─── IKhoiPhucDuLieuView ─────────────────────────────────────────────────
@@ -74,7 +79,7 @@ public class KhoiPhucDuLieuViewFXMLController extends BaseController implements 
     @Override
     public void setLoading(boolean loading) {
         tblDanhSach.setDisable(loading);
-        if (btnKhoiPhuc  != null) btnKhoiPhuc.setDisable(loading);
+        if (btnKhoiPhuc    != null) btnKhoiPhuc.setDisable(loading);
         if (btnXoaVinhVien != null) btnXoaVinhVien.setDisable(loading);
         if (loading) tblDanhSach.setPlaceholder(new Label("⏳ Đang tải..."));
     }
@@ -133,11 +138,11 @@ public class KhoiPhucDuLieuViewFXMLController extends BaseController implements 
     @FXML
     private void onXoaVinhVien() {
         Alert confirm = new Alert(Alert.AlertType.WARNING,
-                "Thao tác này sẽ XÓA VĨNH VIỄN tất cả bản ghi đã xóa mềm hơn "
+                "Thao tác này sẽ XÓA VĨNH VIỄN tất cả bản ghi đã xóa mềm quá "
                 + NGUONG_NGAY + " ngày.\nHành động KHÔNG THỂ hoàn tác!\n\nBạn có chắc chắn?",
                 ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("⚠ Xóa vĩnh viễn dữ liệu quá hạn");
-        confirm.setHeaderText("Cảnh báo: Xóa vĩnh viễn");
+        confirm.setTitle("⚠ Xác nhận xóa");
+        confirm.setHeaderText("Xóa vĩnh viễn bản ghi đã xóa quá " + NGUONG_NGAY + " ngày");
         DialogHelper.applyBakeryTheme(confirm);
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.YES) {

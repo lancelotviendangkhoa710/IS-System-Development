@@ -17,7 +17,8 @@ public class ThongKeDAO extends BaseDAO {
      * Mở connection với Isolation Level = SERIALIZABLE cho báo cáo.
      * Đảm bảo snapshot nhất quán — dù session khác INSERT/UPDATE/COMMIT,
      * tất cả query trong cùng connection này vẫn thấy dữ liệu như lúc mở.
-     * PHẢI gọi conn.commit() hoặc conn.rollback() sau khi dùng xong để giải phóng snapshot.
+     * PHẢI gọi conn.commit() hoặc conn.rollback() sau khi dùng xong để giải phóng
+     * snapshot.
      */
     private Connection moKetNoiBaoCao() throws Exception {
         Connection conn = moKetNoi();
@@ -25,7 +26,6 @@ public class ThongKeDAO extends BaseDAO {
         conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
         return conn;
     }
-
 
     public double getDoanhThuHomNay() throws Exception {
         String sql = "SELECT NVL(SUM(TONGTIENTHANHTOAN), 0) FROM HOADON WHERE TRUNC(NGAYXUATHD) = TRUNC(SYSDATE)";
@@ -187,7 +187,8 @@ public class ThongKeDAO extends BaseDAO {
 
         if ("DAY".equals(loai)) {
             // Xu hướng theo giờ trong ngày (0h–23h)
-            for (int h = 0; h < 24; h++) result.put(h + "h", 0.0);
+            for (int h = 0; h < 24; h++)
+                result.put(h + "h", 0.0);
             String sql = "SELECT TO_NUMBER(TO_CHAR(NGAYXUATHD, 'HH24')) AS GIO, " +
                     "NVL(SUM(TONGTIENTHANHTOAN), 0) AS DOANH_THU " +
                     "FROM HOADON " +
@@ -196,15 +197,19 @@ public class ThongKeDAO extends BaseDAO {
             try (Connection conn = moKetNoi(); PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, giaTri);
                 try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) result.put(rs.getInt(1) + "h", rs.getDouble(2));
+                    while (rs.next())
+                        result.put(rs.getInt(1) + "h", rs.getDouble(2));
                 }
-            } catch (SQLException e) { handleException("getXuHuongDoanhThu[DAY]", e); }
+            } catch (SQLException e) {
+                handleException("getXuHuongDoanhThu[DAY]", e);
+            }
             return result;
 
         } else if ("WEEK".equals(loai)) {
             // Xu hướng theo thứ (Thứ 2 → CN); giaTri = Thứ Hai "dd/MM/yyyy"
-            String[] thuNames = {"Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"};
-            for (String thu : thuNames) result.put(thu, 0.0);
+            String[] thuNames = { "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN" };
+            for (String thu : thuNames)
+                result.put(thu, 0.0);
             String sql = "SELECT TRUNC(NGAYXUATHD) AS NGAY, NVL(SUM(TONGTIENTHANHTOAN), 0) AS DOANH_THU " +
                     "FROM HOADON " +
                     "WHERE (TRUNC(NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6 " +
@@ -220,7 +225,9 @@ public class ThongKeDAO extends BaseDAO {
                         }
                     }
                 }
-            } catch (SQLException e) { handleException("getXuHuongDoanhThu[WEEK]", e); }
+            } catch (SQLException e) {
+                handleException("getXuHuongDoanhThu[WEEK]", e);
+            }
             return result;
         }
 
@@ -243,9 +250,12 @@ public class ThongKeDAO extends BaseDAO {
         try (Connection conn = moKetNoi(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, giaTri);
             try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) result.put(rs.getString(1), rs.getDouble(2));
+                while (rs.next())
+                    result.put(rs.getString(1), rs.getDouble(2));
             }
-        } catch (SQLException e) { handleException("getXuHuongDoanhThu", e); }
+        } catch (SQLException e) {
+            handleException("getXuHuongDoanhThu", e);
+        }
         return result;
     }
 
@@ -369,8 +379,10 @@ public class ThongKeDAO extends BaseDAO {
     /**
      * Tính giá vốn hàng bán (COGS) trong kỳ.
      *
-     * FIX Task 1.1: Dùng CT.DONGIAVON (snapshot tại thời điểm bán) thay vì SP.GIAVON (giá hiện tại).
-     * SP.GIAVON thay đổi theo thời gian → báo cáo kỳ cũ sẽ sai khi giá vốn NL thay đổi.
+     * FIX Task 1.1: Dùng CT.DONGIAVON (snapshot tại thời điểm bán) thay vì
+     * SP.GIAVON (giá hiện tại).
+     * SP.GIAVON thay đổi theo thời gian → báo cáo kỳ cũ sẽ sai khi giá vốn NL thay
+     * đổi.
      * CT.DONGIAVON được freeze bởi trigger TRG_ASSIGN_PRICE tại thời điểm tạo đơn.
      */
     public double getGiaVon(String loai, String giaTri) throws Exception {
@@ -416,7 +428,6 @@ public class ThongKeDAO extends BaseDAO {
         }
         return 0;
     }
-
 
     /**
      * UC52 / UC43 — Thống kê tồn kho nguyên liệu theo trạng thái.
@@ -529,42 +540,42 @@ public class ThongKeDAO extends BaseDAO {
     }
 
     /**
-     * Dashboard — Thống kê 7 ngày gần nhất: doanh thu, số đơn hoàn thành, số đơn hủy.
+     * Dashboard — Thống kê 7 ngày gần nhất: doanh thu, số đơn hoàn thành, số đơn
+     * hủy.
      * Trả List String[5]: {ngay_dd_mm, doanhThu, donHoanThanh, donHuy, tongDon}
      */
     public List<String[]> getThongKeTheoNgay() throws Exception {
         List<String[]> result = new ArrayList<>();
         // FIX: Dùng N-string literal đúng dấu tiếng Việt — UPPER() trong Oracle
-        //      KHÔNG loại dấu nên LIKE '%HOAN THANH%' không khớp 'Hoàn thành'.
-        //      DOANH_THU chỉ tính từ đơn Hoàn thành (có HOADON liên kết).
-        String sql =
-            "SELECT TO_CHAR(TRUNC(D.NGAYLAP), 'DD/MM') AS NGAY, " +
-            "  NVL(SUM(CASE WHEN D.MATRANGTHAI IN " +
-            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')) " +
-            "    THEN H.TONGTIENTHANHTOAN ELSE 0 END), 0) AS DOANH_THU, " +
-            "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
-            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')) " +
-            "    THEN D.MADON END) AS DON_HOAN_THANH, " +
-            "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
-            "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hủy')) " +
-            "    THEN D.MADON END) AS DON_HUY, " +
-            "  COUNT(DISTINCT D.MADON) AS TONG_DON " +
-            "FROM DONDATHANG D " +
-            "LEFT JOIN HOADON H ON H.MADON = D.MADON " +
-            "WHERE D.NGAYLAP >= TRUNC(SYSDATE) - 6 " +
-            "GROUP BY TRUNC(D.NGAYLAP) " +
-            "ORDER BY TRUNC(D.NGAYLAP) ASC";
+        // KHÔNG loại dấu nên LIKE '%HOAN THANH%' không khớp 'Hoàn thành'.
+        // DOANH_THU chỉ tính từ đơn Hoàn thành (có HOADON liên kết).
+        String sql = "SELECT TO_CHAR(TRUNC(D.NGAYLAP), 'DD/MM') AS NGAY, " +
+                "  NVL(SUM(CASE WHEN D.MATRANGTHAI IN " +
+                "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')) " +
+                "    THEN H.TONGTIENTHANHTOAN ELSE 0 END), 0) AS DOANH_THU, " +
+                "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
+                "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hoàn thành')) " +
+                "    THEN D.MADON END) AS DON_HOAN_THANH, " +
+                "  COUNT(DISTINCT CASE WHEN D.MATRANGTHAI IN " +
+                "    (SELECT MATRANGTHAI FROM TRANGTHAIDON WHERE UPPER(TENTRANGTHAI) = UPPER(N'Hủy')) " +
+                "    THEN D.MADON END) AS DON_HUY, " +
+                "  COUNT(DISTINCT D.MADON) AS TONG_DON " +
+                "FROM DONDATHANG D " +
+                "LEFT JOIN HOADON H ON H.MADON = D.MADON " +
+                "WHERE D.NGAYLAP >= TRUNC(SYSDATE) - 6 " +
+                "GROUP BY TRUNC(D.NGAYLAP) " +
+                "ORDER BY TRUNC(D.NGAYLAP) ASC";
 
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                result.add(new String[]{
-                    rs.getString("NGAY"),
-                    String.format("%.0f", rs.getDouble("DOANH_THU")),
-                    String.valueOf(rs.getInt("DON_HOAN_THANH")),
-                    String.valueOf(rs.getInt("DON_HUY")),
-                    String.valueOf(rs.getInt("TONG_DON"))
+                result.add(new String[] {
+                        rs.getString("NGAY"),
+                        String.format("%.0f", rs.getDouble("DOANH_THU")),
+                        String.valueOf(rs.getInt("DON_HOAN_THANH")),
+                        String.valueOf(rs.getInt("DON_HUY")),
+                        String.valueOf(rs.getInt("TONG_DON"))
                 });
             }
         } catch (SQLException e) {
@@ -579,19 +590,33 @@ public class ThongKeDAO extends BaseDAO {
     public int getTongDon(String loai, String giaTri) throws Exception {
         String condition;
         switch (loai.toUpperCase()) {
-            case "DAY":     condition = "TRUNC(NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')"; break;
-            case "WEEK":    condition = "(TRUNC(NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6"; break;
-            case "MONTH":   condition = "TO_CHAR(NGAYXUATHD, 'MM/YYYY') = ?";           break;
-            case "QUARTER": condition = "TO_CHAR(NGAYXUATHD, 'Q/YYYY') = ?";            break;
-            case "YEAR":    condition = "TO_CHAR(NGAYXUATHD, 'YYYY') = ?";               break;
-            default:        condition = "TRUNC(NGAYXUATHD) = TRUNC(SYSDATE)";            break;
+            case "DAY":
+                condition = "TRUNC(NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
+                break;
+            case "WEEK":
+                condition = "(TRUNC(NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
+                break;
+            case "MONTH":
+                condition = "TO_CHAR(NGAYXUATHD, 'MM/YYYY') = ?";
+                break;
+            case "QUARTER":
+                condition = "TO_CHAR(NGAYXUATHD, 'Q/YYYY') = ?";
+                break;
+            case "YEAR":
+                condition = "TO_CHAR(NGAYXUATHD, 'YYYY') = ?";
+                break;
+            default:
+                condition = "TRUNC(NGAYXUATHD) = TRUNC(SYSDATE)";
+                break;
         }
         String sql = "SELECT COUNT(*) FROM HOADON WHERE " + condition;
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (!condition.contains("SYSDATE")) ps.setString(1, giaTri);
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (!condition.contains("SYSDATE"))
+                ps.setString(1, giaTri);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next())
+                    return rs.getInt(1);
             }
         } catch (SQLException e) {
             handleException("getTongDon", e);
@@ -605,22 +630,36 @@ public class ThongKeDAO extends BaseDAO {
     public int getKhachTichDiem(String loai, String giaTri) throws Exception {
         String condition;
         switch (loai.toUpperCase()) {
-            case "DAY":     condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')"; break;
-            case "WEEK":    condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6"; break;
-            case "MONTH":   condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";           break;
-            case "QUARTER": condition = "TO_CHAR(H.NGAYXUATHD, 'Q/YYYY') = ?";            break;
-            case "YEAR":    condition = "TO_CHAR(H.NGAYXUATHD, 'YYYY') = ?";               break;
-            default:        condition = "TRUNC(H.NGAYXUATHD) = TRUNC(SYSDATE)";            break;
+            case "DAY":
+                condition = "TRUNC(H.NGAYXUATHD) = TO_DATE(?, 'DD/MM/YYYY')";
+                break;
+            case "WEEK":
+                condition = "(TRUNC(H.NGAYXUATHD) - TO_DATE(?, 'DD/MM/YYYY')) BETWEEN 0 AND 6";
+                break;
+            case "MONTH":
+                condition = "TO_CHAR(H.NGAYXUATHD, 'MM/YYYY') = ?";
+                break;
+            case "QUARTER":
+                condition = "TO_CHAR(H.NGAYXUATHD, 'Q/YYYY') = ?";
+                break;
+            case "YEAR":
+                condition = "TO_CHAR(H.NGAYXUATHD, 'YYYY') = ?";
+                break;
+            default:
+                condition = "TRUNC(H.NGAYXUATHD) = TRUNC(SYSDATE)";
+                break;
         }
         String sql = "SELECT COUNT(DISTINCT D.MAKH) " +
                 "FROM HOADON H " +
                 "JOIN DONDATHANG D ON D.MADON = H.MADON " +
                 "WHERE D.MAKH IS NOT NULL AND " + condition;
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (!condition.contains("SYSDATE")) ps.setString(1, giaTri);
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (!condition.contains("SYSDATE"))
+                ps.setString(1, giaTri);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next())
+                    return rs.getInt(1);
             }
         } catch (SQLException e) {
             handleException("getKhachTichDiem", e);
@@ -640,7 +679,7 @@ public class ThongKeDAO extends BaseDAO {
     public double getLoiNhuanHoaDon(int maHD) throws Exception {
         String sql = "{ ? = call FUNC_LOINHUANGOP(?) }";
         try (Connection conn = moKetNoi();
-             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+                java.sql.CallableStatement cs = conn.prepareCall(sql)) {
             cs.registerOutParameter(1, java.sql.Types.NUMERIC);
             cs.setInt(2, maHD);
             cs.execute();
@@ -676,7 +715,7 @@ public class ThongKeDAO extends BaseDAO {
                 "ORDER BY THANG";
 
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, String.valueOf(nam));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -692,7 +731,8 @@ public class ThongKeDAO extends BaseDAO {
     }
 
     /**
-     * Task 2.4: Gọi FUNC_DOANHTHUTHEOPTTT(tuNgay, denNgay) thay vì inline SQL trùng lặp.
+     * Task 2.4: Gọi FUNC_DOANHTHUTHEOPTTT(tuNgay, denNgay) thay vì inline SQL trùng
+     * lặp.
      * Function trả SYS_REFCURSOR — dùng CallableStatement với OracleTypes.CURSOR.
      *
      * @param tuNgay  ngày bắt đầu
@@ -701,11 +741,11 @@ public class ThongKeDAO extends BaseDAO {
     public java.util.Map<String, Double> getDoanhThuTheoPTTT(
             java.time.LocalDate tuNgay, java.time.LocalDate denNgay) throws Exception {
         java.util.Map<String, Double> result = new java.util.LinkedHashMap<>();
-        java.time.LocalDate tu  = tuNgay  != null ? tuNgay  : java.time.LocalDate.now().withDayOfMonth(1);
+        java.time.LocalDate tu = tuNgay != null ? tuNgay : java.time.LocalDate.now().withDayOfMonth(1);
         java.time.LocalDate den = denNgay != null ? denNgay : java.time.LocalDate.now();
         String sql = "BEGIN ? := FUNC_DOANHTHUTHEOPTTT(?, ?); END;";
         try (Connection conn = moKetNoi();
-             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+                java.sql.CallableStatement cs = conn.prepareCall(sql)) {
             cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
             cs.setDate(2, java.sql.Date.valueOf(tu));
             cs.setDate(3, java.sql.Date.valueOf(den));
@@ -730,7 +770,8 @@ public class ThongKeDAO extends BaseDAO {
      */
     public Map<String, Double> getDoanhThu12ThangTrongNam(int nam) throws Exception {
         Map<String, Double> result = new LinkedHashMap<>();
-        // Khởi tạo đủ 12 tháng, giá trị 0 để giữ thứ tự trục X ngay cả khi không có dữ liệu
+        // Khởi tạo đủ 12 tháng, giá trị 0 để giữ thứ tự trục X ngay cả khi không có dữ
+        // liệu
         for (int i = 1; i <= 12; i++) {
             result.put("Th." + i, 0.0);
         }
@@ -743,7 +784,7 @@ public class ThongKeDAO extends BaseDAO {
                 "ORDER BY THANG";
 
         try (Connection conn = moKetNoi();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, String.valueOf(nam));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -759,7 +800,8 @@ public class ThongKeDAO extends BaseDAO {
     }
 
     /**
-     * Gọi FUNC_TOPSANPHAMBANCHAY(tuNgay, denNgay) — Top 5 SP bán chạy theo kỳ tùy chọn.
+     * Gọi FUNC_TOPSANPHAMBANCHAY(tuNgay, denNgay) — Top 5 SP bán chạy theo kỳ tùy
+     * chọn.
      * FIX Task 1.2: Thay inline SQL sai tên bảng (DONHANG không tồn tại) bằng
      * FUNC_TOPSANPHAMBANCHAY — function đã filter đúng trạng thái HOÀN THÀNH.
      *
@@ -774,7 +816,7 @@ public class ThongKeDAO extends BaseDAO {
         java.time.LocalDate den = denNgay != null ? denNgay : java.time.LocalDate.now();
         String sql = "BEGIN ? := FUNC_TOPSANPHAMBANCHAY(?, ?); END;";
         try (Connection conn = moKetNoi();
-             java.sql.CallableStatement cs = conn.prepareCall(sql)) {
+                java.sql.CallableStatement cs = conn.prepareCall(sql)) {
             cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
             cs.setDate(2, java.sql.Date.valueOf(tu));
             cs.setDate(3, java.sql.Date.valueOf(den));
@@ -792,7 +834,8 @@ public class ThongKeDAO extends BaseDAO {
 
     /**
      * Lấy danh sách doanh thu, giá vốn, lợi nhuận gộp theo từng sản phẩm trong kỳ.
-     * Kết hợp cả CTDONHANG (đơn thường) và CTDONTUYCHINH (đơn tùy chỉnh) trong kỳ chỉ định.
+     * Kết hợp cả CTDONHANG (đơn thường) và CTDONTUYCHINH (đơn tùy chỉnh) trong kỳ
+     * chỉ định.
      */
     public List<String[]> getLoiNhuanSanPham(String loai, String giaTri) throws Exception {
         List<String[]> result = new ArrayList<>();
@@ -822,7 +865,8 @@ public class ThongKeDAO extends BaseDAO {
                 "       SUM(T.SOLUONG) AS SOLUONG_BAN, " +
                 "       SUM(T.SOLUONG * T.DONGIA * (1 - NVL(T.PHANTRAMGIAM, 0)/100)) AS REVENUE, " +
                 "       SUM(T.SOLUONG * NVL(T.DONGIAVON, 0)) AS COGS, " +
-                "       SUM(T.SOLUONG * (T.DONGIA * (1 - NVL(T.PHANTRAMGIAM, 0)/100) - NVL(T.DONGIAVON, 0))) AS PROFIT " +
+                "       SUM(T.SOLUONG * (T.DONGIA * (1 - NVL(T.PHANTRAMGIAM, 0)/100) - NVL(T.DONGIAVON, 0))) AS PROFIT "
+                +
                 "FROM (" +
                 "    SELECT MADON, MASP, SOLUONG, DONGIA, PHANTRAMGIAM, DONGIAVON FROM CTDONHANG " +
                 "    UNION ALL " +
@@ -837,7 +881,7 @@ public class ThongKeDAO extends BaseDAO {
                 "ORDER BY PROFIT DESC, SOLUONG_BAN DESC";
 
         try (Connection conn = moKetNoi();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             if (!condition.contains("SYSDATE")) {
                 pstmt.setString(1, giaTri);
             }

@@ -169,17 +169,7 @@
                 INTO V_TONGTON
                 FROM NGUYENLIEU
                 WHERE MANL = REC.MANL
-                      -- ┌─ TOGGLE BUG/FIX (đổi cùng lúc với ORDER BY ở trên) ─────────────────────────┐
-                      -- BUG (deadlock §4.4):
-                      --   Bỏ comment dòng FOR UPDATE WAIT 5, comment dòng FOR UPDATE bên dưới.
-                      --   ORDER BY C.SOLUONGTIEUHAO DESC ở trên phải được bỏ comment.
-
-
-                      -- FIX (lock ordering §4.4):
-                      --   Giữ nguyên dòng FOR UPDATE (không WAIT). ORDER BY C.MANL ASC ở trên.
-
-
-                       --FOR UPDATE WAIT 5;
+                    --FOR UPDATE WAIT 5;
                       FOR UPDATE;
 
                 IF V_TONGTON < REC.TONG_CAN_DUNG THEN
@@ -193,9 +183,6 @@
                 V_TAB(V_IDX).MANL := REC.MANL;
                 V_TAB(V_IDX).TENNL := REC.TENNL;
                 V_TAB(V_IDX).TONG_CAN_DUNG := REC.TONG_CAN_DUNG;
-
-
-                -- [DEMO §4.4 DEADLOCK] Giả lập thời gian tính toán giữa các lần lock.
                 DBMS_SESSION.SLEEP(5);
             END LOOP;
 
