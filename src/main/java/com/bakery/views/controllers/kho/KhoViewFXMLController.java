@@ -64,9 +64,11 @@ public class KhoViewFXMLController extends BaseController {
         }
 
         if (laThoBep) {
-            // Thợ Bếp: chỉ xem Thẻ kho + Truy xuất nguồn gốc — ẩn hết phần có CUD
+            // Thợ Bếp: không được vào tab nhập kho, truy vết nguồn gốc, nhà cung cấp và kiểm kê
             xoaTab(tabNhaCungCap);
             xoaTab(tabKiemKe);
+            xoaTab(tabNhapKho);
+            xoaTab(tabTraCuuNguonGoc);
         } else if (laThuKho) {
             // Thủ Kho: có màn hình NhaCungCap riêng → ẩn tab này trong KhoView
             xoaTab(tabNhaCungCap);
