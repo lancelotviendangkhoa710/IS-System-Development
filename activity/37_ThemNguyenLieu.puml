@@ -1,0 +1,45 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Thêm nguyên liệu
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:NGUYENLIEU;
+|Hệ thống|
+:Hiển thị trang kiểm kê kho;
+|Nhân viên|
+:Chọn thao tác thêm nguyên liệu;
+|Hệ thống|
+:Hiển thị biểu mẫu nhập thông tin\nnguyên liệu;
+repeat
+  |Nhân viên|
+  :Điền thông tin nguyên liệu và xác\nnhận;
+  |Hệ thống|
+  :Kiểm tra thông tin nhập;
+  if () then (Không hợp lệ)
+    :Thông báo lỗi\nđịnh dạng;
+  else (Hợp lệ)
+    |CSDL|
+    :Kiểm tra thông\ntin trùng lặp;
+    if () then (Trùng lặp)
+      |Hệ thống|
+      :Báo lỗi và yêu\ncầu nhập lại;
+    else (Không trùng)
+      |CSDL|
+      :Lưu thông tin\nnguyên liệu;
+      :NGUYENLIEU;
+      |Hệ thống|
+      :Thông báo thêm thành\ncông;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

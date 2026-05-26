@@ -1,0 +1,36 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Cảnh báo tồn kho
+
+|Hệ thống|
+|CSDL|
+|Nhân viên|
+
+|Hệ thống|
+start
+:Định kỳ gọi hàm kiểm tra tồn kho;
+|CSDL|
+:Lấy danh sách nguyên\nliệu và mức an toàn;
+:NGUYENLIEU;
+|Hệ thống|
+:So sánh tồn kho với mức an toàn;
+if () then (Có nguyên liệu\ndưới mức an toàn)
+  :Hiển thị cảnh báo hoặc\nhộp thoại thông báo;
+  |Nhân viên|
+  if () then (Nhấn "Xem chi tiết")
+    |Hệ thống|
+    :Yêu cầu lấy thông tin chi tiết;
+    :Hiển thị bảng chi tiết\nsố lượng tồn kho;
+    stop
+  else (Bỏ qua)
+    stop
+  endif
+else (Không có nguyên liệu\ndưới mức an toàn)
+  |Hệ thống|
+  :Kết thúc kiểm tra,\nkhông gửi cảnh báo;
+  stop
+endif
+@enduml

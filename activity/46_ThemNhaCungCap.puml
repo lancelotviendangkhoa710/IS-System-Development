@@ -1,0 +1,45 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Thêm nhà cung cấp
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:NHACUNGCAP;
+|Hệ thống|
+:Hiển thị trang quản lý nhà cung cấp;
+|Nhân viên|
+:Chọn thêm nhà cung cấp mới;
+|Hệ thống|
+:Hiển thị biểu mẫu nhập thông tin;
+repeat
+  |Nhân viên|
+  :Nhập tên, địa chỉ, số điện thoại\nvà nhấn "Lưu";
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ;
+  if () then (Không hợp lệ)
+    :Thông báo lỗi\nđịnh dạng;
+  else (Hợp lệ)
+    |CSDL|
+    :Kiểm tra thông\ntin trùng lặp;
+    if () then (Trùng lặp)
+      |Hệ thống|
+      :Báo lỗi và yêu\ncầu nhập lại;
+    else (Không trùng)
+      |CSDL|
+      :Lưu thông tin\nnhà cung cấp mới;
+      :NHACUNGCAP;
+      |Hệ thống|
+      :Thông báo thành công\nvà làm mới danh sách;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

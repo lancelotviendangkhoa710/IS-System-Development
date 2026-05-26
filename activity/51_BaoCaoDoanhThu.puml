@@ -1,0 +1,37 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Báo cáo doanh thu
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Chọn chức năng xem báo cáo doanh thu;
+:Chọn khoảng thời gian cần xem báo cáo;
+|CSDL|
+fork
+  :Tính toán doanh thu từ\nhóa đơn trong khoảng thời\ngian yêu cầu;
+  :HOADON;
+fork again
+  :Tính toán doanh thu từ\nđơn đặt hàng trong khoảng\nthời gian yêu cầu;
+  :DONDATHANG;
+end fork
+|Hệ thống|
+:Tính toán tổng doanh thu tương ứng;
+if () then (Lỗi truy xuất dữ liệu)
+  :Hệ thống báo lỗi,\nkhông hiển thị được báo cáo;
+  stop
+else if () then (Không có dữ liệu giao dịch trong kỳ)
+  :Hiển thị thông báo trống;
+  stop
+else (Tính toán thành công)
+  :Hiển thị bảng số liệu\nchi tiết và biểu đồ xu hướng;
+  stop
+endif
+@enduml

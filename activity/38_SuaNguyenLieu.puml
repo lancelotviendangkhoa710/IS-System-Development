@@ -1,0 +1,43 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Sửa nguyên liệu
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:NGUYENLIEU;
+|Hệ thống|
+:Hiển thị trang kiểm kê kho;
+|Nhân viên|
+:Chọn nguyên liệu cần sửa\nđổi thông tin;
+repeat
+  |Nhân viên|
+  :Nhập thông tin sửa đổi;
+  |Hệ thống|
+  :Kiểm tra thông tin\nnhập;
+  if () then (Không hợp lệ)
+    :Thông báo lỗi\nđịnh dạng;
+  else (Hợp lệ)
+    |CSDL|
+    :Kiểm tra thông\ntin trùng lặp;
+    if () then (Trùng lặp)
+      |Hệ thống|
+      :Báo lỗi và yêu\ncầu nhập lại;
+    else (Không trùng)
+      |CSDL|
+      :Cập nhật thông\ntin nguyên liệu;
+      :NGUYENLIEU;
+      |Hệ thống|
+      :Thông báo cập nhật\nthành công;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

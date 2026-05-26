@@ -1,0 +1,43 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Thêm loại thu chi
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:LOAITHUCHI;
+|Hệ thống|
+:Hiển thị trang quản lý thu chi;
+|Quản lý|
+:Chọn thêm loại thu chi mới;
+|Hệ thống|
+:Hiển thị biểu mẫu\n(mặc định là khoản thu);
+repeat
+  |Quản lý|
+  :Nhập tên, chọn phân loại\n(thu hoặc chi) và nhấn "Lưu";
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ;
+  if () then (Tên trống hoặc phân loại không hợp lệ)
+    :Thông báo lỗi\nvà giữ nguyên biểu mẫu;
+  else (Thông tin hợp lệ)
+    |CSDL|
+    :Lưu loại thu chi mới;
+    :LOAITHUCHI;
+    |Hệ thống|
+    if () then (Lưu thành công)
+      :Thông báo thành công\nvà làm mới danh sách;
+      stop
+    else (Lưu thất bại)
+      :Thông báo lỗi lưu dữ liệu;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

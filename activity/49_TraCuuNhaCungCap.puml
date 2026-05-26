@@ -1,0 +1,30 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Tra cứu nhà cung cấp
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Chọn chức năng quản lý nhà cung cấp;
+|CSDL|
+:Truy vấn danh sách nhà\ncung cấp đang hoạt động;
+:NHACUNGCAP;
+|Hệ thống|
+:Hiển thị danh sách ban đầu;
+|Nhân viên|
+:Gõ từ khóa vào ô tìm kiếm;
+|Hệ thống|
+:Yêu cầu lọc nhà cung\ncấp theo từ khóa;
+|CSDL|
+:Lọc danh sách nhà cung cấp;
+|Hệ thống|
+:Cập nhật danh sách sau khi lọc;
+stop
+@enduml

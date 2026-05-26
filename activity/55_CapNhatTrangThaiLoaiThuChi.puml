@@ -1,0 +1,55 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Cập nhật trạng thái loại thu chi
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:LOAITHUCHI;
+|Hệ thống|
+:Hiển thị trang quản lý thu chi;
+|Quản lý|
+:Chọn một loại thu chi\ncần thay đổi trạng thái;
+:Nhấn khóa hoặc mở khóa;
+|Hệ thống|
+:Hiển thị yêu cầu xác nhận;
+|Quản lý|
+if () then (Đồng ý xác nhận)
+  :Xác nhận;
+  |CSDL|
+  :Ghi nhận trạng thái mới;
+  :LOAITHUCHI;
+  |Hệ thống|
+  if () then (Lưu thành công)
+    :Thông báo thành công\nvà làm mới danh sách;
+    |Quản lý|
+    if () then (Xem danh sách đã khóa)
+      :Chuyển sang xem\ndanh sách đã bị khóa;
+      |CSDL|
+      :Truy vấn loại thu chi\n(trạng thái = khóa);
+      |Hệ thống|
+      :Hiển thị danh sách tương ứng;
+      stop
+    else (Bỏ qua)
+      stop
+    endif
+  else (Lưu thất bại)
+    |Hệ thống|
+    :Thông báo lỗi,\ntrạng thái không thay đổi;
+    stop
+  endif
+else (Từ chối xác nhận)
+  |Quản lý|
+  :Hủy bỏ;
+  |Hệ thống|
+  :Hủy thao tác,\ntrạng thái giữ nguyên;
+  stop
+endif
+@enduml

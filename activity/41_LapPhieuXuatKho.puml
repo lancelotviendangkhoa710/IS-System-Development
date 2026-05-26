@@ -1,0 +1,62 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Lập phiếu xuất kho
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:MESANXUAT;
+|Hệ thống|
+:Hiển thị trang lập phiếu xuất\nkho;
+|Nhân viên|
+:Chọn thao tác tạo phiếu\nxuất;
+:Chọn lý do xuất kho;
+|Hệ thống|
+if () then (Xuất\nđể\nlàm\nbánh)
+  |CSDL|
+  :SANPHAM;
+  |Hệ thống|
+  :Hiển thị biểu mẫu chọn\nsản phẩm để xuất nguyên\nliệu theo công thức của\nsản phẩm;
+  |Nhân viên|
+  :Điền thông tin và số lượng\nsản phẩm để xuất nguyên\nliệu theo công thức;
+else (Xuất vì\nnguyên liệu hỏng)
+  |CSDL|
+  :NGUYENLIEU;
+  |Hệ thống|
+  :Hiển thị biểu mẫu\nchọn nguyên liệu;
+  |Nhân viên|
+  :Điền thông tin và số\nlượng nguyên liệu;
+endif
+repeat
+  |Hệ thống|
+  :Kiểm tra thông tin nhập;
+  if () then (Không\nhợp lệ)
+    :Thông báo lỗi\nđịnh dạng;
+    |Nhân viên|
+    :Điền lại thông tin;
+  else (Hợp lệ)
+    |CSDL|
+    :Kiểm tra số lượng\ntồn của sản\nphẩm/nguyên liệu;
+    if () then (Không hợp lệ)
+      |Hệ thống|
+      :Báo lỗi và yêu\ncầu nhập lại;
+      |Nhân viên|
+      :Điền lại thông tin;
+    else (Hợp lệ)
+      |CSDL|
+      :Lưu thông tin phiếu xuất;
+      :CTPHIEUXUAT_NL;
+      |Hệ thống|
+      :Thông báo lập phiếu\nxuất thành công;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

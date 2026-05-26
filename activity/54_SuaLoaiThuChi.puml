@@ -1,0 +1,45 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Sửa loại thu chi
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:LOAITHUCHI;
+|Hệ thống|
+:Hiển thị trang quản lý thu chi;
+|Quản lý|
+:Chọn sửa một loại thu chi;
+|CSDL|
+:Lấy dữ liệu loại thu chi\ntheo ID;
+|Hệ thống|
+:Hiển thị biểu mẫu sửa\nvới thông tin hiện tại;
+repeat
+  |Quản lý|
+  :Chỉnh sửa thông tin và nhấn "Lưu";
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ;
+  if () then (Tên trống)
+    :Thông báo lỗi\nvà giữ nguyên biểu mẫu;
+  else (Thông tin hợp lệ)
+    |CSDL|
+    :Cập nhật thông tin\nloại thu chi;
+    :LOAITHUCHI;
+    |Hệ thống|
+    if () then (Lưu thành công)
+      :Thông báo thành công\nvà làm mới danh sách;
+      stop
+    else (Lưu thất bại)
+      :Thông báo lỗi lưu dữ liệu;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

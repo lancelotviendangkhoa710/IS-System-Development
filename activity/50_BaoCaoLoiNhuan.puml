@@ -1,0 +1,37 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Báo cáo lợi nhuận
+
+|Quản lý|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Quản lý|
+:Chọn chức năng báo cáo lợi nhuận;
+:Chọn khoảng thời gian\nvà nhấn "Tạo báo cáo";
+|CSDL|
+fork
+  :Tính toán tổng doanh thu từ\nhóa đơn bán hàng hoàn tất;
+  :HOADON;
+fork again
+  :Tính toán tổng chi phí\ntừ giá vốn;
+  :CTDONHANG;
+end fork
+|Hệ thống|
+:Tính toán lợi nhuận gộp\nvà tỷ suất lợi nhuận;
+if () then (Lỗi tính toán hoặc kết nối)
+  :Thông báo lỗi,\nkhông hiển thị báo cáo;
+  stop
+else if () then (Không có doanh thu)
+  :Hiển thị báo cáo trống;
+  stop
+else (Tính toán thành công)
+  :Hiển thị báo cáo: doanh thu,\nchi phí, lợi nhuận gộp,\ntỷ suất lợi nhuận;
+  stop
+endif
+@enduml

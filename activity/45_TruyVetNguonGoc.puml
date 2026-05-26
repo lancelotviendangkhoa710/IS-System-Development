@@ -1,0 +1,49 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Truy vết nguồn gốc
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Chọn chức năng truy xuất nguồn gốc;
+|CSDL|
+:Lấy danh sách mẻ sản xuất;
+:MESANXUAT;
+|Hệ thống|
+:Hiển thị danh sách mẻ sản xuất;
+|Nhân viên|
+:Nhập từ khóa sản phẩm\nhoặc khoảng thời gian (tùy chọn);
+|CSDL|
+:Lọc danh sách mẻ;
+|Hệ thống|
+:Cập nhật danh sách sau khi lọc;
+|Nhân viên|
+:Chọn một mẻ sản xuất;
+|CSDL|
+fork
+  :MESANXUAT;
+fork again
+  :CTPHIEUXUAT_NL;
+fork again
+  :CTPHIEUNHAP;
+fork again
+  :PHIEUNHAPKHO;
+fork again
+  :NHACUNGCAP;
+end fork
+|Hệ thống|
+:Tổng hợp chi tiết nguồn gốc;
+if () then (Lỗi kết nối)
+  :Hệ thống báo lỗi,\ndanh sách hiển thị rỗng;
+else (Thành công)
+  :Hiển thị chi tiết;
+endif
+stop
+@enduml

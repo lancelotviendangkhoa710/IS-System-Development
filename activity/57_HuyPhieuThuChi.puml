@@ -1,0 +1,52 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Hủy phiếu thu chi
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:PHIEUTHUCHI;
+|Hệ thống|
+:Hiển thị trang quản lý thu chi;
+|Nhân viên|
+:Chọn hủy một phiếu\ngiao dịch đang hiệu lực;
+|Hệ thống|
+:Cảnh báo hành động không thể\nhoàn tác và yêu cầu nhập lý do;
+|Nhân viên|
+if () then (Đồng ý xác nhận)
+  repeat
+    :Nhập lý do và nhấn xác nhận;
+    |Hệ thống|
+    :Kiểm tra lý do hủy;
+    if () then (Lý do trống)
+      :Thông báo lỗi\nyêu cầu nhập lý do;
+    else (Lý do hợp lệ)
+      |CSDL|
+      :Cập nhật trạng thái phiếu thành\n"Đã hủy" và ghi nhận lý do;
+      :PHIEUTHUCHI;
+      |Hệ thống|
+      :Tính toán lại tổng quan quỹ\n(hoàn tác dòng tiền);
+      if () then (Lưu thành công)
+        :Thông báo thành công, làm mới\ndanh sách và tổng quan quỹ;
+        stop
+      else (Lưu thất bại)
+        :Thông báo lỗi, trạng thái\nphiếu không thay đổi;
+        stop
+      endif
+    endif
+  repeat while ()
+else (Từ chối xác nhận)
+  |Nhân viên|
+  :Hủy thao tác;
+  |Hệ thống|
+  :Hủy thao tác,\nphiếu giữ nguyên trạng thái;
+  stop
+endif
+@enduml

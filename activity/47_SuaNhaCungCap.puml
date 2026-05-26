@@ -1,0 +1,47 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Sửa nhà cung cấp
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:NHACUNGCAP;
+|Hệ thống|
+:Hiển thị trang quản lý nhà cung cấp;
+|Nhân viên|
+:Chọn sửa một nhà cung cấp;
+|CSDL|
+:Lấy dữ liệu nhà\ncung cấp theo ID;
+|Hệ thống|
+:Hiển thị biểu mẫu sửa\nvới thông tin hiện tại;
+repeat
+  |Nhân viên|
+  :Chỉnh sửa thông tin và nhấn "Lưu";
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ;
+  if () then (Không hợp lệ)
+    :Thông báo lỗi\nđịnh dạng;
+  else (Hợp lệ)
+    |CSDL|
+    :Kiểm tra thông\ntin trùng lặp;
+    if () then (Trùng lặp)
+      |Hệ thống|
+      :Báo lỗi và yêu\ncầu nhập lại;
+    else (Không trùng)
+      |CSDL|
+      :Cập nhật thông\ntin nhà cung cấp;
+      :NHACUNGCAP;
+      |Hệ thống|
+      :Thông báo thành công\nvà làm mới danh sách;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

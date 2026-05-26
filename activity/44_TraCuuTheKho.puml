@@ -1,0 +1,41 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Tra cứu thẻ kho
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|Nhân viên|
+:Chọn chức năng tra cứu thẻ kho;
+|CSDL|
+:Truy vấn danh sách nguyên liệu;
+:NGUYENLIEU;
+|Hệ thống|
+:Hiển thị danh sách nguyên liệu;
+|Nhân viên|
+:Điền thông tin nguyên liệu\n(có thể nhập khoảng thời gian);
+|CSDL|
+fork
+  :PHIEUNHAPKHO;
+fork again
+  :CTPHIEUNHAP;
+fork again
+  :PHIEUXUATKHO;
+fork again
+  :CTPHIEUXUAT_NL;
+end fork
+|Hệ thống|
+:Tổng hợp biến động thẻ kho;
+if () then (Lỗi kết nối)
+  :Hệ thống báo lỗi,\ndanh sách hiển thị rỗng;
+else (Kết nối ổn định)
+  :Hiển thị lịch sử thẻ kho;
+endif
+stop
+@enduml

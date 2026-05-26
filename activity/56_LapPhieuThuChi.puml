@@ -1,0 +1,56 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Lập phiếu thu chi
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:PHIEUTHUCHI;
+|Hệ thống|
+:Hiển thị trang quản lý thu chi;
+|Nhân viên|
+:Chọn tạo giao dịch mới;
+|CSDL|
+:Lấy danh sách loại thu chi;
+:LOAITHUCHI;
+|Hệ thống|
+:Hiển thị biểu mẫu lập phiếu\n(mặc định khoản thu);
+repeat
+  |Nhân viên|
+  :Chọn loại giao dịch, danh mục,\nnhập số tiền, mô tả và xác nhận;
+  |Hệ thống|
+  :Kiểm tra tính hợp lệ;
+  if () then (Chưa chọn danh mục hoặc\nsố tiền không hợp lệ)
+    :Thông báo lỗi\nvà giữ nguyên biểu mẫu;
+  else (Thông tin hợp lệ)
+    |CSDL|
+    :Kiểm tra ca làm việc\nhiện tại đang mở;
+    :CALAMVIEC;
+    |Hệ thống|
+    :Kiểm tra trạng thái ca làm việc;
+    if () then (Ca làm việc đã bị đóng)
+      :Thông báo lỗi ca đã đóng,\nhủy quá trình lưu;
+      stop
+    else (Ca làm việc đang mở)
+      |CSDL|
+      :Lưu thông tin\nphiếu thu chi mới;
+      :PHIEUTHUCHI;
+      |Hệ thống|
+      if () then (Lưu thành công)
+        :Thông báo thành công\nvà làm mới danh sách;
+        stop
+      else (Lưu thất bại)
+        :Thông báo lỗi lưu dữ liệu;
+        stop
+      endif
+    endif
+  endif
+repeat while ()
+@enduml

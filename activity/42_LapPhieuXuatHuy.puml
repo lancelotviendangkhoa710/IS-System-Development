@@ -1,0 +1,48 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Lập phiếu xuất hủy
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:CTPHIEUXUAT_TP;
+|Hệ thống|
+:Hiển thị trang lập phiếu xuất\nkho;
+|Nhân viên|
+:Chọn thao tác tạo phiếu\nxuất;
+:Chọn lý do xuất kho;
+|CSDL|
+:NGUYENLIEU;
+|Hệ thống|
+:Hiển thị biểu mẫu chọn\nnguyên liệu và số lượng;
+repeat
+  |Nhân viên|
+  :Điền thông tin và số\nlượng nguyên liệu;
+  |Hệ thống|
+  :Kiểm tra thông tin nhập;
+  if () then (Không\nhợp lệ)
+    :Thông báo lỗi\nđịnh dạng;
+  else (Hợp lệ)
+    |CSDL|
+    :Kiểm tra số lượng\ntồn của nguyên\nliệu;
+    if () then (Không hợp lệ)
+      |Hệ thống|
+      :Báo lỗi và yêu\ncầu nhập lại;
+    else (Hợp lệ)
+      |CSDL|
+      :Lưu thông tin phiếu xuất;
+      :CTPHIEUXUAT_TP;
+      |Hệ thống|
+      :Thông báo lập phiếu\nxuất thành công;
+      stop
+    endif
+  endif
+repeat while ()
+@enduml

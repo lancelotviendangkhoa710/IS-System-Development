@@ -1,0 +1,44 @@
+@startuml
+skinparam style strictuml
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+title Cập nhật trạng thái nhà cung cấp
+
+|Nhân viên|
+|Hệ thống|
+|CSDL|
+
+|Hệ thống|
+start
+|CSDL|
+:NHACUNGCAP;
+|Hệ thống|
+:Hiển thị trang quản lý nhà cung cấp;
+|Nhân viên|
+:Chọn một nhà cung cấp\ncần ngừng giao dịch;
+:Nhấn "Xóa";
+|Hệ thống|
+:Hiển thị yêu cầu xác nhận và cảnh\nbáo lịch sử phiếu nhập vẫn được\ngiữ nguyên;
+|Nhân viên|
+if () then (Đồng ý xác nhận)
+  :Xác nhận;
+  |CSDL|
+  :Ghi nhận trạng thái xóa;
+  :NHACUNGCAP;
+  |Hệ thống|
+  if () then (Lưu thành công)
+    :Thông báo thành công\nvà làm mới danh sách;
+    stop
+  else (Lưu thất bại)
+    :Thông báo lỗi,\ntrạng thái không thay đổi;
+    stop
+  endif
+else (Từ chối xác nhận)
+  |Nhân viên|
+  :Hủy bỏ;
+  |Hệ thống|
+  :Hủy thao tác,\ntrạng thái giữ nguyên;
+  stop
+endif
+@enduml
