@@ -95,8 +95,4 @@ group opt Đóng màn hình
         SYS -->> UI: Quay lại giao diện tra cứu
     end
 
-<<<<<<< HEAD
 @enduml
-=======
-@enduml
->>>>>>> 022d621 (update: all activity diagram)
