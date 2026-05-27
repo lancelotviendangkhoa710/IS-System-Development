@@ -255,7 +255,15 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/banhang/HoaDonView.fxml"));
             Parent root = loader.load();
             HoaDonViewFXMLController controller = loader.getController();
-            String tenKhach = (don != null && don.getMaKH() != null) ? "KH #" + don.getMaKH() : "Khách lẻ";
+            // Ưu tiên lấy tên KH từ khachHangHienTai đã được Presenter đồng bộ
+            // Fallback: không hiển thị mã KH thô ("KH #123") mà dùng "Khách lẻ"
+            String tenKhach;
+            if (khachHangHienTai != null && khachHangHienTai.getHoTen() != null
+                    && !khachHangHienTai.getHoTen().isBlank()) {
+                tenKhach = khachHangHienTai.getHoTen();
+            } else {
+                tenKhach = "Khách lẻ";
+            }
             controller.setReceiptData("HÓA ĐƠN HOÀN THÀNH", hd, don, dsItems, new ArrayList<>(mapSanPhamById.values()),
                     tenKhach, khachDua, tienThua, 0.0, laDonCoc);
 

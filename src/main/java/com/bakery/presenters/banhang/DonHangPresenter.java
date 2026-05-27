@@ -423,6 +423,11 @@ public class DonHangPresenter {
 
         HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua());
         view.hienThiThanhCong("Đã thanh toán! Mã HĐ: #" + hd.getMaHD());
+        // Đồng bộ thông tin KH từ dialog vào View để inPhieuHoaDon lấy đúng tên
+        KhachHangDTO khHoaDon = new KhachHangDTO();
+        khHoaDon.setMaKH(req.maKH() != null ? req.maKH() : 0);
+        khHoaDon.setHoTen(req.tenKhach());
+        view.capNhatKhachHangHienTai(req.maKH() != null ? khHoaDon : null);
         view.inPhieuHoaDon("HÓA ĐƠN BÁN LẺ",
                 hd, null,
                 convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia,
@@ -463,6 +468,11 @@ public class DonHangPresenter {
         HoaDonDTO hd = orderService.taoHoaDonDTO(maDon, req.tienCoc(), "DAT_HANG");
         hd.setNgayXuatHd(LocalDateTime.now());
 
+        // Đồng bộ thông tin KH từ dialog vào View để inPhieuHoaDon lấy đúng tên
+        KhachHangDTO khHoaDonDat = new KhachHangDTO();
+        khHoaDonDat.setMaKH(req.maKH() != null ? req.maKH() : 0);
+        khHoaDonDat.setHoTen(req.tenKhach());
+        view.capNhatKhachHangHienTai(req.maKH() != null ? khHoaDonDat : null);
         view.inPhieuHoaDon("PHIẾU HẸN LẤY BÁNH",
                 hd, don,
                 convertToCTDonHangList(gioHangItems), tatCaSanPham, phanTramGiamGia,
