@@ -23,10 +23,19 @@
 
 **H3K Bakery Management System** là giải pháp phần mềm Desktop chuyên nghiệp, phục vụ toàn diện hoạt động vận hành và kinh doanh của cửa hàng/chuỗi cửa hàng bánh ngọt. Dự án được phát triển tuân thủ nghiêm ngặt mô hình kiến trúc **MVP (Model - View - Presenter)**, mang lại khả năng phân tách trách nhiệm tối đa, vận hành mượt mà và dễ dàng bảo trì mở rộng.
 
-*   **View (Giao diện):** Thiết kế hiện đại bằng JavaFX (FXML/CSS) sử dụng bảng màu **Amber** sang trọng.
-*   **Presenter (Điều phối):** Xử lý luồng dữ liệu bất đồng bộ qua đa luồng (`Task`/`Service` JavaFX) giúp tránh treo đơ màn hình khi tương tác với CSDL nặng.
-*   **Service (Nghiệp vụ):** Nơi chứa toàn bộ logic kiểm tra tính đúng đắn và quy tắc kinh doanh.
-*   **DAO (Data Access Object):** Thực hiện kết nối dữ liệu an toàn thông qua Oracle Stored Procedures nhằm đảm bảo hiệu năng và tránh lỗi SQL Injection.
+---
+
+## 🛠️ 💻 Công Nghệ Sử Dụng (Tech Stack)
+
+Hệ thống được phát triển trên nền tảng công nghệ mạnh mẽ và chuyên nghiệp:
+
+*   **Java 21 (JDK 21):** Tận dụng các tính năng mới nhất của Java hiện đại để tối ưu hóa hiệu năng và quản lý bộ nhớ tốt hơn.
+*   **JavaFX 25:** Thư viện đồ họa cao cấp tạo ứng dụng Desktop mượt mà, phân tách thiết kế giao diện bằng XML (FXML) và định dạng bằng CSS tùy biến cao.
+*   **Oracle Database 12c+:** Hệ quản trị CSDL quan hệ cấp doanh nghiệp (Enterprise), đảm bảo tính an toàn dữ liệu, toàn vẹn giao dịch và bảo mật tuyệt đối qua các Triggers và Stored Procedures.
+*   **Apache Maven 3.x:** Quản lý vòng đời dự án và tự động tải các thư viện phụ thuộc (dependencies).
+*   **Thư viện chuyên dụng:**
+    *   `Gson` (Google): Phục vụ phân tích, mã hóa và giải mã dữ liệu dạng JSON.
+    *   `Apache PDFBox` & `JasperReports`: Hỗ trợ sinh và in ấn hóa đơn dạng PDF trực tiếp tại quầy và xuất báo cáo thống kê chuyên nghiệp.
 
 ---
 
