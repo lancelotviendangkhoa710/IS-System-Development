@@ -74,17 +74,21 @@ public class ThanhToanService {
         if (!SessionContext.getInstance().isCaoDangMo())
             throw new IllegalStateException("Chưa mở ca làm việc. Vui lòng mở ca trước khi thực hiện thanh toán.");
 
-        // 2. Tính tổng tiền từ giỏ hàng (có thuế 8.5% — dùng cho hiển thị & validate)
+        // 2. Tính tổng tiền từ giỏ hàng (có thuế 8.5%)
         double tongTien = tinhTienHoaDon(request);
 
-        // 3. Validate số tiền khách đưa
-        if (soTienKhachDua < tongTien)
+        // 2b. Áp dụng giảm giá hạng thành viên (nếu có)
+        double phanTram = request.getPhanTramGiamGia(); // 0.0–1.0
+        double soTienGiamGia = tongTien * phanTram;
+        double soTienSauGiam = tongTien - soTienGiamGia;
+
+        // 3. Validate số tiền khách đưa (so với giá sau giảm, cho phép epsilon 1đ)
+        if (soTienKhachDua < soTienSauGiam - 1.0)
             throw new IllegalArgumentException("Số tiền khách đưa không đủ để thanh toán.");
 
         // 3. Đặt trạng thái HOÀN_THÀNH
         int maTrangThaiHoanThanh = layMaTrangThaiHoanThanh();
         request.setMaTrangThai(maTrangThaiHoanThanh);
-
 
         // Thanh toán thẳng: TIENDACOC = 0 (không cọc, hóa đơn xử lý thanh toán)
         // tongTienGoc vẫn cần để tạo HoaDonDTO ở bước 5
@@ -94,10 +98,10 @@ public class ThanhToanService {
         // 4. Tạo đơn hàng
         int maDon = quanLyDonHangService.taoDonHang(request);
 
-        // 5. Tạo hóa đơn bán lẻ
+        // 5. Tạo hóa đơn bán lẻ — tongTienThanhToan = soTienSauGiam (đã giảm)
         // Bug 2 Fix: đọc MAPTTT từ request (do Presenter truyền từ hình thức thanh toán UI)
         int maPTTT = request.getMaPTTT() > 0 ? request.getMaPTTT() : layMaPTTTTienMat();
-        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTienGoc, tongTien, "BAN_LE", maPTTT);
+        HoaDonDTO hd = taoHoaDonDTO(maDon, tongTienGoc, soTienSauGiam, "BAN_LE", maPTTT);
 
         int maHD = hoaDonDAO.themHoaDonMoi(hd);
         if (maHD <= 0)
@@ -105,12 +109,12 @@ public class ThanhToanService {
 
         // 6. Chốt hóa đơn & cộng điểm thành viên qua Procedure
         try {
-            hoaDonDAO.thanhToanVaThangHang(maHD, request.getMaKH(), tongTien);
+            hoaDonDAO.thanhToanVaThangHang(maHD, request.getMaKH(), soTienSauGiam);
 
-            // 6.1 Tạo phiếu thu đi kèm (Sổ quỹ)
+            // 6.1 Tạo phiếu thu đi kèm (Sổ quỹ) — ghi đúng số tiền thực thu (sau giảm)
             // Bug 2 Fix: CHỈ tạo phiếu thu khi thanh toán bằng tiền mặt
             if (isTienMat(hd.getMaPTTT())) {
-                taoPhieuThuChiTuHoaDon(maHD, tongTien, "Thu tiền bán lẻ HD" + maHD);
+                taoPhieuThuChiTuHoaDon(maHD, soTienSauGiam, "Thu tiền bán lẻ HD" + maHD);
             }
 
         } catch (SQLException e) {
@@ -122,6 +126,7 @@ public class ThanhToanService {
         if (hoaDonVuaTao == null)
             throw new Exception("Không thể tải thông tin hóa đơn vừa tạo.");
         return hoaDonVuaTao;
+
     }
 
     /**

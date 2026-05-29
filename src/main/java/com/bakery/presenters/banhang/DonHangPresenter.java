@@ -284,6 +284,16 @@ public class DonHangPresenter {
      * Đây là phương thức trung tâm của luồng tạo đơn mới.
      */
     public void moDialogTaoDon() {
+        // Kiểm tra ca làm việc TRƯỚC KHI mở dialog — Fail-Fast tại entry point
+        if (com.bakery.utils.SessionContext.getInstance().getMaCa() <= 0) {
+            // Mở màn hình Mở ca — blocking (showAndWait), sau đó re-check
+            view.yeuCauMoCa();
+            // Nếu sau dialog ca vẫn chưa mở → người dùng bỏ qua, không tiếp tục
+            if (com.bakery.utils.SessionContext.getInstance().getMaCa() <= 0) {
+                return;
+            }
+        }
+
         if (gioHangItems.isEmpty()) {
             view.hienThiLoi("Đơn hàng đang trống!");
             return;
@@ -421,6 +431,8 @@ public class DonHangPresenter {
         int maPTTT = orderService.layMaPTTTTheoHinhThuc(req.hinhThucThanhToan());
         request.setMaPTTT(maPTTT);
 
+        // Truyền tỷ lệ giảm giá hạng thành viên xuống Service để tính đúng tổng tiền HĐ
+        request.setPhanTramGiamGia(phanTramGiamGia);
         HoaDonDTO hd = orderService.thanhToanTrucTiep(request, req.soTienKhachDua());
         view.hienThiThanhCong("Đã thanh toán! Mã HĐ: #" + hd.getMaHD());
         // Đồng bộ thông tin KH từ dialog vào View để inPhieuHoaDon lấy đúng tên

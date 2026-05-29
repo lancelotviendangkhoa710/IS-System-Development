@@ -61,7 +61,7 @@
     <!-- TITLE BAND — Header trang đầu                                      -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <title>
-        <band height="375" splitType="Stretch">
+        <band height="465" splitType="Stretch">
 
             <!-- Nền amber gradient (màu chủ đạo hệ thống) -->
             <rectangle>
@@ -145,7 +145,7 @@
 
             <!-- Separator trước KPI -->
             <line>
-                <reportElement x="0" y="385" width="535" height="1" forecolor="#E5E5E3" uuid="kpi-sep-top-001"/>
+                <reportElement x="0" y="385" width="535" height="1" forecolor="#E5E5E3" uuid="6a2b8f84-18c7-4e1f-a88c-ac1fb83c4001"/>
             </line>
 
             <!-- KPI Box — Doanh thu -->
@@ -230,7 +230,7 @@
 
             <!-- Separator sau KPI -->
             <line>
-                <reportElement x="0" y="458" width="535" height="1" forecolor="#D85A30" uuid="kpi-sep-bot-001"/>
+                <reportElement x="0" y="458" width="535" height="1" forecolor="#D85A30" uuid="6a2b8f84-18c7-4e1f-a88c-ac1fb83c4002"/>
                 <graphicElement><pen lineWidth="1.5"/></graphicElement>
             </line>
 

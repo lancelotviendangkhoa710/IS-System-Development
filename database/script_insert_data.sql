@@ -589,4 +589,3 @@ FROM DUAL WHERE NOT EXISTS (
 );
 
 COMMIT;
--- Script đã được kiểm thủ và chạy trong DB

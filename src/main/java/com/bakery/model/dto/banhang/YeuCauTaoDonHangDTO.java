@@ -15,6 +15,8 @@ public class YeuCauTaoDonHangDTO {
     private List<YeuCauChiTietDonHangDTO> items;
     /** Bug 2 Fix: Mã phương thức thanh toán — 0 = chưa rõ, dùng layMaPTTTTienMat() khi cần. */
     private int maPTTT;
+    /** Tỷ lệ giảm giá hạng thành viên (0.0 = không giảm, 0.1 = giảm 10%). Mặc định 0. */
+    private double phanTramGiamGia = 0.0;
 
     public YeuCauTaoDonHangDTO() {
         this.items = new ArrayList<>();
@@ -91,6 +93,10 @@ public class YeuCauTaoDonHangDTO {
     /** Bug 2 Fix: getter/setter MAPTTT — 0 nghĩa là chưa set (dùng fallback layMaPTTTTienMat). */
     public int getMaPTTT() { return maPTTT; }
     public void setMaPTTT(int maPTTT) { this.maPTTT = maPTTT; }
+
+    /** Tỷ lệ giảm giá hạng thành viên (0.0–1.0). */
+    public double getPhanTramGiamGia() { return phanTramGiamGia; }
+    public void setPhanTramGiamGia(double phanTramGiamGia) { this.phanTramGiamGia = phanTramGiamGia; }
 
     public List<YeuCauChiTietDonHangDTO> getItems() {
         return items;

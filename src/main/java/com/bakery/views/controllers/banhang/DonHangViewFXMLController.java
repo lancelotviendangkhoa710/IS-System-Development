@@ -121,6 +121,35 @@ public class DonHangViewFXMLController extends BaseController implements IDonHan
         if (presenter != null) presenter.moDialogTaoDon();
     }
 
+    @Override
+    public void yeuCauMoCa() {
+        try {
+            java.net.URL fxmlUrl = getClass().getResource("/fxml/hethong/MoCaView.fxml");
+            if (fxmlUrl == null) {
+                hienThiLoi("Không tìm thấy màn hình Mở ca.");
+                return;
+            }
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(fxmlUrl);
+            javafx.scene.Parent root = loader.load();
+
+            javafx.stage.Stage dialog = new javafx.stage.Stage();
+            dialog.setTitle("H3K Bakery - Mở ca làm việc");
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            java.net.URL cssUrl = getClass().getResource("/css/bakery.css");
+            if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+            dialog.setScene(scene);
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            // Lấy owner window từ bất kỳ node nào đang có scene
+            if (btnThanhToan.getScene() != null) {
+                dialog.initOwner(btnThanhToan.getScene().getWindow());
+            }
+            dialog.setResizable(false);
+            dialog.showAndWait(); // Blocking — SessionContext.moCa() được gọi bên trong nếu thành công
+        } catch (Exception ex) {
+            hienThiLoi("Không thể mở màn hình Mở ca: " + ex.getMessage());
+        }
+    }
+
 
     @FXML
     private void onTuyChinhChanged() {

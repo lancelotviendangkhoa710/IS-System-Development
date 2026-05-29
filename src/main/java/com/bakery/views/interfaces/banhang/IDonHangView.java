@@ -157,6 +157,15 @@ public interface IDonHangView {
     void inHoaDonHoanThanh(DonDatHangDTO don, com.bakery.model.dto.banhang.HoaDonDTO hd,
                            List<CTDonHangDTO> dsItems, double khachDua, double tienThua, boolean laDonCoc);
 
+    // ——— CA LÀM VIỆC ———
+
+    /**
+     * Hiển thị màn hình Mở ca để người dùng mở ca trước khi tạo đơn.
+     * Blocking (showAndWait) — sau khi đóng, Presenter sẽ re-check trạng thái ca.
+     * Default impl: no-op (dùng khi View không hỗ trợ dialog mở ca).
+     */
+    default void yeuCauMoCa() {}
+
     // ——— TRUY XUẤT TRẠNG THÁI (GETTERS) ———
 
     /** 

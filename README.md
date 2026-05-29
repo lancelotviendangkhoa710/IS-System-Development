@@ -1,163 +1,154 @@
 <div align="center">
 
 <!-- Typing SVG Animation -->
-<img src="https://readme-typing-svg.demolab.com?font=Outfit&weight=800&size=32&duration=3000&pause=1000&color=D85A30&center=true&vCenter=true&width=650&lines=🥐+H3K+Bakery+Management;Hệ+Thống+Quản+Lý+Tiệm+Bánh;Java+21+%2B+JavaFX+%2B+Oracle+19c" alt="H3K Bakery Animation" />
+<img src="https://readme-typing-svg.demolab.com?font=Outfit&weight=800&size=32&duration=3000&pause=1000&color=D85A30&center=true&vCenter=true&width=650&lines=%F0%9F%A5%90+H3K+Bakery+Management;H%E1%BB%87+Th%E1%BB%91ng+Qu%E1%BA%A3n+L%C3%BD+Ti%E1%BB%87m+B%C3%A1nh;Java+21+%2B+JavaFX+25+%2B+Oracle+12c;%F0%9F%9A%80+H%C6%B0%E1%BB%9Bng+D%E1%BA%ABn+C%C3%A0i+%C4%90%E1%BA%B7t+Chi+Ti%E1%BA%BFt" alt="H3K Bakery Animation" />
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-21-FF6B35?style=for-the-badge&logo=openjdk&logoColor=white" />
-  <img src="https://img.shields.io/badge/JavaFX-21.0.7-4A90E2?style=for-the-badge&logo=java&logoColor=white" />
-  <img src="https://img.shields.io/badge/Oracle_DB-19c%2B-C74634?style=for-the-badge&logo=oracle&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaFX-25-4A90E2?style=for-the-badge&logo=java&logoColor=white" />
+  <img src="https://img.shields.io/badge/Oracle_DB-12c%2B-C74634?style=for-the-badge&logo=oracle&logoColor=white" />
   <img src="https://img.shields.io/badge/Maven-3.x-AA1B32?style=for-the-badge&logo=apachemaven&logoColor=white" />
+  <img src="https://img.shields.io/badge/Ki%E1%BA%BFn%20Tr%C3%BAc-MVP-green?style=for-the-badge" />
 </p>
 
 ---
 
-[🇻🇳 Tiếng Việt](#-tiếng-việt) • [🇬🇧 English](#-english)
+*Hệ thống quản lý tiệm bánh ngọt chuyên nghiệp và toàn diện nhất.*
 
 </div>
 
 ---
 
-## 🇻🇳 Tiếng Việt
+## 🥐 ✨ Giới Thiệu Chung
 
-### ✨ Giới thiệu ngắn
-**H3K Bakery Management System** là hệ thống quản lý tiệm bánh chuyên nghiệp được thiết kế theo mô hình kiến trúc chuẩn **MVP (Model - View - Presenter)**. Dự án sử dụng **Java 21**, **JavaFX 21** cho giao diện Desktop mượt mà, và kết nối **Oracle Database** bảo mật thông qua Stored Procedures tối ưu hiệu năng.
+**H3K Bakery Management System** là giải pháp phần mềm Desktop chuyên nghiệp, phục vụ toàn diện hoạt động vận hành và kinh doanh của cửa hàng/chuỗi cửa hàng bánh ngọt. Dự án được phát triển tuân thủ nghiêm ngặt mô hình kiến trúc **MVP (Model - View - Presenter)**, mang lại khả năng phân tách trách nhiệm tối đa, vận hành mượt mà và dễ dàng bảo trì mở rộng.
 
-Hệ thống quản lý toàn diện 4 luồng nghiệp vụ cốt lõi: Bán hàng tại quầy (POS), Điều phối bếp chế biến (KDS), Thủ kho kiểm soát nguyên liệu & thẻ kho, và Quản lý nhân viên & chấm công.
+*   **View (Giao diện):** Thiết kế hiện đại bằng JavaFX (FXML/CSS) sử dụng bảng màu **Amber** sang trọng.
+*   **Presenter (Điều phối):** Xử lý luồng dữ liệu bất đồng bộ qua đa luồng (`Task`/`Service` JavaFX) giúp tránh treo đơ màn hình khi tương tác với CSDL nặng.
+*   **Service (Nghiệp vụ):** Nơi chứa toàn bộ logic kiểm tra tính đúng đắn và quy tắc kinh doanh.
+*   **DAO (Data Access Object):** Thực hiện kết nối dữ liệu an toàn thông qua Oracle Stored Procedures nhằm đảm bảo hiệu năng và tránh lỗi SQL Injection.
 
 ---
 
-### 🚀 Hướng Dẫn Cài Đặt và Khởi Chạy (Dành cho Giảng viên)
+## 🚀 🛠️ Hướng Dẫn Cài Đặt & Khởi Chạy (Từng bước chi tiết)
 
-Thực hiện theo 4 bước nhanh gọn dưới đây để thiết lập và chạy hệ thống:
+Hệ thống được thiết kế tối ưu để cài đặt cực nhanh chỉ trong vài phút. Vui lòng thực hiện theo quy trình 4 bước dưới đây để thiết lập môi trường và khởi động ứng dụng:
 
-#### 1. Chuẩn bị môi trường
-*   **Java JDK 21+** (Khuyên dùng [Adoptium Temurin](https://adoptium.net/))
-*   **Apache Maven 3.8+**
-*   **Oracle Database 19c+** (Hỗ trợ tốt bản Oracle XE)
-
-#### 2. Cấu hình Kết nối CSDL
-Tạo file **`application.properties`** tại thư mục:
-`src/main/resources/application.properties`
-
-Nhập cấu hình thông tin kết nối database Oracle của bạn:
-```properties
-db.url=jdbc:oracle:thin:@localhost:1521/XEPDB1
-db.username=TÊN_USER_ORACLE
-db.password=MẬT_KHẨU_ORACLE
 ```
-> ⚠️ **Quan trọng:** File này nằm trong `.gitignore` để bảo mật, bạn **bắt buộc phải tự tạo bằng tay** thì ứng dụng mới kết nối được dữ liệu.
+[MÔI TRƯỜNG] ────► [CƠ SỞ DỮ LIỆU] ────► [CẤU HÌNH KẾT NỐI] ────► [KHỞI CHẠY]
+(Java 21, Maven)   (Run install.sql)     (application.properties)  (mvn javafx:run)
+```
 
-#### 3. Cài đặt Cương vị CSDL (Chỉ 1 lệnh)
-Dự án có sẵn script master cài đặt tự động toàn bộ 63 file schema và dữ liệu mẫu theo đúng thứ tự.
+### 1️⃣ Bước 1: Chuẩn bị môi trường lập trình
+Đảm bảo máy tính của bạn đã được cài đặt sẵn các công cụ sau:
+*   **Java JDK 21 hoặc cao hơn** (Khuyên dùng [Adoptium Temurin OpenJDK 21](https://adoptium.net/))
+*   **Apache Maven 3.8 hoặc cao hơn**
+*   **Hệ quản trị CSDL Oracle Database** (Hỗ trợ tốt nhất từ bản Oracle XE 11g, 12c, 19c đến 21c)
 
-*   **Cách 1 (Dòng lệnh):** Sử dụng **SQL*Plus** hoặc **SQLcl**:
+---
+
+### 2️⃣ Bước 2: Thiết lập Cơ sở dữ liệu (Oracle DB)
+Dự án đã tích hợp sẵn tập lệnh cài đặt tự động toàn bộ cấu trúc bảng, dữ liệu mẫu, hàm, trigger và thủ tục lưu trữ theo đúng trình tự liên kết.
+
+*   **Cách 1: Sử dụng giao diện đồ họa (Khuyên dùng SQL Developer)**
+    1. Mở công cụ **Oracle SQL Developer** và kết nối tới Database của bạn.
+    2. Kéo thả file `database/install.sql` (nằm ở thư mục gốc của dự án) vào vùng làm việc.
+    3. Nhấn phím **F5** (hoặc chọn biểu tượng *Run Script*) để tiến hành cài đặt tự động.
+*   **Cách 2: Sử dụng dòng lệnh (Command Line - SQL*Plus / SQLcl)**
     ```bash
     sql USERNAME/PASSWORD@localhost:1521/XEPDB1 @database/install.sql
     ```
-*   **Cách 2 (Giao diện):** Mở **Oracle SQL Developer**, kéo file `database/install.sql` vào và nhấn phím **F5** (chạy script).
-
-> *Script này tự động khởi tạo Bảng -> Ràng buộc -> Function -> Trigger -> Stored Procedure -> View -> Nạp dữ liệu mẫu demo.*
-
-#### 4. Biên dịch và Khởi chạy
-Mở Terminal/PowerShell tại thư mục gốc của dự án và chạy các lệnh:
-
-```bash
-# Bước A: Dọn dẹp và đóng gói dự án (bỏ qua chạy thử nghiệm để build nhanh hơn)
-mvn clean package -DskipTests
-
-# Bước B: Chạy ứng dụng JavaFX
-mvn javafx:run
-```
-*(Nếu terminal Windows hiển thị sai mã hóa font chữ tiếng Việt, vui lòng chạy: `mvn javafx:run -Dfile.encoding=UTF-8`)*
+> ℹ️ *Tập lệnh `install.sql` sẽ tự động thực hiện: Khởi tạo bảng dữ liệu $\rightarrow$ Áp dụng ràng buộc $\rightarrow$ Tạo các Functions $\rightarrow$ Cài đặt Triggers $\rightarrow$ Biên dịch Stored Procedures $\rightarrow$ Tạo Views báo cáo $\rightarrow$ Đổ dữ liệu mẫu (Seeding).*
 
 ---
 
-### 👤 Tài khoản kiểm thử (Demo Account)
-Dữ liệu mẫu cài đặt sẵn tài khoản có đầy đủ quyền quản trị để bạn dễ dàng chấm bài:
+### 3️⃣ Bước 3: Cấu hình kết nối dữ liệu cho Ứng dụng
+Tạo tệp cấu hình kết nối database cục bộ cho dự án:
 
-*   **Tài khoản:** `khoa`
-*   **Mật khẩu:** `0710006`
-*   **Vai trò:** **Quản lý (Manager)** - Có toàn quyền truy cập toàn bộ chức năng hệ thống (POS, Kho, Nhân sự, Bếp, Tài chính).
-> 💡 *Bạn có thể vào module **"Nhân sự và phân quyền"** để tạo thêm các tài khoản Thu ngân, Thủ kho hoặc Đầu bếp mới tùy ý.*
+1. Tạo mới một tệp tin có tên là **`application.properties`** tại đường dẫn chính xác sau:
+   `src/main/resources/application.properties`
+2. Nhập các thông tin kết nối CSDL Oracle của bạn vào tệp tin vừa tạo:
+   ```properties
+   db.url=jdbc:oracle:thin:@localhost:1521/XEPDB1
+   db.username=TÊN_TÀI_KHOẢN_ORACLE
+   db.password=MẬT_KHẨU_TÀI_KHOẢN_ORACLE
+   ```
+> ⚠️ **LƯU Ý QUAN TRỌNG:** Tệp tin `application.properties` này đã được cấu hình ẩn trong `.gitignore` để tránh bị lộ mật khẩu cá nhân lên GitHub. Bạn **bắt buộc** phải tự tay tạo tệp tin này trước khi chạy phần mềm.
 
 ---
 
-### 🗂 Cấu trúc thư mục mã nguồn
+### 4️⃣ Bước 4: Biên dịch và Khởi chạy ứng dụng
+Mở cửa sổ dòng lệnh (Terminal / Command Prompt / PowerShell) tại thư mục gốc của dự án và chạy lần lượt các lệnh sau:
+
+*   **Biên dịch và đóng gói mã nguồn (Bỏ qua chạy test để build siêu tốc):**
+    ```bash
+    mvn clean package -DskipTests
+    ```
+*   **Khởi chạy giao diện ứng dụng JavaFX:**
+    ```bash
+    mvn javafx:run
+    ```
+*   💡 **Mẹo sửa lỗi hiển thị tiếng Việt trên Terminal Windows:** Nếu chạy trên Command Prompt của Windows bị lỗi mã hóa chữ tiếng Việt, hãy thêm thuộc tính mã hóa UTF-8 khi chạy:
+    ```bash
+    mvn javafx:run -Dfile.encoding=UTF-8
+    ```
+
+---
+
+## 🔑 👤 Tài Khoản Trình Diễn (Demo Accounts)
+
+Hệ thống đã nạp sẵn bộ dữ liệu giả lập mẫu với đầy đủ các phân quyền vai trò để thuận tiện nhất cho việc chấm bài và kiểm thử toàn bộ chức năng:
+
+| Tài khoản Đăng nhập | Mật khẩu | Quyền truy cập | Phạm vi chức năng được sử dụng |
+| :--- | :--- | :--- | :--- |
+| **`khoa`** | `0710006` | **Quản lý (Manager)** | **Toàn quyền hệ thống** (POS, Kho, Nhân sự, Tài chính, Bếp) |
+| **`thu_ngan`** | `123456` | **Thu ngân (Cashier)** | Lập hóa đơn bán lẻ tại quầy, quản lý đơn hàng |
+| **`thu_kho`** | `123456` | **Thủ kho (Warehouse)** | Nhập/Xuất nguyên liệu, Thẻ kho, Kiểm kho, Nhà cung cấp |
+| **`dau_bep`** | `123456` | **Đầu bếp (Chef/KDS)** | Tiếp nhận yêu cầu làm bánh tại bếp, cập nhật trạng thái chế biến |
+
+---
+
+## 🗂️ 📂 Cấu Trúc Tổ Chức Thư Mục
+
+Cấu trúc thư mục được tổ chức theo chuẩn kiến trúc sạch, hỗ trợ phát triển theo mô hình MVP:
+
 ```text
 IS-System-Development/
-├── database/                    <-- Kịch bản SQL cài đặt CSDL Oracle
-│   ├── install.sql              <-- Script tổng chạy 1 lần duy nhất
-│   └── [01-06]_.../             <-- Chia chi tiết các đối tượng DB
-├── src/main/java/com/bakery/    <-- Source code Java theo chuẩn MVP
-│   ├── views/                   <-- Tầng giao diện và Controller FXML
-│   ├── presenters/              <-- Tầng điều phối logic
-│   ├── services/                <-- Tầng nghiệp vụ xử lý logic
-│   └── model/                   <-- Tầng dữ liệu (DAO tương tác DB, DTO POJO)
-├── src/main/resources/          <-- Tài nguyên FXML, CSS và hình ảnh
-├── pom.xml                      <-- File quản lý thư viện Maven
-└── README.md                    <-- Hướng dẫn này
-```
-
----
----
-
-## 🇬🇧 English
-
-### ✨ Short Introduction
-**H3K Bakery Management System** is a professional desktop application designed using the standard **MVP (Model - View - Presenter)** architecture. Built with **Java 21**, **JavaFX 21** for a fluid GUI, and connected to **Oracle Database 19c+** through optimized Stored Procedures.
-
-The system handles retail sales (POS), kitchen queue dispatching (KDS), warehouse inventory lot tracking, and staff attendance.
-
----
-
-### 🚀 Installation Guide
-
-#### 1. Prerequisites
-*   **Java JDK 21+** ([Adoptium Temurin](https://adoptium.net/))
-*   **Apache Maven 3.8+**
-*   **Oracle Database 19c+**
-
-#### 2. Database Connection Configuration
-Create a new file **`application.properties`** at:
-`src/main/resources/application.properties`
-
-Add your Oracle credentials:
-```properties
-db.url=jdbc:oracle:thin:@localhost:1521/XEPDB1
-db.username=YOUR_ORACLE_USERNAME
-db.password=YOUR_ORACLE_PASSWORD
-```
-
-#### 3. Run Database Script
-*   **Option 1 (CLI):** Execute via **SQL*Plus** or **SQLcl**:
-    ```bash
-    sql USERNAME/PASSWORD@localhost:1521/XEPDB1 @database/install.sql
-    ```
-*   **Option 2 (GUI):** Open `database/install.sql` in **Oracle SQL Developer** and press **F5**.
-
-#### 4. Build & Run
-Run the following commands in the project root folder:
-
-```bash
-mvn clean package -DskipTests
-mvn javafx:run
+├── database/                    <-- Tập lệnh cài đặt CSDL Oracle 12c+
+│   ├── install.sql              <-- Script tổng cài đặt tự động toàn bộ CSDL
+│   ├── 01_tables/               <-- Khởi tạo cấu trúc bảng dữ liệu
+│   ├── 02_constraints/          <-- Định nghĩa khóa ngoại, ràng buộc check
+│   ├── 03_functions/            <-- Các hàm tính toán số liệu
+│   ├── 04_triggers/             <-- Tự động hóa cập nhật logic ngầm (Kho, chấm công)
+│   ├── 05_procedures/           <-- Thủ tục nghiệp vụ CUD bảo mật
+│   └── 06_views/                <-- Views kết xuất dữ liệu thống kê báo cáo
+├── src/main/java/com/bakery/    <-- Mã nguồn Java chính của ứng dụng
+│   ├── main/                    <-- Lớp chạy ứng dụng (App.java)
+│   ├── model/                   <-- Tầng lưu trữ dữ liệu (DAO kết nối CSDL, DTO thuần)
+│   ├── presenters/              <-- Tầng Presenter điều hướng & trung chuyển
+│   ├── services/                <-- Tầng nghiệp vụ xử lý logic độc lập
+│   ├── utils/                   <-- Tiện ích dùng chung (Kết nối DB, tạo QR, mã hóa)
+│   └── views/                   <-- Tầng View (Controllers của FXML và các Interfaces)
+├── src/main/resources/          <-- Nơi chứa FXML, CSS và hình ảnh tài nguyên
+├── pom.xml                      <-- Quản lý dependencies thư viện của Maven
+└── README.md                    <-- Tài liệu hướng dẫn sử dụng này
 ```
 
 ---
 
-### 👤 Demo Account
-The database seeding includes a manager account with all administrative privileges:
+## 🛡️ 🛠️ Các Lỗi Thường Gặp & Cách Khắc Phục (Troubleshooting)
 
-*   **Username:** `khoa`
-*   **Password:** `0710006`
-*   **Role:** **Manager** (Full access to POS, Warehouse, HR, Kitchen, Financials).
+*   **Lỗi `Connection Refused` hoặc không tìm thấy CSDL:**
+    *   *Khắc phục:* Kiểm tra xem dịch vụ Oracle Service (ví dụ: `OracleServiceXE` hoặc listener `OracleOraDB19Home1TNSListener`) trên máy của bạn đã được bật (Running) chưa. Kiểm tra lại cổng `1521` và tên cổng SID/Service Name (thông thường là `XEPDB1` hoặc `XE`) trong tệp cấu hình `application.properties`.
+*   **Lỗi giao diện bị lỗi font chữ hoặc vỡ bố cục:**
+    *   *Khắc phục:* Hệ thống yêu cầu JDK 21+ để hỗ trợ render hoàn hảo các CSS Class Amber hiện đại. Hãy đảm bảo bạn không vô tình chạy bằng JDK 8 hoặc JDK 11 cũ.
 
 ---
 
 <div align="center">
 
-### 🏆 H3K Team
-Made with ❤️ by **H3K Team** · *IS-System-Development* · 2026
+### 🏆 Đội Ngũ Phát Triển H3K
+Được thực hiện với tất cả tâm huyết và sự chỉn chu bởi **H3K Team**
+*Dự án thuộc Học phần Phát triển Hệ thống Thông tin — Năm học 2026*
 
 </div>
