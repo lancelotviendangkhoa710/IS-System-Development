@@ -119,7 +119,7 @@
         -- [DELAY] Tạo thời gian để:
         -- • NRR demo: Quản lý kịp UPDATE giá + COMMIT ở session khác
         -- • Lost Update demo: Thu ngân 2 kịp bắt đầu procedure
-        DBMS_SESSION.SLEEP(6);
+        DBMS_SESSION.SLEEP(3);
 
         -- [DEMO Non-repeatable Read] Đọc lại GIABAN sau delay → GHI ĐÈ V_TAB(I).DONGIA
         -- • READ COMMITTED: đọc giá MỚI → INSERT giá mới → BUG NRR hiện trong đơn
@@ -164,7 +164,7 @@
             END IF;
         END LOOP;
         PKG_ERROR_CODES.G_SKIP_STOCK_TRIGGER := FALSE;
-        DBMS_SESSION.SLEEP(5);
+        DBMS_SESSION.SLEEP(2);
 
         FOR I IN 1..V_TAB.COUNT LOOP
             IF LOWER(NVL(V_TAB(I).IS_CUSTOM, 'false')) = 'false' THEN

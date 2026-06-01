@@ -388,14 +388,18 @@ public class DonHangPresenter {
                     com.bakery.utils.DialogHelper.applyBakeryTheme(alert);
                     alert.showAndWait();
                 });
-            } else if (msgLower.contains("het hang") || msgLower.contains("mua truoc") || msgLower.contains("ck_sp_soluongton")
-                    || msgLower.contains("soluongton") || msgLower.contains("ora-08177") || msgLower.contains("serialize") || msgLower.contains("xung đột")) {
+            } else if (msgLower.contains("het hang") || msgLower.contains("mua truoc")
+                    || msgLower.contains("ck_sp_soluongton")
+                    || msgLower.contains("soluongton") || msgLower.contains("ora-08177")
+                    || msgLower.contains("serialize") || msgLower.contains("xung đột")) {
                 // Lỗi hết hàng đồng thời hoặc vi phạm ràng buộc tồn kho
                 javafx.application.Platform.runLater(() -> {
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                             javafx.scene.control.Alert.AlertType.WARNING);
-                    alert.setTitle(msgLower.contains("xung đột") || msgLower.contains("ora-08177") || msgLower.contains("serialize")
-                            ? "⚠ Xung đột dữ liệu đồng thời" : "⚠ Cảnh báo tồn kho");
+                    alert.setTitle(msgLower.contains("xung đột") || msgLower.contains("ora-08177")
+                            || msgLower.contains("serialize")
+                                    ? "⚠ Xung đột dữ liệu đồng thời"
+                                    : "⚠ Cảnh báo tồn kho");
                     alert.setHeaderText("Không thể hoàn tất giao dịch");
                     alert.setContentText(msg.replace("San pham", "Sản phẩm")
                             .replace("da het hang", "đã hết hàng")
@@ -722,30 +726,16 @@ public class DonHangPresenter {
         timKiemDonTheoDoi(maDonSearch, tenKhachSearch, ngayNhan, gioTu, gioDen, "NOT_COMPLETED");
     }
 
-    /**
-     * Refresh lại kết quả tìm kiếm cuối cùng — dùng cho auto-refresh timer.
-     * Không đọc lại UI state, tránh bug trắng màn khi DatePicker trống.
-     */
     public void refreshLastSearch() {
         timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
                 lastSearchTu, lastSearchDen, lastSearchTrangThai);
     }
 
-    /**
-     * Tải danh sách đơn lần đầu khi màn hình được gắn vào scene.
-     * Gọi bởi controller trong sceneProperty listener để đảm bảo lastSearch* đã
-     * được khoi tao.
-     */
     public void taiDonLanDau() {
         timKiemDonTheoDoi(lastSearchMaDon, lastSearchTenKhach, lastSearchNgay,
                 lastSearchTu, lastSearchDen, lastSearchTrangThai);
     }
 
-    /**
-     * Tải danh sách đơn có bánh tùy chỉnh chưa hoàn thành/hủy — dùng cho màn hình
-     * bếp.
-     * Không phụ thuộc vào bộ lọc ngày/trạng thái của user.
-     */
     public void taiDonBepTuyChinhChuaHoanThanh() {
         try {
             List<DonDatHangDTO> dsDon = orderService.layDonBepCoTuyChinhChuaHoanThanh();
